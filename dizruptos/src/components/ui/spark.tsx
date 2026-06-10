@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import {
   Area,
   AreaChart,
@@ -16,7 +17,9 @@ export function SparkArea({
   color?: string;
 }) {
   const rows = data.map((v, i) => ({ i, v }));
-  const id = `sg-${color.replace("#", "")}`;
+  // useId guarantees gradient defs never collide when multiple same-color
+  // sparklines share a view.
+  const id = `sg-${useId().replace(/[:]/g, "")}`;
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={rows} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>

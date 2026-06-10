@@ -10,7 +10,11 @@ execution, organizational memory, and AI-agent collaboration. Built from
 npm install
 npm run dev       # http://localhost:3000
 npm run build     # production build (all routes verified)
+npm test          # vitest — 22 tests pinning the product laws
 ```
+
+> Continuation manual: see [`../MASTER_EXECUTION_PLAN.md`](../MASTER_EXECUTION_PLAN.md)
+> — full architecture, catalogs, debt register, and version-by-version roadmap.
 
 ## Stack
 
