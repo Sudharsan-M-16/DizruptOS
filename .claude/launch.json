@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dizruptos",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "dizruptos", "run", "dev"],
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}

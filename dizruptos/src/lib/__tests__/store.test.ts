@@ -1,0 +1,85 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import { useOps } from "../store";
+import { employeeById } from "../data";
+
+// The store is the in-memory twin of the PRD's mutation laws. These tests pin:
+// guardrail at ≥100%, atomic delta math, audit completeness, agent execution
+// through the same path, and rejection memory semantics.
+
+const initial = useOps.getState();
+
+beforeEach(() => {
+  useOps.setState(initial, true);
+});
+
+const util = (empId: string, week: string) => useOps.getState().utilization(empId, week);
+
+describe("hard-stop capacity guardrail (PRD §3.3)", () => {
+  it("a drop projecting ≥100% parks in pendingDrop instead of applying", () => {
+    // t-1 is Sarah's 14h runbook task in week 2026-06-08.
+    // Jonas is at 30/40 = 75%; +14h → 110% → guardrail must trip.
+    const before = util("u-jonas", "2026-06-08");
+    useOps.getState().requestReallocate("t-1", "u-jonas");
+    const s = useOps.getState();
+    expect(s.pendingDrop).not.toBeNull();
+    expect(s.pendingDrop!.projectedPct).toBeGreaterThanOrEqual(1);
+    expect(util("u-jonas", "2026-06-08")).toBe(before); // nothing applied
+  });
+
+  it("cancel rolls back cleanly", () => {
+    useOps.getState().requestReallocate("t-1", "u-jonas");
+    useOps.getState().cancelReallocate();
+    expect(useOps.getState().pendingDrop).toBeNull();
+  });
+
+  it("override applies the move and writes the reason to audit", () => {
+    const auditBefore = useOps.getState().audit.length;
+    useOps.getState().requestReallocate("t-1", "u-jonas");
+    useOps.getState().confirmReallocate("Release-gating: cannot slip code freeze");
+    const s = useOps.getState();
+    expect(s.tasks.find((t) => t.id === "t-1")!.assigneeId).toBe("u-jonas");
+    expect(s.audit.length).toBe(auditBefore + 1);
+    expect(s.audit[0].actionType).toBe("capacity_override");
+    expect(s.audit[0].overrideReason).toContain("code freeze");
+  });
+});
+
+describe("atomic capacity deltas (architecture law 6)", () => {
+  it("moves hours as ±delta on both sides, never overwrites", () => {
+    // t-10 is Sarah's 9h PCI task. Ahmed 26/40 = 65% → 35/40 = 87.5%.
+    const sarahBefore = useOps.getState().allocated("u-sarah", "2026-06-15");
+    const ahmedBefore = useOps.getState().allocated("u-ahmed", "2026-06-15");
+    useOps.getState().requestReallocate("t-10", "u-ahmed"); // 87.5% < 100% → auto-confirms
+    const s = useOps.getState();
+    expect(s.pendingDrop).toBeNull();
+    expect(s.allocated("u-sarah", "2026-06-15")).toBe(sarahBefore - 9);
+    expect(s.allocated("u-ahmed", "2026-06-15")).toBe(ahmedBefore + 9);
+  });
+
+  it("utilization derives from capacity_hours_per_week", () => {
+    const ines = employeeById("u-ines")!; // 32h/week part-time
+    expect(util("u-ines", "2026-06-08")).toBeCloseTo(26 / ines.capacityHoursPerWeek, 6);
+  });
+});
+
+describe("agent proposal review (PRD §6.7, §24)", () => {
+  it("approval executes the reallocation through the same atomic path", () => {
+    // pr-1: move t-10 (9h) Sarah → Ahmed.
+    const ahmedBefore = useOps.getState().allocated("u-ahmed", "2026-06-15");
+    useOps.getState().reviewProposal("pr-1", "approved");
+    const s = useOps.getState();
+    expect(s.proposals.find((p) => p.id === "pr-1")!.status).toBe("approved");
+    expect(s.tasks.find((t) => t.id === "t-10")!.assigneeId).toBe("u-ahmed");
+    expect(s.allocated("u-ahmed", "2026-06-15")).toBe(ahmedBefore + 9);
+    expect(s.audit[0].actionType).toBe("proposal_approved");
+  });
+
+  it("rejection records agent memory in the audit trail without mutating work", () => {
+    const taskBefore = useOps.getState().tasks.find((t) => t.id === "t-10")!.assigneeId;
+    useOps.getState().reviewProposal("pr-1", "rejected");
+    const s = useOps.getState();
+    expect(s.proposals.find((p) => p.id === "pr-1")!.status).toBe("rejected");
+    expect(s.tasks.find((t) => t.id === "t-10")!.assigneeId).toBe(taskBefore);
+    expect(s.audit[0].detail).toContain("30 days");
+  });
+});

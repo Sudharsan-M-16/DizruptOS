@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ themes */
+/* RGB triplets so Tailwind alpha modifiers (e.g. bg-ink/75) keep working.   */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ink: 10 10 15; /* #0A0A0F page background */
+  --ink-surface: 17 17 24; /* #111118 cards, panels */
+  --ink-elevated: 26 26 37; /* #1A1A25 modals, dropdowns */
+  --ink-raised: 32 32 46; /* #20202E */
+
+  --line-subtle: 34 34 47; /* #22222F */
+  --line: 42 42 58; /* #2A2A3A */
+  --line-strong: 58 58 78; /* #3A3A4E */
+
+  --fg: 248 249 250; /* #F8F9FA */
+  --fg-secondary: 156 163 175; /* #9CA3AF */
+  --fg-muted: 107 114 128; /* #6B7280 */
+  --fg-faint: 75 85 99; /* #4B5563 */
+
+  --shadow-card: 0 0 0 1px rgba(99, 102, 241, 0.07), 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 0 0 1px rgba(42, 42, 58, 0.9), 0 16px 48px rgba(0, 0, 0, 0.65);
+
+  --bg-glow-a: rgba(99, 102, 241, 0.07);
+  --bg-glow-b: rgba(139, 92, 246, 0.05);
+  --grain-opacity: 0.025;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --ink: 244 244 248;
+  --ink-surface: 255 255 255;
+  --ink-elevated: 247 247 251;
+  --ink-raised: 238 238 245;
+
+  --line-subtle: 230 230 238;
+  --line: 218 218 230;
+  --line-strong: 198 198 214;
+
+  --fg: 23 23 31;
+  --fg-secondary: 71 80 96;
+  --fg-muted: 113 120 134;
+  --fg-faint: 158 163 175;
+
+  --shadow-card: 0 0 0 1px rgba(99, 102, 241, 0.06), 0 2px 12px rgba(20, 20, 40, 0.07);
+  --shadow-card-hover: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 6px 24px rgba(20, 20, 40, 0.12);
+  --shadow-pop: 0 0 0 1px rgba(210, 210, 226, 0.9), 0 16px 48px rgba(20, 20, 40, 0.18);
+
+  --bg-glow-a: rgba(99, 102, 241, 0.06);
+  --bg-glow-b: rgba(139, 92, 246, 0.04);
+  --grain-opacity: 0.015;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink text-fg antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%, var(--bg-glow-a), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, var(--bg-glow-b), transparent 55%);
+  background-attachment: fixed;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  transition: background-color 0.2s ease;
+}
+
+/* faint grain — command-center texture, kept below perception threshold */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgb(var(--line));
+  border-radius: 8px;
+  border: 2px solid rgb(var(--ink));
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--line-strong));
+}
+
+/* Reduced motion: collapse decorative animation, keep state changes instant */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-card border border-line bg-ink-surface shadow-card;
+  }
+  .panel-hover {
+    @apply transition-all duration-150 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-card-hover;
+  }
+  .label-xs {
+    @apply text-2xs font-medium uppercase tracking-[0.12em] text-fg-muted;
+  }
+  .kbd {
+    @apply inline-flex h-5 min-w-5 items-center justify-center rounded border border-line bg-ink-elevated px-1.5 font-mono text-2xs text-fg-secondary;
+  }
+}
+
+/* React Flow dark restyle */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__edge-path {
+  stroke: rgb(var(--line-strong));
+}
+.react-flow__edge.animated path {
+  stroke: #6366f1;
+}
