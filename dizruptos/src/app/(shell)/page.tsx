@@ -5,7 +5,15 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Flame, Inbox, OctagonAlert } from "lucide-react";
+import {
+  ArrowRight,
+  Crosshair,
+  Flame,
+  Inbox,
+  OctagonAlert,
+  Zap,
+} from "lucide-react";
+import { CriticalFrame, NumberTicker } from "@/components/ui/ascension";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
 import {
@@ -53,15 +61,71 @@ export default function CommandCenter() {
   const pending = proposals.filter((p) => p.status === "pending");
   const overdueCommitments = commitments.filter((c) => c.status === "overdue");
 
+  // The operator queue: the three highest-leverage actions, computed from
+  // live state, each one click from resolution. This is the screen's answer
+  // to "what matters right now?"
+  const compromise = pending.find((p) => p.conflict);
+  const worstOverload = overloaded.sort(
+    (a, b) => utilization(b.id, week) - utilization(a.id, week)
+  )[0];
+
   return (
     <div className="space-y-6">
+      {/* Situation banner — the single most important thing, framed once */}
+      <motion.section custom={0} initial="hidden" animate="show" variants={stagger}>
+        <CriticalFrame tone="danger">
+          <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2">
+                  <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-danger opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-danger" />
+                </span>
+                <span className="label-xs text-danger">Situation · right now</span>
+              </div>
+              <h2 className="mt-1.5 font-display text-[17px] font-semibold leading-snug tracking-tight">
+                Atlas Payments Migration is CRITICAL —{" "}
+                <span className="text-danger">$4.2M ARR exposed</span>
+              </h2>
+              <p className="mt-1 text-2xs leading-relaxed text-fg-secondary">
+                7 tasks overdue · QA at 112% · velocity −38% vs 3-sprint average ·
+                vendor settlement file 8 days late. The negotiation coordinator has a
+                compromise staged.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col xl:flex-row">
+              {compromise && (
+                <Link href="/proposals">
+                  <Button className="w-full">
+                    <Zap size={12} /> Review compromise
+                  </Button>
+                </Link>
+              )}
+              {worstOverload && (
+                <Link href="/capacity">
+                  <Button variant="secondary" className="w-full">
+                    <Flame size={12} /> Relieve {worstOverload.name.split(" ")[0]} ·{" "}
+                    {fmtPct(utilization(worstOverload.id, week))}
+                  </Button>
+                </Link>
+              )}
+              <Link href="/projects/p-atlas">
+                <Button variant="secondary" className="w-full">
+                  <Crosshair size={12} /> Open Atlas
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </CriticalFrame>
+      </motion.section>
+
       {/* Metric row */}
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {[
           <MetricTile
             key="m1"
             label="Over-allocation rate"
-            value={fmtPct(overRate)}
+            value={<NumberTicker value={Math.round(overRate * 100)} suffix="%" />}
             delta="−9 pts vs last week"
             deltaGood
             explanation={`${overloaded.length} of ${active.length} active people at ≥100% this week. Target < 10%.`}
@@ -86,7 +150,7 @@ export default function CommandCenter() {
           <MetricTile
             key="m3"
             label="Agent proposals pending"
-            value={`${pending.length}`}
+            value={<NumberTicker value={pending.length} />}
             explanation="Negotiation coordinator already merged 1 burnout/delivery conflict into a single compromise card."
             signals={pending.map((p) => `${p.title} (${Math.round(p.confidence * 100)}% confidence)`)}
             spark={<SparkBars data={[2, 4, 3, 5, 4, pending.length]} color="#6366F1" />}
@@ -94,7 +158,7 @@ export default function CommandCenter() {
           <MetricTile
             key="m4"
             label="Commitments overdue"
-            value={`${overdueCommitments.length}`}
+            value={<NumberTicker value={overdueCommitments.length} />}
             explanation="Promises by named people — tracked separately from tasks. Oldest: vendor spec sign-off, due Jun 9."
             signals={commitments.map(
               (c) =>

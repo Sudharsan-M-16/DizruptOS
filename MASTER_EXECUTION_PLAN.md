@@ -9,7 +9,8 @@
 > **Repo root:** `C:\Users\sudha\DizruptOS` (git; CI in `.github/workflows/ci.yml`)
 > **App:** `dizruptos/` — Next.js 14 App Router · TypeScript · Tailwind
 > **Companion docs in repo:** `CONTRIBUTING.md` (mechanics), `DIZRUPT_Supreme_PRD_v3.md` + `dizruptos-ui-inspiration.md` (originals, versioned but no longer required)
-> **Status date:** June 2026 · Titan sprint complete
+> **Status date:** June 2026 · Titan + Frontend Ascension sprints complete
+> **Design & motion system reference:** `FRONTEND_ASCENSION_REVIEW.md`
 
 ---
 
@@ -74,7 +75,7 @@ badge.
 
 | Area | State | Grade |
 |---|---|---|
-| Frontend surfaces & design system | 16 routes, dual theme, tokenized, motion language, verified | 9.5 |
+| Frontend surfaces & design system | 16 routes, dual theme, tokenized, three-tier motion architecture, signature components, verified | 9.8 |
 | Product architecture | Laws encoded in shared libs, pinned by tests | 9.5 |
 | Domain modeling | 17 entities typed; mirrors production schema | 9.5 |
 | Graph architecture | Closed registry, traversal, cycle detection, blast radius, bus factor — tested | 9.5 |
@@ -148,6 +149,32 @@ DizruptOS/
 shaped exactly like the production system (same field names as the SQL schema,
 same mutation semantics as the `reallocate_task` RPC). Backend integration is
 substitution at marked swap points, never restructuring of pages.
+
+## 4b. Design & Motion Architecture (binding)
+
+Full reference with rationale and critique record: `FRONTEND_ASCENSION_REVIEW.md`.
+The rules that bind every UI change:
+
+- **Motion is a three-tier system** (`src/lib/motion.ts`): T1 ambient (route
+  entrances via `app/(shell)/template.tsx` — free for every new route),
+  T2 structural (exactly two springs: 380/36, 500/34), T3 signal (critical
+  pulses, guardrail trips). A new animation must name its tier. All tiers
+  collapse under `prefers-reduced-motion`.
+- **Signature components** (`src/components/ui/ascension.tsx`):
+  `NumberTicker` for decision numbers, `CriticalFrame` (animated gradient
+  border — budget **one per view**), `AuroraBackdrop` (login only — cinema is
+  a spice). Exceeding these budgets is a design regression.
+- **Hierarchy of attention** on dashboards: situation banner → metric tiles →
+  work queues → feeds. Every dashboard must answer "what matters right now?"
+  before the first scroll, with computed one-click actions.
+- **Tables**: sticky headers (`table-sticky`, docks under the 56px topbar);
+  density scrolls horizontally below its minimum width — never compresses
+  (`min-w` on dense matrices).
+- **Graph**: hover ignites connected edges and recedes the rest (12% opacity);
+  edge width ∝ strength; `·~` marks inferred edges; minimap always on.
+- Tokens/type/surfaces/spacing and the per-screen restraint budgets are
+  specified in `FRONTEND_ASCENSION_REVIEW.md` §3 — read it before styling
+  anything.
 
 ## 5. Target Infrastructure (build toward, never deviate)
 

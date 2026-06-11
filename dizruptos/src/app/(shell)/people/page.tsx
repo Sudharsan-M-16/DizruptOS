@@ -173,7 +173,7 @@ export default function PeoplePage() {
       </div>
 
       <div className="panel overflow-x-auto">
-        <table className="w-full text-left">
+        <table className="table-sticky w-full text-left">
           <thead>
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id} className="border-b border-line-subtle bg-ink-elevated/40">

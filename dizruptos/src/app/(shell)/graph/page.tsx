@@ -10,6 +10,7 @@ import {
   Background,
   Controls,
   Handle,
+  MiniMap,
   Position,
   ReactFlow,
   type Edge,
@@ -93,6 +94,10 @@ const NODE_META: Record<string, { x: number; y: number } & GraphData> = {
 };
 
 export default function GraphPage() {
+  // Relationship exploration: hovering a node ignites its edges and recedes
+  // everything else — motion communicating connection, not decoration.
+  const [hoveredId, setHoveredId] = React.useState<string | null>(null);
+
   const { nodes, edges, blastRadius, busFactor } = React.useMemo(() => {
     // Bus factor: how concentrated is payments expertise?
     const conc = expertiseConcentration(relationships, "cap-payments");
@@ -139,6 +144,30 @@ export default function GraphPage() {
     return { nodes, edges, blastRadius: blastIds.size, busFactor: top };
   }, []);
 
+  // Hover emphasis layer — recompute edge styling without touching node
+  // positions (nodes stay uncontrolled so dragging keeps working).
+  const displayEdges = React.useMemo(() => {
+    if (!hoveredId) return edges;
+    return edges.map((e) => {
+      const connected = e.source === hoveredId || e.target === hoveredId;
+      return {
+        ...e,
+        animated: connected,
+        style: {
+          ...e.style,
+          stroke: connected ? "#6366F1" : (e.style?.stroke as string),
+          strokeWidth: connected ? 2.5 : 1,
+          opacity: connected ? 1 : 0.12,
+          transition: "opacity 0.2s ease, stroke 0.2s ease",
+        },
+        labelStyle: {
+          ...e.labelStyle,
+          opacity: connected ? 1 : 0.15,
+        },
+      };
+    });
+  }, [edges, hoveredId]);
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3 text-2xs text-fg-muted">
@@ -156,8 +185,10 @@ export default function GraphPage() {
       <div className="panel h-[620px] overflow-hidden">
         <ReactFlow
           defaultNodes={nodes}
-          defaultEdges={edges}
+          edges={displayEdges}
           nodeTypes={nodeTypes}
+          onNodeMouseEnter={(_, node) => setHoveredId(node.id)}
+          onNodeMouseLeave={() => setHoveredId(null)}
           fitView
           fitViewOptions={{ padding: 0.18 }}
           proOptions={{ hideAttribution: true }}
@@ -168,6 +199,14 @@ export default function GraphPage() {
           <Controls
             showInteractive={false}
             className="!rounded-lg !border !border-line !bg-ink-elevated !shadow-card [&>button]:!border-line [&>button]:!bg-ink-elevated [&_svg]:!fill-fg-secondary"
+          />
+          <MiniMap
+            pannable
+            zoomable
+            className="!h-28 !w-44 !rounded-lg !border !border-line !bg-ink-elevated"
+            maskColor="rgba(10,10,15,0.55)"
+            nodeColor={() => "#6366F1"}
+            nodeStrokeColor={() => "transparent"}
           />
         </ReactFlow>
       </div>

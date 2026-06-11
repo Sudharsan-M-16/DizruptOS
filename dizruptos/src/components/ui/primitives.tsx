@@ -250,7 +250,7 @@ export function MetricTile({
   className,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   delta?: string;
   deltaGood?: boolean;
   explanation: string;

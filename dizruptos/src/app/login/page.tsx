@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Fingerprint, Lock, ShieldCheck } from "lucide-react";
 import { PERSONAS, useSession } from "@/lib/session";
 import { Button, EmpAvatar } from "@/components/ui/primitives";
+import { AuroraBackdrop } from "@/components/ui/ascension";
 import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
@@ -46,7 +47,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative z-10 flex min-h-screen items-center justify-center p-6">
+    <div className="relative z-10 flex min-h-screen items-center justify-center overflow-hidden p-6">
+      <AuroraBackdrop />
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,7 +59,7 @@ export default function LoginPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-brand-secondary shadow-glow">
             <span className="font-display text-xl font-bold text-white">D</span>
           </div>
-          <h1 className="mt-4 font-display text-xl font-bold tracking-tight">
+          <h1 className="mt-4 bg-gradient-to-r from-fg via-brand-secondary to-fg bg-clip-text font-display text-2xl font-bold tracking-tight text-transparent">
             DIZRUPT
           </h1>
           <p className="mt-1 text-xs text-fg-muted">

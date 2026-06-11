@@ -64,7 +64,7 @@ export default function AuditPage() {
       </div>
 
       <div className="panel overflow-hidden">
-        <table className="w-full text-left">
+        <table className="table-sticky w-full text-left">
           <thead>
             <tr className="border-b border-line-subtle bg-ink-elevated/40">
               {["Time", "Actor", "Action", "Entity", "Detail"].map((h) => (

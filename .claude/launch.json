@@ -5,7 +5,7 @@
       "name": "dizruptos",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "dizruptos", "run", "dev"],
-      "port": 3000,
+      "port": 5175,
       "autoPort": true
     }
   ]

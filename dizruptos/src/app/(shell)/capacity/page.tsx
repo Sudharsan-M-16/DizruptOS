@@ -15,6 +15,7 @@ import {
   Explain,
   PriorityDot,
 } from "@/components/ui/primitives";
+import { NumberTicker } from "@/components/ui/ascension";
 import { cn, fmtDate, fmtPct, utilizationTone } from "@/lib/utils";
 
 export default function CapacityPage() {
@@ -38,8 +39,44 @@ export default function CapacityPage() {
 
   const dragTask = tasks.find((t) => t.id === dragTaskId);
 
+  // Org-load summary for the visible slice — the heatmap's own headline.
+  const nowPcts = visible.map((e) => utilization(e.id, WEEKS[0]));
+  const avgLoad = nowPcts.reduce((s, p) => s + p, 0) / Math.max(1, nowPcts.length);
+  const redCount = nowPcts.filter((p) => p >= 1).length;
+  const warnCount = nowPcts.filter((p) => p >= 0.8 && p < 1).length;
+
   return (
     <div className="space-y-4">
+      {/* Org-load strip */}
+      <div className="panel flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
+        <div className="flex items-baseline gap-2">
+          <NumberTicker
+            value={Math.round(avgLoad * 100)}
+            suffix="%"
+            className="font-display text-xl font-semibold"
+          />
+          <span className="text-2xs text-fg-muted">avg load · this week</span>
+        </div>
+        <CapacityBar pct={avgLoad} className="w-44" />
+        <div className="flex items-center gap-4 text-2xs">
+          <span className="flex items-center gap-1.5 font-medium text-danger">
+            <span className="h-1.5 w-1.5 rounded-full bg-danger" />
+            {redCount} overloaded
+          </span>
+          <span className="flex items-center gap-1.5 font-medium text-warn">
+            <span className="h-1.5 w-1.5 rounded-full bg-warn" />
+            {warnCount} near limit
+          </span>
+          <span className="flex items-center gap-1.5 font-medium text-ok">
+            <span className="h-1.5 w-1.5 rounded-full bg-ok" />
+            {visible.length - redCount - warnCount} healthy
+          </span>
+        </div>
+        <span className="ml-auto hidden text-2xs text-fg-muted md:block">
+          Drag any chip onto a green row — both bars update in &lt;50ms
+        </span>
+      </div>
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
         {[{ id: "all", name: "All departments" }, ...departments].map((d) => (
@@ -66,8 +103,9 @@ export default function CapacityPage() {
         </div>
       </div>
 
-      {/* Matrix */}
-      <div className="panel overflow-hidden">
+      {/* Matrix — scrolls horizontally below 1080px; density never collapses */}
+      <div className="panel overflow-x-auto">
+       <div className="min-w-[1080px]">
         {/* Week header */}
         <div className="grid grid-cols-[220px_1fr] border-b border-line-subtle bg-ink-elevated/40">
           <div className="label-xs px-4 py-2.5">Employee · this week</div>
@@ -169,7 +207,10 @@ export default function CapacityPage() {
                   return (
                     <div
                       key={w}
-                      className="flex flex-col justify-center gap-1.5 border-l border-line-subtle px-2 py-2"
+                      className={cn(
+                        "flex flex-col justify-center gap-1.5 border-l border-line-subtle px-2 py-2",
+                        wi === 0 && "bg-brand-soft/[0.35]"
+                      )}
                     >
                       <div className="flex items-center gap-1.5">
                         <CapacityBar pct={pct} className="flex-1" height={6} />
@@ -220,6 +261,7 @@ export default function CapacityPage() {
             </div>
           );
         })}
+       </div>
       </div>
 
       <p className="text-2xs text-fg-muted">

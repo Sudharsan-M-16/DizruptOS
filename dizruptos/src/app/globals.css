@@ -130,6 +130,91 @@ body::before {
   }
 }
 
+/* ------------------------- ascension layer (T1/T3) ------------------------- */
+
+/* Aurora — cinematic backdrop for login + executive header. GPU-only props. */
+.aurora-field {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.32;
+  will-change: transform;
+}
+.aurora-a {
+  top: -25%;
+  left: -10%;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.5), transparent 65%);
+  animation: auroraDriftA 26s ease-in-out infinite alternate;
+}
+.aurora-b {
+  bottom: -30%;
+  right: -15%;
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.4), transparent 65%);
+  animation: auroraDriftB 32s ease-in-out infinite alternate;
+}
+.aurora-sweep {
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    transparent 0deg,
+    rgba(99, 102, 241, 0.05) 90deg,
+    transparent 180deg,
+    rgba(56, 189, 248, 0.04) 270deg,
+    transparent 360deg
+  );
+  animation: auroraSpin 48s linear infinite;
+}
+@keyframes auroraDriftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(8vw, 6vh, 0) scale(1.15); }
+}
+@keyframes auroraDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to   { transform: translate3d(-6vw, -5vh, 0) scale(0.95); }
+}
+@keyframes auroraSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Gradient frame — animated border for THE critical element of a view. */
+.gradient-frame {
+  padding: 1px;
+  background-size: 300% 300%;
+  animation: frameShift 6s ease infinite;
+}
+.gradient-frame-danger {
+  background-image: linear-gradient(120deg, rgba(239,68,68,0.7), rgba(239,68,68,0.12), rgba(245,158,11,0.55), rgba(239,68,68,0.12), rgba(239,68,68,0.7));
+}
+.gradient-frame-brand {
+  background-image: linear-gradient(120deg, rgba(99,102,241,0.7), rgba(99,102,241,0.1), rgba(139,92,246,0.55), rgba(99,102,241,0.1), rgba(99,102,241,0.7));
+}
+@keyframes frameShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Crafted press feedback everywhere interactive */
+button:active:not(:disabled) {
+  transform: scale(0.985);
+}
+button {
+  transition-property: transform, background-color, border-color, color, box-shadow;
+  transition-duration: 120ms;
+}
+
+/* Sticky table headers — dense data stays oriented at scale.
+   56px = topbar height; headers dock beneath it during page scroll. */
+.table-sticky thead th {
+  position: sticky;
+  top: 56px;
+  z-index: 5;
+  background: rgb(var(--ink-surface));
+  box-shadow: inset 0 -1px 0 rgb(var(--line-subtle));
+}
+
 /* React Flow dark restyle */
 .react-flow__attribution {
   display: none;

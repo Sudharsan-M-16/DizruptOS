@@ -24,7 +24,8 @@ import {
   SectionHeader,
 } from "@/components/ui/primitives";
 import { SparkArea } from "@/components/ui/spark";
-import { cn, fmtMoney, fmtPct } from "@/lib/utils";
+import { NumberTicker } from "@/components/ui/ascension";
+import { cn, fmtPct } from "@/lib/utils";
 
 const driftSeries = [
   { w: "Apr 27", drift: 12, ohi: 78 },
@@ -42,8 +43,7 @@ export default function ExecutivePage() {
   const overRate =
     active.filter((e) => utilization(e.id, WEEKS[0]) >= 1).length / active.length;
 
-  // Revenue at risk = ARR of customers on CRITICAL projects (PRD §22.2)
-  const revenueAtRisk = 4_200_000_000_000; // $4.2M — Acme on Atlas
+  // Revenue at risk ($4.2M) = ARR of customers on CRITICAL projects (PRD §22.2)
   const burnoutRate =
     active.filter((e) => e.burnoutFlag).length / active.length;
 
@@ -52,7 +52,7 @@ export default function ExecutivePage() {
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <MetricTile
           label="Revenue at risk"
-          value={fmtMoney(revenueAtRisk)}
+          value={<NumberTicker value={4.2} prefix="$" suffix="M" decimals={1} />}
           delta="Acme Corp exposure"
           deltaGood={false}
           explanation="Σ ARR of customers linked to CRITICAL projects. Traced via Project → serves → Customer edges."
@@ -65,7 +65,7 @@ export default function ExecutivePage() {
         />
         <MetricTile
           label="Strategy drift"
-          value="23%"
+          value={<NumberTicker value={23} suffix="%" />}
           delta="+2 pts this week"
           deltaGood={false}
           explanation="Hours on work not linked to active goals ÷ total hours. 21–35% = Moderate Drift → immediate manager review."
@@ -78,7 +78,7 @@ export default function ExecutivePage() {
         />
         <MetricTile
           label="Org Health Index"
-          value="72"
+          value={<NumberTicker value={72} />}
           delta="−6 since May"
           deltaGood={false}
           explanation="Weighted: fairness 20% · manager effectiveness 25% · stability 15% · psych safety 20% · recognition 10% · meetings 10%. Target > 75."
@@ -91,7 +91,7 @@ export default function ExecutivePage() {
         />
         <MetricTile
           label="Burnout flag rate"
-          value={fmtPct(burnoutRate)}
+          value={<NumberTicker value={Math.round(burnoutRate * 100)} suffix="%" />}
           delta="target < 5%"
           deltaGood={burnoutRate < 0.05}
           explanation="Flagged ÷ active. Signals: >50h × 3 weeks, no PTO 90d+, ≥100% utilization 7d+, reassignment churn."
