@@ -8,12 +8,15 @@ import { create } from "zustand";
 import {
   auditEvents as seedAudit,
   capacity as seedCapacity,
+  employees,
   notifications as seedNotifications,
   proposals as seedProposals,
   tasks as seedTasks,
   employeeById,
 } from "./data";
+import { validateProposal } from "./ai";
 import { log } from "./logger";
+import { createChannel } from "./realtime";
 import type {
   AuditEvent,
   CapacityCell,
@@ -22,6 +25,36 @@ import type {
   Task,
   TaskStatus,
 } from "./types";
+
+/* ------------------------------ realtime sync ------------------------------ */
+// Cross-tab live sync of shared operational state. Mutations publish the new
+// slices; peer tabs apply them directly (apply ≠ publish, so no echo loops).
+// Production swap: the same publish points emit to dept-scoped Supabase
+// channels and receivers patch only the affected rows.
+
+interface SyncMessage {
+  kind: "ops_state";
+  tasks: Task[];
+  capacity: CapacityCell[];
+  proposals: Proposal[];
+  audit: AuditEvent[];
+}
+
+const syncChannel = createChannel<SyncMessage>("dizrupt-ops-sync");
+
+const publishSync = (s: {
+  tasks: Task[];
+  capacity: CapacityCell[];
+  proposals: Proposal[];
+  audit: AuditEvent[];
+}) =>
+  syncChannel.publish({
+    kind: "ops_state",
+    tasks: s.tasks,
+    capacity: s.capacity,
+    proposals: s.proposals,
+    audit: s.audit,
+  });
 
 interface PendingDrop {
   taskId: string;
@@ -99,11 +132,13 @@ export const useOps = create<OpsState>((set, get) => ({
     return get().allocated(employeeId, weekStart) / emp.capacityHoursPerWeek;
   },
 
-  moveTaskStatus: (taskId, status) =>
+  moveTaskStatus: (taskId, status) => {
     set((s) => ({
       tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status } : t)),
       lastAction: `Task moved to ${status.replace("_", " ").toLowerCase()}`,
-    })),
+    }));
+    publishSync(get());
+  },
 
   // Step 1 of the North Star flow — compute projection, trip guardrail if ≥100%
   requestReallocate: (taskId, toEmployeeId) => {
@@ -182,6 +217,7 @@ export const useOps = create<OpsState>((set, get) => ({
       pendingDrop: null,
       lastAction: `${task.estimatedHours}h moved ${fromEmp ? `from ${fromEmp.name.split(" ")[0]} ` : ""}to ${toEmp?.name.split(" ")[0]} — confirmed in 412ms`,
     });
+    publishSync(get());
   },
 
   cancelReallocate: () => set({ pendingDrop: null }),
@@ -190,6 +226,42 @@ export const useOps = create<OpsState>((set, get) => ({
     const { proposals } = get();
     const prop = proposals.find((p) => p.id === id);
     if (!prop) return;
+
+    // Decision-time re-validation (law 12): the world moves while a proposal
+    // sits in the inbox. A proposal that validated at creation can be stale
+    // at approval — execution must refuse it, not corrupt capacity.
+    if (verdict === "approved") {
+      const result = validateProposal(prop, {
+        tasks: get().tasks,
+        employees,
+        allocated: get().allocated,
+      });
+      if (!result.valid) {
+        const failed = result.checks.filter((c) => !c.pass).map((c) => c.check);
+        log.warn("proposal_stale_at_decision", { proposalId: id, failed });
+        set({
+          proposals: proposals.map((p) =>
+            p.id === id ? { ...p, status: "expired" } : p
+          ),
+          audit: [
+            {
+              id: `a-${auditSeq++}`,
+              actorId: "u-asha",
+              actorRole: "project_manager",
+              actionType: "proposal_stale",
+              entityType: "proposal",
+              entityLabel: prop.title,
+              detail: `Re-validation failed at decision time: ${failed.join("; ")}. Agent will re-evaluate next cycle.`,
+              at: new Date().toISOString(),
+            },
+            ...get().audit,
+          ],
+          lastAction: "Proposal expired — failed re-validation against live constraints",
+        });
+        publishSync(get());
+        return;
+      }
+    }
 
     // Approval executes the proposed action through the same atomic path
     if (verdict === "approved" && prop.action.kind === "reallocate" && prop.action.taskId && prop.action.toEmployeeId) {
@@ -234,5 +306,18 @@ export const useOps = create<OpsState>((set, get) => ({
       lastAction:
         verdict === "approved" ? "Proposal approved — action executed" : "Proposal rejected — agent memory updated",
     });
+    publishSync(get());
   },
 }));
+
+// Apply peer-tab mutations. Receivers never re-publish, so no echo loops.
+syncChannel.subscribe((msg) => {
+  if (msg.kind !== "ops_state") return;
+  useOps.setState({
+    tasks: msg.tasks,
+    capacity: msg.capacity,
+    proposals: msg.proposals,
+    audit: msg.audit,
+    lastAction: "Synced from another session",
+  });
+});

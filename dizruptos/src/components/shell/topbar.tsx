@@ -15,6 +15,8 @@ import {
   Zap,
 } from "lucide-react";
 import { useSession, type Theme } from "@/lib/session";
+import { startPresence } from "@/lib/realtime";
+import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn, timeAgo } from "@/lib/utils";
 import { useOps } from "@/lib/store";
@@ -34,6 +36,30 @@ const TITLES: Record<string, { title: string; hint: string }> = {
   "/graph": { title: "Dependency Graph", hint: "The organizational graph, made visible" },
   "/audit": { title: "Audit Log", hint: "Insert-only · tamper-proof · complete" },
 };
+
+/** Live peer-session counter, fed by the realtime presence heartbeat.
+ *  Today: other tabs in this browser. Production: Supabase presence on the
+ *  department channel — same component, same contract. */
+function PresenceBadge() {
+  const [peers, setPeers] = React.useState(0);
+  React.useEffect(() => {
+    const handle = startPresence("dizrupt-presence", setPeers);
+    return () => handle.stop();
+  }, []);
+  if (peers === 0) return null;
+  return (
+    <span
+      title={`${peers} other live session${peers > 1 ? "s" : ""} — changes sync instantly`}
+      className="hidden items-center gap-1.5 rounded-full border border-ok/30 bg-ok-soft px-2.5 py-1 text-2xs font-medium text-ok lg:flex"
+    >
+      <span className="relative flex h-1.5 w-1.5">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-60" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ok" />
+      </span>
+      {peers + 1} live
+    </span>
+  );
+}
 
 const THEME_ORDER: Theme[] = ["dark", "light", "system"];
 
@@ -100,6 +126,7 @@ export function Topbar() {
       </AnimatePresence>
 
       <div className="ml-auto flex items-center gap-2">
+        <PresenceBadge />
         <ThemeToggle />
         <button
           onClick={() => useSession.getState().setShortcutsOpen(true)}

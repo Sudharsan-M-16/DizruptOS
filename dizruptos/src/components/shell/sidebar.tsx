@@ -164,7 +164,8 @@ export function Sidebar() {
               ))}
               <DropdownMenu.Separator className="my-1 h-px bg-line-subtle" />
               <DropdownMenu.Item
-                onSelect={() => {
+                onSelect={async () => {
+                  await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
                   signOut();
                   router.push("/login");
                 }}

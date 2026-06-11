@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useOps } from "@/lib/store";
+import { rankCandidates } from "@/lib/ai";
 import { employeeById, employees, projectById, WEEKS } from "@/lib/data";
 import {
   Button,
@@ -36,18 +37,21 @@ export function TaskDrawer() {
   const assignee = employeeById(task?.assigneeId);
   const project = projectById(task?.projectId);
 
-  // Smart staffing shortlist — skill overlap + headroom, validated like §6.5
+  // Smart staffing shortlist (§6.5) — shared ranking with the Allocation
+  // Agent: skill match 45% + availability 55%, hard-capped by capacity.
   const candidates = React.useMemo(() => {
     if (!task) return [];
-    return employees
-      .filter((e) => e.id !== task.assigneeId && e.role !== "client" && e.role !== "executive")
-      .map((e) => {
-        const pct = utilization(e.id, task.weekStart);
-        const projected = pct + task.estimatedHours / e.capacityHoursPerWeek;
-        return { emp: e, pct, projected };
-      })
-      .sort((a, b) => a.projected - b.projected)
-      .slice(0, 4);
+    const pool = employees.filter(
+      (e) => e.role !== "client" && e.role !== "executive"
+    );
+    return rankCandidates(task, pool, (id) => utilization(id, task.weekStart))
+      .slice(0, 4)
+      .map(({ employee, projected, skillMatch }) => ({
+        emp: employee,
+        pct: utilization(employee.id, task.weekStart),
+        projected,
+        skillMatch,
+      }));
   }, [task, utilization]);
 
   return (
@@ -156,7 +160,7 @@ export function TaskDrawer() {
                   Reassign — ranked by projected load
                 </div>
                 <div className="space-y-1.5">
-                  {candidates.map(({ emp, pct, projected }) => (
+                  {candidates.map(({ emp, pct, projected, skillMatch }) => (
                     <button
                       key={emp.id}
                       onClick={() => requestReallocate(task.id, emp.id)}
@@ -165,7 +169,14 @@ export function TaskDrawer() {
                       <EmpAvatar initials={emp.initials} accent={emp.accent} size={28} />
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-medium">{emp.name}</div>
-                        <div className="text-2xs text-fg-muted">{emp.title}</div>
+                        <div className="flex items-center gap-1.5 text-2xs text-fg-muted">
+                          <span className="truncate">{emp.title}</span>
+                          {skillMatch > 0.5 && (
+                            <span className="shrink-0 rounded bg-brand-soft px-1 font-mono text-brand">
+                              match {skillMatch.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="text-right">
                         <div className="font-mono text-2xs text-fg-secondary">

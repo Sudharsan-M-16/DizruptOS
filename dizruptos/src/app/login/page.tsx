@@ -18,14 +18,31 @@ export default function LoginPage() {
   const [selected, setSelected] = React.useState(PERSONAS[0].id);
   const [submitting, setSubmitting] = React.useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const [error, setError] = React.useState<string | null>(null);
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    // Simulated auth round-trip; production swaps in POST /auth/login.
-    window.setTimeout(() => {
+    setError(null);
+    try {
+      // Real session issuance: httpOnly cookie set server-side; the edge
+      // middleware enforces it on every shell route.
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ personaId: selected }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message ?? "Sign-in failed.");
+      }
       signIn(selected);
-      router.push("/");
-    }, 450);
+      const from = new URLSearchParams(window.location.search).get("from");
+      router.push(from && from.startsWith("/") ? from : "/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign-in failed.");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -76,6 +93,12 @@ export default function LoginPage() {
               ))}
             </div>
           </div>
+
+          {error && (
+            <p role="alert" className="rounded-lg border border-danger/40 bg-danger-soft px-3 py-2 text-2xs text-danger">
+              {error}
+            </p>
+          )}
 
           <Button type="submit" disabled={submitting} className="h-10 w-full">
             {submitting ? "Establishing session…" : "Sign in"}

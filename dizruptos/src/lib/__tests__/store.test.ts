@@ -74,6 +74,29 @@ describe("agent proposal review (PRD §6.7, §24)", () => {
     expect(s.audit[0].actionType).toBe("proposal_approved");
   });
 
+  it("a stale proposal expires at decision time instead of corrupting capacity", () => {
+    // Adversarial scenario: between proposal creation and approval, Ahmed's
+    // week fills up. Approving must refuse execution (security property:
+    // approval cannot bypass the capacity guardrail).
+    const week = "2026-06-15";
+    useOps.setState({
+      capacity: useOps.getState().capacity.map((c) =>
+        c.employeeId === "u-ahmed" && c.weekStart === week
+          ? { ...c, allocatedHours: 38 } // +9h would project to 117%
+          : c
+      ),
+    });
+    const taskBefore = useOps.getState().tasks.find((t) => t.id === "t-10")!.assigneeId;
+
+    useOps.getState().reviewProposal("pr-1", "approved");
+
+    const s = useOps.getState();
+    expect(s.proposals.find((p) => p.id === "pr-1")!.status).toBe("expired");
+    expect(s.tasks.find((t) => t.id === "t-10")!.assigneeId).toBe(taskBefore); // untouched
+    expect(s.allocated("u-ahmed", week)).toBe(38); // no capacity mutation
+    expect(s.audit[0].actionType).toBe("proposal_stale");
+  });
+
   it("rejection records agent memory in the audit trail without mutating work", () => {
     const taskBefore = useOps.getState().tasks.find((t) => t.id === "t-10")!.assigneeId;
     useOps.getState().reviewProposal("pr-1", "rejected");
