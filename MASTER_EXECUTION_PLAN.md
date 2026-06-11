@@ -155,6 +155,12 @@ substitution at marked swap points, never restructuring of pages.
 Full reference with rationale and critique record: `FRONTEND_ASCENSION_REVIEW.md`.
 The rules that bind every UI change:
 
+- **T0 — the living layer** (`src/components/fx/`): one Three.js neural-field
+  constellation behind the entire product (code-split, theme-aware, idle-parks
+  after 8s, reduced-motion = static frame, never carries information), plus
+  the delegated cursor spotlight on every `.panel` and `RevealText` for hero
+  text. Budget: exactly one WebGL scene product-wide. Full spec:
+  `FRONTEND_ASCENSION_REVIEW.md` §2b.
 - **Motion is a three-tier system** (`src/lib/motion.ts`): T1 ambient (route
   entrances via `app/(shell)/template.tsx` — free for every new route),
   T2 structural (exactly two springs: 380/36, 500/34), T3 signal (critical

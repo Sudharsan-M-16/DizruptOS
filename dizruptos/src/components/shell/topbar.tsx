@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useSession, type Theme } from "@/lib/session";
 import { startPresence } from "@/lib/realtime";
+import { RevealText } from "@/components/fx/reveal-text";
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn, timeAgo } from "@/lib/utils";
@@ -104,7 +105,7 @@ export function Topbar() {
     <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b border-line-subtle bg-ink/75 px-6 backdrop-blur-xl">
       <div className="min-w-0">
         <h1 className="truncate font-display text-[15px] font-semibold tracking-tight">
-          {meta.title}
+          <RevealText key={meta.title} text={meta.title} per={0.04} />
         </h1>
         <p className="truncate text-2xs text-fg-muted">{meta.hint}</p>
       </div>

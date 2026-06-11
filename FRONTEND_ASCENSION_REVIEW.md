@@ -67,6 +67,42 @@ attention:
 7. **Login.** Aurora backdrop + gradient wordmark — the product's single
    cinematic moment, on the first screen anyone sees.
 
+## 2b. The WebGL tier (second ascension pass — "make it edible")
+
+The product now has a fourth motion tier beneath T1: **T0 — the living layer**.
+
+- **Neural Field** (`src/components/fx/neural-field.tsx`): a Three.js
+  constellation fixed behind every page — 420 nodes in slow 3D orbit, edges
+  igniting between nodes that drift close (the entity graph, breathing), the
+  camera leaning toward the cursor. Engineering: GPU-only (Points +
+  LineSegments, additive blending), DPR ≤1.75, code-split client-only chunk
+  (shared bundle unchanged at 87.5 kB), theme-aware via MutationObserver,
+  pauses on hidden tabs, renders a single static frame under reduced-motion,
+  and **parks to a static constellation after 8s of input idleness** —
+  resumed instantly by any pointer/key/wheel activity. A tool people keep
+  open all day must not cost battery while they read.
+- **Cursor spotlight** (`fx-provider.tsx` + `.panel::before`): every panel on
+  every page carries a soft radial light that follows the pointer — one
+  delegated listener app-wide; panels opt out with `data-no-spotlight`.
+  Panels are now translucent (`--ink-surface` at 0.82 + 10px blur) so the
+  field shows through; the product floats over a living graph instead of
+  sitting on flat paint.
+- **RevealText** (`fx/reveal-text.tsx`): masked word-rise with blur-settle.
+  Used on the login tagline and every route title in the topbar.
+- **Login** is the full cinematic statement: aurora + neural field + gradient
+  wordmark + double reveal ("Every person. Every project. Every consequence.").
+
+**T0 budget rules:** exactly one WebGL scene product-wide; it never carries
+information (decorative-only, `aria-hidden`, pointer-events-none); content
+contrast is preserved by panel translucency floors (≥0.82). If a future scene
+needs to carry meaning, it belongs in React Flow, not the field.
+
+Verified live this pass: WebGL canvas mounts on every route, login + dashboard
+screenshots reviewed, idle-park confirmed (capture tooling regained frame
+quiescence), responsive stack verified at ~590px. One real defect found and
+fixed during the loop: a permanent 60fps loop was unacceptable for capture
+*and* battery — idle-aware parking solved both.
+
 ## 3. Design system reference (for future contributors)
 
 - **Tokens** (`globals.css` + `tailwind.config.ts`): neutrals are CSS-variable

@@ -117,7 +117,29 @@ body::before {
 
 @layer components {
   .panel {
-    @apply rounded-card border border-line bg-ink-surface shadow-card;
+    @apply relative rounded-card border border-line shadow-card;
+    /* Translucent over the neural field — the product floats above a living
+       graph instead of sitting on flat paint. */
+    background-color: rgb(var(--ink-surface) / 0.82);
+    backdrop-filter: blur(10px);
+  }
+  /* Cursor spotlight — set by FxProvider via --spot-x/--spot-y. */
+  .panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: radial-gradient(
+      340px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      rgba(99, 102, 241, 0.09),
+      transparent 65%
+    );
+  }
+  .panel.spotlit::before {
+    opacity: 1;
   }
   .panel-hover {
     @apply transition-all duration-150 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-card-hover;

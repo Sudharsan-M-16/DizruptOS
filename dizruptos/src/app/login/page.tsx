@@ -11,6 +11,7 @@ import { Fingerprint, Lock, ShieldCheck } from "lucide-react";
 import { PERSONAS, useSession } from "@/lib/session";
 import { Button, EmpAvatar } from "@/components/ui/primitives";
 import { AuroraBackdrop } from "@/components/ui/ascension";
+import { RevealText } from "@/components/fx/reveal-text";
 import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
@@ -59,11 +60,14 @@ export default function LoginPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-brand-secondary shadow-glow">
             <span className="font-display text-xl font-bold text-white">D</span>
           </div>
-          <h1 className="mt-4 bg-gradient-to-r from-fg via-brand-secondary to-fg bg-clip-text font-display text-2xl font-bold tracking-tight text-transparent">
+          <h1 className="mt-4 bg-gradient-to-r from-fg via-brand-secondary to-fg bg-clip-text font-display text-3xl font-bold tracking-tight text-transparent">
             DIZRUPT
           </h1>
-          <p className="mt-1 text-xs text-fg-muted">
-            The operating system for your organization.
+          <p className="mt-2 font-display text-sm font-medium text-fg-secondary">
+            <RevealText text="Every person. Every project. Every consequence." delay={0.3} per={0.08} />
+          </p>
+          <p className="mt-1.5 text-2xs text-fg-muted">
+            <RevealText text="The operating system for your organization — live behind this screen." delay={0.8} per={0.025} />
           </p>
         </div>
 

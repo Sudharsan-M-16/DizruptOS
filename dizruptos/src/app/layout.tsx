@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Sora } from "next/font/google";
+import { FxProvider } from "@/components/fx/fx-provider";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body
         className={`${plex.variable} ${plexMono.variable} ${sora.variable} font-sans`}
       >
+        <FxProvider />
         {children}
       </body>
     </html>
