@@ -87,7 +87,7 @@ export default function ExecutivePage() {
             "1 burnout flag active (Sarah Okafor) — weighs on fairness axis",
             "Meeting health stable: 14% of hours in meetings",
           ]}
-          spark={<SparkArea data={driftSeries.map((d) => d.ohi)} color="#6366F1" />}
+          spark={<SparkArea data={driftSeries.map((d) => d.ohi)} color="#00ED82" />}
         />
         <MetricTile
           label="Burnout flag rate"
@@ -116,8 +116,8 @@ export default function ExecutivePage() {
                     <stop offset="100%" stopColor="#F59E0B" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gOhi" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366F1" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#6366F1" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#00ED82" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#00ED82" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="rgb(var(--line-subtle))" strokeDasharray="3 3" vertical={false} />
@@ -132,7 +132,7 @@ export default function ExecutivePage() {
                   }}
                   labelStyle={{ color: "rgb(var(--fg-secondary))" }}
                 />
-                <Area type="monotone" dataKey="ohi" name="OHI" stroke="#6366F1" strokeWidth={2} fill="url(#gOhi)" />
+                <Area type="monotone" dataKey="ohi" name="OHI" stroke="#00ED82" strokeWidth={2} fill="url(#gOhi)" />
                 <Area type="monotone" dataKey="drift" name="Drift %" stroke="#F59E0B" strokeWidth={2} fill="url(#gDrift)" />
               </AreaChart>
             </ResponsiveContainer>

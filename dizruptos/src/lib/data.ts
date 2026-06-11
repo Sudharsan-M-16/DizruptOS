@@ -39,14 +39,14 @@ export const employees: Employee[] = [
     title: "Resource Manager", departmentId: "d-eng", capacityHoursPerWeek: 40,
     skills: ["Capacity planning", "Agile", "Stakeholders"],
     expertise: [{ domain: "Delivery orchestration", depth: 0.9 }],
-    timezone: "IST", location: "Chennai", joinedAt: "2023-02-13", ptoDays: [], accent: "#6366F1",
+    timezone: "IST", location: "Chennai", joinedAt: "2023-02-13", ptoDays: [], accent: "#00ED82",
   },
   {
     id: "u-priya", name: "Priya Sharma", initials: "PS", role: "dept_head",
     title: "VP Engineering", departmentId: "d-eng", capacityHoursPerWeek: 40,
     skills: ["Architecture", "Org design"],
     expertise: [{ domain: "Platform architecture", depth: 0.95 }],
-    timezone: "IST", location: "Bengaluru", joinedAt: "2021-08-02", ptoDays: [], accent: "#8B5CF6",
+    timezone: "IST", location: "Bengaluru", joinedAt: "2021-08-02", ptoDays: [], accent: "#2BD9FF",
   },
   {
     id: "u-sarah", name: "Sarah Okafor", initials: "SO", role: "team_lead",

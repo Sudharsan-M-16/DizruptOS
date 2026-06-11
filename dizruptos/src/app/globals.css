@@ -5,56 +5,61 @@
 /* ------------------------------------------------------------------ themes */
 /* RGB triplets so Tailwind alpha modifiers (e.g. bg-ink/75) keep working.   */
 
+/* Brand identity: the logo — a volt-green lightning bolt striking through
+   deep harbor navy. Every neutral below carries a trace of that navy. */
+
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --ink: 10 10 15; /* #0A0A0F page background */
-  --ink-surface: 17 17 24; /* #111118 cards, panels */
-  --ink-elevated: 26 26 37; /* #1A1A25 modals, dropdowns */
-  --ink-raised: 32 32 46; /* #20202E */
+  --ink: 5 11 16; /* #050B10 page background — abyssal navy-black */
+  --ink-surface: 10 18 26; /* #0A121A cards, panels */
+  --ink-elevated: 16 27 38; /* #101B26 modals, dropdowns */
+  --ink-raised: 22 36 50; /* #162432 */
 
-  --line-subtle: 34 34 47; /* #22222F */
-  --line: 42 42 58; /* #2A2A3A */
-  --line-strong: 58 58 78; /* #3A3A4E */
+  --line-subtle: 25 39 52; /* #192734 */
+  --line: 33 50 65; /* #213241 */
+  --line-strong: 51 73 92; /* #33495C */
 
-  --fg: 248 249 250; /* #F8F9FA */
-  --fg-secondary: 156 163 175; /* #9CA3AF */
-  --fg-muted: 107 114 128; /* #6B7280 */
-  --fg-faint: 75 85 99; /* #4B5563 */
+  /* Text contrast tuned for the clean professional shell: secondary copy
+     must read instantly on solid panels, not just decorate them. */
+  --fg: 243 249 246; /* #F3F9F6 — white with a volt breath */
+  --fg-secondary: 185 199 209; /* #B9C7D1 */
+  --fg-muted: 138 158 172; /* #8A9EAC */
+  --fg-faint: 95 114 128; /* #5F7280 */
 
-  --shadow-card: 0 0 0 1px rgba(99, 102, 241, 0.07), 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-card-hover: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-pop: 0 0 0 1px rgba(42, 42, 58, 0.9), 0 16px 48px rgba(0, 0, 0, 0.65);
+  --shadow-card: 0 0 0 1px rgba(0, 237, 130, 0.06), 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 0 0 1px rgba(0, 237, 130, 0.22), 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 0 0 1px rgba(33, 50, 65, 0.9), 0 16px 48px rgba(0, 0, 0, 0.65);
 
-  --bg-glow-a: rgba(99, 102, 241, 0.07);
-  --bg-glow-b: rgba(139, 92, 246, 0.05);
+  --bg-glow-a: rgba(0, 237, 130, 0.055);
+  --bg-glow-b: rgba(43, 217, 255, 0.045);
   --grain-opacity: 0.025;
 }
 
 [data-theme="light"] {
   color-scheme: light;
 
-  --ink: 244 244 248;
+  --ink: 242 246 246;
   --ink-surface: 255 255 255;
-  --ink-elevated: 247 247 251;
-  --ink-raised: 238 238 245;
+  --ink-elevated: 245 249 249;
+  --ink-raised: 234 241 240;
 
-  --line-subtle: 230 230 238;
-  --line: 218 218 230;
-  --line-strong: 198 198 214;
+  --line-subtle: 226 234 233;
+  --line: 213 224 222;
+  --line-strong: 190 205 203;
 
-  --fg: 23 23 31;
-  --fg-secondary: 71 80 96;
-  --fg-muted: 113 120 134;
-  --fg-faint: 158 163 175;
+  --fg: 15 26 24;
+  --fg-secondary: 66 84 81;
+  --fg-muted: 108 126 122;
+  --fg-faint: 153 168 165;
 
-  --shadow-card: 0 0 0 1px rgba(99, 102, 241, 0.06), 0 2px 12px rgba(20, 20, 40, 0.07);
-  --shadow-card-hover: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 6px 24px rgba(20, 20, 40, 0.12);
-  --shadow-pop: 0 0 0 1px rgba(210, 210, 226, 0.9), 0 16px 48px rgba(20, 20, 40, 0.18);
+  --shadow-card: 0 0 0 1px rgba(0, 180, 100, 0.07), 0 2px 12px rgba(10, 35, 28, 0.07);
+  --shadow-card-hover: 0 0 0 1px rgba(0, 180, 100, 0.25), 0 6px 24px rgba(10, 35, 28, 0.12);
+  --shadow-pop: 0 0 0 1px rgba(208, 220, 218, 0.9), 0 16px 48px rgba(10, 35, 28, 0.18);
 
-  --bg-glow-a: rgba(99, 102, 241, 0.06);
-  --bg-glow-b: rgba(139, 92, 246, 0.04);
+  --bg-glow-a: rgba(0, 200, 110, 0.06);
+  --bg-glow-b: rgba(43, 217, 255, 0.05);
   --grain-opacity: 0.015;
 }
 
@@ -63,19 +68,17 @@ body {
   height: 100%;
 }
 
+/* The shell background is deliberately FLAT — data lives on solid surfaces,
+   nothing moves behind it. Cinematic layers belong to /welcome and /login,
+   which paint their own fields. */
 body {
   @apply bg-ink text-fg antialiased;
-  background-image:
-    radial-gradient(1200px 600px at 85% -10%, var(--bg-glow-a), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, var(--bg-glow-b), transparent 55%);
-  background-attachment: fixed;
   font-feature-settings: "tnum" 1, "ss01" 1;
   transition: background-color 0.2s ease;
 }
 
-/* faint grain — command-center texture, kept below perception threshold */
-body::before {
-  content: "";
+/* Grain is opt-in (public pages only) — the shell stays perfectly flat. */
+.grain-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -85,7 +88,7 @@ body::before {
 }
 
 ::selection {
-  background: rgba(99, 102, 241, 0.35);
+  background: rgba(0, 237, 130, 0.3);
 }
 
 *::-webkit-scrollbar {
@@ -118,10 +121,14 @@ body::before {
 @layer components {
   .panel {
     @apply relative rounded-card border border-line shadow-card;
-    /* Translucent over the neural field — the product floats above a living
-       graph instead of sitting on flat paint. */
-    background-color: rgb(var(--ink-surface) / 0.82);
-    backdrop-filter: blur(10px);
+    /* Solid surface — the professional shell reads as crisp panels on flat
+       ink, never content floating over decoration. */
+    background-color: rgb(var(--ink-surface));
+  }
+  /* Public pages opt back into glass over their WebGL fields. */
+  .panel-glass {
+    background-color: rgb(var(--ink-surface) / 0.78);
+    backdrop-filter: blur(14px);
   }
   /* Cursor spotlight — set by FxProvider via --spot-x/--spot-y. */
   .panel::before {
@@ -134,7 +141,7 @@ body::before {
     transition: opacity 0.3s ease;
     background: radial-gradient(
       340px circle at var(--spot-x, 50%) var(--spot-y, 50%),
-      rgba(99, 102, 241, 0.09),
+      rgba(0, 237, 130, 0.08),
       transparent 65%
     );
   }
@@ -167,13 +174,13 @@ body::before {
 .aurora-a {
   top: -25%;
   left: -10%;
-  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.5), transparent 65%);
+  background: radial-gradient(circle at center, rgba(0, 237, 130, 0.42), transparent 65%);
   animation: auroraDriftA 26s ease-in-out infinite alternate;
 }
 .aurora-b {
   bottom: -30%;
   right: -15%;
-  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.4), transparent 65%);
+  background: radial-gradient(circle at center, rgba(43, 217, 255, 0.34), transparent 65%);
   animation: auroraDriftB 32s ease-in-out infinite alternate;
 }
 .aurora-sweep {
@@ -182,9 +189,9 @@ body::before {
   background: conic-gradient(
     from 180deg at 50% 50%,
     transparent 0deg,
-    rgba(99, 102, 241, 0.05) 90deg,
+    rgba(0, 237, 130, 0.05) 90deg,
     transparent 180deg,
-    rgba(56, 189, 248, 0.04) 270deg,
+    rgba(43, 217, 255, 0.04) 270deg,
     transparent 360deg
   );
   animation: auroraSpin 48s linear infinite;
@@ -211,7 +218,7 @@ body::before {
   background-image: linear-gradient(120deg, rgba(239,68,68,0.7), rgba(239,68,68,0.12), rgba(245,158,11,0.55), rgba(239,68,68,0.12), rgba(239,68,68,0.7));
 }
 .gradient-frame-brand {
-  background-image: linear-gradient(120deg, rgba(99,102,241,0.7), rgba(99,102,241,0.1), rgba(139,92,246,0.55), rgba(99,102,241,0.1), rgba(99,102,241,0.7));
+  background-image: linear-gradient(120deg, rgba(0,237,130,0.7), rgba(0,237,130,0.1), rgba(43,217,255,0.55), rgba(0,237,130,0.1), rgba(0,237,130,0.7));
 }
 @keyframes frameShift {
   0%, 100% { background-position: 0% 50%; }
@@ -245,5 +252,5 @@ button {
   stroke: rgb(var(--line-strong));
 }
 .react-flow__edge.animated path {
-  stroke: #6366f1;
+  stroke: #00ed82;
 }

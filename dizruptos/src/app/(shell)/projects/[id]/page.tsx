@@ -80,7 +80,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
             <HeaderStat label="Hours" value={`${project.consumedHours}/${project.budgetHours}`} sub="logged vs plan" />
             <HeaderStat label="Target" value={fmtDate(project.targetDate)} sub={owner ? `Owner: ${owner.name.split(" ")[0]}` : ""} />
             <div className="h-10 w-28">
-              <SparkBars data={project.velocityTrend} color={project.health === "CRITICAL" ? "#EF4444" : "#6366F1"} />
+              <SparkBars data={project.velocityTrend} color={project.health === "CRITICAL" ? "#EF4444" : "#00ED82"} />
             </div>
           </div>
         </div>

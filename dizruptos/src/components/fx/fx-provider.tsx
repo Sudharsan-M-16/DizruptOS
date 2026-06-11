@@ -1,17 +1,14 @@
 "use client";
 
-// FX layer — mounts the WebGL neural field (client-only, code-split) and
-// drives the cursor spotlight: every `.panel` on every page gets a soft
-// radial light that follows the pointer. One delegated listener for the
-// whole app; panels opt out with `data-no-spotlight`.
+// FX layer — drives the cursor spotlight: every `.panel` gets a soft radial
+// light that follows the pointer. One delegated listener for the whole app;
+// panels opt out with `data-no-spotlight`.
+//
+// The WebGL layer no longer mounts globally: the product shell stays clean
+// and professional (data on solid surfaces); cinematic fields live only on
+// the public faces (/welcome, /login) via DotMatrixField.
 
 import * as React from "react";
-import dynamic from "next/dynamic";
-
-const NeuralField = dynamic(
-  () => import("./neural-field").then((m) => m.NeuralField),
-  { ssr: false }
-);
 
 export function FxProvider() {
   React.useEffect(() => {
@@ -46,5 +43,5 @@ export function FxProvider() {
     };
   }, []);
 
-  return <NeuralField />;
+  return null;
 }

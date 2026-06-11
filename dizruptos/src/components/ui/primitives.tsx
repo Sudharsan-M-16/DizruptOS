@@ -124,7 +124,7 @@ export function TaskStatusPill({ status }: { status: TaskStatus }) {
 const priorityMeta: Record<TaskPriority, { color: string; label: string }> = {
   URGENT: { color: "#EF4444", label: "Urgent" },
   HIGH: { color: "#F59E0B", label: "High" },
-  MEDIUM: { color: "#6366F1", label: "Medium" },
+  MEDIUM: { color: "#2BD9FF", label: "Medium" },
   LOW: { color: "#6B7280", label: "Low" },
 };
 
@@ -304,7 +304,7 @@ export function Button({
       className={cn(
         "inline-flex h-8 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand disabled:opacity-50",
         variant === "primary" &&
-          "bg-brand text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] hover:bg-[#5558E6] hover:shadow-glow",
+          "bg-brand text-[#04281A] shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] hover:bg-[#3DF59E] hover:shadow-glow",
         variant === "secondary" &&
           "border border-line bg-ink-elevated text-fg-secondary hover:border-brand/40 hover:text-fg",
         variant === "ghost" && "text-fg-secondary hover:bg-ink-elevated hover:text-fg",

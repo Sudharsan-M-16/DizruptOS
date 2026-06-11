@@ -66,7 +66,7 @@ export function NeuralField() {
     nodeGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
     const nodeMat = new THREE.PointsMaterial({
-      color: new THREE.Color("#6366F1"),
+      color: new THREE.Color("#00ED82"),
       size: 1.6,
       sizeAttenuation: true,
       transparent: true,
@@ -84,7 +84,7 @@ export function NeuralField() {
       new THREE.BufferAttribute(linkPositions, 3)
     );
     const linkMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color("#8B5CF6"),
+      color: new THREE.Color("#2BD9FF"),
       transparent: true,
       opacity: 0.14,
       blending: THREE.AdditiveBlending,

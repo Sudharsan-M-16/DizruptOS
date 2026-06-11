@@ -19,9 +19,9 @@ export const PERSONAS: {
   role: Role;
   accent: string;
 }[] = [
-  { id: "u-asha", name: "Asha Venkat", initials: "AV", title: "Resource Manager", role: "project_manager", accent: "#6366F1" },
+  { id: "u-asha", name: "Asha Venkat", initials: "AV", title: "Resource Manager", role: "project_manager", accent: "#00ED82" },
   { id: "u-noor", name: "Noor Al-Rashid", initials: "NA", title: "Chief Operating Officer", role: "executive", accent: "#C084FC" },
-  { id: "u-priya", name: "Priya Sharma", initials: "PS", title: "VP Engineering", role: "dept_head", accent: "#8B5CF6" },
+  { id: "u-priya", name: "Priya Sharma", initials: "PS", title: "VP Engineering", role: "dept_head", accent: "#2BD9FF" },
   { id: "u-ahmed", name: "Ahmed Hassan", initials: "AH", title: "Backend Engineer", role: "employee", accent: "#10B981" },
   { id: "u-elias", name: "Elias Brandt", initials: "EB", title: "Systems Administrator", role: "admin", accent: "#94A3B8" },
 ];

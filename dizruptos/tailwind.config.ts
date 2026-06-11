@@ -23,10 +23,13 @@ const config: Config = {
           DEFAULT: v("line"),
           strong: v("line-strong"),
         },
+        // Brand = the logo: a volt-green lightning bolt striking through deep
+        // harbor navy. Green carries action/identity; cyan carries gradients.
         brand: {
-          DEFAULT: "#6366F1",
-          secondary: "#8B5CF6",
-          soft: "rgba(99,102,241,0.12)",
+          DEFAULT: "#00ED82",
+          secondary: "#2BD9FF",
+          deep: "#0E3A4C", // the logo's navy "D"
+          soft: "rgba(0,237,130,0.12)",
         },
         ok: { DEFAULT: "#10B981", soft: "rgba(16,185,129,0.12)" },
         warn: { DEFAULT: "#F59E0B", soft: "rgba(245,158,11,0.12)" },
@@ -54,7 +57,7 @@ const config: Config = {
         card: "var(--shadow-card)",
         "card-hover": "var(--shadow-card-hover)",
         pop: "var(--shadow-pop)",
-        glow: "0 0 24px rgba(99,102,241,0.35)",
+        glow: "0 0 24px rgba(0,237,130,0.30)",
       },
       keyframes: {
         shimmer: {

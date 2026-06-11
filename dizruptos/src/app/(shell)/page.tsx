@@ -153,7 +153,7 @@ export default function CommandCenter() {
             value={<NumberTicker value={pending.length} />}
             explanation="Negotiation coordinator already merged 1 burnout/delivery conflict into a single compromise card."
             signals={pending.map((p) => `${p.title} (${Math.round(p.confidence * 100)}% confidence)`)}
-            spark={<SparkBars data={[2, 4, 3, 5, 4, pending.length]} color="#6366F1" />}
+            spark={<SparkBars data={[2, 4, 3, 5, 4, pending.length]} color="#00ED82" />}
           />,
           <MetricTile
             key="m4"

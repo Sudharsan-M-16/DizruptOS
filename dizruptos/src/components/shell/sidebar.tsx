@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { useOps } from "@/lib/store";
 import { PERSONAS, useSession, type Permission } from "@/lib/session";
 import { EmpAvatar } from "@/components/ui/primitives";
+import { DizruptWordmark } from "@/components/ui/logo";
 
 const NAV: {
   group: string;
@@ -60,16 +61,8 @@ export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-[232px] flex-col border-r border-line-subtle bg-ink-surface/60 backdrop-blur-xl">
       {/* Wordmark */}
-      <Link href="/" className="flex items-center gap-2.5 px-5 pb-5 pt-5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-brand-secondary shadow-glow">
-          <span className="font-display text-sm font-bold text-white">D</span>
-        </div>
-        <div className="leading-none">
-          <div className="font-display text-[15px] font-bold tracking-tight">
-            DIZRUPT
-          </div>
-          <div className="mt-0.5 text-2xs text-fg-muted">Resource Intelligence</div>
-        </div>
+      <Link href="/" className="flex items-center px-5 pb-5 pt-5">
+        <DizruptWordmark markSize={28} sub="Resource Intelligence" />
       </Link>
 
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-4" aria-label="Primary">
@@ -108,7 +101,7 @@ export function Sidebar() {
                       />
                       <span className="flex-1">{item.label}</span>
                       {item.href === "/proposals" && pending > 0 && (
-                        <span className="rounded-full bg-brand px-1.5 py-px font-mono text-2xs font-semibold text-white">
+                        <span className="rounded-full bg-brand px-1.5 py-px font-mono text-2xs font-semibold text-[#04281A]">
                           {pending}
                         </span>
                       )}

@@ -11,7 +11,7 @@ import {
 
 export function SparkArea({
   data,
-  color = "#6366F1",
+  color = "#00ED82",
 }: {
   data: number[];
   color?: string;
@@ -43,7 +43,7 @@ export function SparkArea({
 
 export function SparkBars({
   data,
-  color = "#6366F1",
+  color = "#00ED82",
 }: {
   data: number[];
   color?: string;

@@ -90,7 +90,7 @@ const NODE_META: Record<string, { x: number; y: number } & GraphData> = {
   "v-clearsettle": { x: 940, y: 20, label: "ClearSettle Ltd", sub: "Vendor · 8 days late", kind: "vendor", tone: "#F87171" },
   "r-1": { x: 940, y: 160, label: "Expertise concentration", sub: "Risk · Critical severity", kind: "risk", tone: "#EF4444", href: "/risks" },
   "r-2": { x: 940, y: 300, label: "Vendor slippage", sub: "Risk · Escalated", kind: "risk", tone: "#F59E0B", href: "/risks" },
-  "dec-1": { x: 1240, y: 160, label: "Ledger-first decision", sub: "Decision · Active", kind: "decision", tone: "#8B5CF6", href: "/decisions" },
+  "dec-1": { x: 1240, y: 160, label: "Ledger-first decision", sub: "Decision · Active", kind: "decision", tone: "#2BD9FF", href: "/decisions" },
 };
 
 export default function GraphPage() {
@@ -155,7 +155,7 @@ export default function GraphPage() {
         animated: connected,
         style: {
           ...e.style,
-          stroke: connected ? "#6366F1" : (e.style?.stroke as string),
+          stroke: connected ? "#00ED82" : (e.style?.stroke as string),
           strokeWidth: connected ? 2.5 : 1,
           opacity: connected ? 1 : 0.12,
           transition: "opacity 0.2s ease, stroke 0.2s ease",
@@ -205,7 +205,7 @@ export default function GraphPage() {
             zoomable
             className="!h-28 !w-44 !rounded-lg !border !border-line !bg-ink-elevated"
             maskColor="rgba(10,10,15,0.55)"
-            nodeColor={() => "#6366F1"}
+            nodeColor={() => "#00ED82"}
             nodeStrokeColor={() => "transparent"}
           />
         </ReactFlow>
