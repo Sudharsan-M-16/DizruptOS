@@ -21,8 +21,8 @@ export default function GoalsPage() {
                 <Target size={15} />
               </span>
               <div className="min-w-0 flex-1">
-                <h3 className="font-display text-sm font-semibold leading-snug">{g.title}</h3>
-                <div className="mt-1 flex items-center gap-2.5 text-2xs text-fg-muted">
+                <h3 className="font-display text-[15px] font-semibold leading-snug">{g.title}</h3>
+                <div className="mt-1.5 flex items-center gap-2.5 text-xs text-fg-secondary">
                   <span>target {fmtDate(g.targetDate)}</span>
                   {owner && (
                     <span className="flex items-center gap-1">
@@ -44,12 +44,12 @@ export default function GoalsPage() {
 
             <CapacityBar pct={g.progress * 0.79} className="mt-4" />
 
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2.5">
               {g.keyResults.map((kr) => (
                 <div key={kr.title} className="flex items-center gap-3">
-                  <span className="min-w-0 flex-1 truncate text-2xs text-fg-secondary">{kr.title}</span>
-                  <CapacityBar pct={kr.progress * 0.79} className="w-28" height={4} />
-                  <span className="w-9 text-right font-mono text-2xs text-fg-muted">{fmtPct(kr.progress)}</span>
+                  <span className="min-w-0 flex-1 truncate text-[13px] leading-5 text-fg">{kr.title}</span>
+                  <CapacityBar pct={kr.progress * 0.79} className="w-28" height={5} />
+                  <span className="w-10 text-right font-mono text-xs text-fg-secondary">{fmtPct(kr.progress)}</span>
                 </div>
               ))}
             </div>
@@ -62,7 +62,7 @@ export default function GoalsPage() {
                     <Link
                       key={p.id}
                       href={`/projects/${p.id}`}
-                      className="flex items-center gap-2 rounded-lg border border-line bg-ink-elevated px-2.5 py-1.5 text-2xs transition-colors hover:border-brand/40"
+                      className="flex items-center gap-2 rounded-lg border border-line bg-ink-elevated px-3 py-2 text-xs text-fg transition-colors hover:border-brand/40"
                     >
                       <span className="font-mono text-brand">{p.code}</span>
                       {p.name}

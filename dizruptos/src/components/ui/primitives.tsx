@@ -153,6 +153,9 @@ export const priorityColor = (p: TaskPriority) => priorityMeta[p].color;
 
 /* ------------------------------ Capacity bar -------------------------------- */
 
+// Segmented load meter — 10 cells to 100%, two overload cells past the gate.
+// Reads as discrete state at a glance instead of a smeared bar; the gap after
+// cell 10 IS the 100% threshold, so no floating tick is needed.
 export function CapacityBar({
   pct,
   className,
@@ -163,23 +166,38 @@ export function CapacityBar({
   height?: number;
 }) {
   const tone = utilizationTone(pct);
-  const fill =
-    tone === "danger"
-      ? "linear-gradient(90deg,#EF4444,#DC2626)"
-      : tone === "warn"
-        ? "linear-gradient(90deg,#F59E0B,#D97706)"
-        : "linear-gradient(90deg,#10B981,#059669)";
+  const color =
+    tone === "danger" ? "#EF4444" : tone === "warn" ? "#F59E0B" : "#10B981";
+  const filled = Math.round(Math.min(pct, 1.2) * 10); // 12 cells max
   return (
     <div
-      className={cn("relative w-full overflow-hidden rounded-full bg-ink-elevated", className)}
+      className={cn("flex w-full items-center gap-[3px]", className)}
       style={{ height }}
+      role="meter"
+      aria-valuenow={Math.round(pct * 100)}
+      aria-valuemin={0}
+      aria-valuemax={120}
     >
-      <div
-        className="h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-        style={{ width: `${Math.min(pct, 1.25) * 80}%`, background: fill }}
-      />
-      {/* 100% threshold tick */}
-      <div className="absolute inset-y-0 left-[80%] w-px bg-fg-faint/60" />
+      {Array.from({ length: 12 }).map((_, i) => {
+        const isOverflowCell = i >= 10;
+        const on = i < filled;
+        return (
+          <span
+            key={i}
+            className={cn("h-full flex-1 rounded-[2px] transition-colors duration-300", isOverflowCell && "ml-[2px] flex-[0.8]")}
+            style={{
+              background: on
+                ? isOverflowCell
+                  ? "#EF4444"
+                  : color
+                : "rgb(var(--ink-raised))",
+              boxShadow:
+                on && i === filled - 1 ? `0 0 6px ${isOverflowCell ? "#EF4444" : color}66` : undefined,
+              opacity: on ? (isOverflowCell ? 1 : 0.55 + (i / 10) * 0.45) : 1,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

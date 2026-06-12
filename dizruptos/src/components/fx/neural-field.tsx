@@ -21,23 +21,24 @@ const NODE_COUNT = 420;
 const LINK_DISTANCE = 26;
 const MAX_LINKS = 700;
 
-export function NeuralField() {
+export function NeuralField({ className }: { className?: string }) {
   const mountRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
+    // Size to the mount container, not the window — the field now serves as
+    // a scoped scene (e.g. the login brand stage), not a global backdrop.
+    const dims = () => ({
+      w: mount.clientWidth || window.innerWidth,
+      h: mount.clientHeight || window.innerHeight,
+    });
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     /* ----------------------------- scene setup ----------------------------- */
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      55,
-      window.innerWidth / window.innerHeight,
-      1,
-      600
-    );
+    const camera = new THREE.PerspectiveCamera(55, dims().w / dims().h, 1, 600);
     camera.position.z = 120;
 
     const renderer = new THREE.WebGLRenderer({
@@ -46,7 +47,7 @@ export function NeuralField() {
       powerPreference: "low-power",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(dims().w, dims().h);
     mount.appendChild(renderer.domElement);
 
     /* ------------------------------- nodes --------------------------------- */
@@ -135,9 +136,9 @@ export function NeuralField() {
     window.addEventListener("wheel", wake, { passive: true });
 
     const onResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.aspect = dims().w / dims().h;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(dims().w, dims().h);
     };
     window.addEventListener("resize", onResize);
 
@@ -236,7 +237,7 @@ export function NeuralField() {
     <div
       ref={mountRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-0"
+      className={className ?? "pointer-events-none fixed inset-0 z-0"}
     />
   );
 }

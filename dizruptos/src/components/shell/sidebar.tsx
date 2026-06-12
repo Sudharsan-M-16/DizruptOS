@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useOps } from "@/lib/store";
 import { PERSONAS, useSession, type Permission } from "@/lib/session";
+import { proposalsForRole } from "@/lib/rbac";
 import { EmpAvatar } from "@/components/ui/primitives";
 import { DizruptWordmark } from "@/components/ui/logo";
 
@@ -42,7 +43,9 @@ const NAV: {
     { href: "/goals", label: "Goals · OKRs", icon: Target },
   ]},
   { group: "Review", items: [
-    { href: "/proposals", label: "Agent Inbox", icon: Inbox, perm: "review_proposals" },
+    // No perm gate: the page itself scopes by role (employees see only
+    // their personal requests — dynamic view, PRD §6).
+    { href: "/proposals", label: "Agent Inbox", icon: Inbox },
     { href: "/graph", label: "Dependency Graph", icon: GitBranch },
     { href: "/audit", label: "Audit Log", icon: FileClock, perm: "view_audit" },
   ]},
@@ -51,12 +54,16 @@ const NAV: {
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const pending = useOps((s) => s.proposals.filter((p) => p.status === "pending").length);
+  const proposals = useOps((s) => s.proposals);
   const personaId = useSession((s) => s.personaId);
   const setPersona = useSession((s) => s.setPersona);
   const signOut = useSession((s) => s.signOut);
   const can = useSession((s) => s.can);
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
+  // Badge counts what THIS persona would see in the inbox, not the org total.
+  const pending = proposalsForRole(proposals, persona.role, persona.id).filter(
+    (p) => p.status === "pending"
+  ).length;
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-[232px] flex-col border-r border-line-subtle bg-ink-surface/60 backdrop-blur-xl">

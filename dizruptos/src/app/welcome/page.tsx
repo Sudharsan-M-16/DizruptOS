@@ -146,7 +146,7 @@ function Hero() {
 
   return (
     <section className="relative overflow-hidden pt-32">
-      <AuroraBackdrop className="opacity-80" />
+      <AuroraBackdrop className="opacity-40" />
       <div className="relative mx-auto max-w-6xl px-5 text-center">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -262,7 +262,7 @@ const CUSTOMERS = ["NORTHWIND", "HELIX LABS", "OCTANE", "KITEWORKS", "ATLASCORE"
 
 function LogoStrip() {
   return (
-    <motion.section {...rise} className="border-y border-line-subtle/60 bg-ink-surface/40 py-9 backdrop-blur">
+    <motion.section {...rise} className="border-y border-line-subtle/60 bg-ink py-9">
       <div className="mx-auto max-w-6xl px-5">
         <p className="text-center text-2xs uppercase tracking-[0.25em] text-fg-muted">
           Operating the orgs that can&apos;t afford surprises
@@ -688,7 +688,7 @@ const STATS = [
 
 function StatsBand() {
   return (
-    <motion.section {...rise} className="border-y border-line-subtle/60 bg-ink-surface/40 py-16 backdrop-blur">
+    <motion.section {...rise} className="border-y border-line-subtle/60 bg-ink py-16">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 px-5 md:grid-cols-4">
         {STATS.map((s) => (
           <div key={s.label} className="text-center">
@@ -949,8 +949,8 @@ function Footer() {
 export default function WelcomePage() {
   return (
     <div className="relative min-h-screen">
-      {/* full-bleed atmosphere: dot-matrix field + grain + cursor glow */}
-      <DotMatrixField className="pointer-events-none fixed inset-0 z-0 opacity-70" />
+      {/* full-bleed atmosphere — midday-restrained: the field whispers */}
+      <DotMatrixField className="pointer-events-none fixed inset-0 z-0 opacity-40" />
       <div aria-hidden className="grain-layer" />
       <MouseGlow />
       <div className="relative z-10">

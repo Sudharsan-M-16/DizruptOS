@@ -172,11 +172,11 @@ export default function PeoplePage() {
         </span>
       </div>
 
-      <div className="panel overflow-x-auto">
+      <div className="panel table-scroll overflow-x-auto">
         <table className="table-sticky w-full text-left">
           <thead>
             {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id} className="border-b border-line-subtle bg-ink-elevated/40">
+              <tr key={hg.id}>
                 {hg.headers.map((h) => (
                   <th key={h.id} className="px-4 py-2.5">
                     <button

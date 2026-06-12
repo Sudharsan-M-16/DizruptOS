@@ -180,6 +180,11 @@ export interface Proposal {
   agentType: AgentType;
   title: string;
   summary: string;
+  /** RBAC: which roles see this in their inbox. Admin always sees everything. */
+  visibility: Role[];
+  /** The employee this proposal concerns — employees see exactly the items
+   *  where subjectId is them, framed as personal requests. */
+  subjectId?: string;
   reasoning: string[]; // causal signals, each with confidence inline
   action: {
     kind: "reallocate" | "reduce_load" | "escalate" | "shift_deadline";

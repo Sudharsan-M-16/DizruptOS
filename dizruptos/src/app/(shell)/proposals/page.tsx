@@ -19,6 +19,8 @@ import {
   X,
 } from "lucide-react";
 import { useOps } from "@/lib/store";
+import { useSession, PERSONAS } from "@/lib/session";
+import { proposalsForRole, inboxFraming } from "@/lib/rbac";
 import { employeeById } from "@/lib/data";
 import { Button, EmpAvatar } from "@/components/ui/primitives";
 import { cn, timeUntil } from "@/lib/utils";
@@ -35,39 +37,80 @@ const agentMeta: Record<
 };
 
 export default function ProposalsPage() {
-  const proposals = useOps((s) => s.proposals);
+  const allProposals = useOps((s) => s.proposals);
   const reviewProposal = useOps((s) => s.reviewProposal);
+  const personaId = useSession((s) => s.personaId);
+  const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
+
+  // Dynamic view (PRD §6): the inbox is a different system per role —
+  // employees see their personal requests, managers their team's proposals,
+  // admins the entire org including the governance queue.
+  const proposals = proposalsForRole(allProposals, persona.role, persona.id);
+  const framing = inboxFraming(persona.role);
+  const isEmployee = persona.role === "employee" || persona.role === "client";
+  const isAdmin = persona.role === "admin";
+
   const pending = proposals.filter((p) => p.status === "pending");
   const resolved = proposals.filter((p) => p.status !== "pending");
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Priority hierarchy explainer */}
-      <div className="panel flex flex-wrap items-center gap-3 p-3.5 text-2xs text-fg-muted">
-        <Bot size={13} className="text-brand" />
-        <span className="text-fg-secondary">Conflict resolution order:</span>
-        {["burnout safety 100", "hard constraints 90", "delivery 70", "allocation 50", "risk advisory 40"].map((s, i) => (
-          <React.Fragment key={s}>
-            {i > 0 && <span className="text-fg-faint">›</span>}
-            <span className="rounded-full border border-line bg-ink-elevated px-2 py-0.5 font-mono">{s}</span>
-          </React.Fragment>
-        ))}
-        <span className="ml-auto">Rejections are remembered 30 days</span>
+      {/* Role-scoped framing */}
+      <div className="panel flex flex-wrap items-center gap-3 p-4">
+        <Bot size={14} className="text-brand" />
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold">{framing.title}</div>
+          <p className="mt-0.5 text-2xs leading-relaxed text-fg-secondary">{framing.hint}</p>
+        </div>
+        <span
+          className={cn(
+            "rounded-full border px-2.5 py-1 font-mono text-2xs",
+            isAdmin
+              ? "border-brand/40 bg-brand-soft text-brand"
+              : "border-line bg-ink-elevated text-fg-secondary"
+          )}
+        >
+          {isAdmin ? "FULL CONTROL" : isEmployee ? "PERSONAL SCOPE" : "TEAM SCOPE"} · {pending.length} pending
+        </span>
       </div>
+
+      {/* Priority hierarchy explainer — manager+ only; employees don't arbitrate */}
+      {!isEmployee && (
+        <div className="panel flex flex-wrap items-center gap-3 p-3.5 text-2xs text-fg-muted">
+          <span className="text-fg-secondary">Conflict resolution order:</span>
+          {["burnout safety 100", "hard constraints 90", "delivery 70", "allocation 50", "risk advisory 40"].map((s, i) => (
+            <React.Fragment key={s}>
+              {i > 0 && <span className="text-fg-faint">›</span>}
+              <span className="rounded-full border border-line bg-ink-elevated px-2 py-0.5 font-mono">{s}</span>
+            </React.Fragment>
+          ))}
+          <span className="ml-auto">Rejections are remembered 30 days</span>
+        </div>
+      )}
 
       <AnimatePresence initial={false}>
         {pending.map((p) => (
-          <ProposalCard key={p.id} proposal={p} onReview={reviewProposal} />
+          <ProposalCard
+            key={p.id}
+            proposal={p}
+            onReview={reviewProposal}
+            approveLabel={framing.approveLabel}
+            rejectLabel={framing.rejectLabel}
+            isEmployee={isEmployee}
+          />
         ))}
       </AnimatePresence>
 
       {pending.length === 0 && (
         <div className="panel flex flex-col items-center gap-2 py-14 text-center">
           <CheckCheck size={22} className="text-ok" />
-          <div className="text-sm font-medium">Inbox zero</div>
+          <div className="text-sm font-medium">
+            {isEmployee ? "Nothing needs you right now" : "Inbox zero"}
+          </div>
           <p className="max-w-sm text-2xs text-fg-muted">
-            All agent proposals reviewed. Agents re-evaluate hourly; resolved
-            conflicts and rejections persist in agent memory.
+            {isEmployee
+              ? "When an agent or your manager stages something that concerns you, it appears here first."
+              : "All agent proposals reviewed. Agents re-evaluate hourly; resolved conflicts and rejections persist in agent memory."}
           </p>
         </div>
       )}
@@ -105,9 +148,15 @@ export default function ProposalsPage() {
 function ProposalCard({
   proposal: p,
   onReview,
+  approveLabel,
+  rejectLabel,
+  isEmployee,
 }: {
   proposal: Proposal;
   onReview: (id: string, verdict: "approved" | "rejected") => void;
+  approveLabel: string;
+  rejectLabel: string;
+  isEmployee: boolean;
 }) {
   const [expanded, setExpanded] = React.useState(p.priority >= 100);
   const m = agentMeta[p.agentType];
@@ -244,10 +293,10 @@ function ProposalCard({
         <span className="text-2xs text-fg-muted">{p.entityLabel}</span>
         <div className="ml-auto flex gap-2">
           <Button variant="secondary" onClick={() => onReview(p.id, "rejected")}>
-            <X size={12} /> Reject — remember 30d
+            <X size={12} /> {rejectLabel}{!isEmployee && " — remember 30d"}
           </Button>
           <Button onClick={() => onReview(p.id, "approved")}>
-            <Check size={12} /> Approve & execute
+            <Check size={12} /> {approveLabel}{!isEmployee && " & execute"}
           </Button>
         </div>
       </div>

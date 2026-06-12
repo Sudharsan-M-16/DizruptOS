@@ -39,19 +39,19 @@ export default function ProjectsPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="truncate font-display text-sm font-semibold">
+                    <h3 className="truncate font-display text-[15px] font-semibold">
                       {p.name}
                     </h3>
                     <HealthPill health={p.health} pulse />
                     <Explain title={`${p.name} health`} signals={p.healthReasons} />
                   </div>
-                  <p className="mt-1 line-clamp-2 text-2xs leading-relaxed text-fg-secondary">
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-fg-secondary">
                     {p.description}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-4 gap-3 border-t border-line-subtle pt-3 text-2xs">
+              <div className="mt-4 grid grid-cols-4 gap-4 border-t border-line-subtle pt-3.5 text-xs">
                 <Stat label="Open tasks" value={`${open}`} sub={blocked ? `${blocked} blocked` : "0 blocked"} subTone={blocked ? "text-danger" : undefined} />
                 <Stat label="Budget burn" value={`${Math.round(burn * 100)}%`} sub={`${fmtMoney(p.consumedMicro)} of ${fmtMoney(p.budgetMicro)}`} />
                 <Stat label="Target" value={fmtDate(p.targetDate)} sub={departmentById(p.departmentId)?.name ?? ""} />
@@ -97,8 +97,8 @@ function Stat({
   return (
     <div>
       <div className="label-xs">{label}</div>
-      <div className="mt-1 font-mono text-sm font-semibold text-fg">{value}</div>
-      <div className={subTone ?? "text-fg-muted"}>{sub}</div>
+      <div className="mt-1.5 font-mono text-[15px] font-semibold text-fg">{value}</div>
+      <div className={`mt-0.5 text-2xs ${subTone ?? "text-fg-secondary"}`}>{sub}</div>
     </div>
   );
 }

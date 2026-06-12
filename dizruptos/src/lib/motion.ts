@@ -24,19 +24,21 @@ export const springSnappy: Transition = {
   damping: 34,
 };
 export const easeAmbient: Transition = {
-  duration: 0.35,
+  duration: 0.22,
   ease: [0.22, 1, 0.36, 1],
 };
 
 /* Page entrance — staggered children rise. Used by template.tsx so every
    route gets choreography for free; sections opt into finer stagger with
    the `rise` child variant. */
+// Tuned for perceived speed: navigation must feel instant, so the entrance
+// is a short rise with a tight stagger — choreography without latency.
 export const pageEnter: Variants = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0, y: 6 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { ...easeAmbient, staggerChildren: 0.045, delayChildren: 0.02 },
+    transition: { ...easeAmbient, staggerChildren: 0.03 },
   },
 };
 

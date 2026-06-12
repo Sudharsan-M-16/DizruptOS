@@ -6,7 +6,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
-import { employeeById, projectById, risks } from "@/lib/data";
+import { employeeById, projectById, risks, tasks } from "@/lib/data";
+import { PERSONAS, useSession } from "@/lib/session";
+import { risksForRole } from "@/lib/rbac";
 import {
   EmpAvatar,
   Explain,
@@ -41,10 +43,20 @@ const statusTone: Record<Risk["status"], string> = {
 
 export default function RisksPage() {
   const [selected, setSelected] = React.useState<string | null>(null);
+  const personaId = useSession((s) => s.personaId);
+  const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
+  const isEmployee = persona.role === "employee" || persona.role === "client";
+
+  // Dynamic view: employees see the risks that touch them (owned, or on a
+  // project they execute) — the full register is a manager instrument.
+  const visibleRisks = risksForRole(risks, persona.role, persona.id, (empId, projectId) =>
+    projectId ? tasks.some((t) => t.assigneeId === empId && t.projectId === projectId) : false
+  );
 
   return (
     <div className="grid gap-6 xl:grid-cols-5">
-      {/* Matrix */}
+      {/* Matrix — manager instrument; employees go straight to their risks */}
+      {!isEmployee && (
       <section className="xl:col-span-2">
         <SectionHeader
           title="Severity matrix"
@@ -99,57 +111,91 @@ export default function RisksPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Register */}
-      <section className="xl:col-span-3">
+      <section className={isEmployee ? "xl:col-span-5 mx-auto w-full max-w-3xl" : "xl:col-span-3"}>
         <SectionHeader
-          title={`Register — ${risks.length} risks`}
-          hint="Each risk carries owner, mitigation, and the signals that raised it."
+          title={
+            isEmployee
+              ? `Risks that touch your work — ${visibleRisks.length}`
+              : `Register — ${visibleRisks.length} risks`
+          }
+          hint={
+            isEmployee
+              ? "Risks you own or that sit on a project you execute. The full register is a manager view."
+              : "Each risk carries owner, mitigation, and the signals that raised it."
+          }
         />
-        <div className="space-y-3">
-          {risks.map((r) => {
+        <div className="space-y-4">
+          {visibleRisks.map((r) => {
             const owner = employeeById(r.ownerId);
             const proj = projectById(r.projectId);
             const sev = severityOf(r);
+            const rail =
+              sev === "Critical"
+                ? "border-l-danger"
+                : sev === "High"
+                  ? "border-l-warn"
+                  : sev === "Medium"
+                    ? "border-l-info"
+                    : "border-l-line-strong";
             return (
               <article
                 key={r.id}
                 className={cn(
-                  "panel p-4 transition-all",
-                  selected === r.id && "border-brand/60 shadow-glow"
+                  "panel border-l-[3px] p-5 transition-all",
+                  rail,
+                  selected === r.id && "border-brand/60 border-l-brand shadow-glow"
                 )}
               >
-                <div className="flex flex-wrap items-center gap-2">
+                {/* line 1: identity — title carries the row, badges follow */}
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
                   <span className="font-mono text-2xs text-fg-faint">#{r.id.replace("r-", "")}</span>
-                  <h3 className="text-xs font-semibold">{r.title}</h3>
+                  <h3 className="text-sm font-semibold tracking-tight">{r.title}</h3>
+                  <Explain title="Signals that raised this risk" signals={r.signals} />
+                  <span className="ml-auto text-2xs text-fg-muted">opened {fmtDate(r.createdAt)}</span>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <SeverityBadge severity={sev} />
-                  <span className={cn("rounded-full px-2 py-px text-2xs font-semibold", statusTone[r.status])}>
+                  <span className={cn("rounded-full px-2.5 py-0.5 text-2xs font-semibold capitalize", statusTone[r.status])}>
                     {r.status.toLowerCase()}
                   </span>
-                  <span className="rounded-full border border-line bg-ink-elevated px-2 py-px text-2xs text-fg-muted">
+                  <span className="rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-2xs capitalize text-fg-secondary">
                     {r.category}
                   </span>
-                  <Explain title="Signals that raised this risk" signals={r.signals} />
-                  <span className="ml-auto text-2xs text-fg-faint">opened {fmtDate(r.createdAt)}</span>
                 </div>
-                <div className="mt-3 grid gap-3 border-t border-line-subtle pt-3 md:grid-cols-[1fr_auto]">
+                <div className="mt-4 grid gap-4 border-t border-line-subtle pt-4 md:grid-cols-[1fr_auto]">
                   <div>
-                    <div className="label-xs mb-1">Mitigation · {r.mitigationStatus.replace("_", " ")}</div>
-                    <p className="text-2xs leading-relaxed text-fg-secondary">{r.mitigationPlan}</p>
+                    <div className="label-xs mb-1.5">
+                      Mitigation ·{" "}
+                      <span
+                        className={cn(
+                          r.mitigationStatus === "complete"
+                            ? "text-ok"
+                            : r.mitigationStatus === "in_progress"
+                              ? "text-info"
+                              : "text-warn"
+                        )}
+                      >
+                        {r.mitigationStatus.replace("_", " ")}
+                      </span>
+                    </div>
+                    <p className="max-w-xl text-xs leading-6 text-fg-secondary">{r.mitigationPlan}</p>
                   </div>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-5">
                     {proj && (
-                      <Link href={`/projects/${proj.id}`} className="text-2xs text-fg-muted hover:text-brand">
+                      <Link href={`/projects/${proj.id}`} className="text-2xs text-fg-muted transition-colors hover:text-brand">
                         <div className="label-xs">Project</div>
-                        <div className="mt-1 font-mono">{proj.code}</div>
+                        <div className="mt-1 font-mono text-xs">{proj.code}</div>
                       </Link>
                     )}
                     {owner && (
-                      <Link href={`/people/${owner.id}`} className="flex items-center gap-2 text-2xs text-fg-secondary hover:text-brand">
-                        <EmpAvatar initials={owner.initials} accent={owner.accent} size={22} />
+                      <Link href={`/people/${owner.id}`} className="flex items-center gap-2.5 text-2xs text-fg-secondary transition-colors hover:text-brand">
+                        <EmpAvatar initials={owner.initials} accent={owner.accent} size={26} />
                         <div>
                           <div className="label-xs">Owner</div>
-                          <div className="mt-0.5">{owner.name.split(" ")[0]}</div>
+                          <div className="mt-0.5 text-xs">{owner.name.split(" ")[0]}</div>
                         </div>
                       </Link>
                     )}

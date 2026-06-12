@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import { CriticalFrame, NumberTicker } from "@/components/ui/ascension";
 import { useOps } from "@/lib/store";
-import { useSession } from "@/lib/session";
+import { PERSONAS, useSession } from "@/lib/session";
+import { proposalsForRole } from "@/lib/rbac";
 import {
   commitments,
   employeeById,
@@ -29,10 +30,9 @@ import {
   EmpAvatar,
   Explain,
   HealthPill,
-  MetricTile,
   SectionHeader,
 } from "@/components/ui/primitives";
-import { SparkArea, SparkBars } from "@/components/ui/spark";
+import { SparkArea } from "@/components/ui/spark";
 import { cn, fmtPct, timeAgo, utilizationTone } from "@/lib/utils";
 
 const stagger = {
@@ -46,9 +46,16 @@ const stagger = {
 
 export default function CommandCenter() {
   const utilization = useOps((s) => s.utilization);
-  const proposals = useOps((s) => s.proposals);
+  const allProposals = useOps((s) => s.proposals);
+  const tasks = useOps((s) => s.tasks);
   const audit = useOps((s) => s.audit);
   const canSeeBurnout = useSession((s) => s.can("view_burnout"));
+  const canReview = useSession((s) => s.can("review_proposals"));
+  const canSeeCapacity = useSession((s) => s.can("view_capacity"));
+  const canSeeAudit = useSession((s) => s.can("view_audit"));
+  const personaId = useSession((s) => s.personaId);
+  const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
+  const isEmployee = persona.role === "employee" || persona.role === "client";
   const week = WEEKS[0];
 
   const active = employees.filter((e) => e.role !== "client");
@@ -58,8 +65,101 @@ export default function CommandCenter() {
     .sort((a, b) => utilization(a.id, week) - utilization(b.id, week));
   const overRate = overloaded.length / active.length;
   const critical = projects.filter((p) => p.health === "CRITICAL" || p.health === "AT_RISK" || p.health === "DELAYED");
+  // Dynamic view: every count and queue is the viewer's slice, never the org's.
+  const proposals = proposalsForRole(allProposals, persona.role, persona.id);
   const pending = proposals.filter((p) => p.status === "pending");
   const overdueCommitments = commitments.filter((c) => c.status === "overdue");
+
+  // Employee personal slice
+  const myUtil = utilization(persona.id, week);
+  const myTasks = tasks.filter(
+    (t) => t.assigneeId === persona.id && t.status !== "COMPLETED"
+  );
+  const myDueThisWeek = myTasks.filter((t) => t.weekStart === week);
+
+  // The pulse strip is the viewer's pulse, not the org's: managers read the
+  // org; employees read their own week.
+  const pulseStats = isEmployee
+    ? [
+        {
+          label: "Your load",
+          value: <NumberTicker value={Math.round(myUtil * 100)} suffix="%" />,
+          delta: myUtil >= 1 ? "over capacity" : myUtil >= 0.8 ? "near limit" : "healthy",
+          good: myUtil < 0.8,
+          signals: [
+            `${Math.round(myUtil * 100)}% of your ${employeeById(persona.id)?.capacityHoursPerWeek ?? 40}h week is allocated`,
+            "Definition: Σ estimated hours due this week ÷ your weekly capacity",
+          ],
+        },
+        {
+          label: "Open tasks",
+          value: <NumberTicker value={myTasks.length} />,
+          delta: `${myDueThisWeek.length} due this week`,
+          good: myDueThisWeek.length <= 2,
+          signals: myTasks.map((t) => `${t.title} (${t.estimatedHours}h · ${t.status.replace("_", " ").toLowerCase()})`),
+        },
+        {
+          label: "Your requests",
+          value: <NumberTicker value={pending.length} />,
+          delta: pending.length ? "needs your reply" : "all clear",
+          good: pending.length === 0,
+          signals: pending.map((p) => p.title),
+        },
+        {
+          label: "Projects you're on",
+          value: <NumberTicker value={new Set(myTasks.map((t) => t.projectId)).size} />,
+          delta: "see portfolio below",
+          good: true,
+          signals: Array.from(new Set(myTasks.map((t) => t.projectId))).map(
+            (id) => projects.find((p) => p.id === id)?.name ?? id
+          ),
+        },
+      ]
+    : [
+        {
+          label: "Over-allocation",
+          value: <NumberTicker value={Math.round(overRate * 100)} suffix="%" />,
+          delta: "−9 pts wk/wk",
+          good: true,
+          signals: [
+            ...overloaded.map(
+              (e) => `${e.name} at ${fmtPct(utilization(e.id, week))} — ${e.title}`
+            ),
+            "Definition: Σ estimated hours due this week ÷ weekly capacity ≥ 1.0",
+          ],
+        },
+        {
+          label: "Projects at risk",
+          value: (
+            <>
+              <NumberTicker value={critical.length} />
+              <span className="text-sm font-normal text-fg-muted"> / {projects.length}</span>
+            </>
+          ),
+          delta: "Atlas → Critical",
+          good: false,
+          signals: critical.map((p) => `${p.name}: ${p.healthReasons[0]}`),
+        },
+        {
+          label: "Awaiting decision",
+          value: <NumberTicker value={pending.length} />,
+          delta: "1 compromise staged",
+          good: true,
+          signals: pending.map(
+            (p) => `${p.title} (${Math.round(p.confidence * 100)}% confidence)`
+          ),
+        },
+        {
+          label: "Commitments overdue",
+          value: <NumberTicker value={overdueCommitments.length} />,
+          delta: "oldest due Jun 9",
+          good: false,
+          signals: commitments.map(
+            (c) =>
+              `${employeeById(c.ownerId)?.name} → ${employeeById(c.toId)?.name}: ${c.title} (${c.status})`
+          ),
+        },
+      ];
 
   // The operator queue: the three highest-leverage actions, computed from
   // live state, each one click from resolution. This is the screen's answer
@@ -70,7 +170,7 @@ export default function CommandCenter() {
   )[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Situation banner — the single most important thing, framed once */}
       <motion.section custom={0} initial="hidden" animate="show" variants={stagger}>
         <CriticalFrame tone="danger">
@@ -94,14 +194,16 @@ export default function CommandCenter() {
               </p>
             </div>
             <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col xl:flex-row">
-              {compromise && (
+              {/* Actions are permissions, not decoration: employees see the
+                  situation but can't arbitrate it. */}
+              {canReview && compromise && (
                 <Link href="/proposals">
                   <Button className="w-full">
                     <Zap size={12} /> Review compromise
                   </Button>
                 </Link>
               )}
-              {worstOverload && (
+              {canSeeCapacity && worstOverload && (
                 <Link href="/capacity">
                   <Button variant="secondary" className="w-full">
                     <Flame size={12} /> Relieve {worstOverload.name.split(" ")[0]} ·{" "}
@@ -110,7 +212,7 @@ export default function CommandCenter() {
                 </Link>
               )}
               <Link href="/projects/p-atlas">
-                <Button variant="secondary" className="w-full">
+                <Button variant={canReview ? "secondary" : "primary"} className="w-full">
                   <Crosshair size={12} /> Open Atlas
                 </Button>
               </Link>
@@ -119,62 +221,42 @@ export default function CommandCenter() {
         </CriticalFrame>
       </motion.section>
 
-      {/* Metric row */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        {[
-          <MetricTile
-            key="m1"
-            label="Over-allocation rate"
-            value={<NumberTicker value={Math.round(overRate * 100)} suffix="%" />}
-            delta="−9 pts vs last week"
-            deltaGood
-            explanation={`${overloaded.length} of ${active.length} active people at ≥100% this week. Target < 10%.`}
-            signals={[
-              ...overloaded.map(
-                (e) => `${e.name} at ${fmtPct(utilization(e.id, week))} — ${e.title}`
-              ),
-              "Definition: Σ estimated hours due this week ÷ weekly capacity ≥ 1.0",
-            ]}
-            spark={<SparkBars data={[22, 19, 17, 14, 12, Math.round(overRate * 100)]} color="#F59E0B" />}
-          />,
-          <MetricTile
-            key="m2"
-            label="Projects needing attention"
-            value={`${critical.length} of ${projects.length}`}
-            delta="Atlas degraded to Critical"
-            deltaGood={false}
-            explanation="Health is auto-calculated from overdue ratio, stalled dependencies, and velocity — never manually set."
-            signals={critical.map((p) => `${p.name}: ${p.healthReasons[0]}`)}
-            spark={<SparkArea data={[1, 1, 2, 2, 3, critical.length]} color="#EF4444" />}
-          />,
-          <MetricTile
-            key="m3"
-            label="Agent proposals pending"
-            value={<NumberTicker value={pending.length} />}
-            explanation="Negotiation coordinator already merged 1 burnout/delivery conflict into a single compromise card."
-            signals={pending.map((p) => `${p.title} (${Math.round(p.confidence * 100)}% confidence)`)}
-            spark={<SparkBars data={[2, 4, 3, 5, 4, pending.length]} color="#00ED82" />}
-          />,
-          <MetricTile
-            key="m4"
-            label="Commitments overdue"
-            value={<NumberTicker value={overdueCommitments.length} />}
-            explanation="Promises by named people — tracked separately from tasks. Oldest: vendor spec sign-off, due Jun 9."
-            signals={commitments.map(
-              (c) =>
-                `${employeeById(c.ownerId)?.name} → ${employeeById(c.toId)?.name}: ${c.title} (${c.status})`
-            )}
-            spark={<SparkArea data={[0, 1, 0, 1, 1, overdueCommitments.length]} color="#F59E0B" />}
-          />,
-        ].map((tile, i) => (
-          <motion.div key={i} custom={i} initial="hidden" animate="show" variants={stagger}>
-            {tile}
-          </motion.div>
+      {/* Pulse strip — four numbers, one calm line. Detail lives behind the
+          Explain icons and on the dedicated pages; the first glance stays
+          readable in under two seconds. */}
+      <motion.div
+        custom={1}
+        initial="hidden"
+        animate="show"
+        variants={stagger}
+        className="panel grid grid-cols-2 divide-line-subtle md:grid-cols-4 md:divide-x"
+      >
+        {pulseStats.map((s) => (
+          <div key={s.label} className="flex items-center justify-between gap-3 px-5 py-5">
+            <div>
+              <div className="label-xs flex items-center gap-1.5">
+                {s.label}
+                <Explain title={s.label} signals={s.signals} />
+              </div>
+              <div className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-tight">
+                {s.value}
+              </div>
+            </div>
+            <span
+              className={cn(
+                "max-w-24 text-right text-2xs leading-snug",
+                s.good ? "text-ok" : "text-warn"
+              )}
+            >
+              {s.delta}
+            </span>
+          </div>
         ))}
-      </div>
+      </motion.div>
 
       <div className="grid gap-6 xl:grid-cols-5">
-        {/* Capacity hotlist — the wedge, two clicks from resolution */}
+        {/* Capacity hotlist — managers only; employees get their own week */}
+        {canSeeCapacity ? (
         <motion.section custom={4} initial="hidden" animate="show" variants={stagger} className="xl:col-span-3">
           <SectionHeader
             title="Capacity hotlist — week of Jun 8"
@@ -191,7 +273,7 @@ export default function CommandCenter() {
             {[...overloaded, ...active.filter((e) => {
               const u = utilization(e.id, week);
               return u >= 0.8 && u < 1;
-            })].slice(0, 5).map((e) => {
+            })].slice(0, 4).map((e) => {
               const pct = utilization(e.id, week);
               return (
                 <Link
@@ -236,12 +318,52 @@ export default function CommandCenter() {
             </div>
           </div>
         </motion.section>
+        ) : (
+        /* ----------------------- Your week (employee) ----------------------- */
+        <motion.section custom={4} initial="hidden" animate="show" variants={stagger} className="xl:col-span-3">
+          <SectionHeader
+            title={`Your week — ${persona.name.split(" ")[0]}`}
+            hint="What's on your plate, in the order it's due."
+          />
+          <div className="panel divide-y divide-line-subtle">
+            <div className="flex items-center gap-4 px-4 py-3.5">
+              <span className="label-xs w-24 shrink-0">Your load</span>
+              <CapacityBar pct={myUtil} className="flex-1" />
+              <span className="w-12 text-right font-mono text-xs font-semibold text-ok">
+                {fmtPct(myUtil)}
+              </span>
+            </div>
+            {myTasks.slice(0, 5).map((t) => (
+              <button
+                key={t.id}
+                onClick={() => useOps.getState().openTaskDrawer(t.id)}
+                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-ink-elevated/60"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-semibold">{t.title}</span>
+                  <span className="text-2xs text-fg-muted">
+                    {projects.find((pr) => pr.id === t.projectId)?.name} · week of {t.weekStart.slice(5)}
+                  </span>
+                </span>
+                <span className="font-mono text-2xs text-fg-secondary">{t.estimatedHours}h</span>
+                <span className="rounded-full border border-line bg-ink-elevated px-2 py-px text-2xs capitalize text-fg-secondary">
+                  {t.status.replace("_", " ").toLowerCase()}
+                </span>
+              </button>
+            ))}
+          </div>
+        </motion.section>
+        )}
 
-        {/* Agent inbox preview */}
+        {/* Agent inbox preview — scoped: managers decide, employees respond */}
         <motion.section custom={5} initial="hidden" animate="show" variants={stagger} className="xl:col-span-2">
           <SectionHeader
-            title="Needs your decision"
-            hint="Agents propose, you decide — in two clicks."
+            title={isEmployee ? "Your requests" : "Needs your decision"}
+            hint={
+              isEmployee
+                ? "Agents and managers stage things here that concern you."
+                : "Agents propose, you decide — in two clicks."
+            }
             right={
               <Link href="/proposals">
                 <Button variant="secondary">
@@ -291,7 +413,13 @@ export default function CommandCenter() {
 
       <div className="grid gap-6 xl:grid-cols-5">
         {/* Portfolio strip */}
-        <motion.section custom={6} initial="hidden" animate="show" variants={stagger} className="xl:col-span-3">
+        <motion.section
+          custom={6}
+          initial="hidden"
+          animate="show"
+          variants={stagger}
+          className={cn("xl:col-span-3", !canSeeAudit && "xl:col-span-5")}
+        >
           <SectionHeader title="Portfolio health" hint="Click any project for the causal breakdown." />
           <div className="grid gap-3 md:grid-cols-2">
             {projects.map((p) => (
@@ -325,7 +453,8 @@ export default function CommandCenter() {
           </div>
         </motion.section>
 
-        {/* Live audit feed */}
+        {/* Live audit feed — permission-gated (view_audit) */}
+        {canSeeAudit && (
         <motion.section custom={7} initial="hidden" animate="show" variants={stagger} className="xl:col-span-2">
           <SectionHeader
             title="Activity — audit trail"
@@ -339,7 +468,7 @@ export default function CommandCenter() {
             }
           />
           <div className="panel divide-y divide-line-subtle">
-            {audit.slice(0, 6).map((a) => {
+            {audit.slice(0, 4).map((a) => {
               const actor = employeeById(a.actorId);
               return (
                 <div key={a.id} className="flex gap-3 px-4 py-3">
@@ -369,6 +498,7 @@ export default function CommandCenter() {
             })}
           </div>
         </motion.section>
+        )}
       </div>
     </div>
   );

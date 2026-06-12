@@ -6,7 +6,6 @@ import {
   Bell,
   BellRing,
   Keyboard,
-  Monitor,
   Moon,
   OctagonAlert,
   Search,
@@ -62,23 +61,50 @@ function PresenceBadge() {
   );
 }
 
-const THEME_ORDER: Theme[] = ["dark", "light", "system"];
-
+// Two explicit modes with a sliding pill — "system" was indistinguishable
+// from dark on dark-mode OSes, so the control now shows exactly what you get.
 function ThemeToggle() {
   const theme = useSession((s) => s.theme);
   const setTheme = useSession((s) => s.setTheme);
-  const Icon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
+  // resolve legacy "system" to whatever it currently displays as
+  const resolved: Theme =
+    theme === "system"
+      ? typeof window !== "undefined" &&
+        window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark"
+      : theme;
   return (
-    <button
-      onClick={() =>
-        setTheme(THEME_ORDER[(THEME_ORDER.indexOf(theme) + 1) % THEME_ORDER.length])
-      }
-      aria-label={`Theme: ${theme} — click to cycle`}
-      title={`Theme: ${theme}`}
-      className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-ink-surface text-fg-secondary transition-colors hover:border-brand/40 hover:text-fg"
+    <div
+      role="radiogroup"
+      aria-label="Theme"
+      className="relative flex h-8 items-center rounded-full border border-line bg-ink-surface p-0.5"
     >
-      <Icon size={14} />
-    </button>
+      {(["dark", "light"] as const).map((t) => (
+        <button
+          key={t}
+          role="radio"
+          aria-checked={resolved === t}
+          onClick={() => setTheme(t)}
+          className={cn(
+            "relative z-10 flex h-7 items-center gap-1.5 rounded-full px-2.5 text-2xs font-medium transition-colors",
+            resolved === t ? "text-[#04281A]" : "text-fg-muted hover:text-fg-secondary"
+          )}
+        >
+          {t === "dark" ? <Moon size={12} /> : <Sun size={12} />}
+          <span className="hidden xl:inline capitalize">{t}</span>
+        </button>
+      ))}
+      <motion.span
+        layout
+        transition={{ type: "spring", damping: 22, stiffness: 320 }}
+        className={cn(
+          "absolute top-0.5 z-0 h-7 rounded-full bg-gradient-to-r from-brand to-[#3DF59E]",
+          resolved === "dark" ? "left-0.5" : "right-0.5"
+        )}
+        style={{ width: "calc(50% - 2px)" }}
+      />
+    </div>
   );
 }
 

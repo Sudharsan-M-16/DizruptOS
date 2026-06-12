@@ -15,6 +15,7 @@ import {
   employeeById,
 } from "./data";
 import { validateProposal } from "./ai";
+import { useSession } from "./session";
 import { log } from "./logger";
 import { createChannel } from "./realtime";
 import type {
@@ -103,6 +104,13 @@ const applyDelta = (
 
 let auditSeq = 100;
 
+// Audit completeness law: every event is attributed to the persona actually
+// signed in — never a hardcoded actor.
+const currentActor = () => {
+  const p = useSession.getState().persona();
+  return { actorId: p.id, actorRole: p.role };
+};
+
 export const useOps = create<OpsState>((set, get) => ({
   tasks: seedTasks,
   capacity: seedCapacity,
@@ -190,8 +198,7 @@ export const useOps = create<OpsState>((set, get) => ({
 
     const event: AuditEvent = {
       id: `a-${auditSeq++}`,
-      actorId: "u-asha",
-      actorRole: "project_manager",
+      ...currentActor(),
       actionType: overrideReason ? "capacity_override" : "task_reallocated",
       entityType: "task",
       entityLabel: task.title,
@@ -246,8 +253,7 @@ export const useOps = create<OpsState>((set, get) => ({
           audit: [
             {
               id: `a-${auditSeq++}`,
-              actorId: "u-asha",
-              actorRole: "project_manager",
+              ...currentActor(),
               actionType: "proposal_stale",
               entityType: "proposal",
               entityLabel: prop.title,
@@ -284,8 +290,7 @@ export const useOps = create<OpsState>((set, get) => ({
 
     const event: AuditEvent = {
       id: `a-${auditSeq++}`,
-      actorId: "u-asha",
-      actorRole: "project_manager",
+      ...currentActor(),
       actionType: `proposal_${verdict}`,
       entityType: "proposal",
       entityLabel: prop.title,

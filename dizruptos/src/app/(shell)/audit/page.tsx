@@ -63,10 +63,10 @@ export default function AuditPage() {
         </span>
       </div>
 
-      <div className="panel overflow-hidden">
+      <div className="panel table-scroll">
         <table className="table-sticky w-full text-left">
           <thead>
-            <tr className="border-b border-line-subtle bg-ink-elevated/40">
+            <tr>
               {["Time", "Actor", "Action", "Entity", "Detail"].map((h) => (
                 <th key={h} className="label-xs px-4 py-2.5">{h}</th>
               ))}

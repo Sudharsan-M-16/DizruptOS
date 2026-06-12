@@ -82,49 +82,60 @@ export default function DecisionsPage() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="space-y-4 border-t border-line-subtle px-4 py-4">
+                      {/* Expanded record — sized to be READ, not decoded:
+                          13px body on near-white, labels above perception floor */}
+                      <div className="space-y-5 border-t border-line-subtle px-5 py-5">
                         <Block label="Context">{d.context}</Block>
                         <Block label="Chosen — rationale">
-                          <span className="font-medium text-fg">{d.chosenOption}.</span>{" "}
+                          <span className="font-semibold text-fg">{d.chosenOption}.</span>{" "}
                           {d.rationale}
                         </Block>
 
                         <div>
-                          <div className="label-xs mb-2 flex items-center gap-1.5">
-                            <Scale size={11} /> Options considered
+                          <div className="mb-2.5 flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
+                            <Scale size={12} /> Options considered
                           </div>
-                          <div className="grid gap-2 md:grid-cols-2">
+                          <div className="grid gap-2.5 md:grid-cols-2">
                             {d.optionsConsidered.map((o) => (
                               <div
                                 key={o.option}
                                 className={cn(
-                                  "rounded-lg border p-3",
+                                  "rounded-lg border p-3.5",
                                   o.option === d.chosenOption
                                     ? "border-ok/40 bg-ok-soft/30"
                                     : "border-line bg-ink-elevated"
                                 )}
                               >
-                                <div className="text-2xs font-semibold">{o.option}</div>
-                                <div className="mt-1.5 text-2xs text-ok">+ {o.pros}</div>
-                                <div className="mt-0.5 text-2xs text-danger">− {o.cons}</div>
+                                <div className="text-[13px] font-semibold text-fg">{o.option}</div>
+                                <div className="mt-2 text-xs leading-5 text-ok">+ {o.pros}</div>
+                                <div className="mt-1 text-xs leading-5 text-danger">− {o.cons}</div>
                               </div>
                             ))}
                           </div>
                         </div>
 
-                        <div className="grid gap-2 md:grid-cols-2">
-                          <div className="rounded-lg border border-line bg-ink-elevated p-3">
-                            <div className="label-xs">Expected outcome</div>
-                            <p className="mt-1 text-2xs leading-relaxed text-fg-secondary">{d.expectedOutcome}</p>
+                        <div className="grid gap-2.5 md:grid-cols-2">
+                          <div className="rounded-lg border border-line bg-ink-elevated p-3.5">
+                            <div className="text-2xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
+                              Expected outcome
+                            </div>
+                            <p className="mt-1.5 text-[13px] leading-6 text-fg">{d.expectedOutcome}</p>
                           </div>
                           <div
                             className={cn(
-                              "rounded-lg border p-3",
+                              "rounded-lg border p-3.5",
                               d.actualOutcome ? "border-ok/40 bg-ok-soft/20" : "border-dashed border-line bg-transparent"
                             )}
                           >
-                            <div className="label-xs">Actual outcome — calibration</div>
-                            <p className="mt-1 text-2xs leading-relaxed text-fg-secondary">
+                            <div
+                              className={cn(
+                                "text-2xs font-semibold uppercase tracking-[0.12em]",
+                                d.actualOutcome ? "text-ok" : "text-fg-secondary"
+                              )}
+                            >
+                              Actual outcome — calibration
+                            </div>
+                            <p className="mt-1.5 text-[13px] leading-6 text-fg">
                               {d.actualOutcome ?? "Not yet recorded — review scheduled."}
                             </p>
                           </div>
@@ -148,8 +159,10 @@ export default function DecisionsPage() {
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="label-xs mb-1">{label}</div>
-      <p className="text-2xs leading-relaxed text-fg-secondary">{children}</p>
+      <div className="mb-1.5 text-2xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
+        {label}
+      </div>
+      <p className="max-w-2xl text-[13px] leading-6 text-fg">{children}</p>
     </div>
   );
 }

@@ -1,9 +1,15 @@
-// Shared route-transition skeleton — shimmering panels that match the
-// command-center layout so loading never feels like a different product.
+// Shared route-transition skeleton — an immediate volt pulse plus shimmering
+// panels that match the command-center layout, so loading never feels like a
+// different product (or a frozen one).
+
+import { BarLoader } from "@/components/fx/bar-loader";
 
 export default function ShellLoading() {
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="Loading view">
+    <div className="relative space-y-6" aria-busy="true" aria-label="Loading view">
+      <div className="absolute inset-x-0 top-24 z-10 flex justify-center">
+        <BarLoader />
+      </div>
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="panel h-36 overflow-hidden p-5">

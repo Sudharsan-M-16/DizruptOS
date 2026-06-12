@@ -461,6 +461,7 @@ export const proposals: Proposal[] = [
     ],
     action: { kind: "reallocate", taskId: "t-10", fromEmployeeId: "u-sarah", toEmployeeId: "u-ahmed", deltaHours: 9, projectId: "p-atlas" },
     confidence: 0.91, priority: 100, entityLabel: "Sarah Okafor · Atlas",
+    visibility: ["project_manager", "dept_head"], subjectId: "u-sarah",
     status: "pending", createdAt: "2026-06-10T05:40:00Z", expiresAt: "2026-06-12T05:40:00Z",
     conflict: {
       withAgent: "delivery_critical",
@@ -485,6 +486,7 @@ export const proposals: Proposal[] = [
     ],
     action: { kind: "reallocate", taskId: "t-1", toEmployeeId: "u-mei", deltaHours: 4, projectId: "p-atlas" },
     confidence: 0.87, priority: 70, entityLabel: "Atlas critical path",
+    visibility: ["project_manager", "dept_head"], subjectId: "u-mei",
     status: "pending", createdAt: "2026-06-10T05:41:00Z", expiresAt: "2026-06-12T05:41:00Z",
     validation: [
       { check: "Mei under 100% after +4h", pass: true },
@@ -501,6 +503,7 @@ export const proposals: Proposal[] = [
     ],
     action: { kind: "escalate", projectId: "p-atlas" },
     confidence: 0.78, priority: 40, entityLabel: "Vendor: ClearSettle Ltd",
+    visibility: ["project_manager", "dept_head", "executive"],
     status: "pending", createdAt: "2026-06-09T16:02:00Z", expiresAt: "2026-06-11T16:02:00Z",
     validation: [{ check: "Escalation path exists (Marcus Bell)", pass: true }],
   },
@@ -514,6 +517,7 @@ export const proposals: Proposal[] = [
     ],
     action: { kind: "shift_deadline", taskId: "t-26", deltaHours: 0, projectId: "p-nimbus" },
     confidence: 0.83, priority: 50, entityLabel: "Jonas Weber · QA",
+    visibility: ["project_manager", "dept_head"], subjectId: "u-jonas",
     status: "pending", createdAt: "2026-06-09T11:20:00Z", expiresAt: "2026-06-11T11:20:00Z",
     validation: [
       { check: "No downstream dependency violated", pass: true },
@@ -530,6 +534,7 @@ export const proposals: Proposal[] = [
     ],
     action: { kind: "reallocate", taskId: "t-12", toEmployeeId: "u-fatima", deltaHours: 8, projectId: "p-atlas" },
     confidence: 0.74, priority: 50, entityLabel: "Atlas backlog",
+    visibility: ["project_manager", "dept_head"], subjectId: "u-fatima",
     status: "approved", createdAt: "2026-06-08T09:15:00Z", expiresAt: "2026-06-10T09:15:00Z",
     validation: [
       { check: "Fatima under 100% after +8h", pass: true },
@@ -543,8 +548,76 @@ export const proposals: Proposal[] = [
     reasoning: ["days_since_pto ≥ 90 threshold breached (rule · 99%)"],
     action: { kind: "reduce_load" },
     confidence: 0.95, priority: 100, entityLabel: "Sarah Okafor",
+    visibility: ["project_manager", "dept_head"], subjectId: "u-sarah",
     status: "rejected", createdAt: "2026-06-03T07:30:00Z", expiresAt: "2026-06-05T07:30:00Z",
     validation: [{ check: "Manager-private delivery", pass: true }],
+  },
+
+  // ---- employee-facing requests (personal scope: subjectId is the viewer) ----
+  {
+    id: "pr-7", agentType: "allocation_optimize",
+    title: "Incoming transfer: 'PCI evidence pack refresh' (9h) — confirm you can absorb it",
+    summary: "Your manager is reviewing a move of this task from Sarah to you. Accepting confirms you have the headroom; flagging routes it back with your reason.",
+    reasoning: [
+      "Your utilization rises 65% → 87% if accepted (rule · 96%)",
+      "Skill match on Payments + compliance exposure: 0.81 (skill-match · 84%)",
+      "No PTO conflict in the target window (calendar · validated)",
+    ],
+    action: { kind: "reallocate", taskId: "t-10", toEmployeeId: "u-ahmed", deltaHours: 9, projectId: "p-atlas" },
+    confidence: 0.84, priority: 70, entityLabel: "Your week · Atlas",
+    visibility: ["employee"], subjectId: "u-ahmed",
+    status: "pending", createdAt: "2026-06-10T06:05:00Z", expiresAt: "2026-06-12T06:05:00Z",
+    validation: [
+      { check: "You stay under 90% after the move", pass: true },
+      { check: "No overlap with your existing Atlas deadline", pass: true },
+    ],
+  },
+  {
+    id: "pr-8", agentType: "burnout_safety",
+    title: "Protect a focus block before your Jun 16 deadline",
+    summary: "Your 'Idempotent retry layer' (12h) lands Jun 16. The agent suggests blocking Thursday morning — your calendar shows 6 meeting-free hours.",
+    reasoning: [
+      "Deadline within 4 working days with 12h remaining (rule · 93%)",
+      "Historical: your throughput doubles in pre-blocked windows (memory · 76%)",
+    ],
+    action: { kind: "reduce_load", taskId: "t-14", projectId: "p-atlas" },
+    confidence: 0.79, priority: 50, entityLabel: "Your focus · Atlas",
+    visibility: ["employee"], subjectId: "u-ahmed",
+    status: "pending", createdAt: "2026-06-10T07:10:00Z", expiresAt: "2026-06-13T07:10:00Z",
+    validation: [{ check: "Block fits inside working hours", pass: true }],
+  },
+
+  // ---- admin-only governance queue ------------------------------------------
+  {
+    id: "pr-9", agentType: "risk_advisory",
+    title: "Approve permission grant: audit-export for Priya Sharma",
+    summary: "Priya (VP Engineering) requested audit-log export for the SOC 2 evidence window. Grant expires automatically Aug 31.",
+    reasoning: [
+      "Request matches an active compliance milestone (rule · 97%)",
+      "Least-privilege check: export-only, no UPDATE/DELETE surface (policy · 100%)",
+    ],
+    action: { kind: "escalate" },
+    confidence: 0.92, priority: 80, entityLabel: "RBAC grant · governance",
+    visibility: ["admin"],
+    status: "pending", createdAt: "2026-06-10T04:30:00Z", expiresAt: "2026-06-14T04:30:00Z",
+    validation: [
+      { check: "Grant is time-boxed (expires Aug 31)", pass: true },
+      { check: "No standing-privilege escalation", pass: true },
+    ],
+  },
+  {
+    id: "pr-10", agentType: "risk_advisory",
+    title: "Concurrent session anomaly: revoke stale session for Ray Torres",
+    summary: "Two live sessions detected for u-ray (Chrome/Windows + Safari/macOS, 40 min apart, different cities). Single-session law says the older one dies.",
+    reasoning: [
+      "Geo-velocity between logins exceeds plausible travel (rule · 99%)",
+      "Single-session enforcement is a hard invariant (policy · 100%)",
+    ],
+    action: { kind: "escalate" },
+    confidence: 0.97, priority: 100, entityLabel: "Session security · u-ray",
+    visibility: ["admin"],
+    status: "pending", createdAt: "2026-06-10T08:55:00Z", expiresAt: "2026-06-10T20:55:00Z",
+    validation: [{ check: "Newer session keeps continuity", pass: true }],
   },
 ];
 
