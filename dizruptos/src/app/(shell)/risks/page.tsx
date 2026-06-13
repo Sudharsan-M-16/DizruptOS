@@ -90,7 +90,7 @@ export default function RisksPage() {
                           onClick={() => setSelected(r.id)}
                           title={r.title}
                           className={cn(
-                            "flex h-6 w-6 items-center justify-center rounded-md border text-2xs font-bold transition-transform hover:scale-110",
+                            "flex h-8 w-8 items-center justify-center rounded-md border text-sm font-bold transition-transform hover:scale-110",
                             selected === r.id
                               ? "border-fg bg-ink text-fg"
                               : "border-line bg-ink-surface text-fg-secondary"
@@ -105,7 +105,7 @@ export default function RisksPage() {
               </React.Fragment>
             ))}
           </div>
-          <div className="mt-3 flex items-center gap-2 text-2xs text-fg-muted">
+          <div className="mt-3 flex items-center gap-2 text-xs text-fg-muted">
             <ShieldAlert size={11} />
             Probability rows × impact columns. Click a marker to highlight it in the register.
           </div>
@@ -151,17 +151,17 @@ export default function RisksPage() {
               >
                 {/* line 1: identity — title carries the row, badges follow */}
                 <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-                  <span className="font-mono text-2xs text-fg-faint">#{r.id.replace("r-", "")}</span>
+                  <span className="font-mono text-xs text-fg-faint">#{r.id.replace("r-", "")}</span>
                   <h3 className="text-sm font-semibold tracking-tight">{r.title}</h3>
                   <Explain title="Signals that raised this risk" signals={r.signals} />
-                  <span className="ml-auto text-2xs text-fg-muted">opened {fmtDate(r.createdAt)}</span>
+                  <span className="ml-auto text-xs text-fg-muted">opened {fmtDate(r.createdAt)}</span>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <SeverityBadge severity={sev} />
-                  <span className={cn("rounded-full px-2.5 py-0.5 text-2xs font-semibold capitalize", statusTone[r.status])}>
+                  <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize", statusTone[r.status])}>
                     {r.status.toLowerCase()}
                   </span>
-                  <span className="rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-2xs capitalize text-fg-secondary">
+                  <span className="rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-xs capitalize text-fg-secondary">
                     {r.category}
                   </span>
                 </div>
@@ -185,13 +185,13 @@ export default function RisksPage() {
                   </div>
                   <div className="flex items-start gap-5">
                     {proj && (
-                      <Link href={`/projects/${proj.id}`} className="text-2xs text-fg-muted transition-colors hover:text-brand">
+                      <Link href={`/projects/${proj.id}`} className="text-xs text-fg-muted transition-colors hover:text-brand">
                         <div className="label-xs">Project</div>
                         <div className="mt-1 font-mono text-xs">{proj.code}</div>
                       </Link>
                     )}
                     {owner && (
-                      <Link href={`/people/${owner.id}`} className="flex items-center gap-2.5 text-2xs text-fg-secondary transition-colors hover:text-brand">
+                      <Link href={`/people/${owner.id}`} className="flex items-center gap-2.5 text-xs text-fg-secondary transition-colors hover:text-brand">
                         <EmpAvatar initials={owner.initials} accent={owner.accent} size={26} />
                         <div>
                           <div className="label-xs">Owner</div>

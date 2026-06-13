@@ -35,13 +35,17 @@ import {
 import { SparkArea } from "@/components/ui/spark";
 import { cn, fmtPct, timeAgo, utilizationTone } from "@/lib/utils";
 
-const stagger = {
-  hidden: { opacity: 0, y: 8 },
-  show: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.05, duration: 0.25 },
-  }),
+// Each pulse stat drills into the page that explains/acts on it — the number
+// is a doorway, not just a readout.
+const PULSE_HREF: Record<string, string> = {
+  "Over-allocation": "/capacity",
+  "Projects at risk": "/projects",
+  "Awaiting decision": "/proposals",
+  "Commitments overdue": "/people",
+  "Your load": "/capacity",
+  "Open tasks": "/projects",
+  "Your requests": "/proposals",
+  "Projects you're on": "/projects",
 };
 
 export default function CommandCenter() {
@@ -170,9 +174,9 @@ export default function CommandCenter() {
   )[0];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Situation banner — the single most important thing, framed once */}
-      <motion.section custom={0} initial="hidden" animate="show" variants={stagger}>
+      <motion.section custom={0} initial={false}>
         <CriticalFrame tone="danger">
           <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center">
             <div className="min-w-0 flex-1">
@@ -183,11 +187,11 @@ export default function CommandCenter() {
                 </span>
                 <span className="label-xs text-danger">Situation · right now</span>
               </div>
-              <h2 className="mt-1.5 font-display text-[17px] font-semibold leading-snug tracking-tight">
+              <h2 className="mt-1.5 font-display text-xl font-bold leading-snug tracking-tight">
                 Atlas Payments Migration is CRITICAL —{" "}
                 <span className="text-danger">$4.2M ARR exposed</span>
               </h2>
-              <p className="mt-1 text-2xs leading-relaxed text-fg-secondary">
+              <p className="mt-1.5 text-xs leading-relaxed text-fg-secondary">
                 7 tasks overdue · QA at 112% · velocity −38% vs 3-sprint average ·
                 vendor settlement file 8 days late. The negotiation coordinator has a
                 compromise staged.
@@ -225,39 +229,43 @@ export default function CommandCenter() {
           Explain icons and on the dedicated pages; the first glance stays
           readable in under two seconds. */}
       <motion.div
-        custom={1}
-        initial="hidden"
-        animate="show"
-        variants={stagger}
+        initial={false}
         className="panel grid grid-cols-2 divide-line-subtle md:grid-cols-4 md:divide-x"
       >
         {pulseStats.map((s) => (
-          <div key={s.label} className="flex items-center justify-between gap-3 px-5 py-5">
-            <div>
-              <div className="label-xs flex items-center gap-1.5">
-                {s.label}
-                <Explain title={s.label} signals={s.signals} />
-              </div>
-              <div className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-tight">
+          <div key={s.label} className="flex items-center justify-between gap-3 px-6 py-6">
+            <Link
+              href={PULSE_HREF[s.label] ?? "/"}
+              className="group -m-2 flex-1 rounded-lg p-2 transition-colors hover:bg-ink-elevated/50"
+              title={`Open ${PULSE_HREF[s.label] ?? "details"}`}
+            >
+              <div className="label-xs">{s.label}</div>
+              <div className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-tight transition-colors group-hover:text-brand">
                 {s.value}
               </div>
+              <span className="mt-1 block text-2xs font-medium text-fg-faint opacity-0 transition-opacity group-hover:opacity-100">
+                View →
+              </span>
+            </Link>
+            <div className="flex flex-col items-end gap-2">
+              <Explain title={s.label} signals={s.signals} />
+              <span
+                className={cn(
+                  "max-w-24 text-right text-2xs leading-snug",
+                  s.good ? "text-ok" : "text-warn"
+                )}
+              >
+                {s.delta}
+              </span>
             </div>
-            <span
-              className={cn(
-                "max-w-24 text-right text-2xs leading-snug",
-                s.good ? "text-ok" : "text-warn"
-              )}
-            >
-              {s.delta}
-            </span>
           </div>
         ))}
       </motion.div>
 
-      <div className="grid gap-6 xl:grid-cols-5">
+      <div className="grid gap-7 xl:grid-cols-5">
         {/* Capacity hotlist — managers only; employees get their own week */}
         {canSeeCapacity ? (
-        <motion.section custom={4} initial="hidden" animate="show" variants={stagger} className="xl:col-span-3">
+        <motion.section custom={4} initial={false} className="xl:col-span-3">
           <SectionHeader
             title="Capacity hotlist — week of Jun 8"
             hint="Click a person to open the heatmap; resolve overloads by dragging work to green."
@@ -320,7 +328,7 @@ export default function CommandCenter() {
         </motion.section>
         ) : (
         /* ----------------------- Your week (employee) ----------------------- */
-        <motion.section custom={4} initial="hidden" animate="show" variants={stagger} className="xl:col-span-3">
+        <motion.section custom={4} initial={false} className="xl:col-span-3">
           <SectionHeader
             title={`Your week — ${persona.name.split(" ")[0]}`}
             hint="What's on your plate, in the order it's due."
@@ -356,7 +364,7 @@ export default function CommandCenter() {
         )}
 
         {/* Agent inbox preview — scoped: managers decide, employees respond */}
-        <motion.section custom={5} initial="hidden" animate="show" variants={stagger} className="xl:col-span-2">
+        <motion.section custom={5} initial={false} className="xl:col-span-2">
           <SectionHeader
             title={isEmployee ? "Your requests" : "Needs your decision"}
             hint={
@@ -411,13 +419,10 @@ export default function CommandCenter() {
         </motion.section>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-5">
+      <div className="grid gap-7 xl:grid-cols-5">
         {/* Portfolio strip */}
         <motion.section
-          custom={6}
-          initial="hidden"
-          animate="show"
-          variants={stagger}
+          initial={false}
           className={cn("xl:col-span-3", !canSeeAudit && "xl:col-span-5")}
         >
           <SectionHeader title="Portfolio health" hint="Click any project for the causal breakdown." />
@@ -455,7 +460,7 @@ export default function CommandCenter() {
 
         {/* Live audit feed — permission-gated (view_audit) */}
         {canSeeAudit && (
-        <motion.section custom={7} initial="hidden" animate="show" variants={stagger} className="xl:col-span-2">
+        <motion.section custom={7} initial={false} className="xl:col-span-2">
           <SectionHeader
             title="Activity — audit trail"
             hint="Insert-only. Every state change, attributed."

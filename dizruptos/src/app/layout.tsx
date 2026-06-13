@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, IBM_Plex_Mono, Sora } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono, Sora, Newsreader } from "next/font/google";
 import { FxProvider } from "@/components/fx/fx-provider";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
@@ -19,6 +20,14 @@ const sora = Sora({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-sora",
+});
+
+// Newsreader — the Nexus display serif, reserved for the login gateway.
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
 });
 
 export const metadata: Metadata = {
@@ -41,10 +50,10 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${plex.variable} ${plexMono.variable} ${sora.variable} font-sans`}
+        className={`${plex.variable} ${plexMono.variable} ${sora.variable} ${newsreader.variable} font-sans`}
       >
         <FxProvider />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

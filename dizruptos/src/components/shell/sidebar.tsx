@@ -11,6 +11,7 @@ import {
   Flame,
   GitBranch,
   Inbox,
+  Boxes,
   KanbanSquare,
   LayoutDashboard,
   LogOut,
@@ -38,6 +39,7 @@ const NAV: {
   ]},
   { group: "Intelligence", items: [
     { href: "/executive", label: "Executive", icon: Activity, perm: "view_executive" },
+    { href: "/capabilities", label: "Capability Intel", icon: Boxes },
     { href: "/risks", label: "Risk Register", icon: ShieldAlert },
     { href: "/decisions", label: "Decisions", icon: ScrollText },
     { href: "/goals", label: "Goals · OKRs", icon: Target },
@@ -66,7 +68,7 @@ export function Sidebar() {
   ).length;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 flex w-[232px] flex-col border-r border-line-subtle bg-ink-surface/60 backdrop-blur-xl">
+    <aside className="fixed inset-y-0 left-0 z-30 flex w-[256px] flex-col border-r border-line-subtle bg-ink-surface/60 backdrop-blur-xl">
       {/* Wordmark */}
       <Link href="/" className="flex items-center px-5 pb-5 pt-5">
         <DizruptWordmark markSize={28} sub="Resource Intelligence" />
@@ -91,7 +93,7 @@ export function Sidebar() {
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "group relative flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] transition-colors",
+                        "group relative flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors",
                         active
                           ? "bg-brand-soft text-fg"
                           : "text-fg-secondary hover:bg-ink-elevated hover:text-fg"
@@ -101,7 +103,7 @@ export function Sidebar() {
                         <span className="absolute -left-3 h-4 w-0.5 rounded-r bg-brand" />
                       )}
                       <item.icon
-                        size={15}
+                        size={17}
                         className={cn(
                           active ? "text-brand" : "text-fg-muted group-hover:text-fg-secondary"
                         )}
@@ -130,9 +132,9 @@ export function Sidebar() {
               className="flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-ink-elevated"
               aria-label="Switch viewing persona"
             >
-              <EmpAvatar initials={persona.initials} accent={persona.accent} size={30} />
+              <EmpAvatar initials={persona.initials} accent={persona.accent} size={34} />
               <div className="min-w-0 flex-1 leading-tight">
-                <div className="truncate text-xs font-semibold">{persona.name}</div>
+                <div className="truncate text-sm font-semibold">{persona.name}</div>
                 <div className="text-2xs text-fg-muted">{persona.title}</div>
               </div>
               <ChevronsUpDown size={13} className="text-fg-muted" />

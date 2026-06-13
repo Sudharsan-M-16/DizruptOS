@@ -188,6 +188,144 @@ refuses edits and deletes on this table (INSERT-only). That's what
 - **The bell** rolls up notifications by urgency class instead of spamming.
 - **Hover any panel** and a soft light follows your cursor.
 
+## Every control, explained — page by page
+
+This section names **every button, badge, and number** on every page and what
+it actually does.
+
+### The frame around every page
+- **Sidebar logo** → home. **Nav items** appear/disappear by role (employee
+  never sees Capacity, Executive, or Audit Log).
+- **Agent Inbox badge (green number)** = pending items *in your role's slice*,
+  not the org total.
+- **Persona block (bottom)** → click to "View as" any persona (the whole app
+  re-scopes instantly) or **Sign out** (clears the session cookie).
+- **Topbar title** = current page + one-line purpose. **Green toast** appears
+  after any action ("Relieved Sarah 113%→90% · loaded Ahmed 65%→87%").
+- **Dark/Light pill** switches theme (persisted). **Keyboard icon** = shortcut
+  list (also `?`). **Search bar** = command palette (also `⌘K`): jump to any
+  person/project/risk, or run actions. **Bell** = notifications grouped by
+  urgency class (hard stop > critical > manager review > intelligence > info);
+  "Mark all read" clears the count. Clicking one deep-links to its entity.
+
+### Command Center
+- **Red situation banner**: the one critical thing. Buttons inside are
+  permission-gated: *Review compromise* (managers — opens the inbox),
+  *Relieve <name>* (managers — opens the heatmap), *Open Atlas* (everyone).
+- **Pulse strip (4 numbers)**: org numbers for managers; YOUR load / tasks /
+  requests / projects for employees. The ⓘ beside each = the exact stored
+  signals behind the number.
+- **Capacity hotlist** (managers): top 4 loaded people; segmented bar = 10
+  cells to 100% + 2 red overload cells; **burnout** chip is manager-private —
+  click it for the private signals. Row click → heatmap. **"Most available"**
+  footer = your three best reallocation targets.
+- **Your week** (employees): your load meter + your open tasks; clicking a
+  task opens its drawer.
+- **Needs your decision / Your requests**: top pending items from your scoped
+  inbox; card click → full inbox.
+- **Portfolio health**: every project, velocity sparkline, % budget; click →
+  project page. **Activity** (managers/admins): last 4 audit events.
+
+### Capacity Heatmap
+- **Org strip**: average load ticker + counts (overloaded / near limit /
+  healthy). **Department chips** filter rows. **Legend**: green <80% · amber
+  80–99% · red ≥100%.
+- **"Now" column** carries draggable task chips (⋮⋮ handle). **Drag a chip**
+  onto another person's row: both bars update in <50ms. If the target would
+  cross 100%, the **guardrail modal** demands a typed override reason (stored
+  on the audit event forever). After any move, a notification names BOTH
+  people with before→after percentages.
+- ✈ icon on a cell = that person has PTO that week.
+
+### Projects
+- Card: **code chip** (ATL…), name, **health pill** (computed, never set by
+  hand — ⓘ shows why), **"yours" chip** (employees: projects you're on float
+  to the top), description, open/blocked counts, budget burn %, target date,
+  velocity sparkline, burn meter, owner.
+- Project page adds: WHY-THIS-STATUS causal strip, kanban board (drag between
+  columns; WIP-aware), linked risks and decisions.
+
+### People
+- **Search** matches names AND skills ("React"). Column headers sort.
+- Columns: Person (red dot = burnout flag, manager-private), Department,
+  **Utilization + Headroom (managers only — colleagues' load is private from
+  employees)**, Skills chips, deepest expertise (0–1 score).
+- Person page: profile, allocation, expertise depths, active work.
+
+### Risk Register
+- **Severity matrix** (managers): probability × impact grid; click a numbered
+  marker to highlight its card. Severity is law: computed, never picked.
+- **Risk cards**: colored left rail = severity; status pill (open/mitigating/
+  escalated/monitoring); category chip; ⓘ = the signals that raised it;
+  mitigation plan + state; project + owner links. Employees see only risks
+  touching their work, full-width, no matrix.
+
+### Decisions
+- Timeline spine: dot color = status (green active, gray superseded, red
+  reversed). Click a card to expand: **Context** (the situation), **Chosen —
+  rationale**, **Options considered** (each + and −; green tint = the one
+  picked), **Expected vs Actual outcome** (the calibration pair — green when
+  reality has been recorded).
+
+### Goals · OKRs
+- Card: goal, owner, target date, big % (green ≥60 / amber ≥40 / red below),
+  overall meter, key results each with its own meter and %, and **Executing
+  projects** chips with live health → click through.
+
+### Agent Inbox
+- **Header**: your scope (PERSONAL / TEAM / FULL CONTROL) + pending count.
+- **Priority strip** (managers): the conflict-resolution order.
+- **Proposal card**: agent type chip, priority, confidence %, expiry timer;
+  reallocation visual (who → who, hours); **coordinated compromise** box when
+  two agents conflicted; "Show reasoning & validation" = causal signals +
+  pre-surface checks. **Buttons**: managers *Approve & execute / Reject —
+  remember 30d*; employees *Accept / Flag back*; admins *Approve / Deny* on
+  everything including the governance queue.
+- Approving re-validates against live data at that instant; stale proposals
+  expire instead of executing.
+
+### Dependency Graph
+- **Two chips = clickable lenses**: blast radius (3-hop reachability from
+  Sarah, with per-entity hop counts) and bus factor (expertise shares with
+  red/amber/green bars). Click again or × to release.
+- Hover any node → its direct edges ignite. Drag nodes freely. Edge width =
+  strength; "·~" = inferred edge. Controls: zoom/fit; minimap pans.
+
+### Audit Log
+- Filter box + action-type dropdown. Columns: time, actor (with role),
+  action chip, entity, detail; amber **override:** line shows the typed
+  guardrail reason. Insert-only — the database refuses edits.
+
+### The top bar (every page, top-right) — every button
+
+- **Page title + hint** (left): the big page name and its one-line "what this
+  screen is for." Animates in on each navigation.
+- **Live presence pill**: "N live" — how many other sessions are viewing right
+  now (your other tabs today; teammates in production). Hidden when you're alone.
+- **Theme toggle**: a sliding pill — **Dark / Light**. Click either; the whole
+  app recolors instantly (the choice is remembered before first paint, so no flash).
+- **Keyboard shortcuts** (⌨ icon, or press `?`): opens the shortcut cheat-sheet.
+- **Search** (the wide box, or `⌘K` / `Ctrl-K`): the command palette — jump to
+  any person, project, or page; run actions.
+- **Notifications** (🔔): the badge shows the unread count; **opening the panel
+  marks everything seen so the number never nags twice**, and there's an explicit
+  **Mark all read** button. Each item is class-coded by urgency (hard-stop,
+  critical, review, intelligence, info) and links straight to the thing it's about.
+
+## Signing in & the landing page
+
+- **Sign-in (the "Nexus gateway")**: a glowing orb in the dark with a light
+  circling its ring. Pick a demo persona (each is a different role), then
+  **Enter the command center**. One session per user — a second login ends the
+  first. The "Overview" link (top-left) goes back to the landing page.
+- **Landing page**: top nav (**Product / Method / Customers / Manifesto** + a
+  hard **ENTER** block). The hero's product preview is a *working miniature* —
+  its sidebar tiles (**Command Center, Capacity, Agent Inbox, Risk Register,
+  Graph**) all switch the live view; hover the heatmap, accept a proposal, watch
+  the blast-radius graph draw itself.
+
+---
+
 ## What's real and what's a demo stand-in
 
 This is an MVP demo: the data is a realistic scripted company (so every demo

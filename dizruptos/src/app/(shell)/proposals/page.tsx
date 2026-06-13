@@ -54,17 +54,17 @@ export default function ProposalsPage() {
   const resolved = proposals.filter((p) => p.status !== "pending");
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* Role-scoped framing */}
       <div className="panel flex flex-wrap items-center gap-3 p-4">
         <Bot size={14} className="text-brand" />
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">{framing.title}</div>
-          <p className="mt-0.5 text-2xs leading-relaxed text-fg-secondary">{framing.hint}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-fg-secondary">{framing.hint}</p>
         </div>
         <span
           className={cn(
-            "rounded-full border px-2.5 py-1 font-mono text-2xs",
+            "rounded-full border px-2.5 py-1 font-mono text-xs",
             isAdmin
               ? "border-brand/40 bg-brand-soft text-brand"
               : "border-line bg-ink-elevated text-fg-secondary"
@@ -76,7 +76,7 @@ export default function ProposalsPage() {
 
       {/* Priority hierarchy explainer — manager+ only; employees don't arbitrate */}
       {!isEmployee && (
-        <div className="panel flex flex-wrap items-center gap-3 p-3.5 text-2xs text-fg-muted">
+        <div className="panel flex flex-wrap items-center gap-3 p-3.5 text-xs text-fg-muted">
           <span className="text-fg-secondary">Conflict resolution order:</span>
           {["burnout safety 100", "hard constraints 90", "delivery 70", "allocation 50", "risk advisory 40"].map((s, i) => (
             <React.Fragment key={s}>
@@ -107,7 +107,7 @@ export default function ProposalsPage() {
           <div className="text-sm font-medium">
             {isEmployee ? "Nothing needs you right now" : "Inbox zero"}
           </div>
-          <p className="max-w-sm text-2xs text-fg-muted">
+          <p className="max-w-sm text-xs text-fg-muted">
             {isEmployee
               ? "When an agent or your manager stages something that concerns you, it appears here first."
               : "All agent proposals reviewed. Agents re-evaluate hourly; resolved conflicts and rejections persist in agent memory."}
@@ -129,7 +129,7 @@ export default function ProposalsPage() {
                   <span className="min-w-0 flex-1 truncate text-xs">{p.title}</span>
                   <span
                     className={cn(
-                      "rounded-full px-2 py-px text-2xs font-semibold",
+                      "rounded-full px-2 py-px text-xs font-semibold",
                       p.status === "approved" ? "bg-ok-soft text-ok" : "bg-danger-soft text-danger"
                     )}
                   >
@@ -178,44 +178,44 @@ function ProposalCard({
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-2xs font-semibold uppercase tracking-wider text-fg-muted">
+              <span className="text-xs font-semibold uppercase tracking-wider text-fg-muted">
                 {m.label} Agent
               </span>
-              <span className="rounded-full bg-ink-elevated px-2 py-px font-mono text-2xs text-fg-muted">
+              <span className="rounded-full bg-ink-elevated px-2 py-px font-mono text-xs text-fg-muted">
                 priority {p.priority}
               </span>
-              <span className="rounded-full bg-ink-elevated px-2 py-px font-mono text-2xs text-fg-secondary">
+              <span className="rounded-full bg-ink-elevated px-2 py-px font-mono text-xs text-fg-secondary">
                 {Math.round(p.confidence * 100)}% confidence
               </span>
-              <span className="ml-auto flex items-center gap-1 text-2xs text-fg-faint">
+              <span className="ml-auto flex items-center gap-1 text-xs text-fg-faint">
                 <Timer size={10} /> expires {timeUntil(p.expiresAt)}
               </span>
             </div>
-            <h3 className="mt-1.5 font-display text-sm font-semibold leading-snug">
+            <h3 className="mt-2 font-display text-base font-bold leading-snug">
               {p.title}
             </h3>
-            <p className="mt-1 text-xs leading-relaxed text-fg-secondary">{p.summary}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-fg-secondary">{p.summary}</p>
 
             {/* Reallocation visual */}
             {(from || to) && (
               <div className="mt-3 flex items-center gap-2 rounded-lg border border-line bg-ink-elevated p-2.5">
                 {from ? (
-                  <span className="flex items-center gap-1.5 text-2xs">
+                  <span className="flex items-center gap-1.5 text-xs">
                     <EmpAvatar initials={from.initials} accent={from.accent} size={20} />
                     {from.name.split(" ")[0]}
                   </span>
                 ) : (
-                  <span className="text-2xs text-fg-muted">Unassigned</span>
+                  <span className="text-xs text-fg-muted">Unassigned</span>
                 )}
                 <ArrowRightLeft size={12} className="text-brand" />
                 {to && (
-                  <span className="flex items-center gap-1.5 text-2xs">
+                  <span className="flex items-center gap-1.5 text-xs">
                     <EmpAvatar initials={to.initials} accent={to.accent} size={20} />
                     {to.name.split(" ")[0]}
                   </span>
                 )}
                 {p.action.deltaHours ? (
-                  <span className="ml-auto font-mono text-2xs text-fg-secondary">
+                  <span className="ml-auto font-mono text-xs text-fg-secondary">
                     {p.action.deltaHours}h
                   </span>
                 ) : null}
@@ -229,7 +229,7 @@ function ProposalCard({
                   <Bot size={11} /> Coordinated compromise — conflict with{" "}
                   {agentMeta[p.conflict.withAgent].label} Agent
                 </div>
-                <p className="text-2xs leading-relaxed text-fg-secondary">
+                <p className="text-xs leading-relaxed text-fg-secondary">
                   {p.conflict.resolution}
                 </p>
               </div>
@@ -238,7 +238,7 @@ function ProposalCard({
             {/* Expandable causal reasoning + validation */}
             <button
               onClick={() => setExpanded((e) => !e)}
-              className="mt-3 flex items-center gap-1 text-2xs font-medium text-brand hover:underline"
+              className="mt-3 flex items-center gap-1 text-xs font-medium text-brand hover:underline"
             >
               <ChevronDown
                 size={12}
@@ -259,7 +259,7 @@ function ProposalCard({
                       <div className="label-xs mb-1.5">Causal signals</div>
                       <ul className="space-y-1.5">
                         {p.reasoning.map((r, i) => (
-                          <li key={i} className="flex gap-2 text-2xs leading-relaxed text-fg-secondary">
+                          <li key={i} className="flex gap-2 text-xs leading-relaxed text-fg-secondary">
                             <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand/70" />
                             {r}
                           </li>
@@ -270,13 +270,13 @@ function ProposalCard({
                       <div className="label-xs mb-1.5">Pre-surface validation</div>
                       <ul className="space-y-1.5">
                         {p.validation.map((v, i) => (
-                          <li key={i} className="flex items-center gap-2 text-2xs text-fg-secondary">
+                          <li key={i} className="flex items-center gap-2 text-xs text-fg-secondary">
                             <Check size={11} className={v.pass ? "text-ok" : "text-danger"} />
                             {v.check}
                           </li>
                         ))}
                       </ul>
-                      <p className="mt-2 border-t border-line-subtle pt-2 text-2xs text-fg-faint">
+                      <p className="mt-2 border-t border-line-subtle pt-2 text-xs text-fg-faint">
                         Validated against live DB constraints before surfacing.
                       </p>
                     </div>
@@ -290,7 +290,7 @@ function ProposalCard({
 
       {/* 2-click review bar */}
       <div className="flex items-center gap-2 border-t border-line-subtle bg-ink-elevated/40 px-4 py-3">
-        <span className="text-2xs text-fg-muted">{p.entityLabel}</span>
+        <span className="text-xs text-fg-muted">{p.entityLabel}</span>
         <div className="ml-auto flex gap-2">
           <Button variant="secondary" onClick={() => onReview(p.id, "rejected")}>
             <X size={12} /> {rejectLabel}{!isEmployee && " — remember 30d"}

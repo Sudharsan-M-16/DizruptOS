@@ -46,9 +46,21 @@ const config: Config = {
         sans: ["var(--font-plex)", "system-ui", "sans-serif"],
         display: ["var(--font-sora)", "var(--font-plex)", "sans-serif"],
         mono: ["var(--font-plex-mono)", "ui-monospace", "monospace"],
+        serif: ["var(--font-newsreader)", "Newsreader", "Georgia", "serif"],
       },
+      // Global readability floor v4: nothing renders below 14px. These tokens
+      // are the master volume knob for the whole product — every label, hint,
+      // chip, and cell must read at first glance, not at arm's length.
       fontSize: {
-        "2xs": ["11px", "14px"],
+        "2xs": ["14px", "20px"],
+        xs: ["15px", "22px"],
+        sm: ["16px", "24px"],
+        base: ["17px", "26px"],
+        lg: ["19px", "28px"],
+        xl: ["22px", "30px"],
+        "2xl": ["26px", "34px"],
+        "3xl": ["32px", "40px"],
+        "4xl": ["40px", "46px"],
       },
       borderRadius: {
         card: "12px",

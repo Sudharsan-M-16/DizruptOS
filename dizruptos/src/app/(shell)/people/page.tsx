@@ -33,8 +33,11 @@ const col = createColumnHelper<Row>();
 export default function PeoplePage() {
   const utilization = useOps((s) => s.utilization);
   const canSeeBurnout = useSession((s) => s.can("view_burnout"));
+  // Colleagues' load is manager-private data: employees see who people ARE
+  // (skills, expertise), never how loaded they are (dynamic view, PRD §6).
+  const canSeeLoad = useSession((s) => s.can("view_capacity"));
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "pct", desc: true },
+    { id: canSeeLoad ? "pct" : "name", desc: canSeeLoad },
   ]);
   const [globalFilter, setGlobalFilter] = React.useState("");
 
@@ -82,6 +85,8 @@ export default function PeoplePage() {
         header: "Department",
         cell: (info) => <span className="text-2xs text-fg-secondary">{info.getValue()}</span>,
       }),
+      ...(canSeeLoad
+        ? [
       col.accessor("pct", {
         header: "Utilization · this week",
         cell: (info) => {
@@ -109,6 +114,8 @@ export default function PeoplePage() {
           </span>
         ),
       }),
+          ]
+        : []),
       col.accessor((r) => r.skills.join(" "), {
         id: "skills",
         header: "Skills",
@@ -141,7 +148,7 @@ export default function PeoplePage() {
         },
       }),
     ],
-    [canSeeBurnout]
+    [canSeeBurnout, canSeeLoad]
   );
 
   const table = useReactTable({

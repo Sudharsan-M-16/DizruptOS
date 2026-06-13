@@ -65,17 +65,17 @@ function EntityNode({ data }: NodeProps) {
   const inner = (
     <div
       className={cn(
-        "flex w-52 items-center gap-2.5 rounded-xl border bg-ink-elevated px-3 py-2.5 shadow-card transition-all duration-300 hover:shadow-card-hover",
+        "flex w-72 items-center gap-3 rounded-xl border bg-ink-elevated px-4 py-3.5 shadow-card transition-all duration-300 hover:shadow-card-hover",
         d.alert ? "border-danger/50 animate-pulseRed" : "border-line",
         d.dimmed && "opacity-20 saturate-50"
       )}
     >
-      <span className="rounded-lg p-1.5" style={{ background: `${d.tone}1f`, color: d.tone }}>
-        <Icon size={14} />
+      <span className="rounded-lg p-2" style={{ background: `${d.tone}1f`, color: d.tone }}>
+        <Icon size={20} />
       </span>
       <div className="min-w-0">
-        <div className="truncate text-xs font-semibold text-fg">{d.label}</div>
-        <div className="truncate text-2xs text-fg-muted">{d.sub}</div>
+        <div className="truncate text-base font-semibold text-fg">{d.label}</div>
+        <div className="truncate text-sm text-fg-muted">{d.sub}</div>
       </div>
       <Handle type="target" position={Position.Left} className="!h-1.5 !w-1.5 !border-0 !bg-line-strong" />
       <Handle type="source" position={Position.Right} className="!h-1.5 !w-1.5 !border-0 !bg-line-strong" />
@@ -149,7 +149,7 @@ export default function GraphPage() {
               stroke: danger ? "#EF444488" : "rgb(var(--line-strong))",
               strokeWidth: 1 + r.strength,
             },
-            labelStyle: { fill: "rgb(var(--fg-secondary))", fontSize: 9, fontFamily: "var(--font-plex-mono)" },
+            labelStyle: { fill: "rgb(var(--fg-secondary))", fontSize: 16, fontFamily: "var(--font-plex-mono)" },
             labelBgStyle: { fill: "rgb(var(--ink-surface))", fillOpacity: 0.9 },
           };
         });
@@ -221,12 +221,12 @@ export default function GraphPage() {
   return (
     <div className="space-y-3">
       {/* Lenses — click to interrogate the graph, click again to release */}
-      <div className="flex flex-wrap items-center gap-3 text-2xs text-fg-muted">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-fg-muted">
         <button
           onClick={() => toggle("blast")}
           aria-pressed={lens === "blast"}
           className={cn(
-            "rounded-full border px-2.5 py-1 font-medium transition-all",
+            "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all",
             lens === "blast"
               ? "border-danger bg-danger/20 text-danger shadow-[0_0_12px_rgba(239,68,68,0.3)]"
               : "border-danger/40 bg-danger-soft text-danger hover:border-danger/70"
@@ -238,7 +238,7 @@ export default function GraphPage() {
           onClick={() => toggle("bus")}
           aria-pressed={lens === "bus"}
           className={cn(
-            "rounded-full border px-2.5 py-1 font-medium transition-all",
+            "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all",
             lens === "bus"
               ? "border-warn bg-warn/20 text-warn shadow-[0_0_12px_rgba(245,158,11,0.3)]"
               : "border-warn/40 bg-warn-soft text-warn hover:border-warn/70"
@@ -258,7 +258,7 @@ export default function GraphPage() {
             <>
               <div className="min-w-48">
                 <div className="label-xs text-danger">Blast radius · departure scenario</div>
-                <p className="mt-1 max-w-md text-2xs leading-relaxed text-fg-secondary">
+                <p className="mt-1 max-w-md text-xs leading-relaxed text-fg-secondary">
                   Everything reachable within 3 relationship hops of Sarah Okafor.
                   If she leaves, these entities lose a load-bearing connection —
                   highlighted nodes stay lit, the rest of the org recedes.
@@ -268,7 +268,7 @@ export default function GraphPage() {
                 {blast.map((b) => (
                   <span
                     key={b.ref.id}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-line bg-ink-elevated px-2 py-0.5 font-mono text-2xs text-fg-secondary"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-line bg-ink-elevated px-2 py-0.5 font-mono text-xs text-fg-secondary"
                   >
                     {NODE_META[b.ref.id]?.label ?? b.ref.id}
                     <span className="text-fg-faint">{b.hops} hop{b.hops > 1 ? "s" : ""}</span>
@@ -280,7 +280,7 @@ export default function GraphPage() {
             <>
               <div className="min-w-48">
                 <div className="label-xs text-warn">Bus factor · payments capability</div>
-                <p className="mt-1 max-w-md text-2xs leading-relaxed text-fg-secondary">
+                <p className="mt-1 max-w-md text-xs leading-relaxed text-fg-secondary">
                   Share of total expertise depth each person holds on the
                   Payments capability. One person above 60% means a single
                   resignation takes the capability down — the cross-training
@@ -292,7 +292,7 @@ export default function GraphPage() {
                   const emp = employeeById(h.holderId);
                   return (
                     <div key={h.holderId} className="flex items-center gap-3">
-                      <span className="w-28 truncate text-2xs font-medium text-fg">
+                      <span className="w-28 truncate text-xs font-medium text-fg">
                         {emp?.name ?? h.holderId}
                       </span>
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink-raised">
@@ -304,7 +304,7 @@ export default function GraphPage() {
                           }}
                         />
                       </div>
-                      <span className="w-10 text-right font-mono text-2xs text-fg-secondary">
+                      <span className="w-10 text-right font-mono text-xs text-fg-secondary">
                         {(h.share * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -323,7 +323,7 @@ export default function GraphPage() {
         </div>
       )}
 
-      <div className="panel h-[560px] overflow-hidden">
+      <div className="panel h-[640px] overflow-hidden">
         <ReactFlow
           nodes={displayNodes}
           onNodesChange={onNodesChange}
@@ -332,7 +332,8 @@ export default function GraphPage() {
           onNodeMouseEnter={(_, node) => setHoveredId(node.id)}
           onNodeMouseLeave={() => setHoveredId(null)}
           fitView
-          fitViewOptions={{ padding: 0.18 }}
+          fitViewOptions={{ padding: 0.1, minZoom: 0.7 }}
+          minZoom={0.4}
           proOptions={{ hideAttribution: true }}
           colorMode="dark"
           style={{ background: "transparent" }}
@@ -352,7 +353,7 @@ export default function GraphPage() {
           />
         </ReactFlow>
       </div>
-      <p className="text-2xs text-fg-muted">
+      <p className="text-xs text-fg-muted">
         Rendered from the generic relationship layer (canonical registry types:
         funds · produces · threatened_by · supported_by · causes · mitigates).
         1-hop traversals are direct reads; the blast-radius and bus-factor

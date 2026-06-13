@@ -47,14 +47,14 @@ export default function DecisionsPage() {
                   <GitCommitHorizontal size={15} className="mt-0.5 shrink-0 text-brand-secondary" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-display text-[13px] font-semibold leading-snug">
+                      <h3 className="font-display text-sm font-semibold leading-snug">
                         {d.title}
                       </h3>
-                      <span className={cn("rounded-full px-2 py-px text-2xs font-semibold", statusTone[d.status])}>
+                      <span className={cn("rounded-full px-2 py-px text-xs font-semibold", statusTone[d.status])}>
                         {d.status.toLowerCase()}
                       </span>
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-2.5 text-2xs text-fg-muted">
+                    <div className="mt-1 flex flex-wrap items-center gap-2.5 text-xs text-fg-muted">
                       <span>{fmtDate(d.decidedAt)}</span>
                       {proj && <span className="font-mono text-brand">{proj.code}</span>}
                       {owner && (
@@ -92,7 +92,7 @@ export default function DecisionsPage() {
                         </Block>
 
                         <div>
-                          <div className="mb-2.5 flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
+                          <div className="mb-2.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
                             <Scale size={12} /> Options considered
                           </div>
                           <div className="grid gap-2.5 md:grid-cols-2">
@@ -106,7 +106,7 @@ export default function DecisionsPage() {
                                     : "border-line bg-ink-elevated"
                                 )}
                               >
-                                <div className="text-[13px] font-semibold text-fg">{o.option}</div>
+                                <div className="text-sm font-semibold text-fg">{o.option}</div>
                                 <div className="mt-2 text-xs leading-5 text-ok">+ {o.pros}</div>
                                 <div className="mt-1 text-xs leading-5 text-danger">− {o.cons}</div>
                               </div>
@@ -116,10 +116,10 @@ export default function DecisionsPage() {
 
                         <div className="grid gap-2.5 md:grid-cols-2">
                           <div className="rounded-lg border border-line bg-ink-elevated p-3.5">
-                            <div className="text-2xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
+                            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
                               Expected outcome
                             </div>
-                            <p className="mt-1.5 text-[13px] leading-6 text-fg">{d.expectedOutcome}</p>
+                            <p className="mt-1.5 text-sm leading-6 text-fg">{d.expectedOutcome}</p>
                           </div>
                           <div
                             className={cn(
@@ -129,13 +129,13 @@ export default function DecisionsPage() {
                           >
                             <div
                               className={cn(
-                                "text-2xs font-semibold uppercase tracking-[0.12em]",
+                                "text-xs font-semibold uppercase tracking-[0.12em]",
                                 d.actualOutcome ? "text-ok" : "text-fg-secondary"
                               )}
                             >
                               Actual outcome — calibration
                             </div>
-                            <p className="mt-1.5 text-[13px] leading-6 text-fg">
+                            <p className="mt-1.5 text-sm leading-6 text-fg">
                               {d.actualOutcome ?? "Not yet recorded — review scheduled."}
                             </p>
                           </div>
@@ -149,7 +149,7 @@ export default function DecisionsPage() {
           );
         })}
       </div>
-      <p className="mt-6 text-center text-2xs text-fg-muted">
+      <p className="mt-6 text-center text-xs text-fg-muted">
         Decisions are first-class entities. When people leave, the rationale stays.
       </p>
     </div>
@@ -159,10 +159,10 @@ export default function DecisionsPage() {
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-1.5 text-2xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-fg-secondary">
         {label}
       </div>
-      <p className="max-w-2xl text-[13px] leading-6 text-fg">{children}</p>
+      <p className="max-w-2xl text-sm leading-6 text-fg">{children}</p>
     </div>
   );
 }

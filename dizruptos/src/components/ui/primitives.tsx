@@ -349,10 +349,10 @@ export function SectionHeader({
   return (
     <div className="mb-3 flex items-end justify-between gap-4">
       <div>
-        <h2 className="font-display text-sm font-semibold tracking-tight text-fg">
+        <h2 className="font-display text-base font-bold tracking-tight text-fg">
           {title}
         </h2>
-        {hint && <p className="mt-0.5 text-2xs text-fg-muted">{hint}</p>}
+        {hint && <p className="mt-0.5 text-xs text-fg-muted">{hint}</p>}
       </div>
       {right}
     </div>

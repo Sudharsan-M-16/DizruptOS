@@ -1,291 +1,268 @@
 "use client";
 
-// DIZRUPT marketing landing — the public face of the product. Linear's
-// restraint, Monday's confidence, our voltage. One cinematic scroll:
-// strike → proof → capability → trust → invitation.
+// DIZRUPT landing — festival-grade poster design after c2mtl.koki-kiko.com.
+// Hard-edged color blocks, headline type at viewport scale, a Three.js
+// chroma field of drifting stage-gel discs, GSAP scroll choreography, and a
+// product preview you can actually operate. The page should stop a stranger.
 //
-// Motion grammar: hero loads with a staggered reveal; the product frame
-// un-tilts from 24° as you scroll (perspective stage); sections rise on
-// entry; everything collapses under prefers-reduced-motion via the global
-// CSS guard.
+// Engine split: GSAP owns scroll (hero intro timeline, scrubbed marquee,
+// the product un-tilt, block reveals); framer-motion owns component state
+// (story crossfades, testimonial morphs). ChromaField owns the GPU.
 
 import * as React from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import {
   ArrowRight,
+  ArrowUpRight,
   ChevronDown,
-  ChevronRight,
   Flame,
   GitBranch,
   Inbox,
   Network,
   ScrollText,
-  Sparkles,
   Workflow,
   Zap,
 } from "lucide-react";
-import { DizruptMark, DizruptWordmark } from "@/components/ui/logo";
-import { NumberTicker, AuroraBackdrop } from "@/components/ui/ascension";
-import { RevealText } from "@/components/fx/reveal-text";
+import { DizruptWordmark } from "@/components/ui/logo";
+import { NumberTicker } from "@/components/ui/ascension";
 import { TextScramble } from "@/components/fx/text-scramble";
 import { ProductFrame } from "@/components/landing/product-frame";
 import { cn } from "@/lib/utils";
 
-const DotMatrixField = dynamic(
-  () => import("@/components/fx/dot-field").then((m) => m.DotMatrixField),
-  { ssr: false }
-);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-/* ------------------------------- mouse glow -------------------------------- */
-// A soft white radial that follows the cursor across the entire page —
-// direct style mutation, zero re-renders.
+import { ChromaField } from "@/components/fx/chroma-field";
 
-function MouseGlow() {
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const el = ref.current;
-    if (!el) return;
-    let raf = 0;
-    const onMove = (e: PointerEvent) => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        el.style.background = `radial-gradient(560px circle at ${e.clientX}px ${e.clientY}px, rgba(255,255,255,0.05), transparent 70%)`;
-      });
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("pointermove", onMove);
-    };
-  }, []);
-  return <div ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[1]" />;
-}
+/* -------------------------------- top nav ---------------------------------- */
+// Horizontal command bar pinned to the top edge — brand on the left, section
+// links in the center, a hard volt-green Enter block on the right. Translucent
+// ink with a backdrop blur so the hero's chroma reads through it.
 
-/* --------------------------------- shared --------------------------------- */
+const NAV_LINKS = [
+  ["Product", "#product"],
+  ["Method", "#method"],
+  ["Customers", "#customers"],
+  ["Manifesto", "#manifesto"],
+] as const;
 
-const rise = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-12% 0px" },
-  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-};
-
-function Kicker({ children }: { children: string }) {
+function TopNav() {
   return (
-    <div className="mb-3 flex items-center gap-2 text-2xs font-medium uppercase tracking-[0.22em] text-brand">
-      <Zap size={11} />
-      <TextScramble text={children} />
-    </div>
-  );
-}
-
-/* ----------------------------------- nav ---------------------------------- */
-
-function LandingNav() {
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-line-subtle/60 bg-ink/70 backdrop-blur-xl">
-      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5">
-        <Link href="/welcome" className="flex items-center">
-          <DizruptWordmark markSize={24} />
-        </Link>
-        <div className="hidden items-center gap-7 text-xs text-fg-secondary md:flex">
-          {["Product", "Method", "Customers", "Manifesto"].map((l) => (
-            <a key={l} href={`#${l.toLowerCase()}`} className="transition-colors hover:text-fg">
-              <TextScramble text={l} className="font-sans" />
-            </a>
-          ))}
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Link
-            href="/login"
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-fg-secondary transition-colors hover:text-fg"
+    <header className="fixed inset-x-0 top-0 z-50 flex h-[72px] items-center justify-between border-b border-white/10 bg-ink/75 pl-5 backdrop-blur-xl lg:pl-10">
+      <DizruptWordmark markSize={30} />
+      <nav className="hidden items-center gap-9 md:flex">
+        {NAV_LINKS.map(([label, href]) => (
+          <a
+            key={label}
+            href={href}
+            className="text-base font-semibold uppercase tracking-[0.16em] text-fg-muted transition-colors hover:text-fg"
           >
-            Sign in
-          </Link>
-          <Link
-            href="/login"
-            className="group relative inline-flex h-8 items-center overflow-hidden rounded-lg bg-brand pl-3 pr-9 text-xs font-semibold text-[#04281A] transition-colors hover:bg-[#3DF59E]"
-          >
-            <span>Get started</span>
-            <i className="absolute bottom-1 right-1 top-1 z-10 grid w-6 place-items-center rounded-md bg-[#04281A]/15 transition-all duration-500 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
-              <ChevronRight size={13} strokeWidth={2.5} aria-hidden />
-            </i>
-          </Link>
-        </div>
+            <TextScramble text={label} />
+          </a>
+        ))}
       </nav>
+      <Link
+        href="/login"
+        className="group flex h-full items-center gap-2.5 bg-brand px-6 text-base font-extrabold uppercase tracking-[0.12em] text-[#04281A] transition-colors hover:bg-[#3DF59E] lg:px-9"
+      >
+        Enter
+        <ArrowUpRight size={20} strokeWidth={2.5} className="transition-transform duration-300 group-hover:rotate-45" />
+      </Link>
     </header>
   );
 }
 
-/* ---------------------------------- hero ---------------------------------- */
+/* ----------------------------------- hero ---------------------------------- */
+// Full-bleed chroma field; a hard black block carries the poster type. The
+// GSAP intro slides the blocks in like printed plates landing on a press.
+
+const plateIn = (i: number) => ({
+  initial: { x: "-101%" },
+  animate: { x: "0%" },
+  transition: { duration: 0.9, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as const },
+});
+const lineIn = (i: number) => ({
+  initial: { y: "110%" },
+  animate: { y: "0%" },
+  transition: { duration: 0.8, delay: 0.35 + i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
+});
+const metaIn = (i: number) => ({
+  initial: { opacity: 0, y: 18 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, delay: 0.9 + i * 0.08, ease: [0.22, 1, 0.36, 1] as const },
+});
 
 function Hero() {
-  const stageRef = React.useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  // The perspective reveal — the dashboard lies back at 45°, half-faded and
-  // sunk 100px; scrolling scrubs it flat, full-scale, fully lit, centered.
-  const { scrollYProgress } = useScroll({
-    target: stageRef,
-    offset: ["start 95%", "start 22%"],
-  });
-  const rotateX = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [45, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.8, 1]);
-  const opacity = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.5, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [100, 0]);
-  const glow = useTransform(scrollYProgress, [0, 1], [0.12, 0.5]);
-
   return (
-    <section className="relative overflow-hidden pt-32">
-      <AuroraBackdrop className="opacity-40" />
-      <div className="relative mx-auto max-w-6xl px-5 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-soft px-3.5 py-1.5 text-2xs font-medium text-brand"
-        >
-          <Sparkles size={11} />
-          Resource Intelligence Platform · now with agent negotiation
-        </motion.div>
+    <section className="relative flex min-h-screen flex-col justify-end overflow-hidden">
+      <ChromaField className="absolute inset-0 h-full w-full" />
 
-        <h1 className="mx-auto max-w-4xl font-display text-[clamp(2.6rem,7vw,4.6rem)] font-bold leading-[1.04] tracking-[-0.03em]">
-          <RevealText text="Every person. Every project." per={0.07} />
-          <br />
-          {/* single element: bg-clip-text breaks across transformed children */}
-          <motion.span
-            initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: 0.5, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-block bg-gradient-to-r from-brand via-[#7DF5C3] to-brand-secondary bg-clip-text text-transparent"
-          >
-            Every consequence.
-          </motion.span>
-        </h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.75, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto mt-6 max-w-2xl text-balance text-sm leading-7 text-fg-secondary sm:text-base"
-        >
-          DIZRUPT is the operating system for your organization — capacity,
-          execution, memory and strategy fused into one live command center.
-          When something is about to break, you know before it does.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.95, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-9 flex flex-wrap items-center justify-center gap-3"
-        >
-          <Link
-            href="/login"
-            className="group relative inline-flex h-11 items-center overflow-hidden rounded-xl bg-brand pl-5 pr-12 text-sm font-semibold text-[#04281A] shadow-glow transition-colors hover:bg-[#3DF59E]"
-          >
-            Enter the command center
-            <i className="absolute bottom-1.5 right-1.5 top-1.5 z-10 grid w-8 place-items-center rounded-lg bg-[#04281A]/15 transition-all duration-500 group-hover:w-[calc(100%-0.75rem)] group-active:scale-95">
-              <ArrowRight size={15} strokeWidth={2.5} aria-hidden />
-            </i>
-          </Link>
-          <a
-            href="#method"
-            className="inline-flex h-11 items-center gap-2 rounded-xl border border-line bg-ink-surface/60 px-5 text-sm font-medium text-fg-secondary backdrop-blur transition-colors hover:border-brand/40 hover:text-fg"
-          >
-            Read the method
-          </a>
-        </motion.div>
-      </div>
-
-      {/* scroll-down cue */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6, duration: 0.6 }}
-        className="relative mt-12 flex flex-col items-center gap-1.5 text-2xs uppercase tracking-[0.25em] text-fg-muted"
-      >
-        Scroll to flatten the org
-        <motion.span
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown size={14} className="text-brand" />
-        </motion.span>
+      {/* meta row — pushed clear of the fixed 72px top nav */}
+      <motion.div {...metaIn(0)} className="absolute left-6 top-[88px] z-10 flex items-center gap-3 lg:left-10 lg:top-28">
+        <span className="bg-ink px-3 py-2 font-mono text-sm font-semibold uppercase tracking-[0.2em] text-brand">
+          Resource Intelligence Platform
+        </span>
+      </motion.div>
+      <motion.div {...metaIn(1)} className="absolute right-6 top-[88px] z-10 hidden bg-ink px-3 py-2 font-mono text-sm text-fg-secondary lg:right-10 lg:top-28 lg:block">
+        EST. 2026 — RUNS YOUR ORG
       </motion.div>
 
-      {/* 3D perspective stage — the product un-tilts into your hands */}
-      <div ref={stageRef} className="relative mx-auto mt-10 max-w-5xl px-5 pb-10 sm:mt-12">
-        <div style={{ perspective: 1100 }}>
-          <motion.div
-            style={{
-              rotateX,
-              scale,
-              opacity,
-              y,
-              transformOrigin: "center top",
-              boxShadow:
-                "0 0 0 1px rgba(0,237,130,0.12), 0 24px 80px rgba(0,0,0,0.55), 0 8px 28px rgba(0,237,130,0.10)",
-            }}
-            className="relative aspect-[16/10] w-full rounded-2xl border border-line bg-ink-surface/85 p-2 backdrop-blur sm:aspect-[16/9]"
+      {/* the poster stack */}
+      <div className="relative z-10 pb-20 pt-44 lg:pb-24">
+        <motion.div {...plateIn(0)} className="inline-block bg-ink py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
+          <div className="overflow-hidden">
+            <motion.h1 {...lineIn(0)} className="font-display text-[clamp(4rem,14vw,12rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-fg">
+              DIZRUPT
+            </motion.h1>
+          </div>
+        </motion.div>
+        <br />
+        <motion.div {...plateIn(1)} className="mt-3 inline-block bg-brand py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
+          <div className="overflow-hidden">
+            <motion.p {...lineIn(1)} className="font-display text-[clamp(1.6rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-[#04281A]">
+              every person. every project.
+            </motion.p>
+          </div>
+        </motion.div>
+        <br />
+        <motion.div {...plateIn(2)} className="mt-3 inline-block bg-ink py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
+          <div className="overflow-hidden">
+            <motion.p {...lineIn(2)} className="font-display text-[clamp(2.2rem,7vw,6rem)] font-extrabold leading-[1] tracking-[-0.04em] text-fg">
+              every <span className="text-brand">consequence.</span>
+            </motion.p>
+          </div>
+        </motion.div>
+
+        <motion.div {...metaIn(2)} className="mt-8 flex flex-wrap items-center gap-4 pl-6 lg:pl-10">
+          <Link
+            href="/login"
+            className="group flex h-14 items-center gap-3 bg-brand px-7 text-base font-extrabold uppercase tracking-wide text-[#04281A] transition-colors hover:bg-[#3DF59E]"
           >
-            <motion.div
-              aria-hidden
-              style={{ opacity: glow }}
-              className="pointer-events-none absolute -inset-px rounded-2xl bg-[radial-gradient(60%_40%_at_50%_0%,rgba(0,237,130,0.18),transparent_70%)]"
-            />
-            <ProductFrame />
-          </motion.div>
-        </div>
-        {/* floor reflection */}
-        <div
-          aria-hidden
-          className="mx-auto mt-[-6px] h-16 max-w-3xl rounded-[100%] bg-brand/10 blur-3xl"
-        />
+            Enter the command center
+            <ArrowRight size={18} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1.5" />
+          </Link>
+          <a
+            href="#product"
+            className="flex h-14 items-center gap-3 border border-white/25 bg-ink/70 px-7 text-base font-semibold text-fg backdrop-blur transition-colors hover:border-brand hover:text-brand"
+          >
+            See it live
+            <ChevronDown size={17} />
+          </a>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-/* -------------------------------- logo strip ------------------------------- */
+/* --------------------------------- marquee ---------------------------------- */
+// Scroll-scrubbed giant ribbon — the type moves only when you do.
 
-const CUSTOMERS = ["NORTHWIND", "HELIX LABS", "OCTANE", "KITEWORKS", "ATLASCORE", "MERIDIAN"];
-
-function LogoStrip() {
+function MarqueeBand() {
+  const ref = React.useRef<HTMLDivElement>(null);
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        ".marquee-track",
+        { xPercent: 0 },
+        {
+          xPercent: -40,
+          ease: "none",
+          scrollTrigger: { trigger: ref.current, start: "top bottom", end: "bottom top", scrub: 0.6 },
+        }
+      );
+    },
+    { scope: ref }
+  );
   return (
-    <motion.section {...rise} className="border-y border-line-subtle/60 bg-ink py-9">
-      <div className="mx-auto max-w-6xl px-5">
-        <p className="text-center text-2xs uppercase tracking-[0.25em] text-fg-muted">
-          Operating the orgs that can&apos;t afford surprises
-        </p>
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
-          {CUSTOMERS.map((c) => (
-            <span
-              key={c}
-              className="font-display text-sm font-bold tracking-[0.18em] text-fg-faint transition-colors hover:text-fg-secondary"
-            >
-              {c}
+    <div ref={ref} aria-hidden className="overflow-hidden border-y border-white/10 bg-ink py-8">
+      <div className="marquee-track flex w-max whitespace-nowrap font-display text-[clamp(3.5rem,9vw,8rem)] font-extrabold leading-none tracking-[-0.04em]">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <span key={i} className="flex items-center">
+            <span className="px-6 text-fg">SEE THE BREAK</span>
+            <span className="px-6 text-transparent" style={{ WebkitTextStroke: "2px rgba(0,237,130,0.8)" }}>
+              BEFORE THE BREAK
             </span>
-          ))}
+            <Zap className="mx-4 h-12 w-12 shrink-0 text-brand" />
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------- interactive product stage ------------------------ */
+// The frame lies back 40° and GSAP scrubs it upright; once flat, it's a real
+// miniature you can operate — the caption dares the visitor to click.
+
+function ProductStage() {
+  const ref = React.useRef<HTMLElement>(null);
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        ".stage-frame",
+        { rotateX: 40, scale: 0.86, opacity: 0.45, y: 90 },
+        {
+          rotateX: 0,
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          ease: "none",
+          scrollTrigger: { trigger: ".stage-frame", start: "top 92%", end: "top 30%", scrub: 0.5 },
+        }
+      );
+    },
+    { scope: ref }
+  );
+
+  return (
+    <section ref={ref} id="product" className="relative bg-ink px-6 py-28 lg:px-10">
+      <div className="mx-auto max-w-6xl">
+        {/* observer lives on the unclipped wrapper — the line inside would be
+            fully clipped at y:110% and IntersectionObserver would never fire */}
+        <motion.div
+          className="overflow-hidden"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-10% 0px" }}
+        >
+          <motion.h2
+            variants={{
+              hidden: { y: "110%" },
+              show: { y: "0%", transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+            }}
+            className="font-display text-[clamp(2.6rem,6.5vw,5.5rem)] font-extrabold leading-[0.95] tracking-[-0.04em]"
+          >
+            This one is <span className="text-brand">alive.</span>
+            <br />
+            Go ahead — click it.
+          </motion.h2>
+        </motion.div>
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-fg-secondary">
+          A working miniature of the command center. Switch views in the
+          sidebar, hover the heatmap, accept an agent proposal. Everything
+          you touch here is real in the product.
+        </p>
+        <div className="mt-12" style={{ perspective: 1100 }}>
+          <div
+            className="stage-frame aspect-[16/10] w-full rounded-2xl border border-line bg-ink-surface/85 p-2 sm:aspect-[16/9]"
+            style={{
+              transformOrigin: "center top",
+              boxShadow:
+                "0 0 0 1px rgba(0,237,130,0.14), 0 24px 80px rgba(0,0,0,0.55), 0 8px 28px rgba(0,237,130,0.10)",
+            }}
+          >
+            <ProductFrame />
+          </div>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }
 
 /* ------------------------------ scrollytelling ------------------------------ */
-// Sticky split-screen: the viewport pins while scroll progress walks through
-// four chapters — active copy ignites on the left, its visual crossfades in
-// on the right.
 
 const STORY = [
   {
@@ -294,7 +271,7 @@ const STORY = [
     title: "See the load before it breaks",
     body: "Eight weeks of organizational capacity, person by person. Overload glows amber at 85%, red past 100% — days before burnout becomes a resignation letter.",
     visual: (
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {[
           ["Sarah K", [0.72, 0.88, 1.13, 0.94, 0.71, 0.6]],
           ["Dev M", [0.55, 0.62, 0.7, 0.81, 0.92, 0.66]],
@@ -303,9 +280,9 @@ const STORY = [
           ["Mara L", [0.45, 0.52, 0.61, 0.68, 0.74, 0.8]],
         ].map(([name, row]) => (
           <div key={name as string} className="flex items-center gap-2">
-            <span className="w-14 font-mono text-[10px] text-fg-muted">{name as string}</span>
+            <span className="w-16 font-mono text-xs text-fg-muted">{name as string}</span>
             {(row as number[]).map((v, i) => (
-              <div key={i} className="relative h-7 flex-1 overflow-hidden rounded-md bg-ink-elevated">
+              <div key={i} className="relative h-8 flex-1 overflow-hidden rounded-md bg-ink-elevated">
                 <div
                   className="absolute inset-y-0 left-0 rounded-md"
                   style={{
@@ -318,7 +295,7 @@ const STORY = [
             ))}
           </div>
         ))}
-        <div className="flex items-center justify-between pt-1 font-mono text-[10px] text-fg-muted">
+        <div className="flex items-center justify-between pt-1 font-mono text-xs text-fg-muted">
           <span>WK 24 → WK 29</span>
           <span className="text-warn">Sarah K breaches 113% in WK 26</span>
         </div>
@@ -346,7 +323,7 @@ const STORY = [
         ].map(([x, y, r, c, label], i) => (
           <g key={i}>
             <circle cx={x as number} cy={y as number} r={r as number} fill={c as string} opacity={0.92} />
-            <text x={(x as number) + 14} y={(y as number) + 4} fill="#8A9EAC" fontSize="10" fontFamily="monospace">
+            <text x={(x as number) + 14} y={(y as number) + 4} fill="#989CA3" fontSize="12" fontFamily="monospace">
               {label as string}
             </text>
           </g>
@@ -360,21 +337,21 @@ const STORY = [
     title: "Agents negotiate. You decide.",
     body: "When dates slip or load breaks, agents draft the trade-offs with full causal chains. Accept, counter or defer — one click, permanently on the record.",
     visual: (
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {[
           { t: "Rebalance Sarah → Dev · 12h of Atlas QA", c: "98% fit", tone: "text-brand border-brand/40" },
           { t: "Slip Atlas QA gate by 2 days", c: "compromise", tone: "text-warn border-warn/40" },
           { t: "Escalate Northwind SLA breach to legal", c: "urgent", tone: "text-danger border-danger/40" },
         ].map((p) => (
-          <div key={p.t} className={cn("rounded-xl border bg-ink-elevated/80 p-3.5", p.tone.split(" ")[1])}>
+          <div key={p.t} className={cn("rounded-xl border bg-ink-elevated/80 p-4", p.tone.split(" ")[1])}>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs font-medium text-fg-secondary">{p.t}</span>
-              <span className={cn("shrink-0 font-mono text-[10px]", p.tone.split(" ")[0])}>{p.c}</span>
+              <span className="text-sm font-medium text-fg-secondary">{p.t}</span>
+              <span className={cn("shrink-0 font-mono text-xs", p.tone.split(" ")[0])}>{p.c}</span>
             </div>
-            <div className="mt-2.5 flex gap-1.5">
-              <span className="rounded-md bg-brand px-2.5 py-1 text-[10px] font-bold text-[#04281A]">Accept</span>
-              <span className="rounded-md border border-line px-2.5 py-1 text-[10px] text-fg-secondary">Counter</span>
-              <span className="rounded-md border border-line px-2.5 py-1 text-[10px] text-fg-muted">Defer</span>
+            <div className="mt-3 flex gap-2">
+              <span className="rounded-md bg-brand px-3 py-1.5 text-xs font-bold text-[#04281A]">Accept</span>
+              <span className="rounded-md border border-line px-3 py-1.5 text-xs text-fg-secondary">Counter</span>
+              <span className="rounded-md border border-line px-3 py-1.5 text-xs text-fg-muted">Defer</span>
             </div>
           </div>
         ))}
@@ -387,20 +364,20 @@ const STORY = [
     title: "Memory that survives the reorg",
     body: "Every decision is a ledger entry: who, when, why, and what it caused. Six months later the context is still there — auditable, never regenerated.",
     visual: (
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {[
           ["DEC-114", "Ledger-first architecture", "Active", "text-ok"],
           ["DEC-113", "Vendor consolidation Q3", "Superseded", "text-fg-faint"],
           ["DEC-112", "Freeze hiring in Platform", "Active", "text-ok"],
           ["DEC-111", "Adopt capacity guardrails at 80%", "Active", "text-ok"],
         ].map(([id, t, s, tone]) => (
-          <div key={id as string} className="flex items-center gap-3 rounded-lg border border-line-subtle bg-ink-elevated/80 px-3 py-2.5">
-            <span className="font-mono text-[10px] text-brand">{id as string}</span>
-            <span className="flex-1 truncate text-xs text-fg-secondary">{t as string}</span>
-            <span className={cn("font-mono text-[10px]", tone as string)}>{s as string}</span>
+          <div key={id as string} className="flex items-center gap-3 rounded-lg border border-line-subtle bg-ink-elevated/80 px-4 py-3">
+            <span className="font-mono text-xs text-brand">{id as string}</span>
+            <span className="flex-1 truncate text-sm text-fg-secondary">{t as string}</span>
+            <span className={cn("font-mono text-xs", tone as string)}>{s as string}</span>
           </div>
         ))}
-        <div className="pt-1 text-center font-mono text-[10px] text-fg-muted">
+        <div className="pt-1 text-center font-mono text-xs text-fg-muted">
           1,204 entries · zero lost context
         </div>
       </div>
@@ -410,44 +387,36 @@ const STORY = [
 
 function ScrollStory() {
   const ref = React.useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const [active, setActive] = React.useState(0);
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     setActive(Math.max(0, Math.min(STORY.length - 1, Math.floor(v * STORY.length))));
   });
 
   return (
-    <section ref={ref} className="relative" style={{ height: `${STORY.length * 100}vh` }}>
+    <section ref={ref} className="relative bg-ink" style={{ height: `${STORY.length * 100}vh` }}>
       <div className="sticky top-0 flex h-screen items-center">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-5 md:grid-cols-2 md:gap-16">
-          {/* left: the chapters */}
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-12 px-6 md:grid-cols-2 md:gap-16 lg:px-10">
           <div className="flex flex-col justify-center gap-9">
-            <Kicker>HOW DIZRUPT THINKS</Kicker>
+            <div className="flex items-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.22em] text-brand">
+              <Zap size={14} />
+              <TextScramble text="HOW DIZRUPT THINKS" />
+            </div>
             {STORY.map((s, i) => (
-              <button
-                key={s.id}
-                onClick={() => setActive(i)}
-                className="group block text-left"
-                aria-current={i === active}
-              >
-                <div className="flex items-start gap-3.5">
+              <button key={s.id} onClick={() => setActive(i)} className="group block text-left" aria-current={i === active}>
+                <div className="flex items-start gap-4">
                   <span
                     className={cn(
-                      "mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors duration-300",
-                      i === active
-                        ? "border-brand/50 bg-brand-soft text-brand"
-                        : "border-line bg-ink-surface text-fg-faint"
+                      "mt-1 grid h-10 w-10 shrink-0 place-items-center border transition-colors duration-300",
+                      i === active ? "border-brand bg-brand-soft text-brand" : "border-line bg-ink-surface text-fg-faint"
                     )}
                   >
-                    <s.icon size={14} />
+                    <s.icon size={17} />
                   </span>
                   <span>
                     <span
                       className={cn(
-                        "block font-display text-lg font-semibold tracking-tight transition-colors duration-300",
+                        "block font-display text-2xl font-bold tracking-tight transition-colors duration-300",
                         i === active ? "text-fg" : "text-fg-faint group-hover:text-fg-muted"
                       )}
                     >
@@ -455,7 +424,7 @@ function ScrollStory() {
                     </span>
                     <span
                       className={cn(
-                        "mt-1.5 block max-w-md text-xs leading-6 transition-colors duration-300",
+                        "mt-2 block max-w-md text-base leading-7 transition-colors duration-300",
                         i === active ? "text-fg-secondary" : "text-fg-faint/70"
                       )}
                     >
@@ -466,10 +435,8 @@ function ScrollStory() {
               </button>
             ))}
           </div>
-
-          {/* right: the synced visual */}
           <div className="relative hidden items-center md:flex">
-            <div className="panel panel-glass relative min-h-[380px] w-full overflow-hidden p-6">
+            <div className="panel panel-glass relative min-h-[440px] w-full overflow-hidden p-7">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={STORY[active].id}
@@ -479,9 +446,11 @@ function ScrollStory() {
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   className="flex h-full flex-col"
                 >
-                  <div className="mb-4 flex items-center justify-between">
-                    <span className="label-xs">{STORY[active].title}</span>
-                    <span className="font-mono text-[10px] text-brand">
+                  <div className="mb-5 flex items-center justify-between">
+                    <span className="text-sm font-semibold uppercase tracking-[0.12em] text-fg-muted">
+                      {STORY[active].title}
+                    </span>
+                    <span className="font-mono text-xs text-brand">
                       {String(active + 1).padStart(2, "0")} / {String(STORY.length).padStart(2, "0")}
                     </span>
                   </div>
@@ -496,52 +465,57 @@ function ScrollStory() {
   );
 }
 
-/* ---------------------------------- bento ---------------------------------- */
+/* ------------------------------- stat plates -------------------------------- */
+// koki-kiko hard blocks: four full-color plates, ink type on volt, volt type
+// on ink — numbers at poster scale.
+
+const STATS = [
+  { value: 92, suffix: "%", label: "forecast accuracy on delivery dates", bg: "bg-brand", fg: "text-[#04281A]", sub: "text-[#04281A]/70" },
+  { value: 4.2, suffix: "×", decimals: 1, label: "faster resource reallocation", bg: "bg-ink", fg: "text-brand", sub: "text-fg-muted" },
+  { value: 38, suffix: "min", label: "median decision latency, down from days", bg: "bg-[#1B4DFF]", fg: "text-white", sub: "text-white/70" },
+  { value: 99.99, suffix: "%", decimals: 2, label: "platform availability", bg: "bg-ink", fg: "text-fg", sub: "text-fg-muted" },
+];
+
+function StatPlates() {
+  return (
+    <section className="grid grid-cols-1 border-y border-white/10 sm:grid-cols-2 lg:grid-cols-4">
+      {STATS.map((s, i) => (
+        <motion.div
+          key={s.label}
+          initial={{ opacity: 0, y: 36 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10% 0px" }}
+          transition={{ duration: 0.7, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className={cn("border-b border-r border-white/10 px-8 py-14", s.bg)}
+        >
+          <div className={cn("font-display text-[clamp(3.5rem,5.5vw,5rem)] font-extrabold leading-none tracking-[-0.04em]", s.fg)}>
+            <NumberTicker value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} />
+          </div>
+          <p className={cn("mt-4 max-w-[220px] text-base font-medium leading-6", s.sub)}>{s.label}</p>
+        </motion.div>
+      ))}
+    </section>
+  );
+}
+
+/* ---------------------------------- bento ----------------------------------- */
 
 function MiniGraph() {
   return (
     <svg viewBox="0 0 220 90" className="h-full w-full">
       {[
-        [30, 45, 95, 20],
-        [30, 45, 95, 70],
-        [95, 20, 165, 45],
-        [95, 70, 165, 45],
-        [165, 45, 205, 25],
-        [165, 45, 205, 68],
+        [30, 45, 95, 20], [30, 45, 95, 70], [95, 20, 165, 45],
+        [95, 70, 165, 45], [165, 45, 205, 25], [165, 45, 205, 68],
       ].map(([x1, y1, x2, y2], i) => (
         <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(0,237,130,0.35)" strokeWidth="1.2" />
       ))}
       {[
-        [30, 45, "#00ED82"],
-        [95, 20, "#2BD9FF"],
-        [95, 70, "#2BD9FF"],
-        [165, 45, "#00ED82"],
-        [205, 25, "#F59E0B"],
-        [205, 68, "#2BD9FF"],
+        [30, 45, "#00ED82"], [95, 20, "#2BD9FF"], [95, 70, "#2BD9FF"],
+        [165, 45, "#00ED82"], [205, 25, "#F59E0B"], [205, 68, "#2BD9FF"],
       ].map(([x, y, c], i) => (
         <circle key={i} cx={x as number} cy={y as number} r={i === 0 || i === 3 ? 6 : 4} fill={c as string} opacity={0.9} />
       ))}
     </svg>
-  );
-}
-
-function MiniChain() {
-  const steps = ["Budget −12%", "Atlas slips 9d", "$4.2M ARR at risk"];
-  return (
-    <div className="flex h-full flex-col justify-center gap-1.5">
-      {steps.map((s, i) => (
-        <div key={s} className="flex items-center gap-2">
-          <span
-            className={cn(
-              "h-1.5 w-1.5 rounded-full",
-              i === 0 ? "bg-info" : i === 1 ? "bg-warn" : "bg-danger"
-            )}
-          />
-          <span className="font-mono text-[10px] text-fg-secondary">{s}</span>
-          {i < steps.length - 1 && <span className="text-fg-faint">→</span>}
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -552,11 +526,11 @@ const FEATURES = [
     body: "Eight weeks of organizational load, person by person. Overload glows before it burns.",
     span: "md:col-span-2",
     visual: (
-      <div className="grid grid-cols-8 gap-1">
+      <div className="grid grid-cols-8 gap-1.5">
         {[0.5, 0.7, 0.62, 0.95, 1.1, 0.55, 0.8, 0.66, 0.72, 0.45, 0.88, 0.6, 0.92, 1.05, 0.5, 0.75].map((v, i) => (
           <div
             key={i}
-            className="h-5 rounded"
+            className="h-6 rounded"
             style={{
               background:
                 v > 1 ? "rgba(239,68,68,0.7)" : v > 0.85 ? "rgba(245,158,11,0.6)" : `rgba(0,237,130,${0.15 + v * 0.4})`,
@@ -579,11 +553,11 @@ const FEATURES = [
     body: "AI agents propose, you decide. Every resolution is one click with a full causal trail.",
     span: "",
     visual: (
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {["Rebalance 12h → Dev", "Slip QA gate 2 days"].map((t, i) => (
-          <div key={t} className="flex items-center justify-between rounded-md border border-line-subtle bg-ink-elevated/70 px-2 py-1.5">
-            <span className="text-[10px] text-fg-secondary">{t}</span>
-            <span className={cn("font-mono text-[9px]", i === 0 ? "text-brand" : "text-warn")}>
+          <div key={t} className="flex items-center justify-between rounded-md border border-line-subtle bg-ink-elevated/70 px-3 py-2">
+            <span className="text-xs text-fg-secondary">{t}</span>
+            <span className={cn("font-mono text-xs", i === 0 ? "text-brand" : "text-warn")}>
               {i === 0 ? "98% fit" : "compromise"}
             </span>
           </div>
@@ -596,7 +570,17 @@ const FEATURES = [
     title: "Scenario Simulation",
     body: "Run the budget cut before you make it. Causal chains, not vibes.",
     span: "",
-    visual: <MiniChain />,
+    visual: (
+      <div className="flex h-full flex-col justify-center gap-2">
+        {["Budget −12%", "Atlas slips 9d", "$4.2M ARR at risk"].map((s, i) => (
+          <div key={s} className="flex items-center gap-2">
+            <span className={cn("h-2 w-2 rounded-full", i === 0 ? "bg-info" : i === 1 ? "bg-warn" : "bg-danger")} />
+            <span className="font-mono text-xs text-fg-secondary">{s}</span>
+            {i < 2 && <span className="text-fg-faint">→</span>}
+          </div>
+        ))}
+      </div>
+    ),
   },
   {
     icon: Zap,
@@ -605,7 +589,7 @@ const FEATURES = [
     span: "",
     visual: (
       <div className="flex h-full items-center justify-center">
-        <span className="font-display text-5xl font-bold tracking-tight text-brand">
+        <span className="font-display text-6xl font-extrabold tracking-tight text-brand">
           <NumberTicker value={94} />
         </span>
       </div>
@@ -617,15 +601,15 @@ const FEATURES = [
     body: "Institutional memory that survives reorgs. Who decided, when, and what it caused.",
     span: "md:col-span-2",
     visual: (
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {[
           ["DEC-114", "Ledger-first architecture", "Active"],
           ["DEC-113", "Vendor consolidation Q3", "Superseded"],
         ].map(([id, t, s]) => (
-          <div key={id} className="flex items-center gap-3 rounded-md border border-line-subtle bg-ink-elevated/70 px-2.5 py-1.5">
-            <span className="font-mono text-[9px] text-brand">{id}</span>
-            <span className="flex-1 truncate text-[10px] text-fg-secondary">{t}</span>
-            <span className={cn("font-mono text-[9px]", s === "Active" ? "text-ok" : "text-fg-faint")}>{s}</span>
+          <div key={id} className="flex items-center gap-3 rounded-md border border-line-subtle bg-ink-elevated/70 px-3 py-2">
+            <span className="font-mono text-xs text-brand">{id}</span>
+            <span className="flex-1 truncate text-xs text-fg-secondary">{t}</span>
+            <span className={cn("font-mono text-xs", s === "Active" ? "text-ok" : "text-fg-faint")}>{s}</span>
           </div>
         ))}
       </div>
@@ -635,41 +619,35 @@ const FEATURES = [
 
 function Bento() {
   return (
-    <section id="product" className="relative mx-auto max-w-6xl px-5 py-24">
-      <motion.div {...rise} className="mb-12 max-w-2xl">
-        <Kicker>THE INSTRUMENT PANEL</Kicker>
-        <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+    <section className="relative mx-auto max-w-7xl px-6 py-28 lg:px-10">
+      <div className="mb-14 max-w-3xl">
+        <h2 className="font-display text-[clamp(2.4rem,5.5vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
           Six instruments.
           <span className="text-fg-muted"> One nervous system.</span>
         </h2>
-        <p className="mt-3 text-sm leading-7 text-fg-secondary">
+        <p className="mt-5 text-lg leading-8 text-fg-secondary">
           Most tools show you tasks. DIZRUPT shows you the organization — load,
           risk, dependency and memory, wired together so every signal carries
           its cause.
         </p>
-      </motion.div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      </div>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         {FEATURES.map((f, i) => (
           <motion.div
             key={f.title}
-            {...rise}
-            transition={{ ...rise.transition, delay: (i % 3) * 0.08 }}
-            className={cn(
-              "panel panel-glass panel-hover group flex flex-col overflow-hidden p-5",
-              f.span
-            )}
-          >
-            <div className="mb-3 flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-lg border border-brand/25 bg-brand-soft text-brand">
-                <f.icon size={15} />
+            initial={{ opacity: 0, y: 36 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8% 0px" }}
+            transition={{ duration: 0.65, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className={cn("panel panel-glass panel-hover group flex flex-col overflow-hidden p-6", f.span)}>
+            <div className="mb-3 flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center border border-brand/25 bg-brand-soft text-brand">
+                <f.icon size={18} />
               </span>
-              <h3 className="font-display text-sm font-semibold tracking-tight">{f.title}</h3>
+              <h3 className="font-display text-lg font-bold tracking-tight">{f.title}</h3>
             </div>
-            <p className="mb-4 text-xs leading-6 text-fg-secondary">{f.body}</p>
-            <div className="mt-auto min-h-[72px] rounded-lg border border-line-subtle/70 bg-ink/50 p-3">
-              {f.visual}
-            </div>
+            <p className="mb-5 text-sm leading-7 text-fg-secondary">{f.body}</p>
+            <div className="mt-auto min-h-[84px] rounded-lg border border-line-subtle/70 bg-ink/50 p-3.5">{f.visual}</div>
           </motion.div>
         ))}
       </div>
@@ -677,33 +655,8 @@ function Bento() {
   );
 }
 
-/* -------------------------------- stats band ------------------------------- */
-
-const STATS = [
-  { value: 92, suffix: "%", label: "forecast accuracy on delivery dates" },
-  { value: 4.2, suffix: "×", decimals: 1, label: "faster resource reallocation" },
-  { value: 38, suffix: "min", label: "median decision latency, down from days" },
-  { value: 99.99, suffix: "%", decimals: 2, label: "platform availability" },
-];
-
-function StatsBand() {
-  return (
-    <motion.section {...rise} className="border-y border-line-subtle/60 bg-ink py-16">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 px-5 md:grid-cols-4">
-        {STATS.map((s) => (
-          <div key={s.label} className="text-center">
-            <div className="font-display text-4xl font-bold tracking-tight text-fg">
-              <NumberTicker value={s.value} suffix={s.suffix} decimals={s.decimals ?? 0} className="text-brand" />
-            </div>
-            <p className="mx-auto mt-2 max-w-[180px] text-2xs leading-relaxed text-fg-muted">{s.label}</p>
-          </div>
-        ))}
-      </div>
-    </motion.section>
-  );
-}
-
-/* --------------------------------- method ---------------------------------- */
+/* --------------------------------- method ----------------------------------- */
+// Numbered plates in the koki-kiko block grammar — 01/02/03 at poster size.
 
 const METHOD = [
   {
@@ -725,34 +678,26 @@ const METHOD = [
 
 function Method() {
   return (
-    <section id="method" className="mx-auto max-w-6xl px-5 py-24">
-      <motion.div {...rise} className="mb-12 max-w-2xl">
-        <Kicker>THE DIZRUPT METHOD</Kicker>
-        <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-          Built on conviction,<span className="text-fg-muted"> not configuration.</span>
-        </h2>
-      </motion.div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {METHOD.map((m, i) => (
-          <motion.div
-            key={m.n}
-            {...rise}
-            transition={{ ...rise.transition, delay: i * 0.1 }}
-            className="panel panel-glass p-6"
-          >
-            <div className="font-mono text-2xs text-brand">{m.n}</div>
-            <h3 className="mt-3 font-display text-base font-semibold leading-snug tracking-tight">
-              {m.title}
-            </h3>
-            <p className="mt-3 text-xs leading-6 text-fg-secondary">{m.body}</p>
-          </motion.div>
+    <section id="method" className="mx-auto max-w-7xl px-6 py-28 lg:px-10">
+      <h2 className="mb-14 font-display text-[clamp(2.4rem,5.5vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.04em]">
+        Built on conviction,<span className="text-fg-muted"> not configuration.</span>
+      </h2>
+      <div className="grid gap-5 md:grid-cols-3">
+        {METHOD.map((m) => (
+          <div key={m.n} className="group border border-line bg-ink-surface p-8 transition-colors hover:border-brand/50">
+            <div className="font-display text-[clamp(3rem,5vw,4.5rem)] font-extrabold leading-none text-brand/25 transition-colors group-hover:text-brand">
+              {m.n}
+            </div>
+            <h3 className="mt-6 font-display text-xl font-bold leading-snug tracking-tight">{m.title}</h3>
+            <p className="mt-4 text-base leading-7 text-fg-secondary">{m.body}</p>
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-/* ------------------------------- testimonials ------------------------------ */
+/* ------------------------------- testimonials -------------------------------- */
 
 const TESTIMONIALS = [
   {
@@ -794,33 +739,27 @@ function Testimonials() {
   };
 
   return (
-    <motion.section {...rise} id="customers" className="mx-auto max-w-4xl px-5 py-24 text-center">
-      <Kicker>OPERATORS ON DIZRUPT</Kicker>
-      <div className="relative mt-6 px-6">
-        <span aria-hidden className="absolute -top-8 left-0 select-none font-display text-7xl text-brand/10">
-          &ldquo;
-        </span>
-        <p
-          className={cn(
-            "mx-auto max-w-2xl font-display text-2xl font-medium leading-relaxed tracking-tight transition-all duration-300 ease-out sm:text-3xl",
-            animating ? "scale-[0.98] opacity-0 blur-sm" : "scale-100 opacity-100 blur-0"
-          )}
-        >
-          {shown.quote}
-        </p>
-        <span aria-hidden className="absolute -bottom-10 right-0 select-none font-display text-7xl text-brand/10">
-          &rdquo;
-        </span>
+    <section id="customers" className="mx-auto max-w-5xl px-6 py-28 text-center">
+      <div className="mb-8 flex items-center justify-center gap-2 font-mono text-sm font-semibold uppercase tracking-[0.22em] text-brand">
+        <Zap size={14} /> Operators on DIZRUPT
       </div>
       <p
         className={cn(
-          "mt-8 text-2xs uppercase tracking-[0.2em] text-fg-muted transition-all duration-500",
+          "mx-auto max-w-3xl font-display text-[clamp(1.8rem,4vw,3rem)] font-bold leading-snug tracking-tight transition-all duration-300 ease-out",
+          animating ? "scale-[0.98] opacity-0 blur-sm" : "scale-100 opacity-100 blur-0"
+        )}
+      >
+        &ldquo;{shown.quote}&rdquo;
+      </p>
+      <p
+        className={cn(
+          "mt-8 text-sm font-semibold uppercase tracking-[0.2em] text-fg-muted transition-all duration-500",
           animating ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
         )}
       >
         {shown.role}
       </p>
-      <div className="mt-6 flex items-center justify-center gap-2">
+      <div className="mt-8 flex items-center justify-center gap-2.5">
         {TESTIMONIALS.map((t, i) => {
           const isActive = i === active;
           return (
@@ -829,12 +768,12 @@ function Testimonials() {
               onClick={() => select(i)}
               aria-label={`Show quote from ${t.author}`}
               className={cn(
-                "flex items-center gap-0 rounded-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
-                isActive ? "bg-ink-elevated py-1.5 pl-1.5 pr-4 shadow-card" : "p-0.5 hover:bg-ink-elevated/60"
+                "flex items-center rounded-full transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                isActive ? "bg-ink-elevated py-2 pl-2 pr-5 shadow-card" : "p-1 hover:bg-ink-elevated/60"
               )}
             >
               <span
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-xs font-semibold"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-sm font-bold"
                 style={{
                   background: `linear-gradient(135deg, ${t.accent}33, ${t.accent}14)`,
                   color: t.accent,
@@ -846,59 +785,57 @@ function Testimonials() {
               <span
                 className={cn(
                   "grid transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
-                  isActive ? "ml-2 grid-cols-[1fr] opacity-100" : "ml-0 grid-cols-[0fr] opacity-0"
+                  isActive ? "ml-2.5 grid-cols-[1fr] opacity-100" : "ml-0 grid-cols-[0fr] opacity-0"
                 )}
               >
-                <span className="overflow-hidden whitespace-nowrap text-xs font-medium text-fg">
-                  {t.author}
-                </span>
+                <span className="overflow-hidden whitespace-nowrap text-sm font-semibold text-fg">{t.author}</span>
               </span>
             </button>
           );
         })}
       </div>
-    </motion.section>
-  );
-}
-
-/* ----------------------------------- CTA ----------------------------------- */
-
-function FinalCTA() {
-  return (
-    <section id="manifesto" className="relative overflow-hidden border-t border-line-subtle/60">
-      <AuroraBackdrop className="opacity-60" />
-      <motion.div {...rise} className="relative mx-auto max-w-3xl px-5 py-28 text-center">
-        <DizruptMark size={56} glow className="mx-auto" />
-        <h2 className="mt-8 font-display text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
-          Strike before it breaks.
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-fg-secondary">
-          Ten minutes to onboard your org. One screen to run it. The next
-          surprise in your company shouldn&apos;t be a surprise.
-        </p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/login"
-            className="group relative inline-flex h-11 items-center overflow-hidden rounded-xl bg-brand pl-5 pr-12 text-sm font-semibold text-[#04281A] shadow-glow transition-colors hover:bg-[#3DF59E]"
-          >
-            Get started free
-            <i className="absolute bottom-1.5 right-1.5 top-1.5 z-10 grid w-8 place-items-center rounded-lg bg-[#04281A]/15 transition-all duration-500 group-hover:w-[calc(100%-0.75rem)] group-active:scale-95">
-              <ArrowRight size={15} strokeWidth={2.5} aria-hidden />
-            </i>
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex h-11 items-center gap-2 rounded-xl border border-line bg-ink-surface/60 px-5 text-sm font-medium text-fg-secondary backdrop-blur transition-colors hover:border-brand/40 hover:text-fg"
-          >
-            Book a live strike <GitBranch size={13} />
-          </Link>
-        </div>
-      </motion.div>
     </section>
   );
 }
 
-/* ---------------------------------- footer --------------------------------- */
+/* ----------------------------------- CTA ------------------------------------ */
+// Full-bleed chroma finale — the field comes back, the type goes enormous.
+
+function FinalCTA() {
+  return (
+    <section id="manifesto" className="relative overflow-hidden border-t border-white/10">
+      <ChromaField className="absolute inset-0 h-full w-full" intensity={0.85} />
+      <div className="relative mx-auto max-w-5xl px-6 py-36 text-center">
+        <h2 className="font-display text-[clamp(3rem,9vw,7.5rem)] font-extrabold leading-[0.92] tracking-[-0.045em]">
+          <span className="bg-ink px-4 py-1 leading-tight text-fg [box-decoration-break:clone]">Strike before</span>
+          <br />
+          <span className="bg-brand px-4 py-1 leading-tight text-[#04281A] [box-decoration-break:clone]">it breaks.</span>
+        </h2>
+        <p className="mx-auto mt-8 inline-block max-w-xl bg-ink/85 px-5 py-3 text-lg leading-8 text-fg-secondary backdrop-blur">
+          Ten minutes to onboard your org. One screen to run it. The next
+          surprise in your company shouldn&apos;t be a surprise.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/login"
+            className="group flex h-16 items-center gap-3 bg-brand px-9 text-lg font-extrabold uppercase tracking-wide text-[#04281A] transition-colors hover:bg-[#3DF59E]"
+          >
+            Get started free
+            <ArrowRight size={20} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1.5" />
+          </Link>
+          <Link
+            href="/login"
+            className="flex h-16 items-center gap-3 border border-white/30 bg-ink/80 px-9 text-lg font-semibold text-fg backdrop-blur transition-colors hover:border-brand hover:text-brand"
+          >
+            Book a live strike <GitBranch size={17} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------- footer ----------------------------------- */
 
 const FOOTER_COLS: { title: string; links: string[] }[] = [
   { title: "Product", links: ["Command Center", "Capacity", "Graph", "Agent Inbox", "Decisions"] },
@@ -908,35 +845,33 @@ const FOOTER_COLS: { title: string; links: string[] }[] = [
 
 function Footer() {
   return (
-    <footer className="border-t border-line-subtle/60 bg-ink-surface/30">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <footer className="border-t border-white/10 bg-ink-surface/30">
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)] lg:px-10">
         <div>
-          <DizruptWordmark markSize={26} sub="Resource Intelligence" />
-          <p className="mt-4 max-w-xs text-2xs leading-relaxed text-fg-muted">
+          <DizruptWordmark markSize={30} sub="Resource Intelligence" />
+          <p className="mt-5 max-w-xs text-sm leading-7 text-fg-muted">
             The operating system for your organization. Built for the operators
             who can&apos;t afford surprises.
           </p>
         </div>
         {FOOTER_COLS.map((c) => (
           <div key={c.title}>
-            <div className="label-xs mb-3">{c.title}</div>
-            <ul className="space-y-2">
+            <div className="mb-4 text-sm font-bold uppercase tracking-[0.14em] text-fg-muted">{c.title}</div>
+            <ul className="space-y-3">
               {c.links.map((l) => (
                 <li key={l}>
-                  <a href="#" className="text-xs text-fg-secondary transition-colors hover:text-brand">
-                    {l}
-                  </a>
+                  <a href="#" className="text-base text-fg-secondary transition-colors hover:text-brand">{l}</a>
                 </li>
               ))}
             </ul>
           </div>
         ))}
       </div>
-      <div className="border-t border-line-subtle/60">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-2xs text-fg-faint">
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-sm text-fg-faint lg:px-10">
           <span>© 2026 DIZRUPT. All circuits reserved.</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Zap size={10} className="text-brand" /> Built at full voltage
+          <span className="inline-flex items-center gap-2">
+            <Zap size={13} className="text-brand" /> Built at full voltage
           </span>
         </div>
       </div>
@@ -944,29 +879,36 @@ function Footer() {
   );
 }
 
-/* ----------------------------------- page ---------------------------------- */
+/* ----------------------------------- page ------------------------------------ */
 
 export default function WelcomePage() {
+  // ScrollTrigger measures against the document — refresh after fonts settle,
+  // well clear of the hero intro timeline.
+  React.useEffect(() => {
+    const refresh = () => ScrollTrigger.refresh();
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(refresh);
+      return;
+    }
+    const t = setTimeout(refresh, 2500);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
-    <div className="relative min-h-screen">
-      {/* full-bleed atmosphere — midday-restrained: the field whispers */}
-      <DotMatrixField className="pointer-events-none fixed inset-0 z-0 opacity-40" />
-      <div aria-hidden className="grain-layer" />
-      <MouseGlow />
-      <div className="relative z-10">
-        <LandingNav />
-        <main>
-          <Hero />
-          <LogoStrip />
-          <ScrollStory />
-          <Bento />
-          <StatsBand />
-          <Method />
-          <Testimonials />
-          <FinalCTA />
-        </main>
-        <Footer />
-      </div>
+    <div className="relative min-h-screen bg-ink">
+      <TopNav />
+      <main>
+        <Hero />
+        <MarqueeBand />
+        <ProductStage />
+        <ScrollStory />
+        <StatPlates />
+        <Bento />
+        <Method />
+        <Testimonials />
+        <FinalCTA />
+      </main>
+      <Footer />
     </div>
   );
 }

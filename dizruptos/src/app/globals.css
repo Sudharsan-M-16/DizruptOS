@@ -8,32 +8,32 @@
 /* Brand identity: the logo — a volt-green lightning bolt striking through
    deep harbor navy. Every neutral below carries a trace of that navy. */
 
+/* Dark theme — Linear-grade NEUTRAL black. No blue cast, no green cast:
+   pure gray steps on near-black, with the volt accent doing all the talking. */
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --ink: 5 11 16; /* #050B10 page background — abyssal navy-black */
-  --ink-surface: 10 18 26; /* #0A121A cards, panels */
-  --ink-elevated: 16 27 38; /* #101B26 modals, dropdowns */
-  --ink-raised: 22 36 50; /* #162432 */
+  --ink: 8 9 10; /* #08090A page background */
+  --ink-surface: 15 16 18; /* #0F1012 cards, panels */
+  --ink-elevated: 22 23 26; /* #16171A modals, dropdowns */
+  --ink-raised: 30 31 35; /* #1E1F23 */
 
-  --line-subtle: 25 39 52; /* #192734 */
-  --line: 33 50 65; /* #213241 */
-  --line-strong: 51 73 92; /* #33495C */
+  --line-subtle: 28 29 32; /* #1C1D20 */
+  --line: 39 40 44; /* #27282C */
+  --line-strong: 58 60 66; /* #3A3C42 */
 
-  /* Text contrast tuned for the clean professional shell: secondary copy
-     must read instantly on solid panels, not just decorate them. */
-  --fg: 243 249 246; /* #F3F9F6 — white with a volt breath */
-  --fg-secondary: 185 199 209; /* #B9C7D1 */
-  --fg-muted: 138 158 172; /* #8A9EAC */
-  --fg-faint: 95 114 128; /* #5F7280 */
+  --fg: 247 248 248; /* #F7F8F8 */
+  --fg-secondary: 200 203 208; /* #C8CBD0 */
+  --fg-muted: 152 156 163; /* #989CA3 */
+  --fg-faint: 104 108 116; /* #686C74 */
 
-  --shadow-card: 0 0 0 1px rgba(0, 237, 130, 0.06), 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-card-hover: 0 0 0 1px rgba(0, 237, 130, 0.22), 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-pop: 0 0 0 1px rgba(33, 50, 65, 0.9), 0 16px 48px rgba(0, 0, 0, 0.65);
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 0 0 1px rgba(0, 237, 130, 0.2), 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 0 0 1px rgba(39, 40, 44, 0.9), 0 16px 48px rgba(0, 0, 0, 0.65);
 
-  --bg-glow-a: rgba(0, 237, 130, 0.055);
-  --bg-glow-b: rgba(43, 217, 255, 0.045);
+  --bg-glow-a: rgba(0, 237, 130, 0.05);
+  --bg-glow-b: rgba(43, 217, 255, 0.04);
   --grain-opacity: 0.025;
 }
 
@@ -120,10 +120,12 @@ body {
 
 @layer components {
   .panel {
-    @apply relative rounded-card border border-line shadow-card;
+    @apply relative rounded-card border border-line;
     /* Solid surface — the professional shell reads as crisp panels on flat
-       ink, never content floating over decoration. */
+       ink, never content floating over decoration. A 1px lit top edge
+       (Linear/monday cue) gives each surface a quiet sense of elevation. */
     background-color: rgb(var(--ink-surface));
+    box-shadow: var(--shadow-card), inset 0 1px 0 0 rgb(255 255 255 / 0.045);
   }
   /* Public pages opt back into glass over their WebGL fields. */
   .panel-glass {

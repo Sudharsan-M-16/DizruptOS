@@ -121,14 +121,14 @@ export default function ExecutivePage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="rgb(var(--line-subtle))" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="w" tick={{ fill: "rgb(var(--fg-muted))", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "rgb(var(--fg-muted))", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="w" tick={{ fill: "rgb(var(--fg-muted))", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "rgb(var(--fg-muted))", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <ReTooltip
                   contentStyle={{
                     background: "rgb(var(--ink-elevated))",
                     border: "1px solid rgb(var(--line))",
                     borderRadius: 10,
-                    fontSize: 11,
+                    fontSize: 13,
                   }}
                   labelStyle={{ color: "rgb(var(--fg-secondary))" }}
                 />

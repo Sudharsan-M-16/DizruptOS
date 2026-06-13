@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useOps } from "@/lib/store";
+import { PERSONAS, useSession } from "@/lib/session";
 import { departmentById, employeeById, projects } from "@/lib/data";
 import {
   CapacityBar,
@@ -14,11 +15,22 @@ import { fmtDate, fmtMoney } from "@/lib/utils";
 
 export default function ProjectsPage() {
   const tasks = useOps((s) => s.tasks);
+  const personaId = useSession((s) => s.personaId);
+  const persona = PERSONAS.find((pp) => pp.id === personaId) ?? PERSONAS[0];
+  const isEmployee = persona.role === "employee" || persona.role === "client";
+
+  // Employees: your projects float to the top, marked — the portfolio is the
+  // same, the lens is yours.
+  const onProject = (projectId: string) =>
+    tasks.some((t) => t.projectId === projectId && t.assigneeId === persona.id);
+  const ordered = isEmployee
+    ? [...projects].sort((a, b) => Number(onProject(b.id)) - Number(onProject(a.id)))
+    : projects;
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
-        {projects.map((p) => {
+        {ordered.map((p) => {
           const owner = employeeById(p.ownerId);
           const open = tasks.filter(
             (t) => t.projectId === p.id && t.status !== "COMPLETED"
@@ -43,6 +55,11 @@ export default function ProjectsPage() {
                       {p.name}
                     </h3>
                     <HealthPill health={p.health} pulse />
+                    {isEmployee && onProject(p.id) && (
+                      <span className="rounded-full border border-brand/40 bg-brand-soft px-2 py-px text-2xs font-semibold text-brand">
+                        yours
+                      </span>
+                    )}
                     <Explain title={`${p.name} health`} signals={p.healthReasons} />
                   </div>
                   <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-fg-secondary">

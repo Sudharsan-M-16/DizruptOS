@@ -15,9 +15,9 @@ export default function ShellLayout({
     <AuthGate>
       <div className="relative z-10 min-h-screen">
         <Sidebar />
-        <div className="pl-[232px]">
+        <div className="pl-[256px]">
           <Topbar />
-          <main className="mx-auto max-w-[1480px] p-6">{children}</main>
+          <main className="mx-auto max-w-[1520px] px-6 py-7 lg:px-10 lg:py-9">{children}</main>
         </div>
         <CommandPalette />
         <GuardrailModal />

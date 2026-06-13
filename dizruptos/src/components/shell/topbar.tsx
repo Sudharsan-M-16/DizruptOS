@@ -34,6 +34,7 @@ const TITLES: Record<string, { title: string; hint: string }> = {
   "/goals": { title: "Goals & OKRs", hint: "Every hour traces to strategic intent" },
   "/proposals": { title: "Agent Negotiation Inbox", hint: "Agents propose · humans decide · memory persists" },
   "/graph": { title: "Dependency Graph", hint: "The organizational graph, made visible" },
+  "/capabilities": { title: "Capability Intelligence", hint: "Who knows what — and where the organization is fragile" },
   "/audit": { title: "Audit Log", hint: "Insert-only · tamper-proof · complete" },
 };
 
@@ -128,12 +129,12 @@ export function Topbar() {
   const meta = TITLES[seg] ?? TITLES["/"];
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b border-line-subtle bg-ink/75 px-6 backdrop-blur-xl">
+    <header className="sticky top-0 z-20 flex h-[76px] items-center gap-4 border-b border-line-subtle bg-ink/75 px-6 backdrop-blur-xl">
       <div className="min-w-0">
-        <h1 className="truncate font-display text-[15px] font-semibold tracking-tight">
+        <h1 className="truncate font-display text-3xl font-bold tracking-tight">
           <RevealText key={meta.title} text={meta.title} per={0.04} />
         </h1>
-        <p className="truncate text-2xs text-fg-muted">{meta.hint}</p>
+        <p className="truncate text-base text-fg-muted">{meta.hint}</p>
       </div>
 
       {/* Optimistic-action toast, inline in the bar */}
@@ -159,27 +160,28 @@ export function Topbar() {
           onClick={() => useSession.getState().setShortcutsOpen(true)}
           aria-label="Keyboard shortcuts"
           title="Keyboard shortcuts (?)"
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-ink-surface text-fg-secondary transition-colors hover:border-brand/40 hover:text-fg"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-ink-surface text-fg-secondary transition-colors hover:border-brand/40 hover:text-fg"
         >
-          <Keyboard size={14} />
+          <Keyboard size={17} />
         </button>
         {/* Command palette trigger */}
         <button
           onClick={() => setPaletteOpen(true)}
-          className="flex h-8 w-64 items-center gap-2 rounded-lg border border-line bg-ink-surface px-3 text-xs text-fg-muted transition-colors hover:border-brand/40 hover:text-fg-secondary"
+          className="flex h-10 w-72 items-center gap-2 rounded-lg border border-line bg-ink-surface px-3 text-sm text-fg-muted transition-colors hover:border-brand/40 hover:text-fg-secondary"
         >
-          <Search size={13} />
-          <span className="flex-1 text-left">Search people, tasks, risks…</span>
-          <span className="kbd">⌘K</span>
+          <Search size={16} className="shrink-0" />
+          <span className="flex-1 truncate text-left">Search people, tasks…</span>
+          <span className="kbd shrink-0">⌘K</span>
         </button>
 
-        {/* Notification inbox */}
-        <Popover.Root>
+        {/* Notification inbox — opening it counts as "seen": the badge
+            clears immediately so the count never nags twice. */}
+        <Popover.Root onOpenChange={(open) => open && markAllRead()}>
           <Popover.Trigger asChild>
-            <button className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-ink-surface text-fg-secondary transition-colors hover:border-brand/40 hover:text-fg">
-              <Bell size={14} />
+            <button className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-ink-surface text-fg-secondary transition-colors hover:border-brand/40 hover:text-fg">
+              <Bell size={17} />
               {unread > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 font-mono text-[10px] font-bold text-white">
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 font-mono text-[12px] font-bold text-white">
                   {unread}
                 </span>
               )}
@@ -189,12 +191,12 @@ export function Topbar() {
             <Popover.Content
               align="end"
               sideOffset={8}
-              className="z-50 w-[380px] animate-riseIn rounded-card border border-line bg-ink-elevated shadow-pop"
+              className="z-50 w-[440px] animate-riseIn rounded-card border border-line bg-ink-elevated shadow-pop"
             >
               <div className="flex items-center justify-between border-b border-line-subtle px-4 py-3">
                 <div>
-                  <div className="text-xs font-semibold">Notifications</div>
-                  <div className="text-2xs text-fg-muted">
+                  <div className="text-base font-semibold">Notifications</div>
+                  <div className="text-xs text-fg-muted">
                     Debounced · rolled up · classed by urgency
                   </div>
                 </div>
@@ -212,14 +214,14 @@ export function Topbar() {
                         !n.read && "bg-ink-surface"
                       )}
                     >
-                      <k.Icon size={15} className={cn("mt-0.5 shrink-0", k.tone)} />
+                      <k.Icon size={17} className={cn("mt-0.5 shrink-0", k.tone)} />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="truncate text-xs font-semibold">{n.title}</span>
+                          <span className="truncate text-base font-semibold">{n.title}</span>
                           {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />}
                         </div>
-                        <p className="mt-0.5 text-2xs leading-relaxed text-fg-secondary">{n.body}</p>
-                        <div className="mt-1 flex items-center gap-2 text-2xs text-fg-muted">
+                        <p className="mt-0.5 text-sm leading-relaxed text-fg-secondary">{n.body}</p>
+                        <div className="mt-1.5 flex items-center gap-2 text-xs text-fg-muted">
                           <span className="rounded bg-ink-elevated px-1.5 py-px font-mono uppercase">{n.klass.replace("_", " ")}</span>
                           {timeAgo(n.at)}
                         </div>

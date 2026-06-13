@@ -196,6 +196,20 @@ export const useOps = create<OpsState>((set, get) => ({
     if (from) cap = applyDelta(cap, from, task.weekStart, -task.estimatedHours);
     cap = applyDelta(cap, to, task.weekStart, task.estimatedHours);
 
+    // Both sides of the move, before → after, for the dual-sided notification.
+    const pctOf = (capSlice: CapacityCell[], empId: string) => {
+      const emp = employeeById(empId);
+      if (!emp) return 0;
+      const hours =
+        capSlice.find((c) => c.employeeId === empId && c.weekStart === task.weekStart)
+          ?.allocatedHours ?? 0;
+      return Math.round((hours / emp.capacityHoursPerWeek) * 100);
+    };
+    const fromBefore = from ? pctOf(capacity, from) : null;
+    const fromAfter = from ? pctOf(cap, from) : null;
+    const toBefore = pctOf(capacity, to);
+    const toAfter = pctOf(cap, to);
+
     const event: AuditEvent = {
       id: `a-${auditSeq++}`,
       ...currentActor(),
@@ -215,6 +229,14 @@ export const useOps = create<OpsState>((set, get) => ({
       override: Boolean(overrideReason),
     });
 
+    // Dual-sided story: the toast and the notification name BOTH people —
+    // who was relieved (and to what), who absorbed the load (and to what).
+    const relievedBit =
+      fromEmp && fromBefore !== null
+        ? `Relieved ${fromEmp.name.split(" ")[0]} ${fromBefore}% → ${fromAfter}%`
+        : "Assigned from backlog";
+    const loadedBit = `loaded ${toEmp?.name.split(" ")[0]} ${toBefore}% → ${toAfter}%`;
+
     set({
       tasks: tasks.map((t) =>
         t.id === task.id ? { ...t, assigneeId: to } : t
@@ -222,7 +244,19 @@ export const useOps = create<OpsState>((set, get) => ({
       capacity: cap,
       audit: [event, ...get().audit],
       pendingDrop: null,
-      lastAction: `${task.estimatedHours}h moved ${fromEmp ? `from ${fromEmp.name.split(" ")[0]} ` : ""}to ${toEmp?.name.split(" ")[0]} — confirmed in 412ms`,
+      notifications: [
+        {
+          id: `n-realloc-${auditSeq}`,
+          klass: "manager_review" as const,
+          title: `Reallocation confirmed — ${task.estimatedHours}h`,
+          body: `'${task.title}': ${relievedBit}; ${loadedBit} (week of ${task.weekStart.slice(5)}). Both heatmap rows updated atomically.`,
+          at: new Date().toISOString(),
+          read: false,
+          entityRef: "/capacity",
+        },
+        ...get().notifications,
+      ],
+      lastAction: `${relievedBit} · ${loadedBit} (${task.estimatedHours}h)`,
     });
     publishSync(get());
   },

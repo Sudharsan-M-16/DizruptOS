@@ -55,10 +55,10 @@ export default function CapacityPage() {
             suffix="%"
             className="font-display text-xl font-semibold"
           />
-          <span className="text-2xs text-fg-muted">avg load · this week</span>
+          <span className="text-xs text-fg-muted">avg load · this week</span>
         </div>
         <CapacityBar pct={avgLoad} className="w-44" />
-        <div className="flex items-center gap-4 text-2xs">
+        <div className="flex items-center gap-4 text-xs">
           <span className="flex items-center gap-1.5 font-medium text-danger">
             <span className="h-1.5 w-1.5 rounded-full bg-danger" />
             {redCount} overloaded
@@ -72,7 +72,7 @@ export default function CapacityPage() {
             {visible.length - redCount - warnCount} healthy
           </span>
         </div>
-        <span className="ml-auto hidden text-2xs text-fg-muted md:block">
+        <span className="ml-auto hidden text-xs text-fg-muted md:block">
           Drag any chip onto a green row — both bars update in &lt;50ms
         </span>
       </div>
@@ -84,7 +84,7 @@ export default function CapacityPage() {
             key={d.id}
             onClick={() => setDeptFilter(d.id)}
             className={cn(
-              "rounded-full border px-3 py-1 text-2xs font-medium transition-colors",
+              "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
               deptFilter === d.id
                 ? "border-brand/50 bg-brand-soft text-fg"
                 : "border-line bg-ink-surface text-fg-secondary hover:border-brand/30"
@@ -93,7 +93,7 @@ export default function CapacityPage() {
             {d.name}
           </button>
         ))}
-        <div className="ml-auto flex items-center gap-4 text-2xs text-fg-muted">
+        <div className="ml-auto flex items-center gap-4 text-xs text-fg-muted">
           <Legend tone="bg-ok" label="< 80%" />
           <Legend tone="bg-warn" label="80–99%" />
           <Legend tone="bg-danger" label="≥ 100%" />
@@ -176,7 +176,7 @@ export default function CapacityPage() {
                       </Explain>
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5 text-2xs text-fg-muted">
+                  <div className="flex items-center gap-1.5 text-xs text-fg-muted">
                     <span
                       className={cn(
                         "font-mono font-semibold",
@@ -214,7 +214,7 @@ export default function CapacityPage() {
                     >
                       <div className="flex items-center gap-1.5">
                         <CapacityBar pct={pct} className="flex-1" height={6} />
-                        <span className="w-9 text-right font-mono text-2xs text-fg-muted">
+                        <span className="w-9 text-right font-mono text-xs text-fg-muted">
                           {fmtPct(pct)}
                         </span>
                         {pto && (
@@ -238,7 +238,7 @@ export default function CapacityPage() {
                               }}
                               onClick={() => openTaskDrawer(t.id)}
                               className={cn(
-                                "group flex max-w-full cursor-grab items-center gap-1 rounded border border-line bg-ink-elevated px-1.5 py-0.5 text-2xs text-fg-secondary transition-all hover:border-brand/50 hover:text-fg active:cursor-grabbing",
+                                "group flex max-w-full cursor-grab items-center gap-1 rounded border border-line bg-ink-elevated px-1.5 py-0.5 text-xs text-fg-secondary transition-all hover:border-brand/50 hover:text-fg active:cursor-grabbing",
                                 dragTaskId === t.id && "rotate-2 border-brand shadow-glow"
                               )}
                               title={`${t.title} · ${t.estimatedHours}h · ${projectById(t.projectId)?.code}`}
@@ -250,7 +250,7 @@ export default function CapacityPage() {
                             </motion.button>
                           ))}
                           {empTasks.length > 3 && (
-                            <span className="px-1 text-2xs text-fg-faint">+{empTasks.length - 3}</span>
+                            <span className="px-1 text-xs text-fg-faint">+{empTasks.length - 3}</span>
                           )}
                         </div>
                       )}
@@ -264,7 +264,7 @@ export default function CapacityPage() {
        </div>
       </div>
 
-      <p className="text-2xs text-fg-muted">
+      <p className="text-xs text-fg-muted">
         Capacity law: utilization = Σ estimated hours due in week ÷ weekly capacity.
         Mutations are atomic increments — drops that project ≥100% require a typed
         override reason and are written to the audit log.

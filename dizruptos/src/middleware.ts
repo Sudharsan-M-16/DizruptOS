@@ -41,8 +41,34 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
   return res;
 }
 
+// API rate limit: 120 req/min/IP across /api/v1 (login has its own stricter
+// limiter). In-memory per edge isolate — production swaps to Redis/Upstash.
+const apiHits = new Map<string, { count: number; resetAt: number }>();
+const API_WINDOW_MS = 60_000;
+const API_MAX = 120;
+
+function apiRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = apiHits.get(ip);
+  if (!entry || entry.resetAt < now) {
+    apiHits.set(ip, { count: 1, resetAt: now + API_WINDOW_MS });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > API_MAX;
+}
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (pathname.startsWith("/api/v1")) {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
+    if (apiRateLimited(ip)) {
+      return withSecurityHeaders(
+        NextResponse.json({ code: "RATE_LIMITED" }, { status: 429 })
+      );
+    }
+  }
 
   const isPublic =
     PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
@@ -53,6 +79,12 @@ export function middleware(req: NextRequest) {
 
   const session = req.cookies.get("dz_session");
   if (!session?.value) {
+    // APIs answer in their own language: 401 JSON, never an HTML redirect.
+    if (pathname.startsWith("/api/")) {
+      return withSecurityHeaders(
+        NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })
+      );
+    }
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("from", pathname);

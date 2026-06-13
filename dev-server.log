@@ -1,0 +1,510 @@
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:5175
+
+ ✓ Starting...
+ ✓ Ready in 4.6s
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 995ms (73 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1403ms (54 modules)
+ GET /api/health 200 in 1590ms
+ ○ Compiling /capacity ...
+ ✓ Compiled / in 39.6s (2657 modules)
+ GET / 200 in 3814ms
+ ✓ Compiled in 2.4s (1315 modules)
+ ✓ Compiled in 886ms (1315 modules)
+ ✓ Compiled in 765ms (1315 modules)
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 1168ms (1333 modules)
+ POST /api/auth/logout 200 in 1327ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 10s (2672 modules)
+ ✓ Compiled in 1113ms (1326 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 9.3s (2706 modules)
+ ✓ Compiled in 2.7s (2706 modules)
+ ✓ Compiled in 2.7s (2706 modules)
+ ✓ Compiled in 1989ms (2676 modules)
+ ✓ Compiled in 3.7s (2666 modules)
+ ✓ Compiled in 1635ms (2666 modules)
+ ✓ Compiled in 971ms (2666 modules)
+ ✓ Compiled in 1051ms (1342 modules)
+ ✓ Compiled in 2.3s (1342 modules)
+ ✓ Compiled in 977ms (1342 modules)
+ GET /welcome 200 in 2075ms
+ GET /welcome 200 in 51ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 997ms (1334 modules)
+ GET /login 200 in 1810ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.6s (1364 modules)
+ POST /api/auth/login 200 in 2729ms
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 2.6s (1342 modules)
+ ○ Compiling /projects ...
+ ✓ Compiled /projects in 5.6s (2690 modules)
+ ○ Compiling /people ...
+ ✓ Compiled /people in 4.4s (2690 modules)
+ ○ Compiling /risks ...
+ ✓ Compiled /risks in 3.7s (2700 modules)
+ ○ Compiling /decisions ...
+ ✓ Compiled /decisions in 4.2s (2712 modules)
+ ⨯ Failed to find font override values for font `Newsreader`
+ ⨯ Failed to find font override values for font `Newsreader`
+ ✓ Compiled in 7.9s (2705 modules)
+ ✓ Compiled in 1980ms (1361 modules)
+ ✓ Compiled in 726ms (1361 modules)
+ ✓ Compiled in 5.6s (2709 modules)
+ ✓ Compiled in 3.5s (2709 modules)
+ ✓ Compiled in 2.3s (2709 modules)
+ ✓ Compiled in 2.3s (2709 modules)
+ GET /decisions 200 in 233ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 1597ms (1378 modules)
+ POST /api/auth/logout 200 in 1709ms
+ ✓ Compiled in 4.8s (2739 modules)
+ GET /welcome 200 in 542ms
+ GET /login 200 in 126ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.4s (1380 modules)
+ POST /api/auth/login 200 in 2512ms
+ ○ Compiling / ...
+ ✓ Compiled / in 7.1s (1386 modules)
+ ○ Compiling /proposals ...
+ ✓ Compiled /proposals in 5.2s (2747 modules)
+ ✓ Compiled in 9.8s (2701 modules)
+ ✓ Compiled in 818ms (1368 modules)
+ ✓ Compiled in 4.9s (1368 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 2.9s (1346 modules)
+ GET /login 200 in 3398ms
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 1891ms (1363 modules)
+ GET /welcome 200 in 2553ms
+ GET /welcome 200 in 105ms
+ ✓ Compiled in 6.9s (2723 modules)
+ ✓ Compiled in 5s (2713 modules)
+ ✓ Compiled in 8.6s (2713 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1105ms (1355 modules)
+ GET /login 200 in 2017ms
+ GET /proposals 200 in 63ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 2.3s (1381 modules)
+ POST /api/auth/logout 200 in 2441ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 767ms (1383 modules)
+ POST /api/auth/login 200 in 1111ms
+ ✓ Compiled in 8.5s (2719 modules)
+ ✓ Compiled in 11s (2719 modules)
+ ✓ Compiled in 6.2s (2719 modules)
+ ✓ Compiled in 4.1s (2719 modules)
+ ✓ Compiled in 11.4s (2719 modules)
+ ✓ Compiled in 2.2s (2719 modules)
+ GET /login 200 in 841ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 3.2s (1381 modules)
+ POST /api/auth/logout 200 in 3309ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 709ms (1383 modules)
+ POST /api/auth/login 200 in 850ms
+ ✓ Compiled in 1488ms (1368 modules)
+ ✓ Compiled in 920ms (1368 modules)
+ ✓ Compiled in 802ms (1368 modules)
+ ✓ Compiled in 883ms (1368 modules)
+ ✓ Compiled in 665ms (1368 modules)
+ ✓ Compiled in 1706ms (1368 modules)
+ ✓ Compiled in 1057ms (1368 modules)
+ ✓ Compiled in 3.7s (2792 modules)
+ ✓ Compiled in 1728ms (2792 modules)
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 1751ms (1381 modules)
+ POST /api/auth/logout 200 in 1962ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 817ms (1383 modules)
+ POST /api/auth/login 200 in 968ms
+ POST /api/auth/logout 200 in 11ms
+ GET /login 200 in 673ms
+ GET /login 200 in 98ms
+ ✓ Compiled in 16s (2719 modules)
+ ✓ Compiled in 4.3s (2719 modules)
+ GET /login 200 in 430ms
+ ✓ Compiled in 1452ms (1368 modules)
+ ✓ Compiled in 1278ms (1368 modules)
+ GET /login 200 in 87ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.1s (1381 modules)
+ POST /api/auth/login 200 in 2267ms
+ ○ Compiling /api/v1/projects ...
+ ✓ Compiled /api/v1/projects in 1404ms (1393 modules)
+{"ts":"2026-06-13T04:30:43.365Z","level":"info","event":"api_api_projects","ctx":{"reqId":"265acfad-5701-4eb3-b12a-3da0236daaa8","method":"GET","path":"/api/v1/projects","status":200,"ms":2}}
+ GET /api/v1/projects 200 in 1546ms
+{"ts":"2026-06-13T04:30:43.489Z","level":"info","event":"api_api_projects","ctx":{"reqId":"6314b223-5cb1-4222-a8c9-134953636a7e","method":"GET","path":"/api/v1/projects","status":200,"ms":0}}
+ GET /api/v1/projects 200 in 12ms
+ GET /login 200 in 505ms
+ POST /api/auth/login 200 in 37ms
+ GET /login 200 in 76ms
+ POST /api/auth/login 200 in 24ms
+ POST /api/auth/login 200 in 134ms
+ ○ Compiling /projects ...
+ ✓ Compiled /projects in 2.4s (1385 modules)
+ ○ Compiling /people ...
+ ✓ Compiled /people in 1714ms (1393 modules)
+ ○ Compiling /risks ...
+ ✓ Compiled /risks in 1020ms (1399 modules)
+ ○ Compiling /goals ...
+ ✓ Compiled /goals in 4.5s (2775 modules)
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 8.6s (3028 modules)
+ GET /login 200 in 1907ms
+ POST /api/auth/login 200 in 27ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 3s (1479 modules)
+ POST /api/auth/logout 200 in 3071ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 2.5s (1492 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 2.1s (1004 modules)
+ GET /api/health 200 in 2261ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.4s (1465 modules)
+ GET / 200 in 4157ms
+ ✓ Compiled in 10.3s (2470 modules)
+ ✓ Compiled in 3.4s (2470 modules)
+ ✓ Compiled in 4s (1497 modules)
+ ✓ Compiled in 1832ms (1497 modules)
+ ✓ Compiled in 838ms (1497 modules)
+ ✓ Compiled in 822ms (1497 modules)
+ ✓ Compiled in 929ms (1497 modules)
+ GET /login 200 in 601ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 5.3s (1003 modules)
+ POST /api/auth/login 200 in 5567ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4.1s (1495 modules)
+ GET / 200 in 695ms
+ GET /login 200 in 230ms
+ POST /api/auth/login 200 in 26ms
+ GET /login 200 in 99ms
+ POST /api/auth/login 200 in 24ms
+ GET /login 200 in 106ms
+ POST /api/auth/login 200 in 27ms
+   Reload env: .env.local
+ ✓ Compiled in 3.8s (2543 modules)
+   Reload env: .env.local
+ ⨯ Failed to find font override values for font `Newsreader`
+   Reload env: .env.local
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ Failed to find font override values for font `Newsreader`
+   Reload env: .env.local
+   Reload env: .env.local
+ ✓ Compiled in 34.5s (2543 modules)
+ GET /login 200 in 16125ms
+   Reload env: .env.local
+ ✓ Compiled in 2.6s (2543 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1621ms (2543 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1145ms (2529 modules)
+ ✓ Compiled in 1482ms (2529 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 2.6s (1004 modules)
+ GET /api/health 200 in 2794ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 3.3s (2504 modules)
+ GET /login 200 in 519ms
+ GET /_next/static/css/app/layout.css?v=1781328355993 404 in 40ms
+ GET /_next/static/chunks/main-app.js?v=1781328355993 404 in 39ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 36ms
+ GET /_next/static/chunks/app/login/page.js 404 in 33ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 76ms
+ GET /_next/static/chunks/main-app.js?v=1781328355993 404 in 81ms
+ GET /_next/static/chunks/app/login/page.js 404 in 73ms
+ GET /_next/static/chunks/app/not-found.js 404 in 71ms
+ GET /_next/static/chunks/app/not-found.js 404 in 64ms
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 22.2s (2471 modules)
+ ✓ Compiled in 4.5s (2471 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 7.3s (2471 modules)
+ GET /login 200 in 1117ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 2.7s (975 modules)
+ GET /_next/static/css/app/layout.css?v=1781328582072 404 in 3056ms
+ GET /_next/static/chunks/main-app.js?v=1781328582072 404 in 3054ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 63ms
+ GET /_next/static/chunks/app/not-found.js 404 in 58ms
+ GET /login 200 in 250ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1640ms (1006 modules)
+ GET /api/health 200 in 1829ms
+ GET /login 200 in 200ms
+ GET /login 200 in 90ms
+ GET /_next/static/css/app/layout.css?v=1781328633110 404 in 26ms
+ GET /_next/static/chunks/main-app.js?v=1781328633110 404 in 125ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 94ms
+ GET /_next/static/chunks/app/not-found.js 404 in 88ms
+ GET /login 200 in 67ms
+ GET /_next/static/css/app/layout.css?v=1781328671191 404 in 21ms
+ GET /_next/static/chunks/main-app.js?v=1781328671191 404 in 66ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 64ms
+ GET /_next/static/chunks/app/not-found.js 404 in 60ms
+ GET /login 200 in 92ms
+ GET /_next/static/css/app/layout.css?v=1781328816704 404 in 43ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 72ms
+ GET /_next/static/chunks/main-app.js?v=1781328816704 404 in 84ms
+ GET /_next/static/chunks/app/not-found.js 404 in 70ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 90ms
+ GET /_next/static/chunks/main-app.js?v=1781328816704 404 in 84ms
+ GET /_next/static/chunks/app/not-found.js 404 in 81ms
+ GET /login 200 in 53ms
+ GET /_next/static/css/app/layout.css?v=1781328821852 404 in 16ms
+ GET /_next/static/chunks/main-app.js?v=1781328821852 404 in 74ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 57ms
+ GET /_next/static/chunks/app/not-found.js 404 in 55ms
+ GET /_next/static/chunks/main-app.js?v=1781328821852 404 in 91ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 80ms
+ GET /_next/static/chunks/app/not-found.js 404 in 75ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 7.9s (2697 modules)
+ GET /login 404 in 8226ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/auth/login/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\auth\login\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/auth/login/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/auth/login/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\auth\login\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+   Reload env: .env.local
+   Reload env: .env.local
+ ✓ Compiled in 12.4s (2754 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/(shell)/page' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\(shell)\page.js', but to 'Error: Can't resolve '../../../../.next/server/app/(shell)/page' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/(shell)/page (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\(shell)\page.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/auth/login/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\auth\login\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/auth/login/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/auth/login/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\auth\login\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/v1/projects/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\v1\projects\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/v1/projects/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/v1/projects/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\v1\projects\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+   Reload env: .env.local
+ ✓ Compiled in 5.5s (2754 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1158ms (2754 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1111ms (2754 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1069ms (2754 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1874ms (1044 modules)
+ POST /api/auth/login 200 in 1996ms
+ ○ Compiling /api/v1/projects ...
+ ✓ Compiled /api/v1/projects in 824ms (1056 modules)
+{"ts":"2026-06-13T05:57:49.826Z","level":"error","event":"api_api_projects","ctx":{"reqId":"eee46054-34e2-4edd-ab73-d0415f31d69c","method":"GET","path":"/api/v1/projects","status":503,"ms":1197}}
+ GET /api/v1/projects 503 in 2149ms
+{"ts":"2026-06-13T05:58:15.821Z","level":"error","event":"api_api_projects","ctx":{"reqId":"d6efff50-f983-4d58-b1f6-975db4422d46","method":"GET","path":"/api/v1/projects","status":503,"ms":419}}
+ GET /api/v1/projects 503 in 440ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+{"ts":"2026-06-13T05:58:53.063Z","level":"info","event":"api_api_projects","ctx":{"reqId":"8639e393-6164-4d51-8e25-2ff713db8ad6","method":"GET","path":"/api/v1/projects","status":200,"ms":175}}
+ GET /api/v1/projects 200 in 204ms
+ ✓ Compiled in 16.4s (2695 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+ ✓ Compiled in 9.3s (2695 modules)
+ ✓ Compiled in 2.5s (1681 modules)
+ ✓ Compiled in 1615ms (2695 modules)
+ ✓ Compiled in 1922ms (1681 modules)
+ ✓ Compiled in 4.8s (1681 modules)
+ ✓ Compiled in 5.6s (1681 modules)
+ ✓ Compiled in 1320ms (1681 modules)
+ ✓ Compiled in 9.7s (1681 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+ GET /login 200 in 852ms
+ GET /login 200 in 68ms
+ ✓ Compiled in 4.7s (1681 modules)
+ ✓ Compiled in 1092ms (1681 modules)
+ ✓ Compiled in 5.9s (1681 modules)
+ ✓ Compiled in 1037ms (1681 modules)
+ ✓ Compiled in 1156ms (1681 modules)
+ ✓ Compiled in 1356ms (1681 modules)
+ ✓ Compiled in 11s (2780 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+ ✓ Compiled in 2.1s (1730 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 10.2s (1556 modules)
+ GET / 200 in 11103ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/health/route' in C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/health/route' in 'C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/health/route (expected C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js)
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+<w>  at file dependencies C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+ ✓ Compiled in 16.6s (2794 modules)
+ ✓ Compiled in 729ms (1730 modules)
+ ✓ Compiled in 642ms (1730 modules)
+ ✓ Compiled in 923ms (1730 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 6.1s (1095 modules)
+ GET /api/health 200 in 6171ms
+ GET /login 200 in 369ms
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 1347ms (1113 modules)
+ GET /welcome 200 in 2353ms
+ ✓ Compiled in 2.5s (1730 modules)
+ ✓ Compiled in 1021ms (1730 modules)
+ ✓ Compiled in 1247ms (1730 modules)
+ ✓ Compiled in 971ms (1730 modules)
+ ✓ Compiled in 988ms (1730 modules)
+ ✓ Compiled in 1458ms (1730 modules)
+ ✓ Compiled in 947ms (1730 modules)
+ GET /api/health 200 in 30ms
+ ✓ Compiled in 1577ms (1730 modules)
+ ✓ Compiled in 1116ms (1730 modules)
+ GET /api/health 200 in 13ms
+ ✓ Compiled in 1883ms (1730 modules)
+ ✓ Compiled in 907ms (1730 modules)
+ ✓ Compiled in 1415ms (1730 modules)
+ ✓ Compiled in 929ms (1730 modules)
+ ✓ Compiled in 992ms (1730 modules)
+ ✓ Compiled in 1060ms (1730 modules)
+ ✓ Compiled in 1380ms (1730 modules)
+ ✓ Compiled in 1029ms (1730 modules)
+ ✓ Compiled in 5.8s (2867 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1182ms (1094 modules)
+ POST /api/auth/login 200 in 1422ms
+ ○ Compiling /api/v1/capabilities/intelligence ...
+ ✓ Compiled /api/v1/capabilities/intelligence in 1474ms (1109 modules)
+{"ts":"2026-06-13T08:31:21.292Z","level":"info","event":"api_api_capability_intelligence","ctx":{"reqId":"f253846c-53e2-4567-94c2-a53832ad3e80","method":"GET","path":"/api/v1/capabilities/intelligence","status":200,"ms":831}}
+ GET /api/v1/capabilities/intelligence 200 in 2448ms
+ ✓ Compiled in 1403ms (1730 modules)
+ ✓ Compiled in 8.7s (2839 modules)
+ ✓ Compiled in 5.7s (2867 modules)
+ ✓ Compiled in 6.1s (2794 modules)
+ ✓ Compiled in 6.7s (2796 modules)
+ ○ Compiling /capabilities ...
+ ✓ Compiled /capabilities in 3.9s (2790 modules)
+ GET /capabilities 200 in 4402ms
+ ○ Compiling /api/v1/capabilities/intelligence ...
+ ✓ Compiled /api/v1/capabilities/intelligence in 2.5s (1113 modules)
+{"ts":"2026-06-13T08:33:57.075Z","level":"info","event":"api_api_capability_intelligence","ctx":{"reqId":"77cab2d6-417e-4f89-b685-36efc520b6a2","method":"GET","path":"/api/v1/capabilities/intelligence","status":200,"ms":560}}
+ GET /api/v1/capabilities/intelligence 200 in 3184ms
+ ✓ Compiled in 1278ms (1734 modules)
+ ✓ Compiled in 1123ms (1734 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1268ms (1095 modules)
+ GET /api/health 200 in 1736ms

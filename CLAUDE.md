@@ -1,4 +1,12 @@
-# CLAUDE.md — Frontend Website Rules
+# CLAUDE.md — DIZRUPT Project Rules
+
+## Current project reality (read first)
+- The product is a **Next.js 14 App Router app in `dizruptos/`** (not a static site).
+- **Run:** `cd dizruptos && npm run dev` → **http://localhost:5175**. Build `npm run build`, tests `npm test` (vitest), `npm run e2e` (Playwright smoke).
+- **Backend:** live **Supabase** when `dizruptos/.env.local` is set (URL/anon/service-role/`DATABASE_URL`); otherwise demo mode on the in-memory seed. `DATABASE_URL` must be the **Session Pooler** URI (IPv4) — direct `db.*.supabase.co:5432` is IPv6-only. **Never print/commit secrets.** Migrations + seed live in `dizruptos/supabase/`.
+- **Domain model is schema-authoritative (Option A):** the Postgres schema is the source of truth; app layer uses thin camelCase views + TanStack Query (`lib/query.ts`).
+- **Screenshots:** the `serve.mjs` / `localhost:3000` / nateh-puppeteer notes below are LEGACY (static-site era). For this app, screenshot the running dev server with the cached Playwright Chromium via a small `playwright-core` script (devDep) or the `webapp-testing` skill.
+- Key docs: `PLAN.md`, `BACKEND_READINESS_AUDIT.md`, `MASTER_EXECUTION_PLAN.md`, `ENTERPRISE_IMPROVEMENTS.md`.
 
 ## Always Do First
 - **Invoke the `frontend-design` skill** before writing any frontend code, every session, no exceptions.

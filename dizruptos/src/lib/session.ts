@@ -6,49 +6,13 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Role } from "./types";
+import { PERSONAS, roleCan, type Permission } from "./personas";
 
 export type Theme = "dark" | "light" | "system";
 
-/** Demo personas — one per role tier the PRD cares about. */
-export const PERSONAS: {
-  id: string;
-  name: string;
-  initials: string;
-  title: string;
-  role: Role;
-  accent: string;
-}[] = [
-  { id: "u-asha", name: "Asha Venkat", initials: "AV", title: "Resource Manager", role: "project_manager", accent: "#00ED82" },
-  { id: "u-noor", name: "Noor Al-Rashid", initials: "NA", title: "Chief Operating Officer", role: "executive", accent: "#C084FC" },
-  { id: "u-priya", name: "Priya Sharma", initials: "PS", title: "VP Engineering", role: "dept_head", accent: "#2BD9FF" },
-  { id: "u-ahmed", name: "Ahmed Hassan", initials: "AH", title: "Backend Engineer", role: "employee", accent: "#10B981" },
-  { id: "u-elias", name: "Elias Brandt", initials: "EB", title: "Systems Administrator", role: "admin", accent: "#94A3B8" },
-];
-
-/* ------------------------- permission matrix (PRD §14.3) ------------------ */
-
-export type Permission =
-  | "view_capacity"
-  | "reallocate"
-  | "view_burnout"
-  | "view_financials"
-  | "view_audit"
-  | "review_proposals"
-  | "view_executive";
-
-const MATRIX: Record<Permission, Role[]> = {
-  view_capacity: ["admin", "executive", "dept_head", "project_manager", "team_lead"],
-  reallocate: ["admin", "dept_head", "project_manager"],
-  view_burnout: ["admin", "dept_head", "project_manager", "team_lead"],
-  view_financials: ["admin", "executive", "dept_head"],
-  view_audit: ["admin", "dept_head"],
-  review_proposals: ["admin", "dept_head", "project_manager"],
-  view_executive: ["admin", "executive", "dept_head"],
-};
-
-export const roleCan = (role: Role, perm: Permission) =>
-  MATRIX[perm].includes(role);
+// Personas + matrix live in the server-safe module so API authz and the UI
+// share one definition. Re-exported here so existing imports keep working.
+export { PERSONAS, roleCan, type Permission } from "./personas";
 
 /* --------------------------------- store ---------------------------------- */
 

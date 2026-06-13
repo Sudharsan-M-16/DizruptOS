@@ -502,3 +502,137 @@ invent edge types — extend the union AND the SQL CHECK in the same change.
 auth, RBAC, realtime, theming, and graph flows browser-verified. The only
 things standing between this repository and production are four credentials
 and the step lists in §14.*
+
+---
+
+## ADDENDUM — Platform Realization (June 2026)
+
+The operating manual now includes a real backend architecture. Read
+BACKEND_PLATFORM_REVIEW.md for the full record; the operational facts:
+
+- Data access goes through `src/server/repositories/` (factory: `getRepositories()`),
+  selected by env: demo = in-memory seed, production = Supabase PostgREST.
+- Business laws live in `src/server/services/allocation.ts` (pure, tested).
+- Server-side RBAC: `src/server/services/authz.ts` — every `/api/v1/*` route
+  resolves the principal from the `dz_session` cookie and enforces the
+  permission matrix (`src/lib/personas.ts`, shared with the client).
+- API v1 surface (shared plumbing `src/server/api.ts` — one envelope, one
+  error map: 401/403/404/409/422/503):
+  - `GET /api/v1/proposals` (role-scoped) · `PATCH /api/v1/proposals/:id`
+    (verdicts; the visibility predicate IS the authorization; invisible →
+    404, existence not leaked; non-pending → 409; audited)
+  - `GET /api/v1/capacity?week=` (gated, validated)
+  - `POST /api/v1/tasks/:id/reassign` (gated on `reallocate`; server-side
+    ≥100% guardrail → 409 OVERRIDE_REQUIRED without a typed reason; atomic;
+    audited as REALLOCATE / REALLOCATE_OVERRIDE)
+  - `GET /api/v1/employees` + `/:id` (cost redacted without `view_financials`)
+  - `GET /api/v1/risks` · `GET /api/v1/audit?limit=` (gated on `view_audit`)
+  Typed envelopes carry `apiVersion` + live `backend`.
+- Rate limits: 120 req/min/IP on /api/v1 (edge), 10/15min on login.
+- Launch: `cd dizruptos && npx next dev -p 5175` (demo, no env). Production:
+  NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY (+ server-only
+  SUPABASE_SERVICE_ROLE_KEY); half-config fails at boot by design.
+- Verification gate: typecheck + lint + 75 vitest + next build (19 routes),
+  all clean.
+- Never run `next build` while `next dev` is running (shared .next).
+
+---
+
+## ADDENDUM 2 — koki-kiko frontend + readability v4 (June 12, 2026)
+
+- `/welcome` and `/login` rebuilt in the c2mtl.koki-kiko.com poster language:
+  `src/components/fx/chroma-field.tsx` (Three.js fullscreen shader — the
+  brand palette as drifting stage-gel discs, cursor parallax, pauses when
+  off-screen or tab-hidden, freezes time under prefers-reduced-motion),
+  hard ink/volt plates carrying viewport-scale type, fixed right rail with
+  vertical section links + the green ENTER block.
+- **Engine law (learned the hard way):** GSAP owns scroll scrubs only —
+  `fromTo` + ScrollTrigger self-heals from scroll position. framer-motion
+  owns one-shot entrances: `gsap.from` intro timelines die under React 18
+  StrictMode double-mount in dev and freeze elements at their from-state.
+  Corollary: never put `whileInView` on an element that translates fully
+  outside its own `overflow-hidden` parent (clipped → IntersectionObserver
+  never fires); observe the wrapper, animate the child via variants.
+- ProductFrame (landing preview) is now operable: sidebar view switching,
+  heatmap hover readouts, acceptable agent proposals, breathing KPIs.
+- Readability v4: tailwind fontSize tokens 14/15/16/17 (+ enlarged lg–4xl);
+  topbar 76px with text-2xl title; sidebar 256px (shell layout padding
+  matches); graph nodes w-72 with fitView minZoom 0.7 on a 640px canvas;
+  recharts ticks 12/13; risk-matrix markers h-8.
+- New deps: gsap, @gsap/react, @tanstack/react-query (query layer reserved
+  for the store→server read migration).
+
+---
+
+## June 13 — Live backend + Option A + Change-Authority workflow
+
+**Live Supabase (session pooler).** Migrations `0001_core_schema.sql` (32 tables,
+RLS, audit triggers, `reallocate_task` RPC, pgvector) + `0002_grants_and_rls_fixes.sql`
+applied live; `supabase/seed.sql` seeded (12-edge org graph). RLS validated 10/10
+(dept/user/anon isolation; admin unrestricted). Live read proven via
+`GET /api/v1/projects`. Full evidence: `BACKEND_READINESS_AUDIT.md`.
+
+**Canonical model = the database schema (Option A).** No parallel domain model /
+mapper-only fields. App layer uses thin camelCase views. TanStack Query foundation:
+`lib/query.ts` (`qk` key factory, `apiGet`, `invalidateDomain`), `components/providers.tsx`
+mounted app-wide, `lib/hooks/use-projects.ts` (`LiveProject` = `projects` table 1:1)
+as the reference vertical. Migration is sequenced entity-by-entity (see PLAN.md),
+app green throughout.
+
+**Graduated change authority + approval workflow** (`lib/rbac.ts`,
+`server/services/change-authority.ts`; 19 tests across rbac-authority + change-authority):
+- `authorizeChange(req)` → `direct | requires_approval | denied` + `approverRole` + `notifyRoles`.
+- `submitChange()` applies small changes directly (notifying higher order), **stages**
+  bigger ones for a senior role, denies computed-field writes.
+- `decideChange()` lets a senior role (or admin — unrestricted via `canApprove`)
+  **accept/decline**; accept applies, decline records a reason; requester + oversight
+  notified; every step audited. Side-effects are injected (memory now, Supabase next).
+- Thresholds: reassign direct <100% / approval ≥100%; budget direct <10% / executive
+  ≥10%; role-grant & headcount → admin only; `project_health` denied (computed).
+
+**Verification:** `tsc` clean, **94/94 vitest**, app `mode=production` healthy at
+http://localhost:5175 (`/login`,`/welcome` 200; `/`→login when unauth).
+
+**Next (sequenced):** replicate `use<Entity>()` across people/risks/capacity/decisions/
+knowledge + mutation/optimistic/invalidation; wire the approval queue to a senior-role
+**Approvals** surface + `proposals` table; then Organizational Intelligence surfaces
+(expertise/bus-factor → impact/blast-radius → decision lineage → risk propagation →
+scenario simulation) on the live graph.
+
+### June 13 (cont.) — Approvals as first-class governance objects + CTO review
+
+- **Migration 0003 applied live** — `approvals` table (17 cols): requester/approver,
+  authority_tier, escalation_path, rationale, evidence, affected_entities, status,
+  decided_by/at, decline_reason, timestamps. Indexed for queue + lineage; RLS +
+  grants. The substrate for decision lineage / governance intelligence / org memory.
+- **`ApprovalRepository`** wired across contract + memory + Supabase (snake↔camel
+  mapper, schema-authoritative). `change-authority` effects can now persist through it.
+- **Verified live**: PostgREST insert `201`; dept_head pending-queue query returns the
+  staged approval with escalation_path; cleanup OK. `tsc` clean, **94/94 tests**.
+- **`CTO_REVIEW.md`** added — brutally honest audit (two-model drift, int4 money bug,
+  no org/tenant, demo auth, seeded-not-computed intelligence; missing entities:
+  Organization, Capability, Team; missing systems: identity, capability, computation
+  engine, simulation, org-memory). Roadmap prioritizes the computation engine + auth
+  + org_id + Capability as the real moat.
+- Deferred (logged in ENTERPRISE_IMPROVEMENTS.md): Google/Microsoft OAuth, full
+  Linear-grade dashboard redesign (blocked on inspiration assets — folder not in repo),
+  role-specific feature set.
+
+### June 13 (cont.) — Org/Team/Capability ontology + Computation Engine
+
+- **Migration 0004 applied live** (DB now 40 tables): `organizations`, `teams`,
+  `team_members`, **`capabilities`** (first-class, strategic_importance), rated
+  **`employee_capabilities`** (proficiency 1–5), **`project_capabilities`**.
+  `departments.org_id` added (multi-tenancy foundation). RLS + grants on all.
+- **Seeded** (`supabase/seed_capabilities.sql`): 1 org, 1 team, 5 capabilities,
+  9 person↔capability edges shaped to produce real signals (Finance/Vendor =
+  bus factor 1; Frontend = 3 healthy).
+- **Computation Engine** (`src/server/engine/capability-intelligence.ts`, 6 tests):
+  PURE functions — `busFactor`, `concentration` (HHI + top-holder share),
+  `successionRisk`, `analyzeCapability`, `rankByRisk`, `capabilityHealth`.
+  Intelligence is now COMPUTED, not stored.
+- **Verified on live data**: SQL bus-factor cross-check matches the engine
+  (Finance/Vendor fragile bf=1; Payments bf=2; Frontend bf=3). `tsc` clean, **100/100 tests**.
+- Next: capability/employee repositories + `/api/v1/capabilities/intelligence` route →
+  People vertical live migration → **Capability Intelligence surface** (the questions:
+  which capabilities are fragile / unbacked / concentrated / strategic / at-risk).

@@ -8,10 +8,31 @@ execution, organizational memory, and AI-agent collaboration. Built from
 
 ```bash
 npm install
-npm run dev       # http://localhost:3000
+npm run dev       # http://localhost:5175
 npm run build     # production build (all routes verified)
-npm test          # vitest — 22 tests pinning the product laws
+npm test          # vitest — 86 tests pinning the product laws + RBAC authority
+npm run e2e       # Playwright smoke (login → command center, RBAC assertions)
 ```
+
+## Backend (live Supabase)
+
+Demo mode runs fully on the in-memory seed (no config needed). For live
+persistence, set in `dizruptos/.env.local` (git-ignored, never committed):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...        # server-only
+DATABASE_URL=...                      # use the Session Pooler URI (IPv4); the
+                                      # direct db.*.supabase.co:5432 is IPv6-only
+```
+
+- Schema: `supabase/migrations/0001_core_schema.sql` + `0002_grants_and_rls_fixes.sql`
+  (32 tables, RLS on every table, audit triggers, `reallocate_task` RPC).
+- Seed: `supabase/seed.sql`. Health/mode: `GET /api/health`.
+- **Domain model is schema-authoritative** (Option A): the DB is the source of
+  truth; the app layer uses thin camelCase views (TanStack Query via `lib/query.ts`).
+  Evidence: [`../BACKEND_READINESS_AUDIT.md`](../BACKEND_READINESS_AUDIT.md).
 
 > Continuation manual: see [`../MASTER_EXECUTION_PLAN.md`](../MASTER_EXECUTION_PLAN.md)
 > — full architecture, catalogs, debt register, and version-by-version roadmap.
