@@ -1,0 +1,112 @@
+# DIZRUPT — Supreme Platform Audit (brutally honest)
+
+> Reviewer hats: CTO / Principal+Staff Eng / Platform·DB·Graph·Security architect /
+> Org-Intelligence researcher / Product strategist / Founder / VC / Enterprise buyer /
+> Reliability eng. Optimism bias removed. Scores are mine, not the founder's.
+> Basis: the verified state built across this session (engines + API + RLS + 137 tests),
+> NOT the self-assessment (which is inflated — see below).
+
+## The one-paragraph truth
+DIZRUPT is an **exceptionally well-architected prototype of a genuinely novel idea**
+(computed, explainable organizational intelligence over a typed graph). The engine layer
+is real and clean. But it is a **single-org demo on ~5 users of seed data with no real
+auth, almost no consuming UI, no users, and no operational surface area.** The hard part
+left is not more intelligence — it's making it *real*: identity, data at scale, a surface
+leadership actually opens, and one paying organization. Treat current scores accordingly.
+
+## Executive scores (out of 10) — and why not 10
+| Dimension | Score | Why not 10 |
+|---|---|---|
+| Overall Product | **4.5** | Engines exist; almost nothing is *consumable*. No users, no validation. |
+| Overall Platform | **6.5** | Clean layering + RLS + tenancy, but no auth, no realtime, no obs. |
+| Overall Architecture | **7.5** | Genuinely good seams + pure engines. Loses points: demo/live model split, no CI for DB, lossy mappers. |
+| Overall Startup | **3.5** | Novel tech, zero traction/team/market evidence. Unfundable on tech alone. |
+| Overall Defensibility | **5.0** | The ontology+graph+engine *approach* is a real moat — but only once populated with real org data. Today: copyable in months. |
+| Overall Enterprise | **2.5** | No SSO/SCIM/auth/compliance; one demo tenant. |
+| Overall Production | **3.0** | Dev server, no CI/CD, no monitoring, no error tracking, no real auth. |
+| Overall Technical | **7.0** | Strong engineering on the parts that exist; large unbuilt surface. |
+
+The user's self-scores (9.2–10.0) over-credit *intent and architecture* and ignore
+*operationalization, validation, scale, and identity*. **Ontology 10 / Graph 10 are not
+defensible**: the graph is ~12 hand-seeded edges; the ontology is missing Assumption,
+Evidence-as-entity, Vendor/System, Process/Policy, and a populated org.
+
+## §1 Product (current → target → gap)
+- Vision **8** → 10: clear and differentiated; gap is proof it solves a felt pain for a buyer.
+- Differentiation **7** → 10: real (decision memory + simulation), but invisible without surfaces.
+- Feature completeness **4** → 9: engines done; **the product a user touches is ~2 pages**.
+- User value **3** → 9: nobody can yet *use* the intelligence; it lives in JSON API responses.
+- Innovation **8** → 10: genuinely novel for the PM-tool category.
+**Required:** build the consuming surfaces (people/decision/risk/health/recommendations/sim), get one real org's data in, watch a real manager use it.
+
+## §2 Startup
+- Founder-market fit: **N/A / unknowable** — no named founder or domain evidence in-repo. (Honest: I can't score this; don't let a tool pretend to.)
+- Market opportunity **7**: org-intelligence is real and large, but crowded at the edges.
+- Competitive position **4**: no users, no wedge proven.
+- Moat **5** (potential) / **2** (realized).
+- Revenue/expansion/acquisition: **unproven** — score them 0 until one customer exists.
+**To fund:** a design partner using it weekly on real data + a sharp wedge ("succession/bus-factor risk you can't see in Jira").
+
+## §3 Competitive (where it wins / loses)
+- **vs Jira/Asana/ClickUp/Monday**: WINS on *reasoning* (why/blast-radius/succession) they structurally lack; LOSES on everything operational (integrations, mobile, maturity, ecosystem, users). Must build: import/sync from these tools (DIZRUPT should sit *on top*, not replace task tracking day one).
+- **vs Linear**: LOSES badly on craft/perf/polish of the core workflow; WINS only on org-intelligence. Don't compete on task UX.
+- **vs Notion/Airtable**: LOSES on flexibility/adoption; WINS on opinionated computed intelligence.
+- **vs Palantir Foundry**: the real comparator. WINS on focus + speed-to-value for mid-market org-intelligence; LOSES on scale, data integration, security posture, services depth. Foundry is the north star *and* the existential threat if it moves down-market.
+
+## §4 Platform
+- Frontend arch **6.5**, Backend **7.5**, Database **7.5**, Service layer **8**, Repository layer **7.5**, Testing **6** (unit-only, fixture-based; no E2E of intelligence, no load), Observability **3** (request IDs only; no tracing/metrics/error tracking), Maintainability **8**, Scalability **5** (JS graph traversal, per-request loaders, no caching), Extensibility **8.5** (engine barrel is a real strength), Performance **6** (untested under load).
+
+## §5 Ontology gaps
+Missing/weak: **Assumption** (decisions have implicit assumptions — not modeled), **Evidence** as a first-class entity (currently a jsonb blob), **Vendor/System** distinct from `services`, **Process/Policy/Control**, **Strategic Initiative/Objective** above projects, a **populated** org graph (the ontology is sound but empty). Employee model is **split** (TS type vs `users` columns). Remove: nothing major; the schema is over-built for current data, which is fine for a platform play.
+
+## §6 Graph
+Model **8** (typed closed registry — good). Structure/traversal **5** (in-JS BFS, ~12 edges, no scale path). Centrality **6** (degree only; no betweenness/eigenvector). Blast radius **7**. Knowledge-graph potential **8** (embeddings table exists, unused). **Improve:** recursive-CTE/pgRouting traversal, populate from real activity, add betweenness, wire embeddings/GraphRAG.
+
+## §7 Organizational Intelligence (engine logic is the crown jewel)
+Capability **8**, People **8**, Decision **7.5**, Dependency **7**, Risk **7**, Org-Health **7**, Simulation **7.5**, Learning **6.5**, Recommendation **7.5** — *as engines*. **As product capabilities, halve each** (unvalidated on real data, mostly UI-less). Target 9+ requires real data + surfaces + a feedback loop that proves the scores predict reality.
+
+## §8 Digital Twin
+Workforce **6**, Execution **5**, Knowledge **5**, Operational **4**, Relationship **6**, Capability **7**. It's a *static* twin (no live state sync, no time dimension, no telemetry ingestion). A real twin needs continuous data feeds + temporal modeling — neither exists.
+
+## §9 AI
+AI readiness **5**, GraphRAG **3** (embeddings table only), Memory **6** (the memory graph is the best AI foundation here), Agent **3**, Recommendation **7** (rule-based, not learned), Reasoning **5**. **The memory graph + engines are an excellent substrate for an LLM copilot** — but nothing is wired to a model yet.
+
+## §10 Security
+Auth **3** (demo personas; no real identity). RBAC **7.5** (well-modeled + tested). RLS **7** (correct + tested, but only against *simulated* claims). Tenancy **6.5** (restrictive RLS verified; depends on absent auth). Permissions **7**. Governance/auditability **8** (immutable audit + approvals are a genuine strength). **The whole security story is gated on real auth that issues role+org JWT claims.**
+
+## §11 Enterprise
+Enterprise readiness **2.5**, Governance **7**, Compliance **2**, SSO **1**, SCIM **0**, Audit **8**, Tenant **6**, Operational **3**. Not buyable by a Fortune 500 today.
+
+## §12 Production
+Deployability **3** (no CI/CD/IaC), Reliability **3**, Monitoring **2**, Observability **3**, Recovery **2**, Incident response **1**, Operations **2**. **This is the weakest cluster and the most honest gap.**
+
+## §13 Design
+Visual **8** (login + command center are genuinely premium), Interaction **6**, Motion **8**, Information density **6**, Navigation **6**, Accessibility **4** (unaudited; contrast/focus/ARIA unverified), Enterprise feel **7**, Premium feel **8**. Most non-redesigned pages drag the average.
+
+## §14 What's still MISSING (systems, not features)
+- A real **Identity system** (the #1 gap).
+- A **data-ingestion system** (connectors to Jira/HRIS/calendar/git) — without it the graph is hand-fed forever.
+- A **realtime/eventing backbone** (compute→push), not BroadcastChannel.
+- An **executive consumption surface** (the engines have no home for a leader).
+- An **observability system** (tracing/metrics/errors).
+- A **temporal layer** (history/trends; the twin is frozen in "now").
+- A **feedback/calibration system** (do the scores predict reality? unproven).
+
+## §15 What a world-class team (Palantir/Stripe/Linear/Vercel/OpenAI) would do
+- **Delete** the demo-mode divergence and the split employee model; make the schema the only model.
+- **Stop** building more engines; **start** ingesting real data and building the executive surface.
+- **Rebuild** auth on day one (Stripe/Vercel would never ship RLS validated only against fake JWTs).
+- **Wire** the memory graph to an LLM for the copilot (OpenAi) — the moat is reasoning over real history.
+- **Instrument** everything (Vercel/Stripe reflex).
+- Linear would **cut scope hard** to one flawless workflow (succession/bus-factor) and make it instant.
+
+## §17 The brutal truth — why it would fail
+1. **It dies as a perpetual demo.** Infinite intelligence on 5 seed users; never gets real data because there's no ingestion + no user + no auth. **This is the most likely failure mode.**
+2. **No wedge.** "Organizational intelligence platform" is a vision, not a reason to switch. Without a sharp, painful, narrow first job, no one adopts.
+3. **Foundry/Glean move down-market** and out-resource it.
+4. **The intelligence is unfalsifiable** — scores look smart but were never checked against what actually happened. If they're wrong, trust collapses on first real use.
+- **You're overestimating:** ontology/graph/intelligence maturity (they're foundations, not products), and "production/enterprise readiness" (≈3/2, not 9).
+- **You're underestimating:** the cost of identity+ingestion+a consuming surface, and the distance from "computes correctly on seed" to "predicts correctly on a real org."
+
+## Verdict
+A 7.5 *architecture* and a 4.5 *product*. The achievement is real (novel, clean, tested intelligence engines + memory + tenancy). The gap to 10 is not more cleverness — it's **identity, real data, a surface a leader opens weekly, and proof the scores are true.** See `ROAD_TO_10.md`.

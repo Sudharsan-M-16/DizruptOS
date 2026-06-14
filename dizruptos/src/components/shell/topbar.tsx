@@ -35,6 +35,8 @@ const TITLES: Record<string, { title: string; hint: string }> = {
   "/proposals": { title: "Agent Negotiation Inbox", hint: "Agents propose · humans decide · memory persists" },
   "/graph": { title: "Dependency Graph", hint: "The organizational graph, made visible" },
   "/capabilities": { title: "Capability Intelligence", hint: "Who knows what — and where the organization is fragile" },
+  "/briefing": { title: "Executive Briefing", hint: "What to worry about, why, and what to do next — computed live" },
+  "/import": { title: "Import Data", hint: "Bring real organizational data into the graph" },
   "/audit": { title: "Audit Log", hint: "Insert-only · tamper-proof · complete" },
 };
 

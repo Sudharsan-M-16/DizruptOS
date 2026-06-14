@@ -156,5 +156,19 @@ export function createMemoryRepositories(): Repositories {
 
     capabilities: { list: async () => capSeed },
     employeeCapabilities: { list: async () => empCapSeed },
+    // Decision-memory entities: live in Supabase; demo mode returns empty
+    // (the seeded decision/outcome/learning graph lives in the DB).
+    decisions: { list: async () => [], byId: async () => null },
+    outcomes: { list: async () => [] },
+    learnings: { list: async () => [] },
+    // Person-touching edges for degree centrality (demo set; live reads entity_relationships).
+    relationships: {
+      list: async () => [
+        { sourceId: "u-ahmed", sourceType: "user", targetId: "u-priya", targetType: "user", relationshipType: "reports_to" },
+        { sourceId: "u-asha", sourceType: "user", targetId: "u-priya", targetType: "user", relationshipType: "reports_to" },
+        { sourceId: "u-ahmed", sourceType: "user", targetId: "cap-payments", targetType: "capability", relationshipType: "has_expertise_in" },
+        { sourceId: "u-noor", sourceType: "user", targetId: "cap-finance", targetType: "capability", relationshipType: "has_expertise_in" },
+      ],
+    },
   };
 }

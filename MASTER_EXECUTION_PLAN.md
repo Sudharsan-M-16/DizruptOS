@@ -636,3 +636,184 @@ scenario simulation) on the live graph.
 - Next: capability/employee repositories + `/api/v1/capabilities/intelligence` route →
   People vertical live migration → **Capability Intelligence surface** (the questions:
   which capabilities are fragile / unbacked / concentrated / strategic / at-risk).
+
+### June 13 (cont.) — Decision Intelligence + Org Memory engines + #13 closed
+
+- **Migration 0005**: `outcomes` + `learnings` first-class entities (live, seeded:
+  the ledger-first decision now has a partial outcome + a learning). DB at 42 tables.
+- **`decision-intelligence.ts`** (engine): importance, confidence (grounded by
+  outcomes), blast radius, influence, evidence quality, stakeholder coverage, risk —
+  shared contract (score + evidence + explanation).
+- **`org-memory.ts`** (engine): `decisionMemory()` composes why / who / evidence /
+  what-happened / learned / would-we-repeat + decision→outcome→learning lineage;
+  `governanceSignals()` (approval concentration). Registered as `decision` + `orgMemory`
+  engine modules.
+- **Repository task #13 CLOSED**: `employees→users` and `capacity→capacity_logs`
+  live mappers (snake→camel; demo-only fields default per Option A). **Verified live**:
+  `/api/v1/employees` → 5 users, `/api/v1/capacity` → 3 cells. With projects/capabilities/
+  employeeCapabilities/relationships/approvals, the repository layer now reads live.
+- 8 new engine tests. Pending (honest): decision-memory live API route + repos
+  (decisions/outcomes/learnings) and the dependency/risk/org-health engines.
+
+Verification: `tsc` clean, **117/117 tests**, app `mode=production` at http://localhost:5175.
+
+### June 13 (cont.) — Decision memory live end-to-end
+
+- `DecisionRepository`/`OutcomeRepository`/`LearningRepository` added (contract +
+  memory + Supabase with snake→camel mappers).
+- `server/services/decision-loader.ts` assembles each decision with its
+  approvals/outcomes/learnings/graph links → `decision` + `orgMemory` engines.
+- `GET /api/v1/decisions/memory` — **verified live**: ledger-first decision returns
+  confidence 0.73 / risk low / evidenceQuality 0.80, rationale (why), outcome
+  (partial), learning, repeat="yes_with_changes", and the Decision→Outcome→Learning
+  lineage. Governance concentration computed from the approval stream.
+- DIZRUPT now answers: why decided / what happened / what learned / would we repeat.
+- `tsc` clean, 117/117 tests, app mode=production at http://localhost:5175.
+
+**Still open (honest):** dependency/risk/org-health engine modules (Phases 7–9),
+DECISION_INTELLIGENCE.md / ORGANIZATIONAL_MEMORY.md / ARCHITECTURE_REVIEW_V2.md docs,
+deeper hardening (int4→bigint money, constraint/cascade audit, security pen-tests),
+and the in-app Decision/Memory surface UI.
+
+### June 13 (cont.) — Dependency/Risk/Org-Health engines + DB hardening + docs
+
+- **Engines added** (pure, shared contract, registered in the barrel):
+  - `dependency-intelligence.ts` — transitive blast radius (BFS), criticality, concentration.
+  - `risk-intelligence.ts` — dependency-adjusted risk (severity × blast-radius amplification), ranking.
+  - `org-health.ts` — weighted rollup of capability fragility / succession / dependency
+    concentration / workload / governance / decision grounding → 0–100 score + band + top concerns.
+  - 7 tests (`graph-intelligence.test.ts`). Engine now: capability · people · decision ·
+    orgMemory · dependency · risk · orgHealth.
+- **DB hardening (migration 0006, live)**: all money columns int4 → **bigint** (fixes the
+  CTO_REVIEW overflow bug; verified via information_schema).
+- **Docs**: `DECISION_INTELLIGENCE.md`, `ORGANIZATIONAL_MEMORY.md`, `ARCHITECTURE_REVIEW_V2.md`.
+- Verification: `tsc` clean, **124/124 tests**, app mode=production at http://localhost:5175.
+
+**Still open (honest):** live API routes/surfaces for dependency/risk/org-health (engines are
+pure + tested, not yet exposed); real auth + org_id; full constraint/cascade audit + security
+pen-tests; memory-mode demo repos degraded vs live.
+
+### June 13 (cont.) — Multi-tenancy + tenant isolation + secured intelligence routes
+
+- **Migration 0007**: `org_id` on users/projects/tasks/risks/decisions/outcomes/learnings/
+  approvals (+ capabilities/teams), backfilled; `auth_org()` (SECURITY DEFINER);
+  **RESTRICTIVE** tenant RLS on 10 tables (AND-ed with role policies — admin cannot cross orgs).
+- **Tenant-escape tested live**: 2nd org "Rival Corp"; Org A admin sees 0 Rival projects/users;
+  Org B user sees only theirs. Isolation enforced at the DB.
+- **Secured intelligence routes** (Phase 8): `/api/v1/org-health`, `/api/v1/intelligence/risk`,
+  `/api/v1/intelligence/dependency` — guarded (401 unauth). Verified live: org-health 71/100
+  "watch"; risk dependency-adjusted; dependency hubs ranked by blast radius.
+- **Docs**: AUTH_ARCHITECTURE.md, TENANCY_ARCHITECTURE.md, SECURITY_REVIEW.md.
+- `tsc` clean, **124/124 tests**, app mode=production at http://localhost:5175.
+
+**Blocked (needs you):** Google/Microsoft OAuth requires provider client IDs/secrets +
+redirect URLs configured in the Supabase dashboard — can't be set/verified from here. The
+RLS/tenancy layer is built to receive role+org JWT claims the moment real auth issues them.
+
+### June 13 (cont.) — Simulation engine + retrospectives + intelligence surfaces (API)
+
+- **`simulation.ts`** engine: `simulateDeparture` (lost/weakened capabilities + fragility
+  Δ + mitigation), `simulateStaffing` (backup-gap closure), `simulateNodeFailure` (blast
+  radius). Pure; composes capability + dependency engines. Live route
+  `GET /api/v1/simulation/departure?personId=` — verified: Noor's departure loses Finance
+  & Vendor Negotiation; Ahmed's only weakens.
+- **Decision retrospectives** (`retrospective()`): successScore, confidenceAccuracy,
+  hindsight (validated/mixed/misjudged) — the platform grades its own judgment.
+- **Intelligence surfaces exposed (API)**: org-health, dependency, risk, decision-memory,
+  capability, people, departure-simulation — all secured + tenant-aware. Reasoning-first
+  (evidence + explanation). See INTELLIGENCE_SURFACES.md.
+- **Docs**: SIMULATION_ARCHITECTURE.md, ORGANIZATIONAL_MEMORY_COMPLETION.md, INTELLIGENCE_SURFACES.md.
+- `tsc` clean, **131/131 tests**, app mode=production at http://localhost:5175.
+
+**Still open (honest):** bespoke surface UIs for people/decision/risk/dependency/health/
+simulation (data live; UI paused by request); staffing/project-slip live routes (engines
+done+tested); real auth (OAuth blocked on provider config) to put real role+org JWT claims
+behind the tenant isolation.
+
+### June 13 (cont.) — Learning loop closed (outcome/learning/recommendation engines)
+
+- **Engines** (pure, shared contract, in barrel): `outcome-intelligence` (success/variance/
+  quality), `learning-intelligence` (reusable/repeated/capability lessons), `recommendations`
+  (evidence-backed, traceable, ranked), plus `retrospective()` (confidence calibration +
+  hindsight). Simulation expanded: staffing + node-failure routes.
+- **Live routes** (secured): `/api/v1/recommendations`, `/api/v1/simulation/node-failure`,
+  `/api/v1/simulation/staffing` (+ departure). Verified: 6 ranked recommendations
+  (top: reduce Payments-API reliance / cross-train Finance); node-failure → 5 downstream.
+- **Loop closed**: Decision → Outcome → Learning → Recommendation → Future Decision.
+- **Docs**: RETROSPECTIVES.md, LEARNING_INTELLIGENCE.md, RECOMMENDATION_ENGINE.md.
+- `tsc` clean, **137/137 tests**, app mode=production at http://localhost:5175.
+
+**Still open:** Assumption + Evidence-source entities (Phase 4/5 — need decision-history
+volume to be meaningful); bespoke surface UIs (data live; UI paused); real auth/OAuth
+(blocked on provider config); dependency-hub label resolution (cosmetic).
+
+### June 13 (cont.) — Final ascension: model split closed + CI + build verified
+- **P0 repo↔schema model split CLOSED** (migration 0008): users gains title/location/
+  pto_days/burnout_flag/burnout_signals/flight_risk/accent (backfilled); employees mapper
+  no longer lossy — one domain model (Option A). Verified live.
+- **CI/CD**: `.github/workflows/ci.yml` (typecheck·lint·test·build).
+- **Production build VERIFIED** (`npm run build` green; all routes + middleware compile).
+- `tsc` clean, **137/137 tests**, 8 migrations live.
+- Docs: FINAL_PLATFORM_REVIEW.md, FINAL_GAP_ANALYSIS.md, FINAL_DEPLOYMENT_GUIDE.md,
+  FINAL_OPERATIONS_GUIDE.md.
+- **NOT done (honest):** real auth (multi-day; OAuth externally blocked), admin/exec/
+  intelligence UIs (UI paused), realtime event loop, observability, a11y, data import,
+  GraphRAG, active pen-test. See FINAL_GAP_ANALYSIS.md.
+
+### June 13 (cont.) — Repository↔schema mappers COMPLETE (task #13 closed)
+Found the real residual drift: tasks/projects/risks/audit/proposals repos returned raw
+PostgREST snake_case cast as camelCase TS types (+ audit ordered by non-existent `at`).
+Added snake→camel mappers for all of them (TaskRow/ProjectRow/RiskRow/AuditRow/ProposalRow
+→ fromXRow). Fixed audit ordering `at`→`created_at`. With employees(0008)/capacity/
+capabilities/employee_capabilities/relationships/approvals/decisions/outcomes/learnings,
+**every Supabase repository read now maps to the camelCase domain model — one source of
+truth (Option A), no parallel models, no remaining drift.**
+- Verified against LIVE rows: projects→{health:CRITICAL, code:ATL}, risks→camelCase,
+  audit→camelCase — no snake keys leak. `tsc` clean, 137/137 tests.
+- Demo-only fields the schema doesn't carry (project code/velocityTrend/dates, task
+  dependsOn) default in the mapper, documented; not a second truth.
+- NOTE: page-level "live reads" (frontend consuming /api/v1 instead of the Zustand seed)
+  is the separate, paused UI-consumption work — distinct from this repository-layer task.
+
+### June 13 (cont.) — Executive Briefing workspace (Phase 1 of activation sprint)
+- Built `/briefing` (Intelligence ▸ Exec Briefing, view_executive): live org-health (score +
+  band + driver breakdown + top concerns) and ROI-ranked recommendations (rationale/evidence/
+  impact/trace), reasoning-first, via `useOrgHealth`/`useRecommendations` (TanStack) →
+  /api/v1/org-health + /api/v1/recommendations. Loading/error/empty states.
+- Verified: `tsc` clean, production build compiles+prerenders `/briefing`, 137/137 tests.
+- Docs: EXECUTIVE_INTELLIGENCE_REVIEW.md, PLATFORM_ACTIVATION_REPORT.md.
+- NOT done (honest): realtime loop, notification center, **CSV import** (highest business
+  ROI, buildable next), integrations, onboarding (auth-gated), observability, security-audit-v3,
+  performance-review. Did NOT write docs for unbuilt systems (would be inflation).
+
+### June 13 (cont.) — CSV data import (data activation, verified)
+- `lib/import/csv.ts` — dependency-free parser + per-entity validate/transform (capabilities,
+  employees, employee_capabilities); 6 unit tests.
+- `server/services/import.ts` + `POST /api/v1/import` — upsert to live DB (PostgREST merge);
+  `GET ?template=` downloads CSV templates. `/import` UI (sidebar ▸ Data).
+- Migration **0009**: plain unique constraints (capabilities org_id+name, users email) so
+  upsert on_conflict works — a real bug found during live verification (prior indexes were
+  expression/partial). Applied live.
+- **Verified live end-to-end**: CSV → upsert → capabilities 5→6 (201) → cleanup; tsc clean,
+  production build compiles /import + /api/v1/import, **143/143 tests**.
+- Doc: DATA_IMPORT_ARCHITECTURE.md.
+- NOT done: mapping workspace, preview/dry-run, conflict-resolution UI, import history,
+  remaining entities, integrations, onboarding (auth-gated). Did not write docs for unbuilt
+  systems (no inflation).
+
+### June 14 — Calibration + Executive Copilot (learning-system foundations)
+- `calibration.ts`: scorePrediction + calibrationReport (accuracy, calibration gap,
+  per-kind, trend) — "are we getting smarter?". Tested.
+- `copilot.ts` + `GET /api/v1/copilot?q=`: deterministic graph-grounded advisor; intent →
+  engine output → answer + evidence + source. **Verified LIVE** (prod build on :5188):
+  "what should I do" → recommendations; "most fragile" → capability-intel; "what if Noor
+  leaves" → simulation; "who is irreplaceable" → people-intel. No LLM, no hallucination.
+- Engine barrel now: capability·people·decision·orgMemory·dependency·risk·orgHealth·
+  simulation·outcome·learning·recommendations·calibration·copilot.
+- Verified: tsc clean, **153/153 tests**, production build compiles /api/v1/copilot.
+- Doc: INTELLIGENCE_VALIDATION.md.
+- NOT done (honest): prediction write-back loop + `predictions` table (needs recommendation-
+  action UI); GraphRAG semantic retrieval (needs embeddings API key — external); executive
+  narratives (Phase 8); Assumption/Hypothesis/Observation entities (Phase 4). Self-improving
+  requires real longitudinal customer usage, not more code. Cosmetic: dependency-hub labels
+  show UUIDs in copilot/recommendation output (label-resolution lookup pending).

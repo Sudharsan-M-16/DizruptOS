@@ -7,10 +7,13 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  Clock,
   Crosshair,
   Flame,
   Inbox,
+  ListChecks,
   OctagonAlert,
+  ShieldAlert,
   Zap,
 } from "lucide-react";
 import { CriticalFrame, NumberTicker } from "@/components/ui/ascension";
@@ -46,6 +49,19 @@ const PULSE_HREF: Record<string, string> = {
   "Open tasks": "/projects",
   "Your requests": "/proposals",
   "Projects you're on": "/projects",
+};
+
+// Hero metric visual identity — icon + accent per stat (Monday-style KPI tiles,
+// rendered in DIZRUPT's dark palette with a tinted corner gradient).
+const PULSE_META: Record<string, { icon: React.ElementType; accent: string }> = {
+  "Over-allocation": { icon: Flame, accent: "#F59E0B" },
+  "Projects at risk": { icon: ShieldAlert, accent: "#EF4444" },
+  "Awaiting decision": { icon: Inbox, accent: "#00ED82" },
+  "Commitments overdue": { icon: Clock, accent: "#38BDF8" },
+  "Your load": { icon: Flame, accent: "#F59E0B" },
+  "Open tasks": { icon: ListChecks, accent: "#2BD9FF" },
+  "Your requests": { icon: Inbox, accent: "#00ED82" },
+  "Projects you're on": { icon: Crosshair, accent: "#38BDF8" },
 };
 
 export default function CommandCenter() {
@@ -225,42 +241,54 @@ export default function CommandCenter() {
         </CriticalFrame>
       </motion.section>
 
-      {/* Pulse strip — four numbers, one calm line. Detail lives behind the
-          Explain icons and on the dedicated pages; the first glance stays
-          readable in under two seconds. */}
-      <motion.div
-        initial={false}
-        className="panel grid grid-cols-2 divide-line-subtle md:grid-cols-4 md:divide-x"
-      >
-        {pulseStats.map((s) => (
-          <div key={s.label} className="flex items-center justify-between gap-3 px-6 py-6">
-            <Link
-              href={PULSE_HREF[s.label] ?? "/"}
-              className="group -m-2 flex-1 rounded-lg p-2 transition-colors hover:bg-ink-elevated/50"
-              title={`Open ${PULSE_HREF[s.label] ?? "details"}`}
+      {/* Hero metric tiles — the first glance. Each is a premium KPI card
+          (tinted by its accent), fully clickable to its page, with the Explain
+          popover and trend kept interactive above the click layer. */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {pulseStats.map((s) => {
+          const meta = PULSE_META[s.label] ?? { icon: Zap, accent: "#00ED82" };
+          const Icon = meta.icon;
+          return (
+            <div
+              key={s.label}
+              className="group relative overflow-hidden rounded-card border border-line p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover"
+              style={{
+                background: `radial-gradient(120% 120% at 0% 0%, ${meta.accent}1f, transparent 55%), rgb(var(--ink-surface))`,
+                boxShadow: `inset 0 1px 0 0 rgb(255 255 255 / 0.04)`,
+              }}
             >
-              <div className="label-xs">{s.label}</div>
-              <div className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-tight transition-colors group-hover:text-brand">
-                {s.value}
+              {/* full-card click target (under the content) */}
+              <Link
+                href={PULSE_HREF[s.label] ?? "/"}
+                aria-label={`Open ${s.label}`}
+                className="absolute inset-0 z-0"
+              />
+              <div className="pointer-events-none relative z-10">
+                <div className="flex items-start justify-between">
+                  <span
+                    className="grid h-11 w-11 place-items-center rounded-xl border"
+                    style={{ borderColor: `${meta.accent}40`, background: `${meta.accent}14`, color: meta.accent }}
+                  >
+                    <Icon size={20} />
+                  </span>
+                  <span className="pointer-events-auto relative z-20">
+                    <Explain title={s.label} signals={s.signals} />
+                  </span>
+                </div>
+                <div className="mt-5 font-display text-[2.5rem] font-bold leading-none tracking-tight">
+                  {s.value}
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-fg-muted">{s.label}</span>
+                  <span className={cn("shrink-0 text-xs font-semibold", s.good ? "text-ok" : "text-warn")}>
+                    {s.delta}
+                  </span>
+                </div>
               </div>
-              <span className="mt-1 block text-2xs font-medium text-fg-faint opacity-0 transition-opacity group-hover:opacity-100">
-                View →
-              </span>
-            </Link>
-            <div className="flex flex-col items-end gap-2">
-              <Explain title={s.label} signals={s.signals} />
-              <span
-                className={cn(
-                  "max-w-24 text-right text-2xs leading-snug",
-                  s.good ? "text-ok" : "text-warn"
-                )}
-              >
-                {s.delta}
-              </span>
             </div>
-          </div>
-        ))}
-      </motion.div>
+          );
+        })}
+      </div>
 
       <div className="grid gap-7 xl:grid-cols-5">
         {/* Capacity hotlist — managers only; employees get their own week */}

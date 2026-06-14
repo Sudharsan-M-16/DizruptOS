@@ -134,6 +134,64 @@ export interface EmployeeCapability {
   isPrimary: boolean;
 }
 
+export interface DecisionRecord {
+  id: string;
+  title: string;
+  rationale: string | null;
+  context: string | null;
+  confidenceLevel: "low" | "medium" | "high" | null;
+  status: string;
+  ownerId: string | null;
+  projectId: string | null;
+  supersededBy: string | null;
+  createdAt: string;
+}
+export interface OutcomeRecord {
+  id: string;
+  decisionId: string;
+  expected: string | null;
+  actual: string | null;
+  measured: string | null;
+  status: "pending" | "succeeded" | "partial" | "failed" | "reversed";
+  confidence: number | null;
+  projectId: string | null;
+  capabilityId: string | null;
+  createdAt: string;
+}
+export interface LearningRecord {
+  id: string;
+  title: string;
+  insight: string;
+  decisionId: string | null;
+  outcomeId: string | null;
+  capabilityId: string | null;
+  projectId: string | null;
+  createdAt: string;
+}
+
+export interface DecisionRepository {
+  list(): Promise<DecisionRecord[]>;
+  byId(id: string): Promise<DecisionRecord | null>;
+}
+export interface OutcomeRepository {
+  list(): Promise<OutcomeRecord[]>;
+}
+export interface LearningRepository {
+  list(): Promise<LearningRecord[]>;
+}
+
+export interface GraphRelationship {
+  sourceId: string;
+  sourceType: string;
+  targetId: string;
+  targetType: string;
+  relationshipType: string;
+}
+
+export interface RelationshipRepository {
+  list(): Promise<GraphRelationship[]>;
+}
+
 export interface CapabilityRepository {
   list(): Promise<Capability[]>;
 }
@@ -153,6 +211,10 @@ export interface Repositories {
   approvals: ApprovalRepository;
   capabilities: CapabilityRepository;
   employeeCapabilities: EmployeeCapabilityRepository;
+  relationships: RelationshipRepository;
+  decisions: DecisionRepository;
+  outcomes: OutcomeRepository;
+  learnings: LearningRepository;
   /** Which backend is live — surfaced in /api/health for operability. */
   backend: "memory" | "supabase";
 }

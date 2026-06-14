@@ -41,3 +41,37 @@ streaming) tracked, not yet applied.
 
 Verification: `tsc` clean, **103/103 tests**, surface renders live computed data (no
 page errors), app `mode=production` at http://localhost:5175.
+
+### June 13 (cont.) — People Intelligence (Human Intelligence Layer)
+
+People are now computed nodes, not rows. `server/engine/people-intelligence.ts`
+(7 tests) computes per person: primary/secondary expertise, strategic coverage,
+**sole-holder (irreplaceability)**, replacement candidates, **degree centrality**
+(from entity_relationships), **knowledge concentration**, and an **org-dependency
+score (0..1)** — each with an `evidence[]` + plain-language `explanation` (shared
+engine contract). Plus `departureImpact(person)` ("if they leave → lost/weakened
+capabilities") and `peopleHealth` rollup.
+
+- `RelationshipRepository` added (memory demo edges + Supabase `entity_relationships`).
+- `server/services/people-loader.ts` derives people from capability holders +
+  graph edges (works on memory and live without the people↔users reconciliation).
+- `GET /api/v1/people/intelligence` — **verified live**: 5 people, 1 irreplaceable
+  (Noor, sole holder of Finance & Modeling), ranked by org-dependency, explained.
+- Intelligence Engine now exposes `capability` + `people` modules under one barrel.
+
+**Still open (honest):** the `employees→users` / `capacity→capacity_logs` repo
+table-name mappers (People Intelligence sidestepped them by deriving people from
+the capability graph). Dashboard redesign: inspiration assets now present in
+`different application pics/` (Asana, ClickUp, Monday, dark-mode ref) — scheduled
+as the next dedicated pass. Next intelligence module per sequence: Decision
+Intelligence over `approvals`/`decisions` (organizational memory: "why did we do this").
+
+### June 13 (cont.) — Command Center redesign (Monday/Linear-inspired)
+
+Studied inspiration assets in `different application pics/` (Monday, Asana, ClickUp,
+dark-mode ref). Redesigned the command center's primary glance: the flat divided
+"pulse strip" → **premium hero KPI tiles** — accent-tinted corner gradient per metric,
+colored icon chip, 2.5rem numbers, label + trend, Explain popover, hover-lift, whole
+card clickable to its page (PULSE_META + PULSE_HREF). Dark/volt palette, not a light
+copy. Functionality + live data preserved; `tsc` clean, no page errors, screenshot-verified.
+NOTE: other pages share the global de-cramp; bespoke per-page redesigns are a follow-up.

@@ -17,7 +17,9 @@ import {
   LogOut,
   ScrollText,
   ShieldAlert,
+  Sparkles,
   Target,
+  Upload,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,6 +41,7 @@ const NAV: {
   ]},
   { group: "Intelligence", items: [
     { href: "/executive", label: "Executive", icon: Activity, perm: "view_executive" },
+    { href: "/briefing", label: "Exec Briefing", icon: Sparkles, perm: "view_executive" },
     { href: "/capabilities", label: "Capability Intel", icon: Boxes },
     { href: "/risks", label: "Risk Register", icon: ShieldAlert },
     { href: "/decisions", label: "Decisions", icon: ScrollText },
@@ -50,6 +53,9 @@ const NAV: {
     { href: "/proposals", label: "Agent Inbox", icon: Inbox },
     { href: "/graph", label: "Dependency Graph", icon: GitBranch },
     { href: "/audit", label: "Audit Log", icon: FileClock, perm: "view_audit" },
+  ]},
+  { group: "Data", items: [
+    { href: "/import", label: "Import Data", icon: Upload, perm: "view_audit" },
   ]},
 ];
 
