@@ -12,6 +12,16 @@ export interface CopilotContext {
   risks: { title: string; band: string }[];
   /** Resolved on demand by the loader for "what if X leaves?" */
   departure?: { name: string; lost: string[]; weakened: string[]; explanation: string } | null;
+  /** Closed-loop learning signals — grounds "what worked / what we're wrong about". */
+  learning?: {
+    worked: { title: string; accuracy: number }[];      // measured recs, accuracy desc
+    failed: { title: string; accuracy: number }[];       // measured recs, accuracy asc
+    recentlyActed: { title: string; status: string }[];  // accepted/completed recently
+    avgAccuracy: number | null;
+    calibrationGap: number | null;
+    blindSpots: string[];                                 // repeated-mistake themes
+    bestDecisions: { title: string }[];
+  } | null;
 }
 
 export interface CopilotAnswer {
@@ -32,6 +42,71 @@ const INTENTS: { intent: string; test: RegExp; run: (ctx: CopilotContext) => Omi
           c.departure.weakened.length ? `Weakened: ${c.departure.weakened.join(", ")}` : "None weakened",
         ], source: "simulation.simulateDeparture" }
       : { answer: "Name a person in the organization, e.g. \"what happens if Noor leaves?\".", evidence: [], source: "copilot" },
+  },
+  // Learning intents come BEFORE highest_roi so "which recommendations worked"
+  // resolves to the calibration view, not the ROI-ranking view.
+  {
+    intent: "recs_that_worked",
+    test: /which.*(recommendation|action)s?.*(work|succeed)|what worked|recommendations? that worked/i,
+    run: (c) => {
+      const w = c.learning?.worked ?? [];
+      return w.length
+        ? { answer: `Recommendations that worked best: ${w.slice(0, 3).map((x) => `${x.title} (${Math.round(x.accuracy * 100)}% accurate)`).join("; ")}.`,
+            evidence: w.slice(0, 3).map((x) => `${x.title}: accuracy ${Math.round(x.accuracy * 100)}%`), source: "learning.calibration" }
+        : { answer: "No recommendations have been measured yet — accept and measure some to learn what works.", evidence: [], source: "learning.calibration" };
+    },
+  },
+  {
+    intent: "recs_that_failed",
+    test: /which.*(recommendation|action)s?.*(fail|didn.?t work|wrong)|what failed|recommendations? that failed/i,
+    run: (c) => {
+      const f = c.learning?.failed ?? [];
+      return f.length
+        ? { answer: `Recommendations that underperformed: ${f.slice(0, 3).map((x) => `${x.title} (${Math.round(x.accuracy * 100)}% accurate)`).join("; ")}.`,
+            evidence: f.slice(0, 3).map((x) => `${x.title}: accuracy ${Math.round(x.accuracy * 100)}%`), source: "learning.calibration" }
+        : { answer: "No measured recommendations have failed — either none are measured yet, or accuracy is holding up.", evidence: [], source: "learning.calibration" };
+    },
+  },
+  {
+    intent: "blind_spots",
+    test: /blind ?spot|consistently wrong|always wrong|keep getting wrong|systematic|overconfiden/i,
+    run: (c) => {
+      const l = c.learning;
+      const gap = l?.calibrationGap ?? null;
+      const spots = l?.blindSpots ?? [];
+      const parts: string[] = [];
+      if (gap != null && gap > 0.2) parts.push(`Confidence is poorly calibrated (gap ${Math.round(gap * 100)}%) — we are systematically over/under-confident.`);
+      if (spots.length) parts.push(`Repeated mistakes cluster around: ${spots.join(", ")}.`);
+      return {
+        answer: parts.length ? parts.join(" ") : "No clear blind spots yet — not enough resolved predictions to detect systematic error.",
+        evidence: [
+          gap != null ? `calibration gap ${Math.round(gap * 100)}%` : "calibration gap unknown",
+          ...spots.map((s) => `repeated mistakes: ${s}`),
+        ],
+        source: "learning.calibration",
+      };
+    },
+  },
+  {
+    intent: "what_changed",
+    test: /what changed|changed this week|what.?s new|recent(ly)? (change|happen)|this week/i,
+    run: (c) => {
+      const acted = c.learning?.recentlyActed ?? [];
+      return acted.length
+        ? { answer: `Recently acted-on recommendations: ${acted.slice(0, 4).map((x) => `${x.title} (${x.status})`).join("; ")}.`,
+            evidence: acted.slice(0, 4).map((x) => `${x.title} → ${x.status}`), source: "recommendations.lifecycle" }
+        : { answer: "Nothing has been acted on recently — the recommendation queue is unchanged.", evidence: [], source: "recommendations.lifecycle" };
+    },
+  },
+  {
+    intent: "best_decisions",
+    test: /best (decision|outcome)|decisions? .*best|highest.*outcome|what.*worked best/i,
+    run: (c) => {
+      const b = c.learning?.bestDecisions ?? [];
+      return b.length
+        ? { answer: `Decisions with the best outcomes: ${b.slice(0, 3).map((x) => x.title).join("; ")}.`, evidence: b.slice(0, 3).map((x) => x.title), source: "outcome-intelligence" }
+        : { answer: "No decisions have validated positive outcomes yet.", evidence: [], source: "outcome-intelligence" };
+    },
   },
   {
     intent: "highest_roi",

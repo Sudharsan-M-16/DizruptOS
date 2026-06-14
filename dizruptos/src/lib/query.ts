@@ -62,3 +62,19 @@ export async function apiGet<T>(path: string): Promise<T> {
   const env = await res.json();
   return env.data as T;
 }
+
+/** Typed mutating call (POST/PATCH) against the v1 envelope. */
+export async function apiSend<T>(path: string, body: unknown, method: "POST" | "PATCH" = "POST"): Promise<T> {
+  const res = await fetch(`/api/v1/${path}`, {
+    method,
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const env = await res.json().catch(() => null);
+    throw new Error(env?.message ?? env?.code ?? `Request failed (${res.status})`);
+  }
+  const env = await res.json();
+  return env.data as T;
+}

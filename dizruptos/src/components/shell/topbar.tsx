@@ -36,6 +36,10 @@ const TITLES: Record<string, { title: string; hint: string }> = {
   "/graph": { title: "Dependency Graph", hint: "The organizational graph, made visible" },
   "/capabilities": { title: "Capability Intelligence", hint: "Who knows what — and where the organization is fragile" },
   "/briefing": { title: "Executive Briefing", hint: "What to worry about, why, and what to do next — computed live" },
+  "/recommendations": { title: "Recommendation Center", hint: "Intelligence becomes action — every recommendation tracked end-to-end" },
+  "/learning": { title: "Learning Loop", hint: "Are we getting smarter? Predictions scored against reality" },
+  "/narratives": { title: "Executive Narratives", hint: "The brief a leader reads — composed live, grounded, periodized" },
+  "/memory": { title: "Organizational Memory", hint: "Why we decided · what we assumed · what happened · what we learned" },
   "/import": { title: "Import Data", hint: "Bring real organizational data into the graph" },
   "/audit": { title: "Audit Log", hint: "Insert-only · tamper-proof · complete" },
 };

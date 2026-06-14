@@ -1,4 +1,64 @@
 
+### June 14 (cont.) — Memory, lineage & narratives
+
+Closed the three deferred product phases on top of the loop:
+- **Decision lineage ontology** (`migration 0011`): `decision_evidence`,
+  `decision_assumptions`, `decision_hypotheses` as first-class falsifiable
+  records (assumptions → holds/violated; hypotheses → confirmed/refuted). Engine
+  surfaces the full chain and downgrades "would we repeat?" when a success rested
+  on a violated critical assumption. `LineageRepository` on both backends; reads
+  are tolerant (no-op until 0011 is applied to a given DB).
+- **Organizational Memory workspace** (`/memory`) — answers why / evidence /
+  assumptions / what happened / learned / would-we-repeat per decision.
+- **Executive Narratives** (`/narratives` + `GET /api/v1/intelligence/narrative`)
+  — written weekly/monthly/quarterly briefs composed live from every engine;
+  deterministic, grounded prose.
+- **Demo mode now seeds a coherent decision-memory graph** (was empty) so the
+  decision/memory surfaces work offline.
+- **Readiness probe** `/api/ready` does a real backend read (verified live:
+  `ready:true`, 264ms) — distinct from `/api/health` liveness.
+- +7 tests (**174 total**), typecheck/lint/build clean; both surfaces screenshot-
+  verified live on Supabase.
+
+### June 14 — The learning loop closes (Observe → … → Calibrate → Improve)
+
+DIZRUPT stops merely *generating* intelligence and starts *learning* from it.
+Recommendations are now first-class operational entities that move through a
+lifecycle and write their own accountability record. **Verified live end-to-end
+against Supabase** (accept → complete → measure produced confidence 0.75,
+baseline 0.875, actual 0.05, **accuracy 0.831**, then surfaced on the Learning
+Dashboard + Copilot).
+
+- **Recommendation lifecycle** (`migration 0010` + `RecommendationRepository` on
+  both backends): `pending → acknowledged → accepted → completed → measured`
+  (plus `rejected`/`deferred`), enforced by a pure state machine
+  (`engine/recommendation-lifecycle.ts`). No dead recommendations.
+- **Prediction writeback** — accepting a recommendation commits a prediction on
+  the record (confidence + baseline + expected Δ). **Outcome tracking** —
+  measuring records the actual value and scores accuracy = `1 − |expectedΔ −
+  observedΔ|`.
+- **Calibration completion** — the calibration engine now consumes *real*
+  resolved predictions (measured recs) instead of hypotheticals; rolled up by
+  the `learningIntelligence()` loader (accuracy, calibration gap, learning
+  velocity, loop-conversion funnel, repeated mistakes, outcome quality).
+- **Recommendation Center** (`/recommendations`) — the operational workspace:
+  reasoning, evidence, affected entity, lifecycle rail, prediction/outcome
+  ledger, and Accept/Defer/Reject/Complete/Measure actions (optimistic, audited).
+- **Learning Dashboard** (`/learning`) — "are we getting smarter?": recommendation
+  accuracy, calibration gap, learning velocity, accuracy-by-kind, blind spots,
+  reusable knowledge.
+- **Copilot ascension** — new grounded intents: *which recommendations worked /
+  failed*, *what are our blind spots*, *what changed this week*, *best decisions*
+  — answered from persisted lifecycle + calibration data (no hallucination).
+- **API**: `POST /api/v1/recommendations/:id` (lifecycle transition),
+  `GET /api/v1/intelligence/learning`. Chain: repository → loader → engine →
+  API → UI, the same spine as every other surface.
+- Tests: +14 (lifecycle state machine, prediction writeback, accuracy scoring,
+  copilot learning intents, full end-to-end loop) → **167 passing**. typecheck +
+  lint + build clean.
+- Hardened the PostgREST client to tolerate empty (`return=minimal`/204) bodies
+  and to skip non-UUID actor ids in lifecycle/audit writes (demo personas).
+
 ### June 13 (cont.) — Computed intelligence exposed through the stack
 
 **The chain is live and verified end-to-end** (repository → loader → engine → API → UI):

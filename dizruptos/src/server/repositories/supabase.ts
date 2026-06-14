@@ -22,6 +22,7 @@ import {
   type Approval,
   type Capability,
   type EmployeeCapability,
+  type RecommendationRecord,
   type Repositories,
 } from "./types";
 
@@ -54,7 +55,11 @@ async function rest<T>(
       `PostgREST ${res.status} on ${path}: ${body.slice(0, 200)}`
     );
   }
-  return (await res.json()) as T;
+  // 204 No Content / Prefer: return=minimal yield an empty body — tolerate it
+  // rather than blowing up in JSON.parse (callers that ignore the result rely
+  // on this).
+  const text = await res.text();
+  return (text ? JSON.parse(text) : (undefined as T));
 }
 
 export function createSupabaseRepositories(cfg: SupabaseConfig): Repositories {
@@ -185,6 +190,62 @@ export function createSupabaseRepositories(cfg: SupabaseConfig): Repositories {
       list: async () => (await rest<LearningRowDb[]>(cfg, "learnings?select=*")).map(fromLearningRow),
     },
 
+    lineage: {
+      evidence: async () =>
+        (await rest<EvidenceRow[]>(cfg, "decision_evidence?select=*&order=created_at")).map((r) => ({
+          id: r.id, decisionId: r.decision_id, source: r.source, summary: r.summary, strength: r.strength, createdAt: r.created_at,
+        })),
+      assumptions: async () =>
+        (await rest<AssumptionRow[]>(cfg, "decision_assumptions?select=*&order=created_at")).map((r) => ({
+          id: r.id, decisionId: r.decision_id, statement: r.statement, status: r.status, criticality: r.criticality, createdAt: r.created_at,
+        })),
+      hypotheses: async () =>
+        (await rest<HypothesisRow[]>(cfg, "decision_hypotheses?select=*&order=created_at")).map((r) => ({
+          id: r.id, decisionId: r.decision_id, statement: r.statement, status: r.status, confidence: r.confidence, createdAt: r.created_at,
+        })),
+    },
+
+    recommendations: {
+      list: async () =>
+        (await rest<RecommendationRow[]>(cfg, "recommendations?select=*&order=priority.desc.nullslast")).map(fromRecommendationRow),
+      byId: async (id) =>
+        (await rest<RecommendationRow[]>(cfg, `recommendations?id=eq.${id}&select=*`)).map(fromRecommendationRow)[0] ?? null,
+      upsertComputed: async (recs) => {
+        if (recs.length === 0) return;
+        // Idempotent seed: insert new engine keys, leave existing lifecycle rows
+        // untouched (ignore-duplicates on the `id` primary key).
+        await rest(cfg, "recommendations?on_conflict=id", {
+          method: "POST",
+          headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+          body: JSON.stringify(
+            recs.map((r) => ({
+              id: r.id, type: r.type, title: r.title,
+              rationale: r.rationale ?? null, impact: r.impact ?? null, priority: r.priority ?? null,
+              evidence: r.evidence ?? [], trace_kind: r.traceKind ?? null, trace_id: r.traceId ?? null, trace_label: r.traceLabel ?? null,
+              status: "pending",
+            }))
+          ),
+        });
+      },
+      transition: async (id, status, patch) => {
+        const body: Record<string, unknown> = { status, updated_at: new Date().toISOString() };
+        const map: Record<string, string> = {
+          actorId: "actor_id", confidence: "confidence", baselineValue: "baseline_value", expectedDelta: "expected_delta",
+          actualValue: "actual_value", accuracy: "accuracy", acceptedAt: "accepted_at", decidedAt: "decided_at", measuredAt: "measured_at",
+        };
+        for (const [k, col] of Object.entries(map)) {
+          const v = (patch as Record<string, unknown>)[k];
+          if (v !== undefined) body[col] = v;
+        }
+        const rows = await rest<RecommendationRow[]>(cfg, `recommendations?id=eq.${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        });
+        if (!rows[0]) throw new RepositoryError("NOT_FOUND", `recommendation ${id}`);
+        return fromRecommendationRow(rows[0]);
+      },
+    },
+
     relationships: {
       list: async () => {
         const rows = await rest<{ source_id: string; source_type: string; target_id: string; target_type: string; relationship_type: string }[]>(
@@ -308,6 +369,31 @@ interface LearningRowDb {
 }
 function fromLearningRow(r: LearningRowDb): import("./types").LearningRecord {
   return { id: r.id, title: r.title, insight: r.insight, decisionId: r.decision_id, outcomeId: r.outcome_id, capabilityId: r.capability_id, projectId: r.project_id, createdAt: r.created_at };
+}
+
+interface EvidenceRow { id: string; decision_id: string; source: string | null; summary: string; strength: "weak" | "moderate" | "strong"; created_at: string; }
+interface AssumptionRow { id: string; decision_id: string; statement: string; status: "holds" | "violated" | "unknown"; criticality: "low" | "medium" | "high" | "critical"; created_at: string; }
+interface HypothesisRow { id: string; decision_id: string; statement: string; status: "open" | "confirmed" | "refuted"; confidence: number | null; created_at: string; }
+
+interface RecommendationRow {
+  id: string; type: string; title: string; rationale: string | null; impact: string | null; priority: number | null;
+  evidence: string[] | null; trace_kind: string | null; trace_id: string | null; trace_label: string | null;
+  status: RecommendationRecord["status"]; actor_id: string | null;
+  confidence: number | null; baseline_value: number | null; expected_delta: number | null;
+  actual_value: number | null; accuracy: number | null;
+  accepted_at: string | null; decided_at: string | null; measured_at: string | null;
+  created_at: string; updated_at: string;
+}
+function fromRecommendationRow(r: RecommendationRow): RecommendationRecord {
+  return {
+    id: r.id, type: r.type, title: r.title, rationale: r.rationale, impact: r.impact, priority: r.priority,
+    evidence: r.evidence ?? [], traceKind: r.trace_kind, traceId: r.trace_id, traceLabel: r.trace_label,
+    status: r.status, actorId: r.actor_id,
+    confidence: r.confidence, baselineValue: r.baseline_value, expectedDelta: r.expected_delta,
+    actualValue: r.actual_value, accuracy: r.accuracy,
+    acceptedAt: r.accepted_at, decidedAt: r.decided_at, measuredAt: r.measured_at,
+    createdAt: r.created_at, updatedAt: r.updated_at,
+  };
 }
 
 /* ----------------------------- users → Employee --------------------------- */

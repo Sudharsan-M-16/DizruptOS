@@ -31,5 +31,7 @@ export * as simulation from "./simulation";
 export * as outcome from "./outcome-intelligence";
 export * as learning from "./learning-intelligence";
 export * as recommendations from "./recommendations";
+export * as lifecycle from "./recommendation-lifecycle";
 export * as calibration from "./calibration";
+export * as narratives from "./narratives";
 export * as copilot from "./copilot";

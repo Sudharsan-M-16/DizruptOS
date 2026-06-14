@@ -19,8 +19,15 @@ import { projects, risks } from "@/lib/data";
 import {
   RepositoryError,
   type Approval,
+  type AssumptionRecord,
   type Capability,
+  type DecisionRecord,
   type EmployeeCapability,
+  type EvidenceRecord,
+  type HypothesisRecord,
+  type LearningRecord,
+  type OutcomeRecord,
+  type RecommendationRecord,
   type Repositories,
 } from "./types";
 
@@ -45,6 +52,40 @@ const empCapSeed: EmployeeCapability[] = [
   { userId: "u-noor", userName: "Noor Al-Rashid", capabilityId: "cap-vendor", proficiency: 4, isPrimary: true },
 ];
 
+// Decision-memory seed — demo mode previously had NO decision/outcome/learning
+// graph (it lived only in the DB), leaving the memory + decisions surfaces empty
+// offline. This small, coherent graph mirrors the kind of records the live DB
+// holds so the Organizational Memory workspace + Decision Intelligence are
+// demonstrable in demo mode, including the 0011 lineage ontology.
+const decisionSeed: DecisionRecord[] = [
+  { id: "dec-dualwrite", title: "Dual-write Payments cutover", rationale: "Migrate Atlas Payments with a feature-flagged dual-write to bound cutover risk and allow instant rollback.", context: "Atlas Payments Migration — CRITICAL project, Acme Corp exposure $4.2M ARR.", confidenceLevel: "high", status: "ACTIVE", ownerId: "u-ahmed", projectId: "p-atlas", supersededBy: null, createdAt: "2026-03-02T09:00:00Z" },
+  { id: "dec-vendor", title: "Consolidate to a single cloud vendor", rationale: "Reduce overhead by standardizing on one provider for committed-use discounts.", context: "Cost-reduction initiative.", confidenceLevel: "medium", status: "ACTIVE", ownerId: "u-noor", projectId: null, supersededBy: null, createdAt: "2026-02-10T09:00:00Z" },
+  { id: "dec-frontend", title: "Adopt a design-system-first frontend", rationale: "Standardize UI on a tokenized design system to cut rework and speed delivery.", context: "Frontend velocity initiative.", confidenceLevel: "medium", status: "ACTIVE", ownerId: "u-asha", projectId: null, supersededBy: null, createdAt: "2026-04-01T09:00:00Z" },
+];
+const outcomeSeed: OutcomeRecord[] = [
+  { id: "out-dualwrite", decisionId: "dec-dualwrite", expected: "Zero-downtime cutover, rollback within 5 min if needed.", actual: "Cutover completed with one 8-minute partial degradation; rollback path validated.", measured: "2026-04-15", status: "succeeded", confidence: 0.9, projectId: "p-atlas", capabilityId: "cap-payments", createdAt: "2026-04-15T09:00:00Z" },
+  { id: "out-vendor", decisionId: "dec-vendor", expected: "15% infra cost reduction.", actual: "Cost rose ~8% after losing multi-cloud leverage; lock-in increased.", measured: "2026-05-01", status: "failed", confidence: 0.8, projectId: null, capabilityId: "cap-vendor", createdAt: "2026-05-01T09:00:00Z" },
+];
+const learningSeed: LearningRecord[] = [
+  { id: "learn-dualwrite", title: "Feature-flagged dual-write bounds cutover risk", insight: "Reversible cutovers with a validated rollback consistently de-risk critical migrations.", decisionId: "dec-dualwrite", outcomeId: "out-dualwrite", capabilityId: "cap-payments", projectId: "p-atlas", createdAt: "2026-04-16T09:00:00Z" },
+  { id: "learn-vendor", title: "Single-vendor consolidation removed negotiating leverage", insight: "Consolidation savings were outweighed by lost multi-cloud leverage and lock-in; model leverage loss next time.", decisionId: "dec-vendor", outcomeId: "out-vendor", capabilityId: "cap-vendor", projectId: null, createdAt: "2026-05-02T09:00:00Z" },
+];
+const evidenceSeed: EvidenceRecord[] = [
+  { id: "ev-dw1", decisionId: "dec-dualwrite", source: "Incident history", summary: "Prior big-bang cutovers caused 2 multi-hour outages in 18 months.", strength: "strong", createdAt: "2026-03-01T09:00:00Z" },
+  { id: "ev-dw2", decisionId: "dec-dualwrite", source: "Load test", summary: "Dual-write adds <12ms p99 latency at projected volume.", strength: "moderate", createdAt: "2026-03-01T10:00:00Z" },
+  { id: "ev-v1", decisionId: "dec-vendor", source: "Finance model", summary: "Committed-use discounts modeled at 15% on current spend.", strength: "moderate", createdAt: "2026-02-09T09:00:00Z" },
+];
+const assumptionSeed: AssumptionRecord[] = [
+  { id: "as-dw1", decisionId: "dec-dualwrite", statement: "Rollback can complete within 5 minutes.", status: "holds", criticality: "critical", createdAt: "2026-03-01T09:00:00Z" },
+  { id: "as-v1", decisionId: "dec-vendor", statement: "We will not need multi-cloud negotiating leverage.", status: "violated", criticality: "high", createdAt: "2026-02-09T09:00:00Z" },
+  { id: "as-v2", decisionId: "dec-vendor", statement: "Migration effort is one-time and bounded.", status: "unknown", criticality: "medium", createdAt: "2026-02-09T09:30:00Z" },
+];
+const hypothesisSeed: HypothesisRecord[] = [
+  { id: "hy-dw1", decisionId: "dec-dualwrite", statement: "Cutover completes with zero customer-visible downtime.", status: "refuted", confidence: 0.8, createdAt: "2026-03-01T09:00:00Z" },
+  { id: "hy-v1", decisionId: "dec-vendor", statement: "Consolidation yields ≥15% net infra savings.", status: "refuted", confidence: 0.6, createdAt: "2026-02-09T09:00:00Z" },
+  { id: "hy-fe1", decisionId: "dec-frontend", statement: "Design-system adoption cuts UI rework by 30%.", status: "open", confidence: 0.55, createdAt: "2026-04-01T09:00:00Z" },
+];
+
 // Server-side state: module-scope copies so API mutations persist for the
 // process lifetime (the demo analogue of a database).
 let tasks: Task[] = seedTasks.map((t) => ({ ...t }));
@@ -52,6 +93,10 @@ let capacity: CapacityCell[] = seedCapacity.map((c) => ({ ...c }));
 let proposals: Proposal[] = seedProposals.map((p) => ({ ...p }));
 const audit: AuditEvent[] = [...auditEvents];
 const approvals: Approval[] = [];
+// Recommendation lifecycle store — the demo analogue of the `recommendations`
+// table (migration 0010). Persists for the process lifetime so lifecycle
+// transitions and prediction writeback survive across requests in demo mode.
+const recommendations: RecommendationRecord[] = [];
 
 export function createMemoryRepositories(): Repositories {
   return {
@@ -154,13 +199,55 @@ export function createMemoryRepositories(): Repositories {
       },
     },
 
+    recommendations: {
+      list: async () => recommendations.map((r) => ({ ...r })),
+      byId: async (id) => {
+        const r = recommendations.find((x) => x.id === id);
+        return r ? { ...r } : null;
+      },
+      upsertComputed: async (recs) => {
+        const now = new Date().toISOString();
+        for (const r of recs) {
+          if (recommendations.some((x) => x.id === r.id)) continue; // never clobber lifecycle
+          recommendations.push({
+            id: r.id, type: r.type, title: r.title,
+            rationale: r.rationale ?? null, impact: r.impact ?? null, priority: r.priority ?? null,
+            evidence: r.evidence ?? [], traceKind: r.traceKind ?? null, traceId: r.traceId ?? null, traceLabel: r.traceLabel ?? null,
+            status: "pending", actorId: null,
+            confidence: null, baselineValue: null, expectedDelta: null,
+            actualValue: null, accuracy: null,
+            acceptedAt: null, decidedAt: null, measuredAt: null,
+            createdAt: now, updatedAt: now,
+          });
+        }
+      },
+      transition: async (id, status, patch) => {
+        const rec = recommendations.find((x) => x.id === id);
+        if (!rec) throw new RepositoryError("NOT_FOUND", `recommendation ${id}`);
+        rec.status = status;
+        rec.updatedAt = new Date().toISOString();
+        for (const k of ["actorId", "confidence", "baselineValue", "expectedDelta", "actualValue", "accuracy", "acceptedAt", "decidedAt", "measuredAt"] as const) {
+          if (patch[k] !== undefined) (rec as unknown as Record<string, unknown>)[k] = patch[k];
+        }
+        return { ...rec };
+      },
+    },
+
     capabilities: { list: async () => capSeed },
     employeeCapabilities: { list: async () => empCapSeed },
-    // Decision-memory entities: live in Supabase; demo mode returns empty
-    // (the seeded decision/outcome/learning graph lives in the DB).
-    decisions: { list: async () => [], byId: async () => null },
-    outcomes: { list: async () => [] },
-    learnings: { list: async () => [] },
+    // Decision-memory entities: a coherent demo graph (mirrors the live DB) so
+    // the Decision Intelligence + Organizational Memory surfaces work offline.
+    decisions: {
+      list: async () => decisionSeed.map((d) => ({ ...d })),
+      byId: async (id) => decisionSeed.find((d) => d.id === id) ?? null,
+    },
+    outcomes: { list: async () => outcomeSeed.map((o) => ({ ...o })) },
+    learnings: { list: async () => learningSeed.map((l) => ({ ...l })) },
+    lineage: {
+      evidence: async () => evidenceSeed.map((e) => ({ ...e })),
+      assumptions: async () => assumptionSeed.map((a) => ({ ...a })),
+      hypotheses: async () => hypothesisSeed.map((h) => ({ ...h })),
+    },
     // Person-touching edges for degree centrality (demo set; live reads entity_relationships).
     relationships: {
       list: async () => [

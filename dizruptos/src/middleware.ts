@@ -8,7 +8,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/welcome", "/api/auth", "/api/health"];
+const PUBLIC_PATHS = ["/login", "/welcome", "/api/auth", "/api/health", "/api/ready"];
 
 const isDev = process.env.NODE_ENV !== "production";
 

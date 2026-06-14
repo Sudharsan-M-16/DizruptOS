@@ -27,6 +27,10 @@ export interface LearningRecord {
   title: string;
   insight: string;
 }
+// Lineage ontology (migration 0011) — the reasoning a decision rested on.
+export interface EvidenceItem { source?: string | null; summary: string; strength: "weak" | "moderate" | "strong"; }
+export interface AssumptionItem { statement: string; status: "holds" | "violated" | "unknown"; criticality: "low" | "medium" | "high" | "critical"; }
+export interface HypothesisItem { statement: string; status: "open" | "confirmed" | "refuted"; confidence?: number | null; }
 
 export interface MemoryRecord {
   decisionId: string;
@@ -34,20 +38,32 @@ export interface MemoryRecord {
   why: string; // rationale
   who: { ownerId?: string | null; approvers: string[] };
   evidence: string[];
+  assumptions: AssumptionItem[];
+  hypotheses: HypothesisItem[];
+  violatedAssumptions: string[]; // critical/high assumptions that no longer hold
   whatHappened: { status: OutcomeStatus | "unknown"; detail: string }[];
   learned: string[];
   repeatRecommendation: "yes" | "yes_with_changes" | "no" | "too_early";
-  lineage: string[]; // decision → outcome → learning chain, human-readable
+  lineage: string[]; // decision → evidence → assumption → outcome → learning chain
   explanation: string;
 }
 
-/** Compose the organizational-memory record for one decision. */
+/** Compose the organizational-memory record for one decision. Lineage inputs
+ *  (evidence / assumptions / hypotheses) are optional so callers that haven't
+ *  populated the 0011 ontology still get a valid record. */
 export function decisionMemory(
   decision: DecisionNode,
   approvals: ApprovalRecord[],
   outcomes: OutcomeRecord[],
-  learnings: LearningRecord[]
+  learnings: LearningRecord[],
+  lineageInput?: { evidence?: EvidenceItem[]; assumptions?: AssumptionItem[]; hypotheses?: HypothesisItem[] }
 ): MemoryRecord {
+  const evidenceItems = lineageInput?.evidence ?? [];
+  const assumptions = lineageInput?.assumptions ?? [];
+  const hypotheses = lineageInput?.hypotheses ?? [];
+  const violatedAssumptions = assumptions
+    .filter((a) => a.status === "violated" && (a.criticality === "critical" || a.criticality === "high"))
+    .map((a) => a.statement);
   const approvers = approvals
     .map((a) => a.decidedBy ?? a.approverRole)
     .filter((x): x is string => !!x);
@@ -55,6 +71,7 @@ export function decisionMemory(
   const evidence: string[] = [];
   if (decision.rationale) evidence.push(`Rationale: ${decision.rationale}`);
   if (decision.context) evidence.push(`Context: ${decision.context}`);
+  evidenceItems.forEach((e) => evidence.push(`Evidence (${e.strength}${e.source ? `, ${e.source}` : ""}): ${e.summary}`));
   approvals.filter((a) => a.rationale).forEach((a) => evidence.push(`Approval (${a.approverRole}): ${a.rationale}`));
 
   const whatHappened = outcomes.length
@@ -63,14 +80,20 @@ export function decisionMemory(
 
   const learned = learnings.map((l) => `${l.title}: ${l.insight}`);
 
-  // would we decide this again? — derived from the latest outcome + learnings
+  // would we decide this again? — derived from the latest outcome AND whether a
+  // critical assumption was later violated (a success on a broken assumption is
+  // luck, not repeatable).
   const latest = outcomes[0]?.status;
-  const repeatRecommendation: MemoryRecord["repeatRecommendation"] =
+  let repeatRecommendation: MemoryRecord["repeatRecommendation"] =
     !latest || latest === "pending" ? "too_early" :
     latest === "succeeded" ? "yes" :
     latest === "failed" || latest === "reversed" ? "no" : "yes_with_changes";
+  if (repeatRecommendation === "yes" && violatedAssumptions.length) repeatRecommendation = "yes_with_changes";
 
   const lineage = [`Decision: ${decision.title}`];
+  evidenceItems.forEach((e) => lineage.push(`↳ Evidence (${e.strength}): ${e.summary}`));
+  assumptions.forEach((a) => lineage.push(`↳ Assumption [${a.status}]: ${a.statement}`));
+  hypotheses.forEach((h) => lineage.push(`↳ Hypothesis [${h.status}]: ${h.statement}`));
   outcomes.forEach((o) => lineage.push(`↳ Outcome (${o.status}): ${o.actual ?? o.expected ?? "—"}`));
   learnings.forEach((l) => lineage.push(`  ↳ Learning: ${l.title}`));
 
@@ -87,6 +110,9 @@ export function decisionMemory(
     why: decision.rationale ?? "No rationale was recorded.",
     who: { ownerId: decision.ownerId, approvers },
     evidence,
+    assumptions,
+    hypotheses,
+    violatedAssumptions,
     whatHappened,
     learned,
     repeatRecommendation,
@@ -94,6 +120,7 @@ export function decisionMemory(
     explanation:
       `"${decision.title}" was decided because: ${decision.rationale ?? "(no rationale)"}. ` +
       `${outcomes.length ? `What happened: ${whatHappened.map((w) => `${w.status} — ${w.detail}`).join("; ")}. ` : "No outcome is on record yet. "}` +
+      `${violatedAssumptions.length ? `A critical assumption no longer holds: ${violatedAssumptions.join("; ")}. ` : ""}` +
       `${learned.length ? `We learned: ${learnings.map((l) => l.title).join("; ")}. ` : ""}` +
       repeatText,
   };
