@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useOps } from "@/lib/store";
+import { useSession } from "@/lib/session";
 import { rankCandidates } from "@/lib/ai";
 import { employeeById, employees, projectById, WEEKS } from "@/lib/data";
 import {
@@ -32,6 +33,7 @@ export function TaskDrawer() {
   const tasks = useOps((s) => s.tasks);
   const utilization = useOps((s) => s.utilization);
   const requestReallocate = useOps((s) => s.requestReallocate);
+  const canReallocate = useSession((s) => s.can("reallocate"));
 
   const task = tasks.find((t) => t.id === drawerTaskId);
   const assignee = employeeById(task?.assigneeId);
@@ -81,12 +83,12 @@ export function TaskDrawer() {
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
                   <TaskStatusPill status={task.status} />
                   {project && (
-                    <Link
-                      href={`/projects/${project.id}`}
+                    <button
+                      onClick={() => { openTaskDrawer(null); window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id: "matrix" } })); }}
                       className="rounded bg-ink-elevated px-1.5 py-px font-mono text-2xs text-fg-muted hover:text-brand"
                     >
                       {project.code} · {project.name}
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
@@ -129,9 +131,9 @@ export function TaskDrawer() {
                   <div className="panel flex items-center gap-3 p-3">
                     <EmpAvatar initials={assignee.initials} accent={assignee.accent} size={34} />
                     <div className="min-w-0 flex-1">
-                      <Link href={`/people/${assignee.id}`} className="text-xs font-semibold hover:text-brand">
+                      <button onClick={() => { openTaskDrawer(null); window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id: "directory" } })); }} className="text-left text-xs font-semibold hover:text-brand">
                         {assignee.name}
-                      </Link>
+                      </button>
                       <div className="text-2xs text-fg-muted">{assignee.title}</div>
                       <div className="mt-1.5 flex items-center gap-2">
                         <CapacityBar pct={utilization(assignee.id, task.weekStart)} className="flex-1" height={5} />
@@ -153,7 +155,13 @@ export function TaskDrawer() {
                 )}
               </div>
 
-              {/* Two-click reassignment */}
+              {/* Two-click reassignment — manager-only (RBAC: reallocate) */}
+              {!canReallocate ? (
+                <div className="rounded-card border border-line bg-ink-elevated p-3 text-2xs text-fg-muted">
+                  <span className="flex items-center gap-1.5 font-medium text-fg-secondary"><ArrowRightLeft size={11} /> Reassignment is manager-only</span>
+                  <p className="mt-1 leading-relaxed">Your role can update your own tasks but can&rsquo;t reassign work to other people. Ask a manager or resource planner to reassign.</p>
+                </div>
+              ) : (
               <div>
                 <div className="label-xs mb-2 flex items-center gap-1.5">
                   <ArrowRightLeft size={11} />
@@ -193,12 +201,15 @@ export function TaskDrawer() {
                   ))}
                 </div>
               </div>
+              )}
             </div>
 
-            <div className="border-t border-line-subtle p-4 text-2xs text-fg-muted">
-              Reassignments are optimistic (&lt;50ms) and confirmed atomically.
-              Conflicts roll back with a refresh prompt.
-            </div>
+            {canReallocate && (
+              <div className="border-t border-line-subtle p-4 text-2xs text-fg-muted">
+                Reassignments are optimistic (&lt;50ms) and confirmed atomically.
+                Conflicts roll back with a refresh prompt.
+              </div>
+            )}
           </motion.aside>
         </>
       )}

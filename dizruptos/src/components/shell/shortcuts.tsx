@@ -42,16 +42,23 @@ export function ShortcutManager() {
     const down = (e: KeyboardEvent) => {
       if (isEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
 
+      // On the DizruptOS desktop, the OS owns navigation (Spotlight / Launchpad /
+      // dock) — the legacy "/" palette and "g→route" jumps would navigate away to
+      // the old dashboard, so they're disabled there. They still work on the
+      // standalone (embedded) routes.
+      const onDesktop = typeof window !== "undefined" && window.location.pathname === "/";
+
       if (e.key === "?") {
         e.preventDefault();
         setShortcutsOpen(true);
         return;
       }
-      if (e.key === "/") {
+      if (e.key === "/" && !onDesktop) {
         e.preventDefault();
         setPaletteOpen(true);
         return;
       }
+      if (onDesktop) return;
       if (e.key === "g") {
         pendingG.current = window.setTimeout(() => (pendingG.current = null), 900);
         return;

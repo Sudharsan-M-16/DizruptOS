@@ -1,0 +1,1088 @@
+
+> dizruptos@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1709ms
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 655ms (73 modules)
+ ⨯ Failed to find font override values for font `Newsreader`
+ ○ Compiling / ...
+ ⨯ Failed to find font override values for font `Newsreader`
+ ✓ Compiled / in 17.9s (2813 modules)
+ GET / 200 in 18442ms
+ ✓ Compiled in 1208ms (2777 modules)
+ ✓ Compiled in 718ms (2777 modules)
+ GET / 200 in 980ms
+ GET / 200 in 74ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1596ms (1414 modules)
+ POST /api/auth/login 200 in 1839ms
+ ✓ Compiled in 943ms (2807 modules)
+ ✓ Compiled in 790ms (2807 modules)
+ ✓ Compiled in 823ms (2807 modules)
+ ○ Compiling /narratives ...
+ ✓ Compiled /narratives in 1247ms (2805 modules)
+ ✓ Compiled /api/v1/intelligence/narrative in 430ms (1453 modules)
+{"ts":"2026-06-14T10:19:41.895Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"3d0842ad-5434-426b-a3a3-65faaac4d741","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":989}}
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 1824ms
+ ✓ Compiled in 889ms (2851 modules)
+ ○ Compiling /recommendations ...
+ ✓ Compiled /recommendations in 1587ms (2847 modules)
+ ✓ Compiled /api/v1/recommendations in 466ms (1461 modules)
+{"ts":"2026-06-14T10:19:50.255Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"69b72dc7-f707-4d0e-af11-502616543f17","method":"GET","path":"/api/v1/recommendations","status":200,"ms":1503}}
+ GET /api/v1/recommendations 200 in 2030ms
+ ○ Compiling /people ...
+ ✓ Compiled /people in 2.3s (2863 modules)
+ ✓ Compiled in 3.4s (2875 modules)
+ ✓ Compiled in 3.9s (2875 modules)
+ ✓ Compiled in 4.9s (2875 modules)
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 3.7s (3045 modules)
+ GET / 200 in 3732ms
+ GET / 200 in 72ms
+ ✓ Compiled in 681ms (1534 modules)
+ ✓ Compiled in 508ms (1534 modules)
+ ✓ Compiled in 4.3s (2918 modules)
+ ⨯ ./src/app/(shell)/page.tsx
+Error: 
+  [31mx[0m Unexpected token `OSFrame`. Expected jsx identifier
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\page.tsx[0m:169:1]
+ [2m169[0m |   };
+ [2m170[0m | 
+ [2m171[0m |   return (
+ [2m172[0m |     <OSFrame>
+     : [31;1m     ^^^^^^^[0m
+ [2m173[0m |     <div className="flex h-screen flex-col">
+ [2m174[0m |       <Menubar healthScore={pulseScore} capacityPct={meanUtil} />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ ○ Compiling /narratives ...
+ ⨯ ./src/app/(shell)/page.tsx
+Error: 
+  [31mx[0m Unexpected token `OSFrame`. Expected jsx identifier
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\page.tsx[0m:169:1]
+ [2m169[0m |   };
+ [2m170[0m | 
+ [2m171[0m |   return (
+ [2m172[0m |     <OSFrame>
+     : [31;1m     ^^^^^^^[0m
+ [2m173[0m |     <div className="flex h-screen flex-col">
+ [2m174[0m |       <Menubar healthScore={pulseScore} capacityPct={meanUtil} />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ ✓ Compiled /_not-found in 6.2s (2926 modules)
+ ✓ Compiled in 4.2s (2940 modules)
+ ✓ Compiled in 4.5s (2942 modules)
+ GET / 200 in 326ms
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 10.2s (2968 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 5.2s (2973 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1495ms (1450 modules)
+ POST /api/auth/login 200 in 2449ms
+ GET / 200 in 2207ms
+ GET / 200 in 43ms
+ ✓ Compiled in 5s (3017 modules)
+ ✓ Compiled in 829ms (1567 modules)
+ ✓ Compiled in 509ms (1567 modules)
+ ✓ Compiled in 474ms (1567 modules)
+ ○ Compiling /people ...
+ ✓ Compiled /people in 1331ms (1399 modules)
+ ✓ Compiled in 477ms (1567 modules)
+ ✓ Compiled in 3.8s (2966 modules)
+ ✓ Compiled in 3.7s (2966 modules)
+ ✓ Compiled in 1279ms (2966 modules)
+ ✓ Compiled in 2.1s (2982 modules)
+ ✓ Compiled in 474ms (1575 modules)
+ ✓ Compiled in 319ms (1575 modules)
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 1592ms (2996 modules)
+ ✓ Compiled /api/v1/decisions/memory in 331ms (1473 modules)
+{"ts":"2026-06-14T10:51:03.391Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"0fbb7550-9288-4d9d-9c96-bf75a8898a46","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":1204}}
+ GET /api/v1/decisions/memory 200 in 2613ms
+ ✓ Compiled in 1200ms (3053 modules)
+ ✓ Compiled in 5.1s (3053 modules)
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 4s (3065 modules)
+ ✓ Compiled in 870ms (3079 modules)
+ ✓ Compiled in 1250ms (3079 modules)
+ ✓ Compiled in 960ms (3079 modules)
+ ✓ Compiled in 1126ms (3079 modules)
+ ✓ Compiled in 5.3s (3022 modules)
+ ✓ Compiled in 2s (3022 modules)
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 754ms (3018 modules)
+ ○ Compiling /risks ...
+ ✓ Compiled /risks in 603ms (3026 modules)
+ ✓ Compiled in 1439ms (3040 modules)
+ ✓ Compiled in 1804ms (3040 modules)
+ ✓ Compiled in 1127ms (3040 modules)
+ ✓ Compiled in 960ms (3040 modules)
+ ✓ Compiled /graph in 309ms (1568 modules)
+ ✓ Compiled in 1365ms (3156 modules)
+ GET / 200 in 208ms
+ ✓ Compiled in 2.7s (1672 modules)
+ ✓ Compiled in 6.3s (3029 modules)
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 817ms (1436 modules)
+ ✓ Compiled in 7.9s (3035 modules)
+ ⨯ ./src/components/desktop/use-desktop.ts
+Error: 
+  [31mx[0m the name `snapZoneRef` is defined multiple times
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\use-desktop.ts[0m:109:1]
+ [2m109[0m |   const drag = useRef<DragRef | null>(null);
+ [2m110[0m |   const resize = useRef<ResizeRef | null>(null);
+ [2m111[0m |   const [snapZone, setSnapZone] = useState<SnapZone>(null);
+ [2m112[0m |   const snapZoneRef = useRef<SnapZone>(null);
+     : [31;1m        ^^^^^|^^^^^[0m
+     :              [31;1m`-- [31;1mprevious definition of `snapZoneRef` here[0m[0m
+ [2m113[0m |   useEffect(() => { snapZoneRef.current = snapZone; }, [snapZone]);
+ [2m114[0m | 
+ [2m115[0m |   // persist on any change (cheap; layout is small)
+ [2m116[0m |   useEffect(() => { save(persistKey, wins, defIds.current); }, [wins, persistKey]);
+ [2m117[0m | 
+ [2m118[0m |   const focus = useCallback((id: string) => {
+ [2m119[0m |     setWins((prev) => {
+ [2m120[0m |       const max = Math.max(0, ...prev.map((w) => w.z));
+ [2m121[0m |       const cur = prev.find((w) => w.id === id);
+ [2m122[0m |       if (cur && cur.z === max) return prev;
+ [2m123[0m |       topZ.current = max + 1;
+ [2m124[0m |       return prev.map((w) => (w.id === id ? { ...w, z: topZ.current } : w));
+ [2m125[0m |     });
+ [2m126[0m |   }, []);
+ [2m127[0m | 
+ [2m128[0m |   const patch = useCallback((id: string, p: Partial<WinState>) => {
+ [2m129[0m |     setWins((prev) => prev.map((w) => (w.id === id ? { ...w, ...p } : w)));
+ [2m130[0m |   }, []);
+ [2m131[0m | 
+ [2m132[0m |   const toggleMin = useCallback((id: string) => {
+ [2m133[0m |     setWins((prev) => prev.map((w) => (w.id === id ? { ...w, minimized: !w.minimized } : w)));
+ [2m134[0m |   }, []);
+ [2m135[0m | 
+ [2m136[0m |   const close = useCallback((id: string) => patch(id, { closed: true, minimized: false }), [patch]);
+ [2m137[0m | 
+ [2m138[0m |   const open = useCallback((id: string) => {
+ [2m139[0m |     setWins((prev) => {
+ [2m140[0m |       topZ.current += 1;
+ [2m141[0m |       return prev.map((w) => (w.id === id ? { ...w, closed: false, minimized: false, z: topZ.current } : w));
+ [2m142[0m |     });
+ [2m143[0m |   }, []);
+ [2m144[0m | 
+ [2m145[0m |   // Spawn (or focus) a window at runtime — used for route apps shown as iframes.
+ [2m146[0m |   const openApp = useCallback((def: WinDef) => {
+ [2m147[0m |     setWins((prev) => {
+ [2m148[0m |       const existing = prev.find((w) => w.id === def.id);
+ [2m149[0m |       topZ.current = Math.max(topZ.current, ...prev.map((w) => w.z)) + 1;
+ [2m150[0m |       if (existing) {
+ [2m151[0m |         return prev.map((w) => (w.id === def.id ? { ...w, closed: false, minimized: false, z: topZ.current } : w));
+ [2m152[0m |       }
+ [2m153[0m |       const count = prev.length;
+ [2m154[0m |       const cascade = (count % 6) * 28;
+ [2m155[0m |       const surface = surfaceRef.current;
+ [2m156[0m |       const W = surface?.clientWidth ?? 1400;
+ [2m157[0m |       const H = surface?.clientHeight ?? 800;
+ [2m158[0m |       const w = Math.min(def.w, W - 40);
+ [2m159[0m |       const h = Math.min(def.h, H - 80);
+ [2m160[0m |       const x = Math.min(def.x + cascade, W - w - 12);
+ [2m161[0m |       const y = Math.min(def.y + cascade, H - h - 12);
+ [2m162[0m |       return [...prev, toState({ ...def, x, y, w, h, closed: false }, topZ.current)];
+ [2m163[0m |     });
+ [2m164[0m |   }, [surfaceRef]);
+ [2m165[0m | 
+ [2m166[0m |   const toggleMax = useCallback((id: string) => {
+ [2m167[0m |     const surface = surfaceRef.current;
+ [2m168[0m |     setWins((prev) =>
+ [2m169[0m |       prev.map((w) => {
+ [2m170[0m |         if (w.id !== id) return w;
+ [2m171[0m |         if (w.maximized) {
+ [2m172[0m |           const r = w.restore ?? { x: w.x, y: w.y, w: w.w, h: w.h };
+ [2m173[0m |           return { ...w, maximized: false, ...r, restore: undefined };
+ [2m174[0m |         }
+ [2m175[0m |         const W = surface?.clientWidth ?? 1400;
+ [2m176[0m |         const H = surface?.clientHeight ?? 800;
+ [2m177[0m |         return { ...w, maximized: true, restore: { x: w.x, y: w.y, w: w.w, h: w.h }, x: 12, y: 12, w: W - 24, h: H - 24 };
+ [2m178[0m |       })
+ [2m179[0m |     );
+ [2m180[0m |   }, [surfaceRef]);
+ [2m181[0m | 
+ [2m182[0m |   // half-tile or zoom a window to a snap zone
+ [2m183[0m |   const applySnap = useCallback((id: string, zone: SnapZone) => {
+ [2m184[0m |     if (!zone) return;
+ [2m185[0m |     const surface = surfaceRef.current;
+ [2m186[0m |     const W = surface?.clientWidth ?? 1400;
+ [2m187[0m |     const H = surface?.clientHeight ?? 800;
+ [2m188[0m |     setWins((prev) =>
+ [2m189[0m |       prev.map((w) => {
+ [2m190[0m |         if (w.id !== id) return w;
+ [2m191[0m |         const restore = w.restore ?? { x: w.x, y: w.y, w: w.w, h: w.h };
+ [2m192[0m |         if (zone === "max") return { ...w, maximized: true, restore, x: 12, y: 12, w: W - 24, h: H - 24 };
+ [2m193[0m |         const half = (W - 30) / 2;
+ [2m194[0m |         const x = zone === "left" ? 12 : 18 + half;
+ [2m195[0m |         return { ...w, maximized: false, restore, x, y: 12, w: half, h: H - 24 };
+ [2m196[0m |       })
+ [2m197[0m |     );
+ [2m198[0m |   }, [surfaceRef]);
+ [2m199[0m | 
+ [2m200[0m |   const startDrag = useCallback((id: string, e: React.PointerEvent) => {
+ [2m201[0m |     const win = wins.find((w) => w.id === id);
+ [2m202[0m |     if (!win) return;
+ [2m203[0m |     focus(id);
+ [2m204[0m |     const rect = surfaceRef.current?.getBoundingClientRect();
+ [2m205[0m |     // un-maximize on drag-out so the window follows the cursor
+ [2m206[0m |     if (win.maximized) {
+ [2m207[0m |       const r = win.restore ?? { x: 80, y: 60, w: 720, h: 480 };
+ [2m208[0m |       patch(id, { maximized: false, ...r, restore: undefined });
+ [2m209[0m |     }
+ [2m210[0m |     drag.current = {
+ [2m211[0m |       id, startX: e.clientX, startY: e.clientY,
+ [2m212[0m |       originX: win.maximized ? (win.restore?.x ?? win.x) : win.x,
+ [2m213[0m |       originY: win.maximized ? (win.restore?.y ?? win.y) : win.y,
+ [2m214[0m |       surface: { left: rect?.left ?? 0, top: rect?.top ?? 0, w: rect?.width ?? 1400, h: rect?.height ?? 800 },
+ [2m215[0m |     };
+ [2m216[0m |   }, [wins, focus, surfaceRef, patch]);
+ [2m217[0m | 
+ [2m218[0m |   const startResize = useCallback((id: string, dir: ResizeDir, e: React.PointerEvent) => {
+ [2m219[0m |     e.stopPropagation();
+ [2m220[0m |     const win = wins.find((w) => w.id === id);
+ [2m221[0m |     if (!win || win.maximized) return;
+ [2m222[0m |     focus(id);
+ [2m223[0m |     const surface = surfaceRef.current;
+ [2m224[0m |     resize.current = {
+ [2m225[0m |       id, dir, startX: e.clientX, startY: e.clientY,
+ [2m226[0m |       origin: { x: win.x, y: win.y, w: win.w, h: win.h },
+ [2m227[0m |       bounds: { w: surface?.clientWidth ?? 1400, h: surface?.clientHeight ?? 800 },
+ [2m228[0m |     };
+ [2m229[0m |   }, [wins, focus, surfaceRef]);
+ [2m230[0m | 
+ [2m231[0m |   useEffect(() => {
+ [2m232[0m |     const onMove = (e: PointerEvent) => {
+ [2m233[0m |       const d = drag.current;
+ [2m234[0m |       if (d) {
+ [2m235[0m |         const dx = e.clientX - d.startX;
+ [2m236[0m |         const dy = e.clientY - d.startY;
+ [2m237[0m |         // snap detection (pointer relative to surface)
+ [2m238[0m |         const px = e.clientX - d.surface.left;
+ [2m239[0m |         const py = e.clientY - d.surface.top;
+ [2m240[0m |         let zone: SnapZone = null;
+ [2m241[0m |         if (py <= SNAP_EDGE) zone = "max";
+ [2m242[0m |         else if (px <= SNAP_EDGE) zone = "left";
+ [2m243[0m |         else if (px >= d.surface.w - SNAP_EDGE) zone = "right";
+ [2m244[0m |         setSnapZone(zone);
+ [2m245[0m |         setWins((prev) =>
+ [2m246[0m |           prev.map((w) => {
+ [2m247[0m |             if (w.id !== d.id) return w;
+ [2m248[0m |             const nx = Math.max(0, Math.min(d.originX + dx, d.surface.w - 80));
+ [2m249[0m |             const ny = Math.max(0, Math.min(d.originY + dy, d.surface.h - 40));
+ [2m250[0m |             return { ...w, x: nx, y: ny };
+ [2m251[0m |           })
+ [2m252[0m |         );
+ [2m253[0m |         return;
+ [2m254[0m |       }
+ [2m255[0m |       const r = resize.current;
+ [2m256[0m |       if (r) {
+ [2m257[0m |         const dx = e.clientX - r.startX;
+ [2m258[0m |         const dy = e.clientY - r.startY;
+ [2m259[0m |         const o = r.origin;
+ [2m260[0m |         setWins((prev) =>
+ [2m261[0m |           prev.map((w) => {
+ [2m262[0m |             if (w.id !== r.id) return w;
+ [2m263[0m |             let { x, y, w: ww, h } = o;
+ [2m264[0m |             if (r.dir.includes("e")) ww = Math.max(MIN_W, Math.min(o.w + dx, r.bounds.w - o.x));
+ [2m265[0m |             if (r.dir.includes("s")) h = Math.max(MIN_H, Math.min(o.h + dy, r.bounds.h - o.y));
+ [2m266[0m |             if (r.dir.includes("w")) { const nw = Math.max(MIN_W, o.w - dx); x = o.x + (o.w - nw); ww = nw; }
+ [2m267[0m |             if (r.dir.includes("n")) { const nh = Math.max(MIN_H, o.h - dy); y = o.y + (o.h - nh); h = nh; }
+ [2m268[0m |             return { ...w, x: Math.max(0, x), y: Math.max(0, y), w: ww, h };
+ [2m269[0m |           })
+ [2m270[0m |         );
+ [2m271[0m |       }
+ [2m272[0m |     };
+ [2m273[0m |     const onUp = () => {
+ [2m274[0m |       const d = drag.current;
+ [2m275[0m |       if (d && snapZoneRef.current) applySnap(d.id, snapZoneRef.current);
+ [2m276[0m |       drag.current = null; resize.current = null;
+ [2m277[0m |       setSnapZone(null);
+ [2m278[0m |     };
+ [2m279[0m |     window.addEventListener("pointermove", onMove);
+ [2m280[0m |     window.addEventListener("pointerup", onUp);
+ [2m281[0m |     return () => {
+ [2m282[0m |       window.removeEventListener("pointermove", onMove);
+ [2m283[0m |       window.removeEventListener("pointerup", onUp);
+ [2m284[0m |     };
+ [2m285[0m |   }, [applySnap]);
+ [2m286[0m | 
+ [2m287[0m |   // keep a ref of the live snap zone for the pointerup handler
+ [2m288[0m |   const snapZoneRef = useRef<SnapZone>(null);
+     : [33;1m        ^^^^^|^^^^^[0m
+     :              [33;1m`-- [33;1m`snapZoneRef` redefined here[0m[0m
+ [2m289[0m |   useEffect(() => { snapZoneRef.current = snapZone; }, [snapZone]);
+ [2m290[0m | 
+ [2m291[0m |   const resetLayout = useCallback(() => {
+     `----
+
+Import trace for requested module:
+./src/components/desktop/use-desktop.ts
+./src/app/(shell)/page.tsx
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 6.6s (3259 modules)
+ GET / 200 in 823ms
+ ✓ Compiled in 1362ms (1782 modules)
+ ✓ Compiled in 1090ms (1782 modules)
+ ✓ Compiled in 28.1s (3253 modules)
+ ✓ Compiled in 1511ms (3251 modules)
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 1481ms (1476 modules)
+ ○ Compiling /recommendations ...
+ ✓ Compiled /recommendations in 1126ms (1482 modules)
+ ○ Compiling /api/v1/recommendations ...
+ ✓ Compiled /api/v1/recommendations in 4.2s (1542 modules)
+{"ts":"2026-06-14T11:06:24.591Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"9021dc56-ad4d-4ea7-919a-5ad21bb11698","method":"GET","path":"/api/v1/recommendations","status":200,"ms":1842}}
+ GET /api/v1/recommendations 200 in 6307ms
+ ✓ Compiled in 4s (1781 modules)
+ ✓ Compiled in 1322ms (1781 modules)
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 2.5s (3320 modules)
+{"ts":"2026-06-14T11:06:56.536Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"52718563-779e-46a9-b5e4-88a28a91983c","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":569}}
+ GET /api/v1/decisions/memory 200 in 3278ms
+ ✓ Compiled in 1657ms (1781 modules)
+ ✓ Compiled in 2.1s (1781 modules)
+ ✓ Compiled in 666ms (1781 modules)
+ ✓ Compiled in 17s (3251 modules)
+ ✓ Compiled in 9.3s (3251 modules)
+ ✓ Compiled in 25.9s (3251 modules)
+ ✓ Compiled in 4.2s (3249 modules)
+ ✓ Compiled in 3.3s (3249 modules)
+ ✓ Compiled in 4.5s (3257 modules)
+ ✓ Compiled in 3.4s (3257 modules)
+ ✓ Compiled in 2.4s (3257 modules)
+ ✓ Compiled in 3.5s (3262 modules)
+ ✓ Compiled in 3.3s (3266 modules)
+ ✓ Compiled in 2.5s (3266 modules)
+ ✓ Compiled in 2.7s (3266 modules)
+ ✓ Compiled in 4.2s (3266 modules)
+ ✓ Compiled in 6.2s (3266 modules)
+ GET / 200 in 718ms
+ ○ Compiling /risks ...
+ ✓ Compiled /risks in 6.9s (1483 modules)
+ GET /risks?embed=1 200 in 107ms
+ GET / 200 in 233ms
+ GET /risks?embed=1 200 in 128ms
+ GET / 200 in 244ms
+ GET /risks?embed=1 200 in 449ms
+ GET / 200 in 338ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 15.6s (3283 modules)
+ GET /executive?embed=1 200 in 17668ms
+ GET / 200 in 4776ms
+ GET /risks?embed=1 200 in 991ms
+ GET / 200 in 912ms
+ GET /risks?embed=1 200 in 409ms
+ ○ Compiling /briefing ...
+ ✓ Compiled /capacity in 27.3s (3412 modules)
+ GET /recommendations?embed=1 200 in 28113ms
+ GET /capacity?embed=1 200 in 25299ms
+ GET /narratives?embed=1 200 in 32288ms
+ GET /briefing?embed=1 200 in 34413ms
+ GET /risks?embed=1 200 in 19669ms
+ GET /graph?embed=1 200 in 25530ms
+ ○ Compiling /api/v1/recommendations ...
+ ✓ Compiled /api/v1/org-health in 2.3s (1691 modules)
+ ✓ Compiled (1693 modules)
+{"ts":"2026-06-14T11:17:48.425Z","level":"info","event":"api_api_org_health","ctx":{"reqId":"e4daa570-0cde-4dc6-9e60-2d5619e887da","method":"GET","path":"/api/v1/org-health","status":200,"ms":868}}
+ GET /api/v1/org-health 200 in 5742ms
+{"ts":"2026-06-14T11:17:48.755Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"200e68ed-f29f-45f9-8479-b92abd9550a4","method":"GET","path":"/api/v1/recommendations","status":200,"ms":1651}}
+ GET /api/v1/recommendations 200 in 7305ms
+{"ts":"2026-06-14T11:17:49.276Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"df713d42-d5d3-4db7-9d7f-03870d2a3eb3","method":"GET","path":"/api/v1/recommendations","status":200,"ms":469}}
+ GET /api/v1/recommendations 200 in 498ms
+ ✓ Compiled in 10.5s (3475 modules)
+ GET / 200 in 4201ms
+ GET /briefing?embed=1 200 in 378ms
+ GET /recommendations?embed=1 200 in 393ms
+ ✓ Compiled in 4s (3475 modules)
+{"ts":"2026-06-14T11:18:24.956Z","level":"info","event":"api_api_org_health","ctx":{"reqId":"c6f74a70-f542-4253-8976-9763fa183b53","method":"GET","path":"/api/v1/org-health","status":200,"ms":695}}
+ GET /api/v1/org-health 200 in 803ms
+{"ts":"2026-06-14T11:18:25.751Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"01574220-1330-4357-84ac-c0c720b23476","method":"GET","path":"/api/v1/recommendations","status":200,"ms":1444}}
+ GET /api/v1/recommendations 200 in 1598ms
+ ✓ Compiled in 3.9s (3475 modules)
+{"ts":"2026-06-14T11:18:29.729Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"62f1c3f1-efc2-4c18-8e8b-11627a3236e5","method":"GET","path":"/api/v1/recommendations","status":200,"ms":1266}}
+ GET /api/v1/recommendations 200 in 3850ms
+ ✓ Compiled in 4.2s (3475 modules)
+ ✓ Compiled in 2.7s (3336 modules)
+ ✓ Compiled in 1499ms (3336 modules)
+ GET /recommendations?embed=1 200 in 198ms
+{"ts":"2026-06-14T11:22:12.881Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"cb5d7860-2159-4533-8c53-67f2e786ac6f","method":"GET","path":"/api/v1/recommendations","status":200,"ms":1113}}
+ GET /api/v1/recommendations 200 in 1171ms
+ ✓ Compiled in 1607ms (3320 modules)
+ GET / 200 in 1104ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 7.2s (1489 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 9.5s (1507 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 8s (1524 modules)
+ POST /api/auth/login 200 in 8525ms
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 2.3s (1530 modules)
+ GET /capacity?embed=1 200 in 3060ms
+ ✓ Compiled in 10.7s (3289 modules)
+ ✓ Compiled in 2.5s (3289 modules)
+ ✓ Compiled in 3.4s (3289 modules)
+ ✓ Compiled in 1050ms (1795 modules)
+ ✓ Compiled in 4.3s (3289 modules)
+ ✓ Compiled in 5.5s (3289 modules)
+ ✓ Compiled in 2.8s (3296 modules)
+ ✓ Compiled in 3.1s (3296 modules)
+ GET /capacity?embed=1 200 in 389ms
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 791ms (1505 modules)
+ GET /memory?embed=1 200 in 2171ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 1891ms (1562 modules)
+{"ts":"2026-06-14T11:29:00.395Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"dbe4f1ba-8eb0-4c82-b506-c99ec2f6faf5","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":1704}}
+ GET /api/v1/decisions/memory 200 in 5133ms
+ ✓ Compiled in 9.5s (3370 modules)
+ ✓ Compiled in 1815ms (3313 modules)
+ ✓ Compiled in 2.8s (3313 modules)
+ ✓ Compiled in 771ms (1805 modules)
+ ✓ Compiled in 793ms (1805 modules)
+ ✓ Compiled in 14.5s (3315 modules)
+ ✓ Compiled in 763ms (1806 modules)
+ ✓ Compiled in 2.6s (3315 modules)
+ ✓ Compiled in 3.1s (3315 modules)
+ ✓ Compiled in 1657ms (3315 modules)
+ ✓ Compiled in 1817ms (3315 modules)
+ ✓ Compiled in 3.1s (3344 modules)
+ GET / 200 in 443ms
+ GET / 200 in 48ms
+ GET / 200 in 76ms
+ GET / 200 in 104ms
+ ✓ Compiled in 7.3s (3344 modules)
+ GET /capacity?embed=1 200 in 196ms
+ GET / 200 in 221ms
+ GET / 200 in 75ms
+ ✓ Compiled in 7.9s (3344 modules)
+ ✓ Compiled in 1806ms (3344 modules)
+ ✓ Compiled in 1675ms (3344 modules)
+ ✓ Compiled in 1649ms (3344 modules)
+ ✓ Compiled in 1627ms (3344 modules)
+ ✓ Compiled in 3.5s (3348 modules)
+ ✓ Compiled in 1689ms (3348 modules)
+ ✓ Compiled in 6.3s (3348 modules)
+ ✓ Compiled in 2.4s (3348 modules)
+ GET /capacity?embed=1 200 in 282ms
+ ✓ Compiled in 1669ms (3348 modules)
+ ✓ Compiled in 4.5s (3348 modules)
+ GET /capacity?embed=1 200 in 676ms
+ ✓ Compiled in 3s (3348 modules)
+ ✓ Compiled in 5.4s (3348 modules)
+ ✓ Compiled in 1549ms (3348 modules)
+ ✓ Compiled in 1647ms (3348 modules)
+ ○ Compiling /narratives ...
+ ✓ Compiled /narratives in 17.6s (3353 modules)
+ GET /narratives?embed=1 200 in 8010ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 1454ms (1591 modules)
+{"ts":"2026-06-14T11:51:59.464Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"937b7e8e-605d-498c-a2a8-ad630d529787","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":1954}}
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 5291ms
+ ✓ Compiled in 1543ms (3405 modules)
+ GET / 200 in 299ms
+ ✓ Compiled in 7.2s (3345 modules)
+ ⨯ ./src/components/desktop/apps/home.tsx
+Error: 
+  [31mx[0m the name `me` is defined multiple times
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\apps\home.tsx[0m:44:1]
+ [2m44[0m |     const p = projectById(id);
+ [2m45[0m |     return p ? p.health === "CRITICAL" || p.health === "AT_RISK" || p.health === "DELAYED" : false;
+ [2m46[0m |   };
+ [2m47[0m |   const me = employeeById(persona.id);
+    : [31;1m        ^|[0m
+    :          [31;1m`-- [31;1mprevious definition of `me` here[0m[0m
+ [2m48[0m | 
+ [2m49[0m |   // Scope: an individual contributor sees their own tasks; a leader also sees the
+ [2m50[0m |   // work they're accountable for — tasks in projects they own, and (for dept
+ [2m51[0m |   // heads / execs) tasks across their department. Keeps Home meaningful per role.
+ [2m52[0m |   const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
+ [2m53[0m |   const deptProjectIds = projects.filter((p) => me?.departmentId && p.departmentId === me.departmentId).map((p) => p.id);
+ [2m54[0m |   const seesDept = persona.role === "executive" || persona.role === "dept_head" || persona.role === "admin";
+ [2m55[0m |   const myTasks = allTasks.filter((t) =>
+ [2m56[0m |     t.status !== "COMPLETED" &&
+ [2m57[0m |     (t.assigneeId === persona.id || ownedProjectIds.includes(t.projectId) || (seesDept && deptProjectIds.includes(t.projectId)))
+ [2m58[0m |   );
+ [2m59[0m | 
+ [2m60[0m |   // ----- classification (each task carries its project; see TaskRow) -----
+ [2m61[0m |   const today = myTasks.filter((t) => t.dueDate <= TODAY);                 // due today or overdue
+ [2m62[0m |   const pending = myTasks.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG");
+ [2m63[0m |   const critical = myTasks.filter((t) => t.priority === "URGENT" || t.status === "BLOCKED" || isCriticalProject(t.projectId));
+ [2m64[0m |   const segTasks = seg === "today" ? today : seg === "pending" ? pending : critical;
+ [2m65[0m | 
+ [2m66[0m |   const myProjectIds = Array.from(new Set([...myTasks.map((t) => t.projectId), ...projects.filter((p) => p.ownerId === persona.id).map((p) => p.id)]));
+ [2m67[0m |   const myProjects = projects.filter((p) => myProjectIds.includes(p.id));
+ [2m68[0m |   const blocked = myTasks.filter((t) => (t.dependsOn?.length ?? 0) > 0 || t.status === "BLOCKED");
+ [2m69[0m |   const myUtil = utilization(persona.id, week);
+ [2m70[0m |   const me = employeeById(persona.id);
+    : [33;1m        ^|[0m
+    :          [33;1m`-- [33;1m`me` redefined here[0m[0m
+ [2m71[0m |   const myDept = departments.find((d) => d.id === me?.departmentId);
+ [2m72[0m |   const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client" && e.id !== persona.id);
+ [2m73[0m |   const criticalProjects = myProjects.filter((p) => isCriticalProject(p.id));
+    `----
+
+Import trace for requested module:
+./src/components/desktop/apps/home.tsx
+./src/app/(shell)/page.tsx
+ ○ Compiling /_not-found ...
+ ⨯ ./src/components/desktop/apps/home.tsx
+Error: 
+  [31mx[0m the name `me` is defined multiple times
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\apps\home.tsx[0m:44:1]
+ [2m44[0m |     const p = projectById(id);
+ [2m45[0m |     return p ? p.health === "CRITICAL" || p.health === "AT_RISK" || p.health === "DELAYED" : false;
+ [2m46[0m |   };
+ [2m47[0m |   const me = employeeById(persona.id);
+    : [31;1m        ^|[0m
+    :          [31;1m`-- [31;1mprevious definition of `me` here[0m[0m
+ [2m48[0m | 
+ [2m49[0m |   // Scope: an individual contributor sees their own tasks; a leader also sees the
+ [2m50[0m |   // work they're accountable for — tasks in projects they own, and (for dept
+ [2m51[0m |   // heads / execs) tasks across their department. Keeps Home meaningful per role.
+ [2m52[0m |   const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
+ [2m53[0m |   const deptProjectIds = projects.filter((p) => me?.departmentId && p.departmentId === me.departmentId).map((p) => p.id);
+ [2m54[0m |   const seesDept = persona.role === "executive" || persona.role === "dept_head" || persona.role === "admin";
+ [2m55[0m |   const myTasks = allTasks.filter((t) =>
+ [2m56[0m |     t.status !== "COMPLETED" &&
+ [2m57[0m |     (t.assigneeId === persona.id || ownedProjectIds.includes(t.projectId) || (seesDept && deptProjectIds.includes(t.projectId)))
+ [2m58[0m |   );
+ [2m59[0m | 
+ [2m60[0m |   // ----- classification (each task carries its project; see TaskRow) -----
+ [2m61[0m |   const today = myTasks.filter((t) => t.dueDate <= TODAY);                 // due today or overdue
+ [2m62[0m |   const pending = myTasks.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG");
+ [2m63[0m |   const critical = myTasks.filter((t) => t.priority === "URGENT" || t.status === "BLOCKED" || isCriticalProject(t.projectId));
+ [2m64[0m |   const segTasks = seg === "today" ? today : seg === "pending" ? pending : critical;
+ [2m65[0m | 
+ [2m66[0m |   const myProjectIds = Array.from(new Set([...myTasks.map((t) => t.projectId), ...projects.filter((p) => p.ownerId === persona.id).map((p) => p.id)]));
+ [2m67[0m |   const myProjects = projects.filter((p) => myProjectIds.includes(p.id));
+ [2m68[0m |   const blocked = myTasks.filter((t) => (t.dependsOn?.length ?? 0) > 0 || t.status === "BLOCKED");
+ [2m69[0m |   const myUtil = utilization(persona.id, week);
+ [2m70[0m |   const me = employeeById(persona.id);
+    : [33;1m        ^|[0m
+    :          [33;1m`-- [33;1m`me` redefined here[0m[0m
+ [2m71[0m |   const myDept = departments.find((d) => d.id === me?.departmentId);
+ [2m72[0m |   const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client" && e.id !== persona.id);
+ [2m73[0m |   const criticalProjects = myProjects.filter((p) => isCriticalProject(p.id));
+    `----
+
+Import trace for requested module:
+./src/components/desktop/apps/home.tsx
+./src/app/(shell)/page.tsx
+ ⨯ ./src/components/desktop/apps/home.tsx
+Error: 
+  [31mx[0m the name `me` is defined multiple times
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\apps\home.tsx[0m:44:1]
+ [2m44[0m |     const p = projectById(id);
+ [2m45[0m |     return p ? p.health === "CRITICAL" || p.health === "AT_RISK" || p.health === "DELAYED" : false;
+ [2m46[0m |   };
+ [2m47[0m |   const me = employeeById(persona.id);
+    : [31;1m        ^|[0m
+    :          [31;1m`-- [31;1mprevious definition of `me` here[0m[0m
+ [2m48[0m | 
+ [2m49[0m |   // Scope: an individual contributor sees their own tasks; a leader also sees the
+ [2m50[0m |   // work they're accountable for — tasks in projects they own, and (for dept
+ [2m51[0m |   // heads / execs) tasks across their department. Keeps Home meaningful per role.
+ [2m52[0m |   const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
+ [2m53[0m |   const deptProjectIds = projects.filter((p) => me?.departmentId && p.departmentId === me.departmentId).map((p) => p.id);
+ [2m54[0m |   const seesDept = persona.role === "executive" || persona.role === "dept_head" || persona.role === "admin";
+ [2m55[0m |   const myTasks = allTasks.filter((t) =>
+ [2m56[0m |     t.status !== "COMPLETED" &&
+ [2m57[0m |     (t.assigneeId === persona.id || ownedProjectIds.includes(t.projectId) || (seesDept && deptProjectIds.includes(t.projectId)))
+ [2m58[0m |   );
+ [2m59[0m | 
+ [2m60[0m |   // ----- classification (each task carries its project; see TaskRow) -----
+ [2m61[0m |   const today = myTasks.filter((t) => t.dueDate <= TODAY);                 // due today or overdue
+ [2m62[0m |   const pending = myTasks.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG");
+ [2m63[0m |   const critical = myTasks.filter((t) => t.priority === "URGENT" || t.status === "BLOCKED" || isCriticalProject(t.projectId));
+ [2m64[0m |   const segTasks = seg === "today" ? today : seg === "pending" ? pending : critical;
+ [2m65[0m | 
+ [2m66[0m |   const myProjectIds = Array.from(new Set([...myTasks.map((t) => t.projectId), ...projects.filter((p) => p.ownerId === persona.id).map((p) => p.id)]));
+ [2m67[0m |   const myProjects = projects.filter((p) => myProjectIds.includes(p.id));
+ [2m68[0m |   const blocked = myTasks.filter((t) => (t.dependsOn?.length ?? 0) > 0 || t.status === "BLOCKED");
+ [2m69[0m |   const myUtil = utilization(persona.id, week);
+ [2m70[0m |   const me = employeeById(persona.id);
+    : [33;1m        ^|[0m
+    :          [33;1m`-- [33;1m`me` redefined here[0m[0m
+ [2m71[0m |   const myDept = departments.find((d) => d.id === me?.departmentId);
+ [2m72[0m |   const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client" && e.id !== persona.id);
+ [2m73[0m |   const criticalProjects = myProjects.filter((p) => isCriticalProject(p.id));
+    `----
+
+Import trace for requested module:
+./src/components/desktop/apps/home.tsx
+./src/app/(shell)/page.tsx
+ ⨯ ./src/components/desktop/apps/home.tsx
+Error: 
+  [31mx[0m the name `me` is defined multiple times
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\apps\home.tsx[0m:44:1]
+ [2m44[0m |     const p = projectById(id);
+ [2m45[0m |     return p ? p.health === "CRITICAL" || p.health === "AT_RISK" || p.health === "DELAYED" : false;
+ [2m46[0m |   };
+ [2m47[0m |   const me = employeeById(persona.id);
+    : [31;1m        ^|[0m
+    :          [31;1m`-- [31;1mprevious definition of `me` here[0m[0m
+ [2m48[0m | 
+ [2m49[0m |   // Scope: an individual contributor sees their own tasks; a leader also sees the
+ [2m50[0m |   // work they're accountable for — tasks in projects they own, and (for dept
+ [2m51[0m |   // heads / execs) tasks across their department. Keeps Home meaningful per role.
+ [2m52[0m |   const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
+ [2m53[0m |   const deptProjectIds = projects.filter((p) => me?.departmentId && p.departmentId === me.departmentId).map((p) => p.id);
+ [2m54[0m |   const seesDept = persona.role === "executive" || persona.role === "dept_head" || persona.role === "admin";
+ [2m55[0m |   const myTasks = allTasks.filter((t) =>
+ [2m56[0m |     t.status !== "COMPLETED" &&
+ [2m57[0m |     (t.assigneeId === persona.id || ownedProjectIds.includes(t.projectId) || (seesDept && deptProjectIds.includes(t.projectId)))
+ [2m58[0m |   );
+ [2m59[0m | 
+ [2m60[0m |   // ----- classification (each task carries its project; see TaskRow) -----
+ [2m61[0m |   const today = myTasks.filter((t) => t.dueDate <= TODAY);                 // due today or overdue
+ [2m62[0m |   const pending = myTasks.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG");
+ [2m63[0m |   const critical = myTasks.filter((t) => t.priority === "URGENT" || t.status === "BLOCKED" || isCriticalProject(t.projectId));
+ [2m64[0m |   const segTasks = seg === "today" ? today : seg === "pending" ? pending : critical;
+ [2m65[0m | 
+ [2m66[0m |   const myProjectIds = Array.from(new Set([...myTasks.map((t) => t.projectId), ...projects.filter((p) => p.ownerId === persona.id).map((p) => p.id)]));
+ [2m67[0m |   const myProjects = projects.filter((p) => myProjectIds.includes(p.id));
+ [2m68[0m |   const blocked = myTasks.filter((t) => (t.dependsOn?.length ?? 0) > 0 || t.status === "BLOCKED");
+ [2m69[0m |   const myUtil = utilization(persona.id, week);
+ [2m70[0m |   const me = employeeById(persona.id);
+    : [33;1m        ^|[0m
+    :          [33;1m`-- [33;1m`me` redefined here[0m[0m
+ [2m71[0m |   const myDept = departments.find((d) => d.id === me?.departmentId);
+ [2m72[0m |   const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client" && e.id !== persona.id);
+ [2m73[0m |   const criticalProjects = myProjects.filter((p) => isCriticalProject(p.id));
+    `----
+
+Import trace for requested module:
+./src/components/desktop/apps/home.tsx
+./src/app/(shell)/page.tsx
+ GET /_next/static/webpack/63af497a1d7c6f64.webpack.hot-update.json 500 in 2034ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 500 in 41ms
+ GET /narratives?embed=1 500 in 55ms
+ ✓ Compiled /_error in 21.7s (3349 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /_next/static/webpack/c1244f31bea6e2c8.webpack.hot-update.json 404 in 9702ms
+ GET / 200 in 15215ms
+ ✓ Compiled in 8.3s (3349 modules)
+ GET /narratives?embed=1 200 in 6039ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 1669ms (1586 modules)
+{"ts":"2026-06-14T11:55:08.955Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"0bded37d-f5cf-46ad-96c9-ea8d2695271f","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":1109}}
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 2932ms
+ GET / 200 in 372ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 5.6s (1530 modules)
+ GET /executive?embed=1 200 in 6742ms
+ GET /capacity?embed=1 200 in 609ms
+ ○ Compiling /people ...
+ ✓ Compiled /people in 3.2s (1519 modules)
+ GET /people?embed=1 200 in 3962ms
+ GET /people?embed=1 200 in 324ms
+ ○ Compiling /people/[id] ...
+ ✓ Compiled /people/[id] in 7.2s (3351 modules)
+ ✓ Compiled in 10.5s (3337 modules)
+ ✓ Compiled in 1671ms (3337 modules)
+ ✓ Compiled in 2.2s (3337 modules)
+ ✓ Compiled in 3.8s (3337 modules)
+ ✓ Compiled in 1979ms (3337 modules)
+ GET /people?embed=1 200 in 1275ms
+ ✓ Compiled in 14.9s (3337 modules)
+ ✓ Compiled in 11.5s (3337 modules)
+ ✓ Compiled in 17.7s (3337 modules)
+ GET /executive?embed=1 200 in 13328ms
+ ✓ Compiled in 6.9s (3337 modules)
+ ✓ Compiled in 3.5s (3337 modules)
+ GET / 200 in 651ms
+ ✓ Compiled in 1608ms (1826 modules)
+ GET /executive?embed=1 200 in 204ms
+ ○ Compiling /risks ...
+ ✓ Compiled /risks in 1389ms (1517 modules)
+ GET /risks?embed=1 200 in 2287ms
+ GET /executive?embed=1 200 in 724ms
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 3s (1520 modules)
+ GET /memory?embed=1 200 in 3802ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 2.4s (1577 modules)
+{"ts":"2026-06-14T12:09:41.421Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"85c4cf92-a647-4d13-91af-d0769be329dd","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":766}}
+ GET /api/v1/decisions/memory 200 in 3559ms
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 2.2s (1518 modules)
+ GET /capacity?embed=1 200 in 2479ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 4s (1522 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 2.6s (1539 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.9s (1552 modules)
+ POST /api/auth/login 200 in 3034ms
+ ○ Compiling /projects ...
+ ✓ Compiled /projects in 3.9s (3384 modules)
+ ○ Compiling /proposals ...
+ ✓ Compiled /proposals in 4.1s (3398 modules)
+ ○ Compiling /people ...
+ ✓ Compiled /people in 2s (1572 modules)
+ GET /capacity?embed=1 200 in 357ms
+ POST /api/auth/login 200 in 57ms
+ GET /capacity?embed=1 200 in 47ms
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 2.5s (1638 modules)
+ GET /graph?embed=1 200 in 2743ms
+ GET / 200 in 588ms
+ GET /memory?embed=1 200 in 111ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 1731ms (1689 modules)
+{"ts":"2026-06-14T15:07:17.693Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"e775b512-78b7-4819-8604-ecf7d92e6b9a","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":2096}}
+ GET /api/v1/decisions/memory 200 in 4010ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1557ms (1699 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 4.2s (1716 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1319ms (1718 modules)
+ POST /api/auth/login 200 in 1433ms
+ ✓ Compiled in 6.6s (3497 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ src\components\desktop\settings-app.tsx (22:45) @ BookOpen
+ ⨯ ReferenceError: BookOpen is not defined
+    at eval (./src/components/desktop/settings-app.tsx:55:15)
+    at (ssr)/./src/components/desktop/settings-app.tsx (C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\(shell)\page.js:377:1)
+    at __webpack_require__ (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:33:42)
+    at eval (page.tsx:39:91)
+    at (ssr)/./src/app/(shell)/page.tsx (C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\(shell)\page.js:201:1)
+    at Object.__webpack_require__ [as require] (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:33:42)
+    at JSON.parse (<anonymous>)
+digest: "474092918"
+[0m [90m 20 |[39m   { id[33m:[39m [32m"wallpaper"[39m[33m,[39m label[33m:[39m [32m"Wallpaper"[39m[33m,[39m icon[33m:[39m [33mImageIcon[39m }[33m,[39m[0m
+[0m [90m 21 |[39m   { id[33m:[39m [32m"accent"[39m[33m,[39m label[33m:[39m [32m"Accent Color"[39m[33m,[39m icon[33m:[39m [33mPalette[39m }[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 22 |[39m   { id[33m:[39m [32m"guide"[39m[33m,[39m label[33m:[39m [32m"User Guide"[39m[33m,[39m icon[33m:[39m [33mBookOpen[39m }[33m,[39m[0m
+[0m [90m    |[39m                                             [31m[1m^[22m[39m[0m
+[0m [90m 23 |[39m   { id[33m:[39m [32m"about"[39m[33m,[39m label[33m:[39m [32m"About"[39m[33m,[39m icon[33m:[39m [33mInfo[39m }[33m,[39m[0m
+[0m [90m 24 |[39m ][33m;[39m[0m
+[0m [90m 25 |[39m[0m
+ GET / 500 in 373ms
+ ✓ Compiled in 5.9s (3468 modules)
+ GET / 200 in 400ms
+ ✓ Compiled in 5.3s (3480 modules)
+ ✓ Compiled in 5.5s (3480 modules)
+ ✓ Compiled in 5.7s (3480 modules)
+ ✓ Compiled in 5.9s (3480 modules)
+ ✓ Compiled in 1633ms (3480 modules)
+ ✓ Compiled in 1429ms (3480 modules)
+ ✓ Compiled in 9.2s (3480 modules)
+ ✓ Compiled in 1355ms (3480 modules)
+ ✓ Compiled in 1314ms (3480 modules)
+ ✓ Compiled in 1930ms (3480 modules)
+ ✓ Compiled in 1204ms (3480 modules)
+ ⨯ ./src/components/shell/task-drawer.tsx
+Error: 
+  [31mx[0m Unexpected token `AnimatePresence`. Expected jsx identifier
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\shell\task-drawer.tsx[0m:57:1]
+ [2m57[0m |   }, [task, utilization]);
+ [2m58[0m | 
+ [2m59[0m |   return (
+ [2m60[0m |     <AnimatePresence>
+    : [31;1m     ^^^^^^^^^^^^^^^[0m
+ [2m61[0m |       {task && (
+ [2m62[0m |         <>
+ [2m63[0m |           <motion.div
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/shell/task-drawer.tsx
+./src/app/(shell)/layout.tsx
+ ✓ Compiled in 3.9s (3480 modules)
+ ✓ Compiled in 6.8s (3480 modules)
+ ✓ Compiled in 6.1s (3480 modules)
+ ✓ Compiled in 5.8s (3480 modules)
+ ✓ Compiled in 6.1s (3480 modules)
+ ✓ Compiled in 1701ms (3480 modules)
+ ✓ Compiled in 1149ms (3480 modules)
+ ✓ Compiled in 949ms (3480 modules)
+ ✓ Compiled in 912ms (1840 modules)
+ ✓ Compiled in 653ms (1840 modules)
+ ✓ Compiled in 607ms (1840 modules)
+ ✓ Compiled in 7.7s (3480 modules)
+ ✓ Compiled in 6s (3480 modules)
+ ✓ Compiled in 6.2s (3480 modules)
+ ✓ Compiled in 6.4s (3480 modules)
+ ✓ Compiled in 6.4s (3480 modules)
+ ✓ Compiled in 7.4s (3486 modules)
+ ✓ Compiled in 6.2s (3486 modules)
+ ✓ Compiled in 6.1s (3486 modules)
+ ✓ Compiled in 6.3s (3486 modules)
+ ✓ Compiled in 5.1s (3486 modules)
+ ✓ Compiled in 420ms (1843 modules)
+ ✓ Compiled in 1159ms (3486 modules)
+ ✓ Compiled in 5.8s (3486 modules)
+ ✓ Compiled in 1753ms (3488 modules)
+ GET / 200 in 1220ms
+ GET / 200 in 35ms
+ GET / 200 in 41ms
+ ✓ Compiled in 657ms (1844 modules)
+ ✓ Compiled in 456ms (1844 modules)
+ ✓ Compiled in 805ms (1844 modules)
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 2.1s (1652 modules)
+ GET /memory?embed=1 200 in 2263ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 1297ms (1709 modules)
+ ○ Compiling /people ...
+{"ts":"2026-06-14T15:25:26.695Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"4d960d66-2e60-4e35-8b2d-9ae10331f450","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":2062}}
+ GET /api/v1/decisions/memory 200 in 3454ms
+ ✓ Compiled /people in 2.1s (1717 modules)
+ GET /people?embed=1 200 in 2342ms
+ ✓ Compiled in 805ms (1844 modules)
+ ✓ Compiled in 4.8s (1842 modules)
+ GET /executive?embed=1 200 in 326ms
+ ✓ Compiled in 758ms (1842 modules)
+ ✓ Compiled in 3.1s (1842 modules)
+ ✓ Compiled in 808ms (1842 modules)
+ ✓ Compiled in 4.5s (1844 modules)
+ ✓ Compiled in 1043ms (3489 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 772ms (1662 modules)
+ GET /welcome 200 in 2232ms
+ GET / 200 in 1118ms
+ ⨯ ./src/components/desktop/lock-screen.tsx
+Error: 
+  [31mx[0m Unexpected token `motion`. Expected jsx identifier
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\lock-screen.tsx[0m:40:1]
+ [2m40[0m |   };
+ [2m41[0m | 
+ [2m42[0m |   return (
+ [2m43[0m |     <motion.div
+    : [31;1m     ^^^^^^[0m
+ [2m44[0m |       className="fixed inset-0 z-[190] overflow-hidden"
+ [2m45[0m |       initial={{ opacity: 0 }}
+ [2m46[0m |       animate={{ opacity: 1 }}
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/desktop/lock-screen.tsx
+./src/components/desktop/os-frame.tsx
+./src/app/(shell)/page.tsx
+ ⨯ ./src/components/desktop/lock-screen.tsx
+Error: 
+  [31mx[0m Unexpected token `motion`. Expected jsx identifier
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\desktop\lock-screen.tsx[0m:40:1]
+ [2m40[0m |   };
+ [2m41[0m | 
+ [2m42[0m |   return (
+ [2m43[0m |     <motion.div
+    : [31;1m     ^^^^^^[0m
+ [2m44[0m |       className="fixed inset-0 z-[190] overflow-hidden"
+ [2m45[0m |       initial={{ opacity: 0 }}
+ [2m46[0m |       animate={{ opacity: 1 }}
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/desktop/lock-screen.tsx
+./src/components/desktop/os-frame.tsx
+./src/app/(shell)/page.tsx
+ ✓ Compiled in 6s (3500 modules)
+ ✓ Compiled in 2.2s (3500 modules)
+ ✓ Compiled in 1525ms (3500 modules)
+ ✓ Compiled in 1227ms (3500 modules)
+ GET / 200 in 1375ms
+ ✓ Compiled in 1459ms (3500 modules)
+ ✓ Compiled in 8.3s (3500 modules)
+ ✓ Compiled in 1562ms (3500 modules)
+ ✓ Compiled in 1813ms (3500 modules)
+ ✓ Compiled in 433ms (1844 modules)
+ ✓ Compiled in 1974ms (3500 modules)
+ ✓ Compiled in 1877ms (3506 modules)
+ ✓ Compiled in 1388ms (3506 modules)
+ ✓ Compiled in 1209ms (3506 modules)
+ ✓ Compiled in 1404ms (3506 modules)
+ ✓ Compiled in 1380ms (3506 modules)
+ ✓ Compiled in 1532ms (3506 modules)
+ ✓ Compiled in 1344ms (3506 modules)
+ ✓ Compiled in 1590ms (3506 modules)
+ GET / 200 in 1450ms
+ ✓ Compiled in 5.5s (3506 modules)
+ ✓ Compiled in 5.1s (3506 modules)
+ ✓ Compiled in 5.6s (3506 modules)
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 1314ms (1665 modules)
+ ✓ Compiled in 6.3s (3386 modules)
+ GET / 200 in 327ms
+ GET / 200 in 64ms
+ GET / 200 in 56ms
+ GET / 200 in 78ms
+ ○ Compiling /narratives ...
+ ✓ Compiled /narratives in 1193ms (1544 modules)
+ GET /narratives?embed=1 200 in 1348ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 1343ms (1604 modules)
+{"ts":"2026-06-14T16:03:13.930Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"8e11e546-83da-49fa-aab5-c828baebe73e","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":1651}}
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 3109ms
+{"ts":"2026-06-14T16:03:18.455Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"2bb2c113-7348-4885-ae6f-3fbdcf49257f","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":759}}
+ GET /api/v1/intelligence/narrative?period=monthly 200 in 774ms
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 1858ms (1602 modules)
+ GET /capacity?embed=1 200 in 2085ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 1878ms (1543 modules)
+ GET /executive?embed=1 200 in 2345ms
+ ⚠ ./src/app/(shell)/page.tsx
+Attempted import error: 'SettingsApp' is not exported from '@/components/desktop/settings-app' (imported as 'SettingsApp').
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+
+./src/app/(shell)/page.tsx
+Attempted import error: 'SettingsApp' is not exported from '@/components/desktop/settings-app' (imported as 'SettingsApp').
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ ⚠ ./src/app/(shell)/page.tsx
+Attempted import error: 'SettingsApp' is not exported from '@/components/desktop/settings-app' (imported as 'SettingsApp').
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+
+./src/app/(shell)/page.tsx
+Attempted import error: 'SettingsApp' is not exported from '@/components/desktop/settings-app' (imported as 'SettingsApp').
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ ✓ Compiled in 5.8s (3365 modules)
+ ✓ Compiled in 6s (3365 modules)
+ ✓ Compiled in 4.6s (3365 modules)
+ ✓ Compiled in 5.6s (3365 modules)
+ ✓ Compiled in 3.8s (3384 modules)
+ ✓ Compiled in 1628ms (3384 modules)
+ ✓ Compiled /_not-found in 362ms (1539 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 799ms
+ ✓ Compiled in 1874ms (3386 modules)
+ GET / 200 in 1268ms
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 4.5s (3390 modules)
+ GET /memory?embed=1 200 in 2970ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 1337ms (1600 modules)
+{"ts":"2026-06-14T16:10:07.188Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"c2da9182-ffb9-4b1d-b079-c7fd61958343","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":447}}
+ GET /api/v1/decisions/memory 200 in 1908ms
+ ○ Compiling /people ...
+ ✓ Compiled /people in 2.5s (1589 modules)
+ GET /people?embed=1 200 in 3131ms
+ GET /executive?embed=1 200 in 1232ms
+ ✓ Compiled in 5s (3436 modules)
+ GET /narratives?embed=1 200 in 202ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 1175ms (1589 modules)
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 1337ms
+{"ts":"2026-06-14T16:10:43.164Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"e66fed56-4764-428a-beb3-0b0aaddd1e49","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":941}}
+ ✓ Compiled in 4.7s (3433 modules)
+ ✓ Compiled in 999ms (1847 modules)
+ ✓ Compiled in 532ms (1847 modules)
+ GET /narratives?embed=1 200 in 279ms
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 1819ms
+{"ts":"2026-06-14T16:12:31.391Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"6d7a159a-b44e-4ea7-8477-09d65e91136b","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":2934}}
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 1085ms (1592 modules)
+ GET /capacity?embed=1 200 in 1845ms
+ GET /people?embed=1 200 in 359ms
+ ○ Compiling /people/[id] ...
+ ✓ Compiled /people/[id] in 575ms (1598 modules)
+ ✓ Compiled in 881ms (1847 modules)
+ ✓ Compiled in 6.7s (3375 modules)
+ ✓ Compiled in 1148ms (3375 modules)
+ ✓ Compiled in 2.9s (3375 modules)
+ ✓ Compiled in 1564ms (3375 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ src\app\(shell)\page.tsx (73:17) @ MessageSquare
+ ⨯ ReferenceError: MessageSquare is not defined
+    at eval (page.tsx:184:15)
+    at (ssr)/./src/app/(shell)/page.tsx (C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\(shell)\page.js:201:1)
+    at Object.__webpack_require__ [as require] (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:33:42)
+    at JSON.parse (<anonymous>)
+digest: "526354101"
+[0m [90m 71 |[39m   matrix[33m:[39m { icon[33m:[39m [33mKanbanSquare[39m[33m,[39m accent[33m:[39m [32m"#7C6CFF"[39m }[33m,[39m[0m
+[0m [90m 72 |[39m   directory[33m:[39m { icon[33m:[39m [33mUsers[39m[33m,[39m accent[33m:[39m [32m"#38BDF8"[39m }[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 73 |[39m   chat[33m:[39m { icon[33m:[39m [33mMessageSquare[39m[33m,[39m accent[33m:[39m [32m"#2BD9FF"[39m }[33m,[39m[0m
+[0m [90m    |[39m                 [31m[1m^[22m[39m[0m
+[0m [90m 74 |[39m   vault[33m:[39m { icon[33m:[39m [33mBoxes[39m[33m,[39m accent[33m:[39m [32m"#FEBC2E"[39m }[33m,[39m[0m
+[0m [90m 75 |[39m }[33m;[39m[0m
+[0m [90m 76 |[39m[0m
+ GET / 500 in 342ms
+ ✓ Compiled in 2.5s (3375 modules)
+ GET / 200 in 1207ms
+ ✓ Compiled in 1716ms (3375 modules)
+ ✓ Compiled in 2.3s (3385 modules)
+ ✓ Compiled in 7s (3385 modules)
+ ✓ Compiled in 5.8s (3385 modules)
+ ✓ Compiled in 2.2s (3385 modules)
+ ✓ Compiled in 1744ms (3393 modules)
+ GET / 200 in 1673ms
+ GET / 200 in 58ms
+ ✓ Compiled in 3.1s (3393 modules)
+ ✓ Compiled in 7.4s (3393 modules)
+ ✓ Compiled in 5.5s (3393 modules)
+ ✓ Compiled in 5.7s (3393 modules)
+ ✓ Compiled in 1960ms (3393 modules)
+ ✓ Compiled in 1392ms (3393 modules)
+ ✓ Compiled in 2.6s (3393 modules)
+ ✓ Compiled in 3.3s (3397 modules)
+ ✓ Compiled in 1630ms (3397 modules)
+ GET / 200 in 193ms
+ ✓ Compiled in 6.6s (3397 modules)
+ ✓ Compiled in 5.9s (3397 modules)
+ ✓ Compiled in 6.7s (3397 modules)
+ ✓ Compiled in 5.8s (3397 modules)
+ ✓ Compiled in 5.9s (3397 modules)
+ ✓ Compiled in 5.8s (3397 modules)
+ ✓ Compiled in 6s (3397 modules)
+ ✓ Compiled in 6s (3397 modules)
+ ✓ Compiled in 1406ms (3397 modules)
+ ✓ Compiled in 1400ms (3397 modules)
+ ✓ Compiled in 1848ms (3403 modules)
+ GET /capacity?embed=1 200 in 522ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 10.4s (3413 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.8s (1581 modules)
+ POST /api/auth/login 200 in 3114ms
+ ✓ Compiled in 4s (3443 modules)
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 1415ms (1699 modules)
+ GET /graph?embed=1 200 in 2939ms
+ ✓ Compiled in 1453ms (3561 modules)
+ ✓ Compiled in 6s (3553 modules)
+ ✓ Compiled in 1199ms (3553 modules)
+ ✓ Compiled in 2.1s (3523 modules)
+ GET / 200 in 327ms
+ GET / 200 in 64ms
+ ✓ Compiled in 7.1s (3523 modules)
+ GET /capacity?embed=1 200 in 337ms
+ GET / 200 in 223ms

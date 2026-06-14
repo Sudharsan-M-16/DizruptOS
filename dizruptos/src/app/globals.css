@@ -91,6 +91,19 @@ body {
   background: rgba(0, 237, 130, 0.3);
 }
 
+/* Accessibility: a clear, accent-coloured keyboard focus ring on every
+   interactive element — only when navigating by keyboard (focus-visible), so it
+   never shows on mouse clicks. */
+:where(button, a, input, textarea, select, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--os-accent, #00ed82);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* Respect users who ask for less motion — collapse the OS's decorative anims. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -116,6 +129,29 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------------------------------------------------------------- perf mode */
+/* DizruptOS "Reduce transparency / Performance" — the single biggest win on
+   low-end machines (4GB RAM, integrated GPUs). backdrop-filter is the most
+   expensive thing the OS shell paints; here we drop it everywhere, freeze the
+   decorative wallpaper motion, and trim heavy multi-layer shadows. Surfaces are
+   nudged opaque so dropping the blur doesn't hurt legibility.
+   Toggled via Control Center / Settings → sets data-perf="1" on <html>. */
+[data-perf="1"] *,
+[data-perf="1"] *::before,
+[data-perf="1"] *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+[data-perf="1"] {
+  --grain-opacity: 0;
+}
+/* opaque-up the frosted surfaces that relied on blur for legibility */
+[data-perf="1"] .dz-solidify {
+  background: rgb(var(--ink-elevated)) !important;
 }
 
 @layer components {

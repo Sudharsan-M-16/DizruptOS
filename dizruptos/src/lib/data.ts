@@ -685,6 +685,8 @@ export const notifications: NotificationItem[] = [
   { id: "n-3", klass: "critical_action", title: "Atlas Payments Migration is CRITICAL", body: "7 tasks overdue · QA at 112% · velocity −38% vs 3-sprint average.", at: "2026-06-10T05:00:00Z", read: false, entityRef: "/projects/p-atlas" },
   { id: "n-4", klass: "intelligence", title: "Morning brief ready", body: "1 critical project · 2 proposals pending · 2 vendor renewals inside 30 days.", at: "2026-06-10T04:45:00Z", read: true },
   { id: "n-5", klass: "informational", title: "Decision outcome recorded", body: "Double-entry ledger decision: variance 0.002% — within tolerance.", at: "2026-06-08T10:12:00Z", read: true, entityRef: "/decisions" },
+  { id: "n-6", klass: "critical_action", title: "Commitment overdue", body: "Marcus → Sarah: vendor settlement spec sign-off is 5 days late.", at: "2026-06-10T05:30:00Z", read: false, entityRef: "/commitments" },
+  { id: "n-7", klass: "informational", title: "Commitment due today", body: "Asha → Priya: capacity rebalance plan for the week of Jun 22.", at: "2026-06-10T03:10:00Z", read: false, entityRef: "/commitments" },
 ];
 
 // ---- Lookup helpers -------------------------------------------------------------

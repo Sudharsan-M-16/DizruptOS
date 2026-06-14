@@ -118,8 +118,9 @@ export default function LoginPage() {
             {...rise(4)}
             className="mt-4 text-[18px] font-medium leading-7 tracking-[0.01em] text-[#A3A3A3]"
           >
-            Every person, project, and consequence — one command center. Sign in
-            and the organization answers back.
+            Sign in and <span className="font-semibold text-white">DizruptOS</span> boots up —
+            your whole workplace as a desktop operating system. Windows, a Dock, your
+            tasks and your team, all on one screen.
           </motion.p>
 
           {/* persona picker */}

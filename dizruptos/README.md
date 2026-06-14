@@ -1,16 +1,38 @@
-# DIZRUPT — Resource Intelligence Platform
+# DIZRUPT — Resource Intelligence Platform, as a web OS
 
-A dark, premium enterprise command center for workforce capacity, project
-execution, organizational memory, and AI-agent collaboration. Built from
-`DIZRUPT_Supreme_PRD_v3.md` and the DizruptOS UI inspiration brief.
+A premium enterprise command center for workforce capacity, project execution,
+organizational memory, and AI-agent collaboration — delivered as **DizruptOS**, a
+macOS-style **web operating system**. Built from `DIZRUPT_Supreme_PRD_v3.md` and the
+DizruptOS UI inspiration brief.
+
+## DizruptOS desktop shell
+
+Signing in powers on an OS: **boot → lock → desktop**. The desktop (`/`) provides
+
+- a **window manager** — drag, 8-way resize, edge-snap (half-tile / zoom), genie
+  minimize-to-dock, z-order focus, and **per-user layout persistence**;
+- a magnifying, **customizable Dock** (pin/unpin, launch-bounce, running dots);
+- a **Menubar** with the  menu, app menus, a live **Control Center** (light/dark +
+  accent + wallpaper + brightness), a grouped **Notification Center**, and a calendar;
+- **Spotlight** (⌘Space), **Mission Control** (F3), **Launchpad** (F4), a desktop
+  right-click context menu, and **window cycling** (⌘\`);
+- **routes-as-windows** — every legacy product page opens in a draggable window
+  (chromeless iframe), so nothing from the original dashboard was lost;
+- native apps: **Home** (per-role Today/Pending/Critical task center, classified by
+  project), **Project Matrix** (drag-and-drop Kanban), **Operative Directory**
+  (people), **Knowledge Vault** (IndexedDB file store), and **System Settings**.
+
+RBAC is enforced at the OS layer: apps hide/deny by the viewer's role permission
+(`lib/desktop-apps.tsx` × `lib/personas.ts`). OS state lives in `lib/os.ts` (`useOS`);
+the window engine is `components/desktop/use-desktop.ts`.
 
 ## Run
 
 ```bash
 npm install
-npm run dev       # http://localhost:5175
+npm run dev       # http://localhost:3000
 npm run build     # production build (all routes verified)
-npm test          # vitest — 86 tests pinning the product laws + RBAC authority
+npm test          # vitest — product laws + RBAC authority
 npm run e2e       # Playwright smoke (login → command center, RBAC assertions)
 ```
 

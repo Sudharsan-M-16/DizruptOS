@@ -2,11 +2,11 @@
 
 ## Current project reality (read first)
 - The product is a **Next.js 14 App Router app in `dizruptos/`** (not a static site).
-- **Run:** `cd dizruptos && npm run dev` → **http://localhost:5175**. Build `npm run build`, tests `npm test` (vitest), `npm run e2e` (Playwright smoke).
+- **The dashboard (`/`) is a macOS-style web OS — "DizruptOS".** It boots (boot → lock → desktop), runs a window manager (drag / 8-way resize / snap / genie-minimize / z-order / per-persona layout persistence in `localStorage` `dz-os-layout:<personaId>`), a magnifying customizable Dock, a Menubar ( menu + app menus + Control Center + Notification Center + calendar), and overlays: Spotlight (⌘Space), Mission Control (F3), Launchpad (F4). **Every legacy route opens *as a window*** (chromeless iframe via `?embed=1` — see `shell-frame.tsx` embed mode + `frame-ancestors 'self'` in `middleware.ts`), so no functionality was lost in the redesign. Native apps: **Home** (per-role task command center), **Project Matrix** (DnD Kanban), **Operative Directory** (people), **Knowledge Vault** (IndexedDB files). App registry + RBAC gating live in `lib/desktop-apps.tsx`; OS state in `lib/os.ts` (`useOS`); window manager in `components/desktop/use-desktop.ts`. Launch any app by dispatching `CustomEvent("dizrupt:launch",{detail:{id}})`.
+- **Run:** `cd dizruptos && npm run dev` → **http://localhost:3000** (plain `next dev` default; the old 5175 note is stale). Build `npm run build`, tests `npm test` (vitest), `npm run e2e` (Playwright smoke).
 - **Backend:** live **Supabase** when `dizruptos/.env.local` is set (URL/anon/service-role/`DATABASE_URL`); otherwise demo mode on the in-memory seed. `DATABASE_URL` must be the **Session Pooler** URI (IPv4) — direct `db.*.supabase.co:5432` is IPv6-only. **Never print/commit secrets.** Migrations + seed live in `dizruptos/supabase/`.
-- **Domain model is schema-authoritative (Option A):** the Postgres schema is the source of truth; app layer uses thin camelCase views + TanStack Query (`lib/query.ts`).
-- **Screenshots:** the `serve.mjs` / `localhost:3000` / nateh-puppeteer notes below are LEGACY (static-site era). For this app, screenshot the running dev server with the cached Playwright Chromium via a small `playwright-core` script (devDep) or the `webapp-testing` skill.
-- Key docs: `PLAN.md`, `BACKEND_READINESS_AUDIT.md`, `MASTER_EXECUTION_PLAN.md`, `ENTERPRISE_IMPROVEMENTS.md`.
+- **Domain model is schema-authoritative (Option A):** the Postgres schema is the source of truth; app layer uses thin camelCase views + TanStack Query (`lib/query.ts`). RBAC: `lib/personas.ts` (matrix) + `useSession.can()`, now also enforced at the OS layer (apps hide/deny by `perm`).
+- Key docs: `SUPREME_PLATFORM_AUDIT.md` (honest ratings — frontend/UX now 8.5), `ROAD_TO_10.md`, `PLAN.md`, `README.md`, `ENTERPRISE_IMPROVEMENTS.md`.
 
 ## Always Do First
 - **Invoke the `frontend-design` skill** before writing any frontend code, every session, no exceptions.
@@ -18,19 +18,15 @@
 
 ## Local Server
 - **Always serve on localhost** — never screenshot a `file:///` URL.
-- Start the dev server: `node serve.mjs` (serves the project root at `http://localhost:3000`)
-- `serve.mjs` lives in the project root. Start it in the background before taking any screenshots.
-- If the server is already running, do not start a second instance.
+- Start the app: `cd dizruptos && npm run dev` → **http://localhost:3000**. Start it in the background before screenshots.
+- If a server is already running, do not start a second instance. Beware orphaned `next dev` processes piling up and serving 500s — kill project Next procs + clear `.next/cache` before a clean start.
 
-## Screenshot Workflow
-- Puppeteer is installed at `C:/Users/nateh/AppData/Local/Temp/puppeteer-test/`. Chrome cache is at `C:/Users/nateh/.cache/puppeteer/`.
-- **Always screenshot from localhost:** `node screenshot.mjs http://localhost:3000`
-- Screenshots are saved automatically to `./temporary screenshots/screenshot-N.png` (auto-incremented, never overwritten).
-- Optional label suffix: `node screenshot.mjs http://localhost:3000 label` → saves as `screenshot-N-label.png`
-- `screenshot.mjs` lives in the project root. Use it as-is.
-- After screenshotting, read the PNG from `temporary screenshots/` with the Read tool — Claude can see and analyze the image directly.
-- When comparing, be specific: "heading is 32px but reference shows ~24px", "card gap is 16px but should be 24px"
-- Check: spacing/padding, font size/weight/line-height, colors (exact hex), alignment, border-radius, shadows, image sizing
+## Screenshot Workflow (DizruptOS desktop)
+- Screenshot the running dev server with the **cached Playwright Chromium** via a small `playwright-core` script (`dizruptos/shot.mjs` is the reusable helper); the Chromium binary is at `%LOCALAPPDATA%/ms-playwright/chromium-*/chrome-win64/chrome.exe`.
+- Auth: middleware needs a `dz_session` cookie (presence-checked) — set it via `ctx.addCookies`. The desktop powers on, so wait ~3s through boot, then click `button[aria-label="Unlock"]`.
+- Useful selectors: dock items `button[title="<App>"]`; menubar `aria-label`s "Control Center" / "Notifications"; theme buttons "Light"/"Dark" need `exact:true`; windows are `section[aria-label="<title>"]`. Note "Graphite" is both an accent AND a wallpaper (ambiguous selector).
+- Embedded route windows can take ~7s to first-compile in dev — wait before screenshotting an iframe window. Don't use Playwright `addInitScript` to clear `localStorage` (it re-runs on reload and breaks persistence tests) — a fresh browser context already has empty storage.
+- After screenshotting, read the PNG with the Read tool — Claude sees the image directly. Be specific when comparing (exact px / hex / spacing).
 
 ## Output Defaults
 - Single `index.html` file, all styles inline, unless user says otherwise

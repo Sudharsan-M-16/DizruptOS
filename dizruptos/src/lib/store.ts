@@ -78,6 +78,11 @@ interface OpsState {
   setPaletteOpen: (open: boolean) => void;
   openTaskDrawer: (id: string | null) => void;
   markAllRead: () => void;
+  markRead: (id: string) => void;
+  /** OS access auditing — record a role-denied app open into the audit trail. */
+  recordAccessDenied: (label: string) => void;
+  /** Stable Kanban mutation — swap for a distributed backend call later. */
+  moveTask: (taskId: string, sourceCol: TaskStatus, destCol: TaskStatus, newIndex: number) => void;
 
   utilization: (employeeId: string, weekStart: string) => number;
   allocated: (employeeId: string, weekStart: string) => number;
@@ -129,6 +134,53 @@ export const useOps = create<OpsState>((set, get) => ({
       notifications: s.notifications.map((n) => ({ ...n, read: true })),
     })),
 
+  markRead: (id) =>
+    set((s) => ({
+      notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    })),
+
+  recordAccessDenied: (label) =>
+    set((s) => ({
+      audit: [
+        { id: `a-${auditSeq++}`, ...currentActor(), actionType: "access_denied", entityType: "app", entityLabel: label, detail: `Role lacks permission to open ${label}`, at: new Date().toISOString() },
+        ...s.audit,
+      ],
+      lastAction: `Access denied — ${label}`,
+    })),
+
+  // Optimistic move across Kanban columns. Pure on the flat task list: re-status
+  // the task and splice it to `newIndex` within the destination column's order.
+  // The (taskId, sourceCol, destCol, newIndex) contract is intentionally stable
+  // so a CRDT/backend mutation can drop straight in here.
+  moveTask: (taskId, _sourceCol, destCol, newIndex) => {
+    // RBAC: without `reallocate`, you may only move tasks assigned to you.
+    const me = useSession.getState().persona();
+    const owns = get().tasks.find((t) => t.id === taskId);
+    if (owns && owns.assigneeId && owns.assigneeId !== me.id && !useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — you can only move your own tasks." });
+      return;
+    }
+    set((s) => {
+      const task = s.tasks.find((t) => t.id === taskId);
+      if (!task) return s;
+      const without = s.tasks.filter((t) => t.id !== taskId);
+      const moved = { ...task, status: destCol };
+      const destItems = without.filter((t) => t.status === destCol);
+      const clamped = Math.max(0, Math.min(newIndex, destItems.length));
+      let insertAt: number;
+      if (destItems.length === 0) {
+        insertAt = without.length;
+      } else if (clamped >= destItems.length) {
+        insertAt = without.indexOf(destItems[destItems.length - 1]) + 1;
+      } else {
+        insertAt = without.indexOf(destItems[clamped]);
+      }
+      const next = [...without.slice(0, insertAt), moved, ...without.slice(insertAt)];
+      return { tasks: next, lastAction: `Task → ${destCol.replace("_", " ").toLowerCase()}` };
+    });
+    publishSync(get());
+  },
+
   allocated: (employeeId, weekStart) =>
     get().capacity.find(
       (c) => c.employeeId === employeeId && c.weekStart === weekStart
@@ -141,6 +193,14 @@ export const useOps = create<OpsState>((set, get) => ({
   },
 
   moveTaskStatus: (taskId, status) => {
+    // RBAC: same rule as the Kanban — without `reallocate` you may only change
+    // the status of tasks assigned to you.
+    const me = useSession.getState().persona();
+    const t0 = get().tasks.find((t) => t.id === taskId);
+    if (t0 && t0.assigneeId && t0.assigneeId !== me.id && !useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — you can only update your own tasks." });
+      return;
+    }
     set((s) => ({
       tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status } : t)),
       lastAction: `Task moved to ${status.replace("_", " ").toLowerCase()}`,
@@ -150,6 +210,13 @@ export const useOps = create<OpsState>((set, get) => ({
 
   // Step 1 of the North Star flow — compute projection, trip guardrail if ≥100%
   requestReallocate: (taskId, toEmployeeId) => {
+    // RBAC (server-of-record): reassigning work requires the `reallocate` grant.
+    // This is the authority check — the UI hides the control too, but a denied
+    // mutation here is what actually protects the data.
+    if (!useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — reassigning tasks requires manager access." });
+      return;
+    }
     const { tasks, allocated } = get();
     const task = tasks.find((t) => t.id === taskId);
     const target = employeeById(toEmployeeId);
@@ -183,6 +250,7 @@ export const useOps = create<OpsState>((set, get) => ({
   },
 
   confirmReallocate: (overrideReason) => {
+    if (!useSession.getState().can("reallocate")) { set({ pendingDrop: null, lastAction: "Not permitted — reassigning tasks requires manager access." }); return; }
     const { pendingDrop, tasks, capacity } = get();
     if (!pendingDrop) return;
     const task = tasks.find((t) => t.id === pendingDrop.taskId);
@@ -264,6 +332,7 @@ export const useOps = create<OpsState>((set, get) => ({
   cancelReallocate: () => set({ pendingDrop: null }),
 
   reviewProposal: (id, verdict) => {
+    if (!useSession.getState().can("review_proposals")) { set({ lastAction: "Not permitted — reviewing agent proposals requires manager access." }); return; }
     const { proposals } = get();
     const prop = proposals.find((p) => p.id === id);
     if (!prop) return;

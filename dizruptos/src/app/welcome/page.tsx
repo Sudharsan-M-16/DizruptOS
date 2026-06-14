@@ -30,7 +30,7 @@ import {
 import { DizruptWordmark } from "@/components/ui/logo";
 import { NumberTicker } from "@/components/ui/ascension";
 import { TextScramble } from "@/components/fx/text-scramble";
-import { ProductFrame } from "@/components/landing/product-frame";
+import { OSPreview } from "@/components/landing/os-preview";
 import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -241,9 +241,9 @@ function ProductStage() {
           </motion.h2>
         </motion.div>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-fg-secondary">
-          A working miniature of the command center. Switch views in the
-          sidebar, hover the heatmap, accept an agent proposal. Everything
-          you touch here is real in the product.
+          A peek at <span className="text-brand">DizruptOS</span> — your whole workplace as a
+          desktop operating system in the browser. Windows, a Dock, Spotlight, your
+          tasks and your team, all on one screen. Sign in and the real thing boots up.
         </p>
         <div className="mt-12" style={{ perspective: 1100 }}>
           <div
@@ -254,7 +254,7 @@ function ProductStage() {
                 "0 0 0 1px rgba(0,237,130,0.14), 0 24px 80px rgba(0,0,0,0.55), 0 8px 28px rgba(0,237,130,0.10)",
             }}
           >
-            <ProductFrame />
+            <OSPreview />
           </div>
         </div>
       </div>

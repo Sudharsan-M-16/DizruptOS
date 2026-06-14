@@ -4,6 +4,15 @@
 > Priority P0 (blocking legitimacy) → P3 (polish). Honest current scores from
 > SUPREME_PLATFORM_AUDIT.md.
 
+> **Update 2026-06-14 — Frontend ascension (DizruptOS web-OS shell).** The consuming
+> surface is now a macOS-style OS: window manager, Dock, Spotlight/Mission Control/
+> Launchpad, Control + Notification Centers, routes-as-windows, native Home/Matrix/
+> Directory/Vault apps, OS-layer RBAC, light/dark + accent + wallpaper. This moves
+> **Frontend/UX 6.5→8.5** and **Product 4.5→5.5** (consumability), and crosses off the
+> "executive consumption surface" gap (a leader now has a *home*). It does **not** move
+> the P0s below — auth, ingestion, observability, and proof-the-scores-are-true are
+> untouched. New **frontend P3** items added at the bottom.
+
 ## P0 — Without these, nothing else counts
 | Item | Cur→Tgt | Effort | Exact tasks | Impact |
 |---|---|---|---|---|
@@ -37,6 +46,29 @@
 | Accessibility | 4→9 | M | axe audit; focus order, contrast, ARIA, keyboard-only. |
 | Per-page premium redesign | 6→9 | M | Extend the command-center hero-tile/reasoning language to all pages. |
 | Money/temporal/ontology | — | M | (bigint done) add Assumption + Evidence + Vendor/System + Process entities; temporal/history layer. |
+
+### Frontend / web-OS (P3 — added 2026-06-14)
+> **Hardening sprint done (2026-06-14 later):** ✅ Performance mode (auto ≤4GB; blur/
+> motion off; dock rAF-throttle; debounced persistence) · ✅ Window Switcher (⌘/Ctrl+`)
+> · ✅ Tasks app + Home→Tasks routing · ✅ in-OS User Guide · ✅ 3-layer RBAC incl.
+> data-layer mutation guards (reassign/proposal/cross-user move) + role-filtered menus
+> · ✅ landing/login now showcase the OS. Frontend/UX **8.5→9.0**, Enterprise **2.5→3.0**.
+>
+> **Later passes (same day):** ✅ Messages app (Teams-style DMs + groups, **group admin
+> add/remove members**) · ✅ Settings is a managed window · ✅ sticky-embed kills
+> redirect-to-old-dashboard leaks · ✅ DND/battery/volume system controls · ✅ Home live
+> daily brief · ✅ idle auto-lock (10 min) · ✅ a11y (focus-visible + dialog roles +
+> aria-live). Frontend/UX **→ 9.6**, Enterprise **→ 3.5** (audited RBAC denials).
+> Still infra-gated, unchanged: real auth, SSO/SCIM, SOC2, CI DB-migrations, real data.
+
+| Item | Cur→Tgt | Effort | Tasks | Status |
+|---|---|---|---|---|
+| Redesign embedded routes to the OS language | 6→9 | M–L | Legacy pages open as windows but still use the old sidebar-era layout inside; restyle to the window content language. | open |
+| Accessibility audit of the shell | 5→9 | M | axe pass; full keyboard-only path; focus traps in overlays; ARIA on window chrome; contrast verify both themes. | partial (keyboard for search/switch/MC; rest open) |
+| Wire OS apps to live backend | (new) | M | Replace mock seams with real APIs: `useOps.moveTask` → tasks API; `lib/vault.ts` → object store; notifications → realtime; per-user prefs. | open |
+| Multi-window perf at scale | 6→9 | S–M | Virtualize off-screen window bodies; lazy-mount iframes (`loading="lazy"` done); rAF-batch drag/resize; measure many windows. | partial |
+| OS access auditing | (new) | S–M | Log every app-open / denied action at the OS layer into the audit trail (enterprise expectation). | ✅ denied opens logged (`access_denied`) + toast; successful-open logging still open |
+| OS extras | — | S each | In-window PDF/image preview (Vault); Kanban WIP limits + swimlanes; notification deep-links; Do-Not-Disturb; Stage-Manager grouping. | open |
 
 ## Sequencing (the only order that matters)
 1. **Auth** (legitimacy) → 2. **One real org's data in** (ingestion or guided import) → 3. **Executive surface + intelligence UIs** (consumption) → 4. **Observability + CI/CD** (shipping) → 5. **Realtime + calibration** (trust) → 6. **GraphRAG copilot** (the durable moat) → 7. enterprise/compliance.

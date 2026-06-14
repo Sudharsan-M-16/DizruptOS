@@ -22,7 +22,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (!hydrated || !authenticated) {
     // Branded transitional screen — shown briefly during hydration and while a
     // sign-out redirects to /login. Reads as the product, not a frozen square.
-    const message = hydrated && !authenticated ? "Signing you out…" : "Restoring your session…";
+    const message = hydrated && !authenticated ? "Signing you out…" : "Loading…";
     return (
       <div className="relative flex min-h-screen flex-col items-center justify-center gap-6 overflow-hidden bg-ink">
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/10 blur-3xl" />

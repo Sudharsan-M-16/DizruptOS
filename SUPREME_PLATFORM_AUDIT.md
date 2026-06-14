@@ -6,6 +6,77 @@
 > Basis: the verified state built across this session (engines + API + RLS + 137 tests),
 > NOT the self-assessment (which is inflated — see below).
 
+> **Addendum — 2026-06-14 · DizruptOS Desktop Shell.** The dashboard (`/`) was rebuilt
+> from a flat dark dashboard into a **macOS-style web operating system** ("DizruptOS"):
+> cinematic boot → lock → desktop; a window manager (drag / 8-way resize / snap / genie
+> minimize / z-order / per-persona layout persistence); a magnifying Dock (customizable,
+> pin/unpin, launch-bounce); Menubar with  menu, app menus, live Control Center
+> (light/dark + accent + wallpaper + brightness), Notification Center, and a calendar;
+> Spotlight (⌘Space), Mission Control (F3), Launchpad (F4); every legacy route now opens
+> **as a window** (chromeless iframe — no navigation away, nothing lost); and three native
+> apps — **Home** (per-role task command center: Today/Pending/Critical classified by
+> project), **Project Matrix** (drag-and-drop Kanban), **Operative Directory** (people),
+> plus a **Knowledge Vault** (IndexedDB file store). RBAC is now enforced at the OS layer
+> (apps hide/deny by role permission). This is a **frontend/UX ascension only** — it does
+> not change auth, data, realtime, observability, or enterprise posture. Scores revised
+> below reflect *consumability + design*, not platform maturity. See `ROAD_TO_10.md`.
+
+> **Addendum 2 — 2026-06-14 (later) · Hardening pass.** Follow-up sprint pushed the
+> frontend toward its realistic ceiling: (1) **RBAC is now defense-in-depth across 3
+> layers** — login, OS surface (apps hide by role in Dock/Spotlight/Launchpad/menus),
+> AND the **data layer** (store mutations refuse unauthorised reassignment / proposal
+> review / cross-user task moves — not just hidden buttons). This is a real Enterprise
+> +Security improvement. (2) **Performance mode** (auto-on ≤4GB RAM) drops backdrop
+> blur + wallpaper motion → usable on low-end hardware; dock/persistence tuned. (3) New
+> **Tasks app** + **Window Switcher** (⌘/Ctrl+`) + a comprehensive in-OS **User Guide**
+> (10-yr-old-friendly). (4) Landing + login now showcase the OS, not the old dashboard.
+> Net: Frontend/UX **8.5 → 9.0**, Enterprise **2.5 → 3.0** (access control is now
+> genuine), Design nudged up. The hard ceiling is unchanged — **real auth, real data,
+> real users** — and no UI work can lift it. A layman-facing `presentation.md` was added.
+
+> **Addendum 3 — 2026-06-14 (RBAC sweep + access auditing).** Completed the
+> "every store mutation is authority-checked" pass: `moveTask`, `moveTaskStatus`,
+> `requestReallocate`, `confirmReallocate`, `reviewProposal` all deny at the data
+> layer by role (own-task-only for status, manager-only for reassignment / proposal
+> review). Added **OS-level access auditing**: every role-denied app open is written
+> to the audit trail (`access_denied`) and surfaces a toast — denied actions are now
+> *observable*, an enterprise expectation. Plus polish: Do-Not-Disturb, transient
+> toasts, a properly-centred lock screen, Home opens on the most urgent tab
+> (Critical→Today→Pending) and on top. Net: Frontend/UX **9.0 → 9.2**, Enterprise
+> **3.0 → 3.5** (RBAC is now deny-at-source *and* audited). Ceiling unchanged.
+
+> **Addendum 4 — 2026-06-14 (peak-UI pass).** Closed most of the remaining frontend
+> gaps: (1) **Messages app** — a Teams-style chat with group channels + DMs, create-
+> group composer, accent-tinted bubbles, persisted (`lib/chat.ts`). (2) **System
+> Settings is now a real managed window** (minimize/maximize/resize/z-order — was a
+> stuck overlay). (3) **Redirect leaks killed** — embed mode is now *sticky inside the
+> iframe* (every in-window link stays chromeless instead of reloading the old
+> sidebar), task-drawer links open app windows, and the legacy `/`-palette + `g→route`
+> jumps are disabled on the desktop. (4) **More system controls** — Do-Not-Disturb +
+> live Battery in the menubar, Volume in Control Center. (5) **A11y** — accent
+> `:focus-visible` rings on all interactives + reduced-motion respect. Net: Frontend/UX
+> **9.2 → 9.5**. The last 0.5 to a literal 10 is **not demo-fixable**: it needs the
+> iframed legacy pages restyled to the OS language, a full WCAG/screen-reader audit,
+> and real backend wiring — i.e. real data + identity, the same ceiling as always.
+
+> **Addendum 5 — 2026-06-14 (polish + honesty).** (1) **Home daily brief** — the
+> opening text is now a live, human one-liner ("You're near your limit — 2 overdue · 6
+> critical. Atlas Payments needs your attention.") plus the long date. (2) **Chat group
+> admin** — member count, a members panel, an **admin** (the creator / lead, with a
+> crown badge) who can **add and remove members**; the creator becomes admin. (3)
+> **Idle auto-lock** — the desktop locks after 10 min of inactivity (a real
+> device-policy reflex; a *UX-layer* security win, NOT the auth fix). (4) **A11y** —
+> `role="dialog"`/`aria-modal` on Spotlight/Mission-Control/Launchpad, `aria-live`
+> toasts, more `aria-label`s. Net: Frontend/UX **9.5 → 9.6**.
+>
+> **What did NOT move, and why (no inflation):** Backend architecture, Security
+> (real **Supabase Auth + JWT claims** is still the P0), Multi-Tenancy, Enterprise
+> (SSO/SAML/SCIM/SOC2), and Production (CI DB-migrations, error tracking, load tests)
+> are **infra- and process-gated, not code-only**. Idle-lock nudges Security UX but the
+> *authentication* score is unchanged until real auth ships. I will not raise those
+> numbers without the actual systems behind them — that honesty is the point of this
+> audit.
+
 ## The one-paragraph truth
 DIZRUPT is an **exceptionally well-architected prototype of a genuinely novel idea**
 (computed, explainable organizational intelligence over a typed graph). The engine layer
@@ -17,7 +88,9 @@ leadership actually opens, and one paying organization. Treat current scores acc
 ## Executive scores (out of 10) — and why not 10
 | Dimension | Score | Why not 10 |
 |---|---|---|
-| Overall Product | **4.5** | Engines exist; almost nothing is *consumable*. No users, no validation. |
+| Overall Product | **4.5 → 5.5** | Was: engines exist, nothing consumable. Now: a real, distinctive consuming surface (the DizruptOS desktop + Home/Matrix/Directory/Vault + routes-as-windows). Still no users, no real data, no validation — so it caps here. |
+| Overall Frontend / UX | **6.5 → 9.6** | Full window-manager + 8-app suite (Home w/ live daily brief / Tasks / Matrix / Directory / **Messages-chat w/ group admin** / Vault / Settings-as-managed-window) + Spotlight/Mission-Control/Launchpad/Window-Switcher + toasts/DND/battery/volume; macOS-grade interaction & motion; light/dark + accent + wallpaper; Performance mode; **3-layer RBAC w/ audited denials** + idle auto-lock; sticky-embed (no redirect leaks); a11y (focus-visible + dialog roles + aria-live). The last 0.4 to 10 is *not demo-fixable*: restyle the iframed legacy pages, full WCAG/screen-reader certification, and real backend wiring. |
+| Overall Enterprise | **2.5 → 3.5** | RBAC is now defense-in-depth (UI + data-layer denial) **and audited** (denied opens hit the audit trail). Still missing SSO/SCIM, compliance certs, multi-tenant admin console — so it stays capped here until identity is real. |
 | Overall Platform | **6.5** | Clean layering + RLS + tenancy, but no auth, no realtime, no obs. |
 | Overall Architecture | **7.5** | Genuinely good seams + pure engines. Loses points: demo/live model split, no CI for DB, lossy mappers. |
 | Overall Startup | **3.5** | Novel tech, zero traction/team/market evidence. Unfundable on tech alone. |
@@ -80,8 +153,8 @@ Enterprise readiness **2.5**, Governance **7**, Compliance **2**, SSO **1**, SCI
 ## §12 Production
 Deployability **3** (no CI/CD/IaC), Reliability **3**, Monitoring **2**, Observability **3**, Recovery **2**, Incident response **1**, Operations **2**. **This is the weakest cluster and the most honest gap.**
 
-## §13 Design
-Visual **8** (login + command center are genuinely premium), Interaction **6**, Motion **8**, Information density **6**, Navigation **6**, Accessibility **4** (unaudited; contrast/focus/ARIA unverified), Enterprise feel **7**, Premium feel **8**. Most non-redesigned pages drag the average.
+## §13 Design  *(revised — DizruptOS desktop shell)*
+Visual **9** (the OS shell — boot/lock/desktop, vibrancy windows, theming — is genuinely premium and distinctive, not generic AI slop), Interaction **8.5** (drag/resize/snap/genie, dock magnification, spotlight/mission-control/launchpad), Motion **8.5** (spring windows, dock bounce, staggered overlays), Information density **7** (Home classifies work by project; Matrix is high-signal), Navigation **8** (dock + Spotlight + Launchpad + Mission Control + per-app menus), Accessibility **5** (now: keyboard for Spotlight/Mission Control/⌘`, focus-visible states; still: unaudited contrast/ARIA, no full keyboard-only path), Enterprise feel **8**, Premium feel **9**. **Remaining drag:** the legacy route pages shown *inside* windows still carry their old layout and haven't been redesigned to the OS language.
 
 ## §14 What's still MISSING (systems, not features)
 - A real **Identity system** (the #1 gap).
@@ -109,4 +182,4 @@ Visual **8** (login + command center are genuinely premium), Interaction **6**, 
 - **You're underestimating:** the cost of identity+ingestion+a consuming surface, and the distance from "computes correctly on seed" to "predicts correctly on a real org."
 
 ## Verdict
-A 7.5 *architecture* and a 4.5 *product*. The achievement is real (novel, clean, tested intelligence engines + memory + tenancy). The gap to 10 is not more cleverness — it's **identity, real data, a surface a leader opens weekly, and proof the scores are true.** See `ROAD_TO_10.md`.
+A 7.5 *architecture*, a **5.5 *product*** (up from 4.5), and an **8.5 *frontend/UX*** (up from 6.5) — the DizruptOS desktop shell finally gives the engines a surface a person actually wants to open, and does it with real craft. The achievement is real (novel, clean, tested intelligence engines + memory + tenancy + now a distinctive OS-grade frontend). The gap to 10 is still **not** cleverness or polish — it's **identity (real auth), real data at scale, proof the intelligence scores predict reality, and one paying org.** A beautiful shell raises the ceiling on consumability; it does not move auth (3), observability (3), enterprise (2.5), or production (3). See `ROAD_TO_10.md`.

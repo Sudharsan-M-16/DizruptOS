@@ -25,12 +25,14 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
       "connect-src 'self' ws: wss:", // Supabase Realtime joins this list in production
-      "frame-ancestors 'none'",
+      // Same-origin only: the DizruptOS desktop embeds its own routes as windows
+      // (iframes) — never third parties.
+      "frame-ancestors 'self'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; ")
   );
-  res.headers.set("X-Frame-Options", "DENY");
+  res.headers.set("X-Frame-Options", "SAMEORIGIN");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set(

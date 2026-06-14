@@ -15,6 +15,7 @@
 | 6 | **Dynamic view architecture** | ✅ | Per-role scoping live: inbox (visibility+subjectId), command center, risks, people columns, projects ordering, nav |
 | 7 | Epic catalogue | 🟡 | Capacity, projects/kanban, people, risks, decisions, goals, audit, graph, proposals shipped; timesheets/PTO/client portal ⬜ |
 | 9 | UI/UX design system | ✅ | Token system, 12px readability floor, neutral-black Linear theme, motion tiers, segmented load meters |
+| 9b | **DizruptOS web-OS shell** | ✅ | Dashboard `/` rebuilt as a macOS-style OS: boot/lock/desktop, window manager (drag/resize/snap/genie/persist), customizable Dock, Menubar + Control/Notification Centers + calendar, Spotlight/Mission Control/Launchpad, **routes-as-windows** (no functionality lost), native apps (Home/Matrix-DnD/Directory/Vault), **OS-layer RBAC**, light/dark + accent + wallpaper. Honest score: frontend/UX **8.5** (`SUPREME_PLATFORM_AUDIT.md`). Remaining: a11y audit + redesign the iframed legacy pages to the OS language. |
 | 10 | Technical architecture | 🟡 | Next.js App Router + edge middleware + Zustand; Railway workers ⬜ |
 | 11 | Concurrency & state | 🟡 | Optimistic mutations + atomic capacity deltas + cross-tab sync (BroadcastChannel); server arbitration ⬜ |
 | 12 | Database schema | 🟡 | Executable SQL in `supabase/` (RLS, insert-only audit); not yet the live store |
