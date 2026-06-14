@@ -34,10 +34,12 @@ function ShellFrameInner({ children }: { children: React.ReactNode }) {
   }
 
   if (isEmbed) {
-    // Embedded as a desktop window — chromeless, scrolls inside the window.
+    // Embedded as a desktop window — chromeless, scrolls inside the window. The
+    // container is tuned for window widths (not a full browser page) so pages
+    // read as native DizruptOS apps rather than a shrunk dashboard.
     return (
-      <div className="relative z-10 min-h-screen bg-ink">
-        <main className="mx-auto max-w-[1520px] px-5 py-6 lg:px-7">{children}</main>
+      <div className="dz-embed relative z-10 min-h-screen bg-ink">
+        <main className="mx-auto max-w-[1320px] px-5 py-5">{children}</main>
       </div>
     );
   }

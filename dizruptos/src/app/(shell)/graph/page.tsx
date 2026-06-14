@@ -109,6 +109,19 @@ export default function GraphPage() {
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
   const [lens, setLens] = React.useState<Lens>(null);
 
+  // Track the live theme so the canvas (and edge contrast) follow light/dark.
+  const [mode, setMode] = React.useState<"light" | "dark">("dark");
+  React.useEffect(() => {
+    const read = () => setMode(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    read();
+    const obs = new MutationObserver(read);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+  // Edge colour that reads clearly on BOTH themes (light-mode edges were nearly
+  // invisible when they used the faint --line-strong token).
+  const edgeBase = mode === "light" ? "#64748B" : "#8A94A6";
+
   const { nodes, edges, blast, blastIds, busHolders, busIds, busTopShare } =
     React.useMemo(() => {
       // Bus factor: how concentrated is payments expertise?
@@ -120,9 +133,11 @@ export default function GraphPage() {
       const blastIds = new Set(["u-sarah", ...blast.map((b) => b.ref.id)]);
 
       const top = holders[0];
+      // Spread a touch (mostly vertical) so edges + labels breathe; fitView keeps
+      // the whole graph framed even in a small, un-maximised window.
       const nodes: Node[] = Object.entries(NODE_META).map(([id, m]) => ({
         id,
-        position: { x: m.x, y: m.y },
+        position: { x: m.x * 1.12, y: m.y * 1.4 },
         type: "entity",
         data: {
           ...m,
@@ -145,12 +160,10 @@ export default function GraphPage() {
             target: r.target.id,
             label: `${r.type}${r.evidence === "inferred" || r.evidence === "ai_derived" ? " ·~" : ""}`,
             animated: danger || r.strength >= 0.95,
-            style: {
-              stroke: danger ? "#EF444488" : "rgb(var(--line-strong))",
-              strokeWidth: 1 + r.strength,
-            },
-            labelStyle: { fill: "rgb(var(--fg-secondary))", fontSize: 16, fontFamily: "var(--font-plex-mono)" },
-            labelBgStyle: { fill: "rgb(var(--ink-surface))", fillOpacity: 0.9 },
+            data: { danger },
+            style: { strokeWidth: 1.4 + r.strength * 1.2 },
+            labelStyle: { fill: "rgb(var(--fg-secondary))", fontSize: 15, fontFamily: "var(--font-plex-mono)" },
+            labelBgStyle: { fill: "rgb(var(--ink-surface))", fillOpacity: 0.92 },
           };
         });
 
@@ -179,42 +192,37 @@ export default function GraphPage() {
     [rfNodes, lensIds]
   );
 
-  // Edge emphasis: hover wins, then the active lens, then the base styling.
+  // Edge styling lives here (theme-aware): danger edges are red in both themes,
+  // everything else uses the readable `edgeBase`; hover/lens emphasis lifts an
+  // edge while the rest recede to a still-visible 0.25 opacity (was 0.1 — that
+  // was invisible, especially in light mode).
   const displayEdges = React.useMemo(() => {
     return edges.map((e) => {
+      const danger = (e.data as { danger?: boolean } | undefined)?.danger;
+      const base = danger ? "#EF4444" : edgeBase;
+      const baseWidth = (e.style?.strokeWidth as number) ?? 1.5;
+      let stroke = base, opacity = 1, strokeWidth = baseWidth, animated = e.animated;
       if (hoveredId) {
         const connected = e.source === hoveredId || e.target === hoveredId;
-        return {
-          ...e,
-          animated: connected,
-          style: {
-            ...e.style,
-            stroke: connected ? "#00ED82" : (e.style?.stroke as string),
-            strokeWidth: connected ? 2.5 : 1,
-            opacity: connected ? 1 : 0.12,
-            transition: "opacity 0.2s ease, stroke 0.2s ease",
-          },
-          labelStyle: { ...e.labelStyle, opacity: connected ? 1 : 0.15 },
-        };
-      }
-      if (lensIds) {
+        stroke = connected ? "#00ED82" : base;
+        opacity = connected ? 1 : 0.25;
+        strokeWidth = connected ? 2.6 : baseWidth;
+        animated = connected;
+      } else if (lensIds) {
         const inLens = lensIds.has(e.source) && lensIds.has(e.target);
-        return {
-          ...e,
-          animated: inLens,
-          style: {
-            ...e.style,
-            stroke: inLens ? (lens === "blast" ? "#EF4444" : "#F59E0B") : (e.style?.stroke as string),
-            strokeWidth: inLens ? 2.5 : 1,
-            opacity: inLens ? 1 : 0.1,
-            transition: "opacity 0.2s ease, stroke 0.2s ease",
-          },
-          labelStyle: { ...e.labelStyle, opacity: inLens ? 1 : 0.12 },
-        };
+        stroke = inLens ? (lens === "blast" ? "#EF4444" : "#F59E0B") : base;
+        opacity = inLens ? 1 : 0.25;
+        strokeWidth = inLens ? 2.6 : baseWidth;
+        animated = inLens;
       }
-      return e;
+      return {
+        ...e,
+        animated,
+        style: { ...e.style, stroke, strokeWidth, opacity, transition: "opacity 0.2s ease, stroke 0.2s ease" },
+        labelStyle: { ...e.labelStyle, opacity: opacity < 0.5 ? 0.25 : 1 },
+      };
     });
-  }, [edges, hoveredId, lensIds, lens]);
+  }, [edges, hoveredId, lensIds, lens, edgeBase]);
 
   const toggle = (l: Exclude<Lens, null>) => setLens((cur) => (cur === l ? null : l));
 
@@ -332,13 +340,13 @@ export default function GraphPage() {
           onNodeMouseEnter={(_, node) => setHoveredId(node.id)}
           onNodeMouseLeave={() => setHoveredId(null)}
           fitView
-          fitViewOptions={{ padding: 0.1, minZoom: 0.7 }}
-          minZoom={0.4}
+          fitViewOptions={{ padding: 0.16, minZoom: 0.55 }}
+          minZoom={0.35}
           proOptions={{ hideAttribution: true }}
-          colorMode="dark"
+          colorMode={mode}
           style={{ background: "transparent" }}
         >
-          <Background color="rgb(var(--line-subtle))" gap={24} size={1} />
+          <Background color={mode === "light" ? "rgb(var(--line))" : "rgb(var(--line-subtle))"} gap={26} size={1} />
           <Controls
             showInteractive={false}
             className="!rounded-lg !border !border-line !bg-ink-elevated !shadow-card [&>button]:!border-line [&>button]:!bg-ink-elevated [&_svg]:!fill-fg-secondary"

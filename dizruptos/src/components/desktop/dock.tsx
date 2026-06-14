@@ -20,8 +20,9 @@ export interface DockApp {
   accent?: string;
   running?: boolean;        // show the running dot
   onClick?: () => void;     // window apps restore instead of navigate
+  onClose?: () => void;     // close/quit the app's window (right-click menu)
   dimmed?: boolean;         // closed window
-  appId?: string;           // registry id — enables the right-click dock menu
+  appId?: string;           // registry id — enables "Remove from Dock"
 }
 
 const BASE = 46;   // resting icon size
@@ -33,7 +34,7 @@ export function Dock({ apps }: { apps: (DockApp | "sep")[] }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const [mouseX, setMouseX] = useState<number | null>(null);
   const removeFromDock = useOS((s) => s.removeFromDock);
-  const [menu, setMenu] = useState<{ x: number; y: number; appId: string; label: string } | null>(null);
+  const [menu, setMenu] = useState<{ x: number; y: number; app: DockApp } | null>(null);
   // Cached resting centers — measured once per hover so magnification doesn't
   // call getBoundingClientRect for every item on every pointer move.
   const centers = useRef<number[]>([]);
@@ -72,9 +73,11 @@ export function Dock({ apps }: { apps: (DockApp | "sep")[] }) {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 flex justify-center pb-3">
       <div
+        data-dock
         onPointerEnter={() => measureCenters()}
         onPointerMove={(e) => trackX(e.clientX)}
         onPointerLeave={() => { if (raf.current != null) cancelAnimationFrame(raf.current); raf.current = null; setMouseX(null); }}
+        onContextMenu={(e) => e.preventDefault()}
         className="pointer-events-auto flex items-end gap-2 rounded-[22px] border border-white/10 bg-white/[0.06] px-3 pb-2 pt-2 backdrop-blur-2xl"
         style={{ boxShadow: "0 18px 50px -12px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.12)" }}
       >
@@ -89,9 +92,10 @@ export function Dock({ apps }: { apps: (DockApp | "sep")[] }) {
               setRef={(el) => (refs.current[i] = el)}
               onActivate={() => (a.onClick ? a.onClick() : a.href && router.push(a.href))}
               onContext={(e) => {
-                if (!a.appId) return;
+                // Always handle it here so the desktop's wallpaper menu never fires.
                 e.preventDefault();
-                setMenu({ x: e.clientX, y: e.clientY, appId: a.appId, label: a.label });
+                e.stopPropagation();
+                setMenu({ x: e.clientX, y: e.clientY, app: a });
               }}
             />
           )
@@ -101,25 +105,39 @@ export function Dock({ apps }: { apps: (DockApp | "sep")[] }) {
       {menu && (
         <div
           onPointerDown={(e) => e.stopPropagation()}
-          style={{ left: menu.x - 90, bottom: 86 }}
-          className="pointer-events-auto absolute z-[60] w-[180px] rounded-xl border border-white/12 bg-[rgb(var(--ink-elevated)/0.9)] p-1.5 shadow-2xl backdrop-blur-2xl"
+          style={{ left: Math.max(8, menu.x - 90), bottom: 86 }}
+          className="dz-solidify pointer-events-auto absolute z-[60] w-[190px] rounded-xl border border-white/12 bg-[rgb(var(--ink-elevated)/0.92)] p-1.5 shadow-2xl backdrop-blur-2xl"
         >
-          <div className="px-2.5 py-1 text-2xs font-semibold text-fg-muted">{menu.label}</div>
-          <button
-            onClick={() => { removeFromDock(menu.appId); setMenu(null); }}
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-fg-secondary transition-colors hover:bg-[var(--os-accent,#00ED82)] hover:text-black"
-          >
-            Remove from Dock
-          </button>
-          <button
-            onClick={() => { window.dispatchEvent(new CustomEvent("dizrupt:launchpad")); setMenu(null); }}
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-fg-secondary transition-colors hover:bg-[var(--os-accent,#00ED82)] hover:text-black"
-          >
-            Show in Launchpad
-          </button>
+          {/* the thing's name */}
+          <div className="flex items-center gap-2 px-2.5 py-1.5">
+            <menu.app.icon size={14} style={{ color: menu.app.accent ?? "var(--os-accent,#00ED82)" }} />
+            <span className="truncate text-xs font-semibold text-fg">{menu.app.label}</span>
+            {menu.app.running && <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: menu.app.accent ?? "var(--os-accent,#00ED82)" }} />}
+          </div>
+          <div className="my-1 h-px bg-white/10" />
+          {/* close / quit the open window */}
+          {menu.app.running && menu.app.onClose && (
+            <DockMenuItem onClick={() => { menu.app.onClose!(); setMenu(null); }}>Close window</DockMenuItem>
+          )}
+          {/* remove a pinned app from the dock */}
+          {menu.app.appId && (
+            <DockMenuItem onClick={() => { removeFromDock(menu.app.appId!); setMenu(null); }}>Remove from Dock</DockMenuItem>
+          )}
+          <DockMenuItem onClick={() => { window.dispatchEvent(new CustomEvent("dizrupt:launchpad")); setMenu(null); }}>Show in Launchpad</DockMenuItem>
         </div>
       )}
     </div>
+  );
+}
+
+function DockMenuItem({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-fg-secondary transition-colors hover:bg-[var(--os-accent,#00ED82)] hover:text-black"
+    >
+      {children}
+    </button>
   );
 }
 

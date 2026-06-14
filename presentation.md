@@ -95,15 +95,34 @@ wallpaper you chose all come back next time.
 - **Notification Center** (the bell) — alerts grouped into **Risks, Proposals,
   Commitments, System**, with an unread count; click an alert to jump to it, or
   "Mark all read".
-- **Control Center** (the sliders) — quick settings: light/dark, accent, wallpaper,
-  brightness, **Performance mode**, lock.
+- **Control Center** (the sliders) — quick settings: light/dark, **accent colour**,
+  **wallpaper**, **brightness**, **sound/volume**, **Performance mode**, **Do Not
+  Disturb**, and lock.
+- **Do Not Disturb** (the moon) — one click silences pop-up alerts when you need focus.
+- **Battery** — a live battery indicator (reads your real device battery where the
+  browser allows it).
 - **Calendar** (click the clock) — a small month view.
+- **Pop-up toasts** — small notifications slide in at the top-right (e.g. if you try to
+  open something your role can't access); they fade on their own.
+
+### The desktop "good morning" screen
+- Behind your windows, the wallpaper shows a **live greeting**: a big clock, a hello
+  that **changes with the time of day** (Good morning / afternoon / evening / "up late"
+  / Good night), the full date, and **two lines of useful info** — what's on your plate
+  today (e.g. "2 overdue · 6 critical") and a team line ("4 of 7 teammates have headroom
+  · Top focus: Atlas Payments · critical"). It's the first thing you see when you sign in.
 
 ### The built-in apps
-- **Home** — your personal start page. Shows your workload and your tasks split into
-  **Today**, **Pending**, and **Critical** tabs, each grouped by the project it
-  belongs to. Also lists your team and anything needing attention. *(For managers it
-  also shows the work they're accountable for, not just their own tasks.)*
+- **Home** — your personal start page. Opens with a **one-line daily brief** in plain
+  English ("You're near your limit — 2 overdue · 6 critical. Atlas Payments needs your
+  attention."), then your tasks split into **Today**, **Pending**, and **Critical** tabs,
+  each grouped by the project it belongs to (it opens on whichever tab is most urgent).
+  Also lists your team and anything needing attention. *(For managers it also shows the
+  work they're accountable for, not just their own tasks.)*
+- **Messages** — a built-in chat, like Microsoft Teams. **Direct (1:1) messages** and
+  **group channels**; a **"New" button** to start a chat or build a group from your
+  colleagues. Each group shows its **member count and member list**, and the group's
+  **admin** (its creator / lead, marked with a crown) can **add and remove members**.
 - **Tasks** — an enlarged table of all your tasks with filters (Due today, Overdue,
   Pending, In progress, Blocked, Critical, Done). Click any task for full detail.
 - **Project Matrix** — a board of task cards in columns by stage (Backlog → To Do →
@@ -120,11 +139,18 @@ wallpaper you chose all come back next time.
   Narratives, Org Memory, Dependency Graph, Learning Loop, Exec Briefing) — the deep
   analytics surfaces, each opening **as a window** so you never leave the desktop.
 
-### Comfort & inclusivity
+### Comfort, safety & inclusivity
 - **Performance mode** — a one-tap "make it faster" setting for older or low-memory
   computers (it removes heavy visual effects). It switches on automatically on
   low-spec machines (≤4GB RAM).
-- **Keyboard shortcuts** — optional; everything is also clickable.
+- **Auto-lock** — if you walk away, the desktop locks itself after 10 minutes of
+  inactivity (your work stays exactly as you left it). The same thing a work laptop does.
+- **No dead ends** — every clickable thing opens **inside the desktop** (in a window or
+  a panel). Nothing ever throws you out to a plain, separate web page.
+- **Keyboard shortcuts** — optional; everything is also clickable. (⌘/Ctrl+Space search,
+  F3 see-all-windows, F4 all-apps, ⌘/Ctrl+\` switch windows, Ctrl+Q lock.)
+- **Accessibility** — clear keyboard focus outlines, screen-reader announcements for
+  pop-ups, and proper labels on the search/overview panels.
 - **The User Guide** — a friendly, built-in explanation of every feature (open it
   from  → About DizruptOS).
 
@@ -218,6 +244,11 @@ buttons:
    - **Only managers can review/approve AI proposals.**
    - **Sensitive views** (burnout signals, financials, audit trail, executive
      surfaces) are limited to the appropriate roles.
+
+Plus **access auditing**: whenever someone tries to open something their role isn't
+allowed, it's **written to the audit trail** (and they see a polite "access denied"
+message). So denied attempts aren't just blocked — they're *recorded*, which is exactly
+what an enterprise security review expects.
 
 This three-layer model is the difference between "the button is hidden" and "the
 action is genuinely impossible" — which is what enterprises require.

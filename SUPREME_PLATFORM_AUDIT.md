@@ -77,6 +77,48 @@
 > numbers without the actual systems behind them — that honesty is the point of this
 > audit.
 
+> **Addendum 6 — 2026-06-14 (graph + greeting + auth scaffolding).** (1) **Dependency
+> graph fixed** — edges were near-invisible in light mode (used the faint `--line-strong`
+> token + `colorMode="dark"` hardcoded + 0.1 dimmed opacity); now theme-reactive
+> `colorMode`, a readable `edgeBase` per theme, red risk-edges in both modes, brighter
+> 0.25 dimmed context, and a touch more node spread (fitView keeps it framed small). (2)
+> **Desktop greeting** is now a live, time-aware block (large clock + morning/afternoon/
+> evening/late/night + long date + a role-aware brief). (3) **Real-auth scaffolding
+> SHIPPED** (env-gated): `@supabase/ssr` + `@supabase/supabase-js`, `lib/auth-supabase.ts`
+> (browser/server clients + `claimsFromUser` reading `role`/`org_id` from the JWT),
+> `/auth/callback` route, `AUTH_SETUP.md`. The demo flow is untouched; flipping real
+> auth on is now **config-only, not code** — which materially **de-risks the #1 P0**.
+> Net: Frontend/UX **9.6 → 9.7**. Security/Production *live* scores are unchanged (no
+> real auth is *running* without creds), but the **code-readiness** for auth is now
+> done — the remaining work is a Supabase project + provider config + one Auth Hook.
+
+> **Addendum 7 — 2026-06-14 (auth is now FUNCTIONAL + last redirect leaks killed).**
+> (1) **Real auth is wired end-to-end and live against the configured Supabase**, not
+> just scaffolded: the login page renders **magic-link email + Google/Microsoft OAuth**
+> (with the demo personas as a labelled fallback), `middleware.ts` now **validates &
+> refreshes a real Supabase session** (and still accepts the demo `dz_session` cookie so
+> nothing breaks during transition), `/auth/callback` exchanges the code, and
+> `claimsFromUser` reads `role`/`org_id` from the JWT. **Remaining for live RBAC on real
+> identities = real users signing up + the one Auth Hook** that mints role/org into the
+> token. So **Auth code-readiness ≈ 8.5/9** now (was 3); the *operational* score still
+> waits on real users. (2) **Every desktop tile redirect leak is gone** — Org Pulse,
+> Situation, Capacity, Agent Inbox and Portfolio cards used `<Link href="/…">` and
+> navigated the whole desktop to the legacy dashboard; they now open the matching app
+> *window* (`osOpen`). (3) Desktop greeting enriched (team-headroom + top-focus line);
+> all guide keyboard shortcuts verified working (F3/F4/⌘Space/⌘`/Ctrl+Q); `presentation.md`
+> updated with chat/controls/auto-lock/auditing. Net: Frontend/UX **9.7 → 9.8**.
+
+> **Addendum 8 — 2026-06-14 (light-mode + dock + interactive greeting).** (1) **Light-mode
+> contrast fixed** — the Org Pulse cards used a hardcoded dark `rgba(13,14,17,0.5)` fill
+> that left their numbers/percentages unreadable on white; now a theme token
+> (`rgb(var(--ink-surface))`), and a broader audit confirmed no other hardcoded-dark
+> surfaces in window content. (2) **Dock right-click fixed** — it used to fall through to
+> the wallpaper menu; the Dock now `data-dock`-guards the desktop menu and shows its own
+> menu (app name + **Close window** when open + **Remove from Dock** + Launchpad). (3)
+> **Desktop greeting is now interactive** — a "Needs you today" list (click a task →
+> detail drawer) and "Your projects" chips (click → the project's board), theme-aware so
+> they read in both modes. Polish within the 9.8 frontend score.
+
 ## The one-paragraph truth
 DIZRUPT is an **exceptionally well-architected prototype of a genuinely novel idea**
 (computed, explainable organizational intelligence over a typed graph). The engine layer
@@ -89,7 +131,8 @@ leadership actually opens, and one paying organization. Treat current scores acc
 | Dimension | Score | Why not 10 |
 |---|---|---|
 | Overall Product | **4.5 → 5.5** | Was: engines exist, nothing consumable. Now: a real, distinctive consuming surface (the DizruptOS desktop + Home/Matrix/Directory/Vault + routes-as-windows). Still no users, no real data, no validation — so it caps here. |
-| Overall Frontend / UX | **6.5 → 9.6** | Full window-manager + 8-app suite (Home w/ live daily brief / Tasks / Matrix / Directory / **Messages-chat w/ group admin** / Vault / Settings-as-managed-window) + Spotlight/Mission-Control/Launchpad/Window-Switcher + toasts/DND/battery/volume; macOS-grade interaction & motion; light/dark + accent + wallpaper; Performance mode; **3-layer RBAC w/ audited denials** + idle auto-lock; sticky-embed (no redirect leaks); a11y (focus-visible + dialog roles + aria-live). The last 0.4 to 10 is *not demo-fixable*: restyle the iframed legacy pages, full WCAG/screen-reader certification, and real backend wiring. |
+| Auth (code-readiness) | **3 → 8.5** | Magic-link + OAuth login UI, session-validating middleware, `/auth/callback`, JWT claim reader — all wired & live against the configured Supabase, demo fallback intact. *Operational* auth still needs real users + the role/org Auth Hook. |
+| Overall Frontend / UX | **6.5 → 9.8** | Full window-manager + 9-app suite (Home w/ live daily brief / Tasks / Matrix / Directory / **Messages-chat w/ group admin** / Vault / Settings-as-managed-window) + Spotlight/Mission-Control/Launchpad/Window-Switcher + toasts/DND/battery/volume; macOS-grade interaction & motion; light/dark + accent + wallpaper; Performance mode; **3-layer RBAC w/ audited denials** + idle auto-lock; **zero redirect leaks** (every tile opens a window); enriched time-aware desktop greeting; a11y (focus-visible + dialog roles + aria-live). The last 0.2 to 10 is *not demo-fixable*: restyle the iframed legacy pages' internals + full WCAG/screen-reader certification + real users. |
 | Overall Enterprise | **2.5 → 3.5** | RBAC is now defense-in-depth (UI + data-layer denial) **and audited** (denied opens hit the audit trail). Still missing SSO/SCIM, compliance certs, multi-tenant admin console — so it stays capped here until identity is real. |
 | Overall Platform | **6.5** | Clean layering + RLS + tenancy, but no auth, no realtime, no obs. |
 | Overall Architecture | **7.5** | Genuinely good seams + pure engines. Loses points: demo/live model split, no CI for DB, lossy mappers. |

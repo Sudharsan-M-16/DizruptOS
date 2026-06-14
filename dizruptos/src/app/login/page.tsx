@@ -18,6 +18,8 @@ import { DizruptMark } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 
 import { OrbitField } from "@/components/fx/orbit-field";
+import { RealAuthForm } from "@/components/auth/real-auth-form";
+import { isAuthConfigured } from "@/lib/auth-supabase";
 
 const AMBER = "#F97316";
 
@@ -123,11 +125,16 @@ export default function LoginPage() {
             tasks and your team, all on one screen.
           </motion.p>
 
+          {/* real auth (only when Supabase is configured — invisible in demo) */}
+          {isAuthConfigured && (
+            <motion.div {...rise(5)}><RealAuthForm /></motion.div>
+          )}
+
           {/* persona picker */}
-          <motion.div {...rise(5)} className="mt-8">
+          <motion.div {...rise(isAuthConfigured ? 6 : 5)} className="mt-8">
             <div className="mb-3 flex items-baseline justify-between">
               <span className="text-[13px] font-medium uppercase tracking-[0.16em] text-white">
-                Sign in as
+                {isAuthConfigured ? "Demo accounts" : "Sign in as"}
               </span>
               <span className="text-[13px] text-[#A3A3A3]">demo personas · one per role</span>
             </div>

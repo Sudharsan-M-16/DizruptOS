@@ -35,8 +35,10 @@ export function DesktopContextMenu({ children }: { children: React.ReactNode }) 
   return (
     <div
       onContextMenu={(e) => {
-        // only when the bare desktop is right-clicked (not a window)
-        if ((e.target as HTMLElement).closest('[role="dialog"]')) return;
+        // only when the bare desktop is right-clicked — not a window, and not the
+        // Dock (the Dock has its own right-click menu).
+        const t = e.target as HTMLElement;
+        if (t.closest('[role="dialog"]') || t.closest("[data-dock]")) return;
         e.preventDefault();
         const x = Math.min(e.clientX, window.innerWidth - 250);
         const y = Math.min(e.clientY, window.innerHeight - 360);

@@ -42,6 +42,7 @@ import { MissionControl } from "@/components/desktop/mission-control";
 import { Launchpad } from "@/components/desktop/launchpad";
 import { WindowSwitcher } from "@/components/desktop/window-switcher";
 import { Toaster, toast } from "@/components/desktop/toaster";
+import { DesktopGreeting } from "@/components/desktop/desktop-greeting";
 import { useOS } from "@/lib/os";
 import { APPS, DEFAULT_DOCK, appById, iconFor } from "@/lib/desktop-apps";
 
@@ -73,6 +74,24 @@ const WIN_META: Record<string, { icon: React.ElementType; accent: string }> = {
   chat: { icon: MessageSquare, accent: "#2BD9FF" },
   vault: { icon: Boxes, accent: "#FEBC2E" },
 };
+
+// Open an old-style route WITHOUT leaving the desktop: map well-known roots to a
+// native app window; open everything else (deep links like /projects/p-atlas)
+// as a route-window. This is what keeps the desktop tiles from redirecting to
+// the legacy dashboard.
+const ROOT_APP: Record<string, string> = {
+  "/capacity": "r-capacity", "/people": "directory", "/projects": "matrix", "/risks": "r-risks",
+};
+function osOpen(href?: string) {
+  if (!href || href === "/") return;
+  const fire = (name: string, detail: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
+  const route = (h: string) => fire("dizrupt:open-route", { href: h, title: h.replace(/^\//, "").split("/")[0] || "DizruptOS" });
+  const parts = href.split("/").filter(Boolean);
+  if (parts.length > 1) { route(href); return; }            // deep link → route window
+  const appId = ROOT_APP[`/${parts[0]}`];
+  if (appId) fire("dizrupt:launch", { id: appId });
+  else route(href);
+}
 
 export default function CommandCenterDesktop() {
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -219,14 +238,14 @@ export default function CommandCenterDesktop() {
   ].filter(appAllowed);
   const pinnedDock: DockApp[] = pinnedIds.map((id) => {
     const a = appById(id)!;
-    const running = dm.wins.some((w) => w.id === id && !w.closed && !w.minimized);
-    return { id, appId: id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent, running, onClick: () => launchApp(id) };
+    const open = dm.wins.some((w) => w.id === id && !w.closed); // open (incl. minimized)
+    return { id, appId: id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent, running: open, onClick: () => launchApp(id), onClose: () => dm.close(id) };
   });
   const launchpadApp: DockApp = { id: "launchpad", label: "Launchpad", icon: iconFor("launchpad"), accent: "#2BD9FF", onClick: () => window.dispatchEvent(new CustomEvent("dizrupt:launchpad")) };
   // open windows that aren't already pinned → restore tiles on the right
   const openTiles: DockApp[] = dm.wins
     .filter((w) => !w.closed && !pinnedIds.includes(w.id) && (canSeeAudit || w.id !== "activity"))
-    .map((w) => ({ id: `win-${w.id}`, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w), running: !w.minimized, onClick: () => dm.open(w.id) }));
+    .map((w) => ({ id: `win-${w.id}`, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w), running: true, onClick: () => dm.open(w.id), onClose: () => dm.close(w.id) }));
   const dockApps: (DockApp | "sep")[] = [launchpadApp, ...pinnedDock, ...(openTiles.length ? ["sep" as const, ...openTiles] : [])];
 
   // ---- Spotlight + Mission Control feeds ----
@@ -278,15 +297,8 @@ export default function CommandCenterDesktop() {
       <div ref={surfaceRef} className="relative flex-1 overflow-hidden">
         <Wallpaper />
 
-        {/* greeting watermark */}
-        <div className="pointer-events-none absolute left-8 top-7 select-none" style={{ textShadow: "0 1px 18px rgba(0,0,0,0.35)" }}>
-          <div className="font-display text-2xl font-bold tracking-tight text-fg">
-            {greeting()}, {persona.name.split(" ")[0]}.
-          </div>
-          <div className="mt-0.5 text-sm text-fg-muted">
-            {isEmployee ? "Your week, on one desktop." : "Your organization, on one desktop."}
-          </div>
-        </div>
+        {/* greeting — time-aware live block behind the windows */}
+        <DesktopGreeting />
 
         {/* snap preview */}
         {dm.snapZone && <SnapPreview zone={dm.snapZone} />}
@@ -372,12 +384,12 @@ function SituationBody({ canReview, canSeeCapacity, compromise, worstOverload, u
       </p>
       <div className="mt-auto flex flex-wrap gap-2 pt-3">
         {canReview && compromise && (
-          <Link href="/proposals"><Button className="h-8"><Zap size={12} /> Review compromise</Button></Link>
+          <Button className="h-8" onClick={() => osOpen("/proposals")}><Zap size={12} /> Review compromise</Button>
         )}
         {canSeeCapacity && worstOverload && (
-          <Link href="/capacity"><Button variant="secondary" className="h-8"><Flame size={12} /> Relieve {worstOverload.name.split(" ")[0]} · {fmtPct(utilization(worstOverload.id, week))}</Button></Link>
+          <Button variant="secondary" className="h-8" onClick={() => osOpen("/capacity")}><Flame size={12} /> Relieve {worstOverload.name.split(" ")[0]} · {fmtPct(utilization(worstOverload.id, week))}</Button>
         )}
-        <Link href="/projects/p-atlas"><Button variant={canReview ? "secondary" : "primary"} className="h-8"><Crosshair size={12} /> Open Atlas</Button></Link>
+        <Button variant={canReview ? "secondary" : "primary"} className="h-8" onClick={() => osOpen("/projects/p-atlas")}><Crosshair size={12} /> Open Atlas</Button>
       </div>
     </div>
   );
@@ -390,9 +402,9 @@ function PulseBody({ stats }: { stats: any[] }) {
         const meta = PULSE_META[s.label] ?? { icon: Zap, accent: "#00ED82" };
         const Icon = meta.icon;
         return (
-          <div key={s.label} className="group relative overflow-hidden rounded-xl border border-line bg-ink-surface/60 p-4"
-            style={{ background: `radial-gradient(120% 120% at 0% 0%, ${meta.accent}1f, transparent 55%), rgba(13,14,17,0.5)` }}>
-            <Link href={PULSE_HREF[s.label] ?? "/"} aria-label={`Open ${s.label}`} className="absolute inset-0 z-0" />
+          <div key={s.label} className="group relative overflow-hidden rounded-xl border border-line p-4"
+            style={{ background: `radial-gradient(120% 120% at 0% 0%, ${meta.accent}1f, transparent 55%), rgb(var(--ink-surface))` }}>
+            <button type="button" onClick={() => osOpen(PULSE_HREF[s.label])} aria-label={`Open ${s.label}`} className="absolute inset-0 z-0" />
             <div className="pointer-events-none relative z-10">
               <div className="flex items-start justify-between">
                 <span className="grid h-9 w-9 place-items-center rounded-lg border" style={{ borderColor: `${meta.accent}40`, background: `${meta.accent}14`, color: meta.accent }}>
@@ -420,7 +432,7 @@ function CapacityBody({ overloaded, active, available, utilization, week, canSee
       {list.map((e: any) => {
         const pct = utilization(e.id, week);
         return (
-          <Link key={e.id} href="/capacity" className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-ink-elevated">
+          <div key={e.id} role="button" tabIndex={0} onClick={() => osOpen("/capacity")} onKeyDown={(ev) => ev.key === "Enter" && osOpen("/capacity")} className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-ink-elevated">
             <EmpAvatar initials={e.initials} accent={e.accent} size={28} />
             <div className="w-36 min-w-0">
               <div className="truncate text-xs font-semibold">{e.name}</div>
@@ -430,10 +442,10 @@ function CapacityBody({ overloaded, active, available, utilization, week, canSee
             <span className={cn("w-12 text-right font-mono text-xs font-semibold", utilizationTone(pct) === "danger" ? "text-danger" : utilizationTone(pct) === "warn" ? "text-warn" : "text-ok")}>{fmtPct(pct)}</span>
             {e.burnoutFlag && canSeeBurnout && (
               <Explain title="Burnout signals (manager-private)" signals={e.burnoutSignals ?? []}>
-                <button className="rounded-full border border-danger/40 bg-danger-soft px-2 py-px text-2xs font-semibold text-danger">burnout</button>
+                <button onClick={(ev) => ev.stopPropagation()} className="rounded-full border border-danger/40 bg-danger-soft px-2 py-px text-2xs font-semibold text-danger">burnout</button>
               </Explain>
             )}
-          </Link>
+          </div>
         );
       })}
       <div className="flex items-center gap-2 px-2 pt-2 text-2xs text-fg-muted">
@@ -469,11 +481,11 @@ function YourWeekBody({ myUtil, myTasks }: any) {
 function InboxBody({ pending, isEmployee }: any) {
   return (
     <div className="space-y-2">
-      <Link href="/proposals" className="flex items-center gap-1.5 text-2xs font-medium text-brand hover:underline">
+      <button onClick={() => osOpen("/proposals")} className="flex items-center gap-1.5 text-2xs font-medium text-brand hover:underline">
         <Inbox size={11} /> {isEmployee ? "Your requests" : "Needs your decision"} <ArrowRight size={11} />
-      </Link>
+      </button>
       {pending.slice(0, 4).map((p: any) => (
-        <Link key={p.id} href="/proposals" className="block rounded-xl border border-line bg-ink-surface p-3 transition-colors hover:bg-ink-elevated">
+        <button key={p.id} onClick={() => osOpen("/proposals")} className="block w-full rounded-xl border border-line bg-ink-surface p-3 text-left transition-colors hover:bg-ink-elevated">
           <div className="flex items-center gap-2">
             <span className={cn("rounded-full px-2 py-px text-2xs font-semibold", p.priority >= 100 ? "bg-danger-soft text-danger" : p.priority >= 70 ? "bg-warn-soft text-warn" : "bg-brand-soft text-brand")}>{p.agentType.replace("_", " ")}</span>
             {p.conflict && <span className="rounded-full border border-line bg-ink-elevated px-2 py-px text-2xs text-fg-secondary">compromise</span>}
@@ -481,7 +493,7 @@ function InboxBody({ pending, isEmployee }: any) {
           </div>
           <div className="mt-2 text-xs font-semibold leading-snug">{p.title}</div>
           <p className="mt-1 line-clamp-2 text-2xs leading-relaxed text-fg-secondary">{p.summary}</p>
-        </Link>
+        </button>
       ))}
       {pending.length === 0 && <div className="rounded-xl border border-line bg-ink-surface p-4 text-2xs text-fg-muted">Nothing awaiting you — all clear.</div>}
     </div>
@@ -492,7 +504,7 @@ function PortfolioBody() {
   return (
     <div className="space-y-2">
       {projects.map((p) => (
-        <Link key={p.id} href={`/projects/${p.id}`} className="block rounded-xl border border-line bg-ink-surface p-3 transition-colors hover:bg-ink-elevated">
+        <button key={p.id} onClick={() => osOpen(`/projects/${p.id}`)} className="block w-full rounded-xl border border-line bg-ink-surface p-3 text-left transition-colors hover:bg-ink-elevated">
           <div className="flex items-center gap-2">
             <span className="rounded bg-ink-elevated px-1.5 py-px font-mono text-2xs text-fg-muted">{p.code}</span>
             <span className="truncate text-xs font-semibold">{p.name}</span>
@@ -505,7 +517,7 @@ function PortfolioBody() {
               <div className="text-fg-muted">budget</div>
             </div>
           </div>
-        </Link>
+        </button>
       ))}
     </div>
   );

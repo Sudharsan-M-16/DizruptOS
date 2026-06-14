@@ -1086,3 +1086,205 @@ digest: "526354101"
  ✓ Compiled in 7.1s (3523 modules)
  GET /capacity?embed=1 200 in 337ms
  GET / 200 in 223ms
+ ✓ Compiled in 5s (3523 modules)
+ ✓ Compiled in 3s (3523 modules)
+ ✓ Compiled in 4.3s (3523 modules)
+ ✓ Compiled in 5.1s (3523 modules)
+ ✓ Compiled in 11.1s (3523 modules)
+ ✓ Compiled in 1917ms (1862 modules)
+ ✓ Compiled /risks in 35.4s (3525 modules)
+ ✓ Compiled (3531 modules)
+ ✓ Compiled in 23.7s (3531 modules)
+ ✓ Compiled in 1243ms (1863 modules)
+ GET / 200 in 325ms
+ GET /graph?embed=1 200 in 133ms
+ GET / 200 in 159ms
+ ✓ Compiled in 1621ms (3525 modules)
+ ✓ Compiled in 823ms (1863 modules)
+ ✓ Compiled in 685ms (1863 modules)
+ GET /graph?embed=1 200 in 193ms
+ ✓ Compiled in 4.1s (3598 modules)
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 2.4s (1670 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.1s (1700 modules)
+ POST /api/auth/login 200 in 2297ms
+ POST /api/auth/login 200 in 36ms
+ GET /capacity?embed=1 200 in 322ms
+ GET /capacity?embed=1 200 in 57ms
+ ○ Compiling /projects ...
+ ✓ Compiled /projects in 1001ms (1704 modules)
+ GET /capacity?embed=1 200 in 178ms
+ ✓ Compiled in 7.6s (3525 modules)
+ ✓ Compiled in 5s (3525 modules)
+ ✓ Compiled in 5.8s (3525 modules)
+ ⨯ ./src/app/(shell)/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\page.tsx[0m:428:1]
+ [2m428[0m | function CapacityBody({ overloaded, active, available, utilization, week, canSeeBurnout }: any) {
+ [2m429[0m |   const list = [...overloaded, ...active.filter((e: any) => { const u = utilization(e.id, week); return u >= 0.8 && u < 1; })].slice(0, 5);
+ [2m430[0m |   return (
+ [2m431[0m |     <div className="space-y-1">
+     : [31;1m     ^^^[0m
+ [2m432[0m |       {list.map((e: any) => {
+ [2m433[0m |         const pct = utilization(e.id, week);
+ [2m434[0m |         return (
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ ○ Compiling /_error ...
+ ⨯ ./src/app/(shell)/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\page.tsx[0m:428:1]
+ [2m428[0m | function CapacityBody({ overloaded, active, available, utilization, week, canSeeBurnout }: any) {
+ [2m429[0m |   const list = [...overloaded, ...active.filter((e: any) => { const u = utilization(e.id, week); return u >= 0.8 && u < 1; })].slice(0, 5);
+ [2m430[0m |   return (
+ [2m431[0m |     <div className="space-y-1">
+     : [31;1m     ^^^[0m
+ [2m432[0m |       {list.map((e: any) => {
+ [2m433[0m |         const pct = utilization(e.id, week);
+ [2m434[0m |         return (
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ GET / 500 in 29ms
+ GET /capacity?embed=1 500 in 30ms
+ ✓ Compiled /_not-found in 7.9s (3529 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/c1244f31bea6e2c8.webpack.hot-update.json 404 in 7809ms
+ GET / 200 in 305ms
+ GET /capacity?embed=1 200 in 128ms
+ ⨯ ./src/app/(shell)/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\page.tsx[0m:480:1]
+ [2m480[0m | 
+ [2m481[0m | function InboxBody({ pending, isEmployee }: any) {
+ [2m482[0m |   return (
+ [2m483[0m |     <div className="space-y-2">
+     : [31;1m     ^^^[0m
+ [2m484[0m |       <button onClick={() => osOpen("/proposals")} className="flex items-center gap-1.5 text-2xs font-medium text-brand hover:underline">
+ [2m485[0m |         <Inbox size={11} /> {isEmployee ? "Your requests" : "Needs your decision"} <ArrowRight size={11} />
+ [2m486[0m |       </button>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/page.tsx
+ GET / 500 in 30ms
+ GET /capacity?embed=1 500 in 33ms
+ ✓ Compiled in 1157ms (3529 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 200 in 2580ms
+ ✓ Compiled (3515 modules)
+ GET /capacity?embed=1 200 in 393ms
+ ✓ Compiled in 1235ms (3529 modules)
+ ✓ Compiled in 7s (3525 modules)
+ ✓ Compiled in 1349ms (3525 modules)
+ ○ Compiling /proposals ...
+ ✓ Compiled /proposals in 1278ms (1671 modules)
+ GET /proposals?embed=1 200 in 2022ms
+ ✓ Compiled in 1288ms (3534 modules)
+ GET /capacity?embed=1 200 in 156ms
+ GET /capacity?embed=1 200 in 49ms
+ GET / 200 in 182ms
+ GET /capacity?embed=1 200 in 79ms
+ ✓ Compiled in 697ms (1863 modules)
+ ✓ Compiled in 514ms (1863 modules)
+ GET /capacity?embed=1 200 in 75ms
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 2.7s (1670 modules)
+ GET /memory?embed=1 200 in 2946ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 2.1s (1727 modules)
+{"ts":"2026-06-14T17:28:32.973Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"ee80d562-95a3-43a1-b1b4-7fd3832d9148","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":1205}}
+ GET /api/v1/decisions/memory 200 in 3439ms
+ ✓ Compiled in 1661ms (1937 modules)
+ ✓ Compiled in 2.5s (1992 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (102kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (244kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled in 563ms (1863 modules)
+ ✓ Compiled in 5.2s (3527 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ src\app\login\page.tsx (127:12) @ isAuthConfigured
+ ⨯ ReferenceError: isAuthConfigured is not defined
+    at LoginPage (./src/app/login/page.tsx:275:25)
+digest: "3146390913"
+[0m [90m 125 |[39m[0m
+[0m [90m 126 |[39m           {[90m/* real auth (only when Supabase is configured — invisible in demo) */[39m}[0m
+[0m[31m[1m>[22m[39m[90m 127 |[39m           {isAuthConfigured [33m&&[39m ([0m
+[0m [90m     |[39m            [31m[1m^[22m[39m[0m
+[0m [90m 128 |[39m             [33m<[39m[33mmotion[39m[33m.[39mdiv {[33m...[39mrise([35m5[39m)}[33m>[39m[33m<[39m[33mRealAuthForm[39m [33m/[39m[33m>[39m[33m<[39m[33m/[39m[33mmotion[39m[33m.[39mdiv[33m>[39m[0m
+[0m [90m 129 |[39m           )}[0m
+[0m [90m 130 |[39m[0m
+ GET /login?from=%2F 500 in 350ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 4.4s (3648 modules)
+ GET /login?from=%2F 200 in 3522ms
+ GET /login?from=%2F 200 in 72ms
+ GET /login 200 in 69ms
+ ✓ Compiled in 6.8s (2053 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 15.2s (3678 modules)
+ POST /api/auth/login 200 in 11869ms
+ ✓ Compiled in 2.9s (3678 modules)
+ ✓ Compiled in 429ms (1924 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (102kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (244kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ GET /login 200 in 471ms
+ GET /login?from=%2F 200 in 248ms
+ GET /login?from=%2F 200 in 55ms
+ GET /login?from=%2F 200 in 72ms
+ POST /api/auth/login 200 in 88ms
+ GET /login?from=%2F 200 in 37ms
+ GET /login?from=%2F 200 in 77ms
+ POST /api/auth/login 200 in 35ms
+ ✓ Compiled in 2.2s (2053 modules)
+ GET /login?from=%2F 200 in 114ms
+ POST /api/auth/login 200 in 42ms
+ GET / 200 in 432ms
+ GET /login 200 in 78ms
+ GET / 200 in 111ms
+ GET / 200 in 53ms
+ ✓ Compiled in 6.9s (3648 modules)
+ ✓ Compiled in 6.2s (3648 modules)
+ ✓ Compiled in 6s (3648 modules)
+ ✓ Compiled in 4.9s (3648 modules)
+ ✓ Compiled in 5.5s (3648 modules)
+ ✓ Compiled in 5s (3648 modules)
+ ✓ Compiled in 6.7s (3648 modules)
+ ✓ Compiled in 7s (3648 modules)
+ GET / 200 in 426ms
+ ✓ Compiled in 2.7s (3648 modules)
+ ✓ Compiled in 725ms (3648 modules)
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 725ms (1730 modules)
+ GET /projects/p-atlas?embed=1 200 in 1424ms
+ GET / 200 in 124ms
+ GET /projects/p-helio?embed=1 200 in 68ms
+ GET / 200 in 68ms
+ GET / 200 in 62ms
+ GET / 200 in 59ms
+ GET / 200 in 62ms
+ GET /projects/p-atlas?embed=1 200 in 103ms
+ GET /projects/p-helio?embed=1 200 in 91ms
+ GET /memory?embed=1 200 in 97ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 1899ms (1781 modules)
+{"ts":"2026-06-14T17:51:00.433Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"24884cc5-1d4c-4b2c-b98e-ff08921edb2d","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":1064}}
+ GET /api/v1/decisions/memory 200 in 3097ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 1512ms (1788 modules)
+ GET /executive?embed=1 200 in 1924ms

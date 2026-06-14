@@ -7,8 +7,14 @@
 // redirect topology and header policy do not change.
 
 import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { env } from "./lib/env";
 
-const PUBLIC_PATHS = ["/login", "/welcome", "/api/auth", "/api/health", "/api/ready"];
+// Real-auth is active only when Supabase is fully configured; otherwise the demo
+// `dz_session` gate runs and nothing about the demo changes.
+const authConfigured = env.mode === "production" && !!env.supabaseUrl && !!env.supabaseAnonKey;
+
+const PUBLIC_PATHS = ["/login", "/welcome", "/auth", "/api/auth", "/api/health", "/api/ready"];
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -60,7 +66,7 @@ function apiRateLimited(ip: string): boolean {
   return entry.count > API_MAX;
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/api/v1")) {
@@ -79,20 +85,37 @@ export function middleware(req: NextRequest) {
 
   if (isPublic) return withSecurityHeaders(NextResponse.next());
 
-  const session = req.cookies.get("dz_session");
-  if (!session?.value) {
-    // APIs answer in their own language: 401 JSON, never an HTML redirect.
+  const unauthenticated = () => {
     if (pathname.startsWith("/api/")) {
-      return withSecurityHeaders(
-        NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })
-      );
+      return withSecurityHeaders(NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 }));
     }
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("from", pathname);
     return withSecurityHeaders(NextResponse.redirect(url));
+  };
+
+  // ---- production: a real Supabase session is sufficient (and gets refreshed).
+  // We do NOT *require* it, because the demo personas still authenticate with the
+  // opaque dz_session cookie even when Supabase is configured — so a real session
+  // OR the demo cookie passes. (Retire the demo cookie once real users exist.)
+  if (authConfigured) {
+    const res = NextResponse.next();
+    const supabase = createServerClient(env.supabaseUrl!, env.supabaseAnonKey!, {
+      cookies: {
+        getAll: () => req.cookies.getAll(),
+        setAll: (cookiesToSet) =>
+          cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options)),
+      },
+    });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) return withSecurityHeaders(res); // real session → allow + refresh
+    // else fall through to the demo cookie gate
   }
 
+  // ---- demo: the opaque dz_session cookie gate ----
+  const session = req.cookies.get("dz_session");
+  if (!session?.value) return unauthenticated();
   return withSecurityHeaders(NextResponse.next());
 }
 
