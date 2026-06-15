@@ -75,6 +75,11 @@
 | **Stage Manager** | 0→9 | S | ✅ `components/desktop/stage-manager.tsx`: left thumbnail rail of non-primary windows with frosted previews; click thumbnail → bring to front; toggle in Control Center + persisted in `useOS`. | ✅ done |
 | **Hot Corners** | 0→9 | S | ✅ Wired: TL=Mission Control, TR=Notification Center, BL=Launchpad, BR=Show Desktop (minimize all). 700ms dwell, 8px zones. | ✅ done |
 | **Operational activation guide** | 0→10 | S | ✅ `ACTIVATION_GUIDE.md`: 13-section runbook (Supabase Auth, Auth Hook, SAML, OIDC, Sentry, Jira/Linear/GitHub webhooks, SCIM, Prometheus, SOC2, Vercel, demo→real-users checklist). | ✅ done |
+| **Login page polish** | 6→9 | S | ✅ Technical jargon removed (JWT/httpOnly/MFA footnotes → plain trust signals); card `bg` changed from `bg-white/[0.035]` to `bg-[#0f0f0f]/80` (fully legible text); "Email me a magic link" → "Email me a sign-in link". | ✅ done |
+| **Boot sequence on every login** | 6→10 | S | ✅ `powerOn()` called on login submit — ensures `boot → lock → desktop` runs even after in-tab soft navigations that kept the Zustand store at `phase:"desktop"`. | ✅ done |
+| **Landing hero plates removed** | 7→9.5 | S | ✅ `welcome/page.tsx` — removed `bg-ink`/`bg-brand` plate divs from all 3 headline lines; text now floats directly on ChromaField with overflow-clipped slide animations. | ✅ done |
+| **Dizrupt brand wallpaper** | 7→9 | S | ✅ New "Dizrupt" wallpaper (`os.ts`) set as default: deep ink + dual volt-green ellipse auroras matching brand palette. `volt-flux` enhanced to 6-layer stack. Wallpaper component gains 3rd slow aurora orb for depth. | ✅ done |
+| **Auth verification (5 phases)** | - | S | ✅ Phase 1 (login page OK), Phase 2 (dashboard 200, no crashes), Phase 3 (zero 500/auth/DB errors), Phase 4 (no bugs in core auth), Phase 5 (all 4 env vars set). | ✅ done |
 
 ## Sequencing (the only order that matters)
 1. **Auth** (legitimacy) → 2. **One real org's data in** (ingestion or guided import) → 3. **Executive surface + intelligence UIs** (consumption) → 4. **Observability + CI/CD** (shipping) → 5. **Realtime + calibration** (trust) → 6. **GraphRAG copilot** (the durable moat) → 7. enterprise/compliance.

@@ -1630,3 +1630,52 @@ Retrying 2/3...
  ○ Compiling /graph ...
  ✓ Compiled /graph in 6.1s (1773 modules)
  GET /graph?embed=1 200 in 7053ms
+ ✓ Compiled in 13.6s (3554 modules)
+ ✓ Compiled in 7.1s (3554 modules)
+ ✓ Compiled in 1518ms (3558 modules)
+ ✓ Compiled in 1375ms (3558 modules)
+ ✓ Compiled in 1911ms (3558 modules)
+ ✓ Compiled in 1124ms (3558 modules)
+ ✓ Compiled in 6.5s (3558 modules)
+ ✓ Compiled in 491ms (1928 modules)
+ ✓ Compiled in 824ms (1928 modules)
+ ✓ Compiled in 1217ms (3558 modules)
+ ✓ Compiled in 1309ms (3558 modules)
+ ✓ Compiled in 1506ms (3558 modules)
+ GET /login 200 in 836ms
+ GET /welcome 200 in 452ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.3s (1744 modules)
+ GET / 200 in 5378ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 2.1s (1758 modules)
+ GET /api/health 200 in 2301ms
+ GET / 200 in 368ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1445ms (1760 modules)
+ GET /api/capacity 404 in 1573ms
+ GET /api/projects 404 in 70ms
+ GET /api/intelligence/graph 404 in 64ms
+ ○ Compiling /api/v1/intelligence/graph ...
+ ✓ Compiled /api/v1/intelligence/graph in 658ms (1787 modules)
+{"ts":"2026-06-15T09:09:29.763Z","level":"warn","event":"api_api_intelligence_graph","ctx":{"reqId":"8ffaa99a-9f52-4b03-84b0-95c09d7af20f","method":"GET","path":"/api/v1/intelligence/graph","status":401,"ms":1}}
+ GET /api/v1/intelligence/graph 401 in 742ms
+ GET /auth 404 in 63ms
+{"ts":"2026-06-15T09:09:29.964Z","level":"warn","event":"api_api_intelligence_graph","ctx":{"reqId":"3aee2e68-35dc-4b58-aadb-3c160b8c06c6","method":"GET","path":"/api/v1/intelligence/graph","status":401,"ms":0}}
+ GET /api/v1/intelligence/graph 401 in 16ms
+ GET /login 200 in 267ms
+ GET /login 200 in 106ms
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 4.3s (1744 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 4.7s (1768 modules)
+ POST /api/auth/login 200 in 5020ms
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 987ms (1774 modules)
+ GET /projects/p-helio?embed=1 200 in 1378ms
+ POST /api/auth/login 200 in 46ms
+ POST /api/auth/login 200 in 44ms
+ GET /capacity?embed=1 200 in 165ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 1772ms (1775 modules)
+ GET /executive?embed=1 200 in 2106ms

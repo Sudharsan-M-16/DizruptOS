@@ -59,15 +59,35 @@ export const WALLPAPERS: Wallpaper[] = [
     label: "Volt Flux",
     dynamic: true,
     dark:
-      "radial-gradient(120% 90% at 12% 0%, __A__22, transparent 46%)," +
-      "radial-gradient(120% 90% at 100% 8%, rgba(43,217,255,0.12), transparent 52%)," +
-      "radial-gradient(150% 120% at 50% 130%, __A__1c, transparent 55%)," +
-      "linear-gradient(180deg, #06070c 0%, #05060a 60%, #030409 100%)",
+      "radial-gradient(90% 70% at 8% 0%, __A__38, transparent 42%)," +
+      "radial-gradient(70% 60% at 95% 5%, rgba(0,237,130,0.18), transparent 44%)," +
+      "radial-gradient(120% 90% at 100% 8%, rgba(43,217,255,0.10), transparent 52%)," +
+      "radial-gradient(80% 60% at 50% 100%, __A__1a, transparent 50%)," +
+      "radial-gradient(60% 40% at 30% 60%, rgba(0,237,130,0.08), transparent 50%)," +
+      "linear-gradient(160deg, #030a06 0%, #04090a 40%, #030408 70%, #020306 100%)",
     light:
-      "radial-gradient(120% 90% at 12% 0%, __A__33, transparent 50%)," +
-      "radial-gradient(120% 90% at 100% 6%, rgba(43,217,255,0.22), transparent 54%)," +
-      "linear-gradient(180deg, #eef5f3 0%, #e6eeec 70%, #dfe8e6 100%)",
-    swatch: "linear-gradient(135deg, #00ED82, #2BD9FF 60%, #06070c)",
+      "radial-gradient(90% 70% at 8% 0%, __A__44, transparent 46%)," +
+      "radial-gradient(70% 60% at 95% 5%, rgba(0,237,130,0.28), transparent 48%)," +
+      "radial-gradient(120% 90% at 100% 6%, rgba(43,217,255,0.18), transparent 54%)," +
+      "linear-gradient(160deg, #e2f5ec 0%, #dff2ee 50%, #daeae6 100%)",
+    swatch: "linear-gradient(135deg, #00ED82, #2BD9FF 55%, #030a06)",
+  },
+  {
+    id: "dizrupt-brand",
+    label: "Dizrupt",
+    dynamic: true,
+    dark:
+      "radial-gradient(ellipse 80% 60% at 15% 5%, __A__30, transparent 48%)," +
+      "radial-gradient(ellipse 60% 50% at 85% 95%, rgba(0,237,130,0.22), transparent 50%)," +
+      "radial-gradient(ellipse 100% 70% at 50% 50%, rgba(0,237,130,0.04), transparent 60%)," +
+      "radial-gradient(ellipse 40% 30% at 70% 20%, rgba(43,217,255,0.10), transparent 50%)," +
+      "linear-gradient(175deg, #020706 0%, #030a07 30%, #020407 65%, #010203 100%)",
+    light:
+      "radial-gradient(ellipse 80% 60% at 15% 5%, __A__3a, transparent 52%)," +
+      "radial-gradient(ellipse 60% 50% at 85% 95%, rgba(0,237,130,0.32), transparent 54%)," +
+      "radial-gradient(ellipse 40% 30% at 70% 20%, rgba(43,217,255,0.20), transparent 50%)," +
+      "linear-gradient(175deg, #e0f5e8 0%, #d8f0e8 40%, #d0eae2 100%)",
+    swatch: "linear-gradient(135deg, #00ED82 0%, #04281A 50%, #00ED82 100%)",
   },
   {
     id: "monterey",
@@ -211,7 +231,7 @@ export const useOS = create<OSState>()(
     (set, get) => ({
       phase: "boot",
       accentId: "volt",
-      wallpaperId: "volt-flux",
+      wallpaperId: "dizrupt-brand",
       brightness: 1,
       volume: 0.7,
       reduceTransparency: false,

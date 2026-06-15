@@ -32,8 +32,8 @@ Notification Center and a calendar.
 ## Real auth (Supabase) — code-complete, env-gated
 
 The demo runs on personas; **real authentication is fully wired** and activates the
-moment Supabase is configured (the demo flow is untouched until then): magic-link +
-Google/Microsoft login (`components/auth/real-auth-form.tsx`), session-validating
+moment Supabase is configured (the demo flow is untouched until then): email sign-in
+link (passwordless) + Google/Microsoft login (`components/auth/real-auth-form.tsx`), session-validating
 `middleware.ts`, `/auth/callback`, JWT claim reader (`lib/auth-supabase.ts`), and the
 server-side **Auth Hook + first-signup auto-provision** in
 `supabase/migrations/0012_auth_hook.sql`. Going live is a migration + one dashboard

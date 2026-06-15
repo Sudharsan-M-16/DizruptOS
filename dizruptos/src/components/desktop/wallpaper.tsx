@@ -46,12 +46,16 @@ export function Wallpaper() {
       {!perf && (
         <>
           <div
-            className="dz-aurora absolute -left-40 top-[-10%] h-[60vh] w-[60vh] rounded-full"
-            style={{ background: `radial-gradient(circle, ${accentHex}28, transparent 60%)`, filter: "blur(46px)" }}
+            className="dz-aurora absolute -left-40 top-[-10%] h-[70vh] w-[70vh] rounded-full"
+            style={{ background: `radial-gradient(circle, ${accentHex}32, transparent 60%)`, filter: "blur(52px)" }}
           />
           <div
-            className="dz-aurora-2 absolute right-[-10%] top-[18%] h-[55vh] w-[55vh] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(43,217,255,0.16), transparent 60%)", filter: "blur(54px)" }}
+            className="dz-aurora-2 absolute right-[-10%] top-[18%] h-[60vh] w-[60vh] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(0,237,130,0.14), transparent 60%)", filter: "blur(58px)" }}
+          />
+          <div
+            className="dz-aurora absolute bottom-[-5%] left-[30%] h-[45vh] w-[45vh] rounded-full opacity-60"
+            style={{ background: `radial-gradient(circle, ${accentHex}18, transparent 65%)`, filter: "blur(64px)", animationDelay: "-8s" }}
           />
         </>
       )}

@@ -79,16 +79,6 @@ function TopNav() {
 // Full-bleed chroma field; a hard black block carries the poster type. The
 // GSAP intro slides the blocks in like printed plates landing on a press.
 
-const plateIn = (i: number) => ({
-  initial: { x: "-101%" },
-  animate: { x: "0%" },
-  transition: { duration: 0.9, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as const },
-});
-const lineIn = (i: number) => ({
-  initial: { y: "110%" },
-  animate: { y: "0%" },
-  transition: { duration: 0.8, delay: 0.35 + i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
-});
 const metaIn = (i: number) => ({
   initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
@@ -111,32 +101,39 @@ function Hero() {
       </motion.div>
 
       {/* the poster stack */}
-      <div className="relative z-10 pb-20 pt-44 lg:pb-24">
-        <motion.div {...plateIn(0)} className="inline-block bg-ink py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
-          <div className="overflow-hidden">
-            <motion.h1 {...lineIn(0)} className="font-display text-[clamp(4rem,14vw,12rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-fg">
-              DIZRUPT
-            </motion.h1>
-          </div>
-        </motion.div>
-        <br />
-        <motion.div {...plateIn(1)} className="mt-3 inline-block bg-brand py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
-          <div className="overflow-hidden">
-            <motion.p {...lineIn(1)} className="font-display text-[clamp(1.6rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-[#04281A]">
-              every person. every project.
-            </motion.p>
-          </div>
-        </motion.div>
-        <br />
-        <motion.div {...plateIn(2)} className="mt-3 inline-block bg-ink py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
-          <div className="overflow-hidden">
-            <motion.p {...lineIn(2)} className="font-display text-[clamp(2.2rem,7vw,6rem)] font-extrabold leading-[1] tracking-[-0.04em] text-fg">
-              every <span className="text-brand">consequence.</span>
-            </motion.p>
-          </div>
-        </motion.div>
+      <div className="relative z-10 pb-20 pt-44 pl-6 lg:pb-24 lg:pl-10">
+        <div className="overflow-hidden">
+          <motion.h1
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0, ease: [0.22, 1, 0.36, 1] as const }}
+            className="font-display text-[clamp(4rem,14vw,12rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-fg"
+          >
+            DIZRUPT
+          </motion.h1>
+        </div>
+        <div className="mt-3 overflow-hidden">
+          <motion.p
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] as const }}
+            className="font-display text-[clamp(1.6rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-brand"
+          >
+            every person. every project.
+          </motion.p>
+        </div>
+        <div className="mt-3 overflow-hidden">
+          <motion.p
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.24, ease: [0.22, 1, 0.36, 1] as const }}
+            className="font-display text-[clamp(2.2rem,7vw,6rem)] font-extrabold leading-[1] tracking-[-0.04em] text-fg/80"
+          >
+            every <span className="text-brand">consequence.</span>
+          </motion.p>
+        </div>
 
-        <motion.div {...metaIn(2)} className="mt-8 flex flex-wrap items-center gap-4 pl-6 lg:pl-10">
+        <motion.div {...metaIn(2)} className="mt-8 flex flex-wrap items-center gap-4">
           <Link
             href="/login"
             className="group flex h-14 items-center gap-3 bg-brand px-7 text-base font-extrabold uppercase tracking-wide text-[#04281A] transition-colors hover:bg-[#3DF59E]"

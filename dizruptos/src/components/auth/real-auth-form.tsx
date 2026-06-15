@@ -50,7 +50,7 @@ export function RealAuthForm() {
           style={{ background: AMBER }}
         >
           {status === "sending" ? <Loader2 size={16} className="animate-spin" /> : null}
-          Email me a magic link
+          Email me a sign-in link
         </button>
       </form>
 

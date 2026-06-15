@@ -11,11 +11,12 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Fingerprint, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe, Shield } from "lucide-react";
 import { PERSONAS, useSession } from "@/lib/session";
 import { EmpAvatar } from "@/components/ui/primitives";
 import { DizruptMark } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
+import { useOS } from "@/lib/os";
 
 import { OrbitField } from "@/components/fx/orbit-field";
 import { RealAuthForm } from "@/components/auth/real-auth-form";
@@ -26,6 +27,7 @@ const AMBER = "#F97316";
 export default function LoginPage() {
   const router = useRouter();
   const signIn = useSession((s) => s.signIn);
+  const powerOn = useOS((s) => s.powerOn);
   const [selected, setSelected] = React.useState(PERSONAS[0].id);
   const [submitting, setSubmitting] = React.useState(false);
   const [leaving, setLeaving] = React.useState(false);
@@ -52,6 +54,7 @@ export default function LoginPage() {
         throw new Error(data?.message ?? "Sign-in failed.");
       }
       signIn(selected);
+      powerOn();
       const from = new URLSearchParams(window.location.search).get("from");
       const dest = from && from.startsWith("/") ? from : "/";
       setLeaving(true);
@@ -91,7 +94,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 28, scale: 0.985 }}
           animate={leaving ? { opacity: 0, y: -24, scale: 0.98 } : { opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          className="w-full max-w-[460px] rounded-xl border border-white/12 bg-white/[0.035] p-8 backdrop-blur-2xl sm:p-10"
+          className="w-full max-w-[460px] rounded-xl border border-white/[0.14] bg-[#0f0f0f]/80 p-8 backdrop-blur-2xl sm:p-10"
           style={{
             boxShadow:
               "0 0 30px 0 rgba(255,100,0,0.05), inset 0 0 10px 0 rgba(255,165,0,0.06), 0 24px 80px rgba(0,0,0,0.6)",
@@ -199,16 +202,12 @@ export default function LoginPage() {
             </form>
           </motion.div>
 
-          {/* security facts */}
+          {/* trust signals */}
           <motion.div {...rise(6)} className="mt-7 space-y-2.5 border-t border-white/10 pt-6">
-            <Fact icon={Lock} text="Single-session enforcement — a second login revokes the first" />
-            <Fact icon={Fingerprint} text="JWT held in memory only; refresh via httpOnly cookie" />
-            <Fact icon={ShieldCheck} text="MFA mandatory for Admin and Executive roles" />
+            <Fact icon={Shield} text="Your session is private and isolated — no shared access" />
+            <Fact icon={CheckCircle2} text="Your data stays in your organisation — no cross-tenant access" />
+            <Fact icon={Globe} text="Enterprise sign-in (Google, Microsoft SSO) coming soon" />
           </motion.div>
-
-          <motion.p {...rise(7)} className="mt-6 text-center text-[13px] text-[#A3A3A3]/80">
-            SSO / SAML and Google OAuth arrive with the production auth tier.
-          </motion.p>
         </motion.div>
       </div>
 
