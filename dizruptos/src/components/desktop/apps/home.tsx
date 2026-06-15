@@ -20,6 +20,8 @@ import { EmpAvatar, CapacityBar, HealthPill } from "@/components/ui/primitives";
 import { cn, fmtPct, utilizationTone } from "@/lib/utils";
 
 const launch = (id: string) => window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id } }));
+// open the Tasks app pre-filtered (today / overdue / pending / critical / …)
+const openTasks = (filter: string) => window.dispatchEvent(new CustomEvent("dizrupt:open-tasks", { detail: { filter } }));
 
 const STATUS_TONE: Record<string, string> = {
   IN_PROGRESS: "#F59E0B", BLOCKED: "#EF4444", REVIEW: "#7C6CFF", TO_DO: "#38BDF8", BACKLOG: "#8A8F98", COMPLETED: "#10B981",
@@ -108,9 +110,9 @@ export function HomeApp() {
       {/* stat row — task cards open the enlarged Tasks app */}
       <div className="mt-4 grid grid-cols-4 gap-2.5">
         <Stat label="Your load" value={fmtPct(myUtil)} valueClass={utilizationTone(myUtil) === "danger" ? "text-danger" : utilizationTone(myUtil) === "warn" ? "text-warn" : "text-ok"} icon={Flame} sub={`${me?.capacityHoursPerWeek ?? 40}h week`} />
-        <Stat label="Today / overdue" value={String(today.length)} icon={CalendarClock} sub="open Tasks ↗" onClick={() => launch("tasks")} />
-        <Stat label="Pending" value={String(pending.length)} icon={Hourglass} sub="open Tasks ↗" onClick={() => launch("tasks")} />
-        <Stat label="Critical" value={String(critical.length)} valueClass={critical.length ? "text-danger" : undefined} icon={ShieldAlert} sub="open Tasks ↗" onClick={() => launch("tasks")} />
+        <Stat label="Today / overdue" value={String(today.length)} icon={CalendarClock} sub="open Tasks ↗" onClick={() => openTasks(today.some((t) => t.dueDate < TODAY) ? "overdue" : "today")} />
+        <Stat label="Pending" value={String(pending.length)} icon={Hourglass} sub="open Tasks ↗" onClick={() => openTasks("pending")} />
+        <Stat label="Critical" value={String(critical.length)} valueClass={critical.length ? "text-danger" : undefined} icon={ShieldAlert} sub="open Tasks ↗" onClick={() => openTasks("critical")} />
       </div>
 
       <div className="mt-4 grid min-h-0 flex-1 grid-cols-[1.35fr_1fr] gap-4 overflow-hidden">

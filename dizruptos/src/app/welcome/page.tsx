@@ -141,7 +141,7 @@ function Hero() {
             href="/login"
             className="group flex h-14 items-center gap-3 bg-brand px-7 text-base font-extrabold uppercase tracking-wide text-[#04281A] transition-colors hover:bg-[#3DF59E]"
           >
-            Enter the command center
+            Boot DizruptOS
             <ArrowRight size={18} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1.5" />
           </Link>
           <a

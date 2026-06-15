@@ -176,6 +176,7 @@ interface OSState {
   dockHidden: string[]; // app ids the user removed from the dock
   dockExtra: string[];  // app ids the user pinned in beyond the defaults
   dnd: boolean;         // Do Not Disturb — silences toasts
+  stageManager: boolean; // macOS Ventura-style Stage Manager
 
   // power
   powerOn: () => void; // → boot
@@ -198,6 +199,8 @@ interface OSState {
   pinToDock: (id: string) => void;
   isHidden: (id: string) => boolean;
   toggleDnd: () => void;
+  toggleStageManager: () => void;
+  setStageManager: (on: boolean) => void;
 
   accent: () => Accent;
   wallpaper: () => Wallpaper;
@@ -215,6 +218,7 @@ export const useOS = create<OSState>()(
       dockHidden: [],
       dockExtra: [],
       dnd: false,
+      stageManager: false,
 
       powerOn: () => set({ phase: "boot" }),
       finishBoot: () => set({ phase: "lock" }),
@@ -246,6 +250,8 @@ export const useOS = create<OSState>()(
       })),
       isHidden: (id) => get().dockHidden.includes(id),
       toggleDnd: () => set((s) => ({ dnd: !s.dnd })),
+      toggleStageManager: () => set((s) => ({ stageManager: !s.stageManager })),
+      setStageManager: (on) => set({ stageManager: on }),
 
       accent: () => accentById(get().accentId),
       wallpaper: () => wallpaperById(get().wallpaperId),
@@ -262,6 +268,7 @@ export const useOS = create<OSState>()(
         dockHidden: s.dockHidden,
         dockExtra: s.dockExtra,
         dnd: s.dnd,
+        stageManager: s.stageManager,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) { applyAccent(accentById(state.accentId).hex); applyPerf(state.reduceTransparency); }

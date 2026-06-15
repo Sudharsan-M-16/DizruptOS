@@ -22,9 +22,22 @@ Signing in powers on an OS: **boot → lock → desktop**. The desktop (`/`) pro
   project), **Project Matrix** (drag-and-drop Kanban), **Operative Directory**
   (people), **Knowledge Vault** (IndexedDB file store), and **System Settings**.
 
-RBAC is enforced at the OS layer: apps hide/deny by the viewer's role permission
+RBAC is enforced in **3 layers** (UI + OS surface + data-layer mutation denial, with
+audited denials), apps hide/deny by the viewer's role permission
 (`lib/desktop-apps.tsx` × `lib/personas.ts`). OS state lives in `lib/os.ts` (`useOS`);
-the window engine is `components/desktop/use-desktop.ts`.
+the window engine is `components/desktop/use-desktop.ts`. The menubar carries live
+**battery + network** status, a clickable **profile** (switch account), Control Center,
+Notification Center and a calendar.
+
+## Real auth (Supabase) — code-complete, env-gated
+
+The demo runs on personas; **real authentication is fully wired** and activates the
+moment Supabase is configured (the demo flow is untouched until then): magic-link +
+Google/Microsoft login (`components/auth/real-auth-form.tsx`), session-validating
+`middleware.ts`, `/auth/callback`, JWT claim reader (`lib/auth-supabase.ts`), and the
+server-side **Auth Hook + first-signup auto-provision** in
+`supabase/migrations/0012_auth_hook.sql`. Going live is a migration + one dashboard
+toggle — see **`AUTH_SETUP.md`**.
 
 ## Run
 

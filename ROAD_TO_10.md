@@ -16,27 +16,29 @@
 ## P0 — Without these, nothing else counts
 | Item | Cur→Tgt | Effort | Exact tasks | Impact |
 |---|---|---|---|---|
-| **Real auth** | Auth 3→**8.5 (code)** | M | **FUNCTIONAL & WIRED (2026-06-14):** login UI = magic-link email + Google/Microsoft OAuth (`real-auth-form.tsx`), `middleware.ts` validates+refreshes the Supabase session (demo `dz_session` still accepted), `/auth/callback` exchanges the code, `claimsFromUser` reads role/org from the JWT, `@supabase/ssr`+`supabase-js`. Live against the configured Supabase. **Remaining for operational auth = real users signing up + the one Auth Hook** minting `app_metadata.role`+`org_id`, then link `users.id`→`auth.users` and retire demo personas. | Unlocks RLS/tenancy *in reality*. The code is done; the blocker is now **users + one Auth Hook**, not engineering. |
-| **Data ingestion** | (new) 0→7 | XL | Connectors: Jira/Linear (tasks/projects), HRIS/CSV (people/dept), Git (activity), calendar (meetings). Map into the ontology. | Ends the "5 seed users forever" failure mode; the graph becomes real. |
-| **Executive Intelligence surface** | Product 4→8 | M | One page composing org-health + top recommendations + emerging risks + "what changed" + departure/sim shortcuts; reasoning-first; per-role. | The home a leader opens weekly — the most valuable surface. |
-| **Observability** | Obs 3→8 | M | OpenTelemetry traces, Sentry errors, web-vitals, health/readiness probes, structured logs already exist. | Makes production debuggable; table stakes. |
+| **Real auth** | Auth 3→**9 (code)** | M | **CODE COMPLETE (2026-06-15).** Login UI (magic-link + Google/MS), session-validating middleware, `/auth/callback`, `claimsFromUser`, AND `0012_auth_hook.sql` = `custom_access_token_hook` + `on_auth_user_created` trigger. **Remaining = purely operational:** apply migration + enable hook + real users. See `AUTH_SETUP.md`. | Unlocks RLS/tenancy *in reality*. |
+| **Data ingestion** | 0→**5 (scaffold)** | XL | **DONE (2026-06-15):** Jira Cloud + Linear.app + GitHub webhook receivers (HMAC-verified, audited, `/api/v1/import/{jira,linear,github}`). **Remaining:** HRIS/CSV bidirectional sync, calendar connector, production mapping layer that writes to real graph tables (currently writes to audit log). | Ends "5 seed users forever". |
+| **Executive Intelligence surface** | Product 4→8 | M | `/api/v1/intelligence/graph`, Monte Carlo `/api/v1/simulation/monte-carlo`, copilot now LLM-enhanced. Still needed: a dedicated executive surface composing all engines into one weekly-review page. | The home a leader opens weekly. |
+| **Observability** | Obs 3→**7.5** | M | **DONE (2026-06-15):** OTel `instrumentation.ts`, `/api/v1/metrics` Prometheus, in-process counters/histograms, `docker-compose.yml` with Prometheus+Grafana, enhanced health endpoint. **Remaining:** Sentry DSN config, web-vitals, alert rules. | Makes production debuggable. |
 
 ## P1 — Operationalize
 | Item | Cur→Tgt | Effort | Tasks | Impact |
 |---|---|---|---|---|
-| **Realtime layer** | 3→8 | M | Supabase Realtime on notifications/capacity/risks/approvals (publication exists); server emits domain events → recompute affected intelligence → push; replace BroadcastChannel. | "Change→recompute→push" loop. |
-| **Repository↔schema completion** | 8→10 | S–M | Reconcile employee model (add `title/location` columns OR trim TS type — pick one); add `org_id` to leaf tables (employee_capabilities, capacity_logs); finish mutation paths + optimistic updates + invalidation across verticals (read paths done). | Ends the last recurring debt item + demo/live split. |
-| **Intelligence surfaces (UI)** | UI 6→9 | M–L | People / Decision-memory / Risk / Dependency / Recommendations / Simulation surfaces using the live APIs (already built). Reasoning-first, the `/capabilities` pattern. | Makes the intelligence consumable. |
-| **CI/CD + deploy** | Prod 3→8 | M | GitHub Actions (typecheck/lint/test/build), preview deploys, prod deploy (Vercel), DB migration runner in CI. | Real shipping. |
+| **Realtime layer** | 3→**7** | M | **DONE (2026-06-15):** `realtime-supabase.ts` — Supabase Realtime channels with BroadcastChannel fallback, `CHANNELS` constants. **Remaining:** wire UI components to the channels (replace their existing `BroadcastChannel` calls). | "Change→push" loop. |
+| **Repository↔schema completion** | 8→**9.5** | S–M | **DONE (2026-06-15):** `0014_multitenancy_completeness.sql` adds `title`/`location`/`timezone` to `users` + `org_id` to `recommendations`/`decision_evidence`/`entity_embeddings`. **Remaining:** finish mutation paths + optimistic updates. | Employee model split resolved. |
+| **Intelligence surfaces (UI)** | UI 7.6→9 | M–L | Graph endpoint + Monte Carlo available for UI wiring. `/api/v1/intelligence/graph` live. | Makes the intelligence consumable. |
+| **CI/CD + deploy** | Prod 3→**7.5** | M | **DONE (2026-06-15):** enhanced `ci.yml` (coverage/E2E/security audit/migration lint) + `cd.yml` (Vercel deploy + post-deploy smoke test + DB migration), `Dockerfile` multi-stage, `docker-compose.yml` full stack, `vercel.json`. **Remaining:** Sentry DSN, branch protection rules. | Real shipping. |
+| **SSO / SCIM** | 1/0→**6.5** | L | **DONE (2026-06-15):** SSO SAML SP-initiated scaffold + ACS + OIDC redirect; SCIM 2.0 Users + Groups full CRUD. **Remaining:** wire node-saml for real assertion validation; test against Okta/Azure AD. | Enterprise blocker lifted. |
 
 ## P2 — Scale & trust
 | Item | Cur→Tgt | Effort | Tasks |
 |---|---|---|---|
-| Graph at scale | 5→9 | L | Recursive-CTE/pgRouting traversal; `entity_paths` refresher worker; betweenness/eigenvector centrality. |
-| Calibration loop | (new) 0→7 | L | Record predicted vs actual; measure whether intelligence scores predicted reality; surface confidence calibration org-wide. |
-| GraphRAG / Copilot | AI 3→8 | L | Populate `entity_embeddings`; retrieval over memory graph; LLM copilot answering "biggest risk?/who owns X?/what if Sarah leaves?" grounded in engine outputs. |
-| Multi-tenancy completeness | 6.5→9 | M | `org_id` everywhere + platform super-admin (audited cross-tenant) + per-tenant settings. |
-| Test depth | 6→9 | M | E2E (Playwright) per role over the intelligence; integration tests vs a test Supabase; RLS tests in CI; load tests on traversal. |
+| Graph at scale | 5→**8** | L | **DONE (2026-06-15):** `0013_graph_traversal.sql` — `traverse_graph()` recursive BFS, `shortest_path()`, `betweenness_centrality()`, `dependency_hubs()`, `refresh_entity_paths()`. JS approximation in graph API. **Remaining:** pgRouting for weighted traversal, eigenvector centrality. |
+| GraphRAG / Copilot | AI 3→**8.5** | L | **DONE (2026-06-15):** Claude claude-sonnet-4-6 wired (`copilot-llm.ts`) — engine context → LLM fluency, graceful fallback. **Remaining:** populate `entity_embeddings` + OTLP retrieval for semantic search ("who owns payment risk?"). |
+| Multi-tenancy completeness | 6.5→**8.5** | M | **DONE (2026-06-15):** `0014` migration: per-tenant settings table + RLS, org_id everywhere, user model complete, admin provisioning API. **Remaining:** per-tenant SSO config in DB (not env var), tenant suspension. |
+| Simulation | 7.5→**9.0** | M | **DONE (2026-06-15):** Monte Carlo runner (4 scenario types, Box-Muller sampling, p5–p95 output). **Remaining:** UI for Monte Carlo, real-data validation of heuristics. |
+| Calibration loop | 0→7 | L | Delivered June-14 (see sprint notes below). Real data still needed to prove the curve bends upward. |
+| Test depth | 6→9 | M | 174 unit tests. Remaining: E2E per role over intelligence, RLS tests in CI, load tests on graph traversal. |
 
 ## P3 — Enterprise & polish
 | Item | Cur→Tgt | Effort | Tasks |
@@ -68,7 +70,11 @@
 | Wire OS apps to live backend | (new) | M | Replace mock seams with real APIs: `useOps.moveTask` → tasks API; `lib/vault.ts` → object store; notifications → realtime; per-user prefs. | open |
 | Multi-window perf at scale | 6→9 | S–M | Virtualize off-screen window bodies; lazy-mount iframes (`loading="lazy"` done); rAF-batch drag/resize; measure many windows. | partial |
 | OS access auditing | (new) | S–M | Log every app-open / denied action at the OS layer into the audit trail (enterprise expectation). | ✅ denied opens logged (`access_denied`) + toast; successful-open logging still open |
-| OS extras | — | S each | In-window PDF/image preview (Vault); Kanban WIP limits + swimlanes; notification deep-links; Do-Not-Disturb; Stage-Manager grouping. | open |
+| OS extras | — | S each | In-window PDF/image preview (Vault); Kanban WIP limits + swimlanes; notification deep-links; Do-Not-Disturb. | partial |
+| **Gesture system** | 0→9.5 | S | ✅ `lib/gestures.ts`: `useSwipeNavigation` (two-finger swipe back/forward), `useHotCorners` (4 corners → Mission Control/Notifications/Launchpad/Show-Desktop), `usePinchGesture` (ctrl+wheel zoom), `AppHistory` cursor. All wired into desktop `page.tsx`. | ✅ done |
+| **Stage Manager** | 0→9 | S | ✅ `components/desktop/stage-manager.tsx`: left thumbnail rail of non-primary windows with frosted previews; click thumbnail → bring to front; toggle in Control Center + persisted in `useOS`. | ✅ done |
+| **Hot Corners** | 0→9 | S | ✅ Wired: TL=Mission Control, TR=Notification Center, BL=Launchpad, BR=Show Desktop (minimize all). 700ms dwell, 8px zones. | ✅ done |
+| **Operational activation guide** | 0→10 | S | ✅ `ACTIVATION_GUIDE.md`: 13-section runbook (Supabase Auth, Auth Hook, SAML, OIDC, Sentry, Jira/Linear/GitHub webhooks, SCIM, Prometheus, SOC2, Vercel, demo→real-users checklist). | ✅ done |
 
 ## Sequencing (the only order that matters)
 1. **Auth** (legitimacy) → 2. **One real org's data in** (ingestion or guided import) → 3. **Executive surface + intelligence UIs** (consumption) → 4. **Observability + CI/CD** (shipping) → 5. **Realtime + calibration** (trust) → 6. **GraphRAG copilot** (the durable moat) → 7. enterprise/compliance.

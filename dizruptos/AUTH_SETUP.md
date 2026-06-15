@@ -23,11 +23,18 @@ below and real sign-in activates with **no further code changes**.
 3. **Auth → Providers**: enable **Email** (magic link) and/or Google / Microsoft.
 4. **Auth → URL config**: add `http://localhost:3000/auth/callback` (and your prod
    origin) as a redirect URL.
-5. **Mint role + org into the JWT** — add a Supabase **Auth Hook** (or a `before-token`
-   SQL function) that copies `users.role` and `users.org_id` into
-   `app_metadata.role` / `app_metadata.org_id`. This is what the OS-layer RBAC and RLS
-   read (`claimsFromUser`).
-6. Link `users.id` → `auth.users.id` so the seeded org maps to real accounts.
+5. **Mint role + org into the JWT** — this is now **one migration + one dashboard click**:
+   - Apply `supabase/migrations/0012_auth_hook.sql` (it creates
+     `public.custom_access_token_hook` + a first-signup auto-provision trigger).
+   - Supabase → **Authentication → Hooks → "Customize Access Token (JWT) Claims"**
+     → pick `public.custom_access_token_hook` → **Enable**.
+   After this, every JWT carries `app_metadata.role` + `app_metadata.org_id`, which the
+   OS-layer RBAC (`claimsFromUser`) and the RLS policies (`auth_role()` / `auth_org()`)
+   already read. **The very first real user signs up → gets a profile (role `employee`,
+   attached to the seeded org) automatically → RBAC works end-to-end.**
+6. `users.id` already equals `auth.users.id` (the trigger inserts with `new.id`), so the
+   seeded org maps to real accounts with no manual linking. Promote a user's role in
+   `public.users` (e.g. to `executive`) and their next token reflects it.
 
 Once 1–6 are set, `isAuthConfigured` flips true, `/auth/callback` becomes live, and the
 existing RBAC (now reading real JWT claims instead of demo personas) enforces against

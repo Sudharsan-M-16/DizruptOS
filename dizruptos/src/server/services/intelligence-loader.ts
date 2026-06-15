@@ -355,7 +355,13 @@ export async function askCopilot(question: string) {
     departure,
     learning: learningCtx,
   };
-  return copilot.answer(question, ctx);
+
+  // Deterministic engine answer — always correct, always grounded.
+  const deterministicAnswer = copilot.answer(question, ctx);
+
+  // LLM enhancement — fluent, conversational, still grounded.
+  const { enhancedCopilotAnswer } = await import("@/server/engine/copilot-llm");
+  return enhancedCopilotAnswer(question, deterministicAnswer, ctx);
 }
 
 export async function departureSimulation(personId: string) {

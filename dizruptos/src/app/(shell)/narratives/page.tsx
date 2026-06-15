@@ -68,7 +68,7 @@ export default function NarrativesPage() {
             <h1 className="mt-3 font-display text-3xl font-bold leading-tight tracking-tight">
               {narrative.data.headline}
             </h1>
-            <p className="mt-4 border-l-2 border-brand/50 pl-3 text-sm italic text-fg-muted">
+            <p className="mt-4 rounded-lg bg-brand/[0.07] px-3 py-2 text-sm italic text-fg-muted">
               Confidence: {narrative.data.confidence}
             </p>
           </header>

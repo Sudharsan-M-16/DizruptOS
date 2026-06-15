@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "dizruptos"
+    static_configs:
+      - targets: ["app:3000"]
+    metrics_path: /api/v1/metrics
+    scheme: http
+    # Add bearer_token or basic_auth when METRICS_TOKEN is set.

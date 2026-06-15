@@ -6,7 +6,7 @@
 // control writes straight to the OS store, so the change is instant and live
 // across the menubar, dock and every window. macOS-grade tile layout.
 
-import { Lock, Moon, Sun, SunMoon, Volume2, VolumeX, Wifi, Sparkles } from "lucide-react";
+import { Lock, Moon, Sun, SunMoon, Volume2, VolumeX, Wifi, Sparkles, LayoutDashboard } from "lucide-react";
 import { ACCENTS, WALLPAPERS, useOS } from "@/lib/os";
 import { useSession, type Theme } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,8 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
   const toggleTransparency = useOS((s) => s.toggleTransparency);
   const dnd = useOS((s) => s.dnd);
   const toggleDnd = useOS((s) => s.toggleDnd);
+  const stageManager = useOS((s) => s.stageManager);
+  const toggleStageManager = useOS((s) => s.toggleStageManager);
   const lock = useOS((s) => s.lock);
   const accentHex = useOS((s) => s.accent().hex);
 
@@ -176,6 +178,16 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
         <span className="flex items-center gap-2 text-xs font-medium"><Moon size={15} style={{ color: accentHex }} /> Do Not Disturb<span className="text-2xs font-normal text-fg-muted">· silences alerts</span></span>
         <span className={cn("relative h-5 w-9 rounded-full transition-colors", dnd ? "" : "bg-white/15")} style={dnd ? { background: accentHex } : undefined}>
           <span className={cn("absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all", dnd ? "left-[18px]" : "left-0.5")} />
+        </span>
+      </button>
+
+      <button
+        onClick={toggleStageManager}
+        className="mt-2 flex w-full items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.04] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.08]"
+      >
+        <span className="flex items-center gap-2 text-xs font-medium"><LayoutDashboard size={15} style={{ color: accentHex }} /> Stage Manager<span className="text-2xs font-normal text-fg-muted">· window groups</span></span>
+        <span className={cn("relative h-5 w-9 rounded-full transition-colors", stageManager ? "" : "bg-white/15")} style={stageManager ? { background: accentHex } : undefined}>
+          <span className={cn("absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all", stageManager ? "left-[18px]" : "left-0.5")} />
         </span>
       </button>
 

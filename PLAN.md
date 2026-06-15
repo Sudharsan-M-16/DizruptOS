@@ -19,19 +19,22 @@
 | 10 | Technical architecture | 🟡 | Next.js App Router + edge middleware + Zustand; Railway workers ⬜ |
 | 11 | Concurrency & state | 🟡 | Optimistic mutations + atomic capacity deltas + cross-tab sync (BroadcastChannel); server arbitration ⬜ |
 | 12 | Database schema | 🟡 | Executable SQL in `supabase/` (RLS, insert-only audit); not yet the live store |
-| 13 | API endpoints | 🟡 | Auth + health + 8 versioned `/api/v1` routes (reads + 2 mutation paths with server-side guardrails and audit); full entity CRUD pending Supabase swap |
-| 14 | Security architecture | ✅ | Edge auth, httpOnly session, OWASP headers, single-session law, RBAC matrix + scoping layer + tests |
-| 15 | AI intelligence layer | 🟡 | Agent proposal schema, validation, priority hierarchy, rejection memory, decision-time re-validation, per-role queues — proposals are seeded, not live-generated |
-| 16 | Roadmap/MVP | ✅ | MVP demo complete and verifiable (50 tests, clean build) |
-| 21 | Generic relationship layer | ✅ | Typed edges, BFS reachability, cycle guard, bus-factor — powers graph lenses |
+| 13 | API endpoints | 🟡 | Auth + health + **20+ versioned `/api/v1` routes** including graph traversal, Monte Carlo, SCIM, admin, ingestion connectors (Jira/Linear/GitHub), metrics, copilot (LLM-enhanced). Full entity CRUD pending Supabase swap. |
+| 14 | Security architecture | ✅ | Edge auth, httpOnly session, **OWASP headers + CSP in `vercel.json`**, single-session law, RBAC matrix + 3-layer enforcement + audited denials + idle auto-lock + **SOC2 controls map** |
+| 14b | **Real auth (Supabase)** | ✅ code / ⬜ live | CODE COMPLETE. Live = apply migration + enable hook + real users. |
+| 14c | **Enterprise auth (SSO/SCIM)** | ✅ scaffold | **SCIM 2.0** full Users + Groups CRUD (`/api/v1/scim/`). **SSO SAML** SP-initiated + ACS + OIDC redirect (`/api/auth/sso/`). Remaining: node-saml IdP testing, per-tenant SSO config in DB. |
+| 15 | AI intelligence layer | 🟡 | **Copilot now LLM-enhanced** (Claude claude-sonnet-4-6 with engine-grounded context). Agent proposals seeded not live-generated. |
+| 16 | Roadmap/MVP | ✅ | MVP demo complete and verifiable (174 tests, clean build, CI/CD) |
+| 21 | Generic relationship layer | ✅ | Typed edges, BFS reachability, cycle guard, bus-factor + **recursive CTE traversal + betweenness centrality** (migration 0013) |
+| 22 | Data ingestion | ✅ scaffold | **Jira + Linear + GitHub webhook receivers** (HMAC-verified, metric-instrumented). CSV import existed. |
 | 23 | Causal intelligence | 🟡 | Stored causal signals behind every score; live causal engine ⬜ |
 | 24 | Multi-agent negotiation | 🟡 | Coordinated-compromise cards + priority order; live negotiation loop ⬜ |
 | 25 | CRDT conflict resolution | ⬜ | Last-write + atomic deltas today; CRDT math not implemented |
-| 26 | Scenario simulation engine | 🟡 | Graph lenses ("what breaks if Sarah leaves", bus factor) use the engine's traversal utilities; full what-if runner ⬜ |
-| 27 | Notification intelligence | 🟡 | Urgency classes + rollup UI + dual-sided reallocation notifications; debounce engine ⬜ |
-| 28 | Lifecycle state machines | 🟡 | Task/risk/decision/proposal statuses enforced in UI; server-side transitions ⬜ |
+| 26 | Scenario simulation engine | ✅ | Graph lenses + departure/node-failure/staffing + **Monte Carlo** (4 scenario types, p5–p95 percentiles, risk flags) |
+| 27 | Notification intelligence | 🟡 | Urgency classes + rollup UI + dual-sided reallocation notifications; **Supabase Realtime channels** (replacing BroadcastChannel); debounce engine ⬜ |
+| 28 | Lifecycle state machines | 🟡 | Task/risk/decision/proposal statuses enforced in UI + data layer; server-side transitions ⬜ |
 | 29 | Failure mode catalog | 🟡 | Stale-proposal expiry, guardrail overrides, cycle refusal implemented |
-| 30 | Build readiness | ✅ | CI checks: typecheck, lint, 50 tests, production build |
+| 30 | Build readiness | ✅ | **Full CI/CD**: typecheck/lint/174 tests/build/E2E/security-audit/migration-lint/Vercel deploy/smoke test. **Docker + Prometheus + Grafana stack.** |
 
 ## What shipped in recent sprints
 

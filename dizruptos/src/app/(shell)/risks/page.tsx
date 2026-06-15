@@ -132,21 +132,12 @@ export default function RisksPage() {
             const owner = employeeById(r.ownerId);
             const proj = projectById(r.projectId);
             const sev = severityOf(r);
-            const rail =
-              sev === "Critical"
-                ? "border-l-danger"
-                : sev === "High"
-                  ? "border-l-warn"
-                  : sev === "Medium"
-                    ? "border-l-info"
-                    : "border-l-line-strong";
             return (
               <article
                 key={r.id}
                 className={cn(
-                  "panel border-l-[3px] p-5 transition-all",
-                  rail,
-                  selected === r.id && "border-brand/60 border-l-brand shadow-glow"
+                  "panel p-5 transition-all",
+                  selected === r.id && "border-brand/60 shadow-glow"
                 )}
               >
                 {/* line 1: identity — title carries the row, badges follow */}

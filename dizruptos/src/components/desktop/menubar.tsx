@@ -9,8 +9,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Activity, AppWindow, BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Bell, Cpu, Info, Lock, LogOut, Moon, Power, Search, SlidersHorizontal, Wifi } from "lucide-react";
+import { Activity, AppWindow, BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Bell, Cpu, Info, Lock, LogOut, MapPin, Moon, Power, Search, SlidersHorizontal, Wifi, WifiOff } from "lucide-react";
 import { useSession, PERSONAS } from "@/lib/session";
+import { departments, employeeById } from "@/lib/data";
+import { EmpAvatar } from "@/components/ui/primitives";
 import { useOS } from "@/lib/os";
 import { useOps } from "@/lib/store";
 import { appById } from "@/lib/desktop-apps";
@@ -134,7 +136,17 @@ export function Menubar({ healthScore, capacityPct }: { healthScore: number; cap
           <Moon size={13} />
         </button>
         <Battery />
-        <Wifi size={13} className="mx-1 text-fg-muted" />
+        {/* live network status */}
+        <div className="relative">
+          <MenuTrigger active={open === "__net"} onClick={() => setOpen(open === "__net" ? null : "__net")} className="px-1" ariaLabel="Network">
+            <NetworkIcon />
+          </MenuTrigger>
+          {open === "__net" && (
+            <div className="absolute right-0 top-[calc(100%+6px)] z-[130]">
+              <NetworkPopover accent={accentHex} />
+            </div>
+          )}
+        </div>
 
         {/* notifications */}
         <div className="relative">
@@ -165,10 +177,18 @@ export function Menubar({ healthScore, capacityPct }: { healthScore: number; cap
           )}
         </div>
 
-        <span className="mx-1 hidden items-center gap-1.5 md:flex">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: persona.accent }} />
-          <span className="text-fg-secondary">{persona.name.split(" ")[0]}</span>
-        </span>
+        {/* profile — click to open your card + quick actions + switch account */}
+        <div className="relative mx-1 hidden md:block">
+          <MenuTrigger active={open === "__profile"} onClick={() => setOpen(open === "__profile" ? null : "__profile")} className="gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: persona.accent }} />
+            <span>{persona.name.split(" ")[0]}</span>
+          </MenuTrigger>
+          {open === "__profile" && (
+            <div className="absolute right-0 top-[calc(100%+6px)] z-[130]">
+              <ProfilePopover persona={persona} accent={accentHex} onLock={() => { setOpen(null); lock(); }} onSignOut={() => { setOpen(null); signOut(); }} onClose={() => setOpen(null)} />
+            </div>
+          )}
+        </div>
 
         <div className="relative">
           <button
@@ -265,6 +285,96 @@ function CalendarPopover({ now, accent }: { now: Date; accent: string }) {
         })}
       </div>
     </div>
+  );
+}
+
+// ------------------------------- network ----------------------------------
+// Live online/offline + connection details from the Network Information API.
+// NOTE: browsers deliberately do NOT expose the Wi-Fi network *name* (SSID) for
+// privacy, so we show connection kind + quality + live online state instead.
+function useNetwork() {
+  const [state, setState] = useState<{ online: boolean; kind?: string; quality?: string; downlink?: number }>({ online: true });
+  useEffect(() => {
+    const c = (navigator as Navigator & { connection?: any }).connection;
+    const sync = () => setState({ online: navigator.onLine, kind: c?.type, quality: c?.effectiveType, downlink: c?.downlink });
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    c?.addEventListener?.("change", sync);
+    return () => { window.removeEventListener("online", sync); window.removeEventListener("offline", sync); c?.removeEventListener?.("change", sync); };
+  }, []);
+  return state;
+}
+
+function NetworkIcon() {
+  const { online } = useNetwork();
+  return online ? <Wifi size={13} /> : <WifiOff size={13} className="text-danger" />;
+}
+
+function NetworkPopover({ accent }: { accent: string }) {
+  const { online, kind, quality, downlink } = useNetwork();
+  const kindLabel = kind && kind !== "none" ? kind[0].toUpperCase() + kind.slice(1) : online ? "Network" : "—";
+  return (
+    <div className="w-[252px] rounded-2xl border border-white/15 bg-[rgb(var(--ink-elevated)/0.82)] p-3 shadow-2xl backdrop-blur-2xl dz-solidify">
+      <div className="mb-2 flex items-center gap-2 px-0.5">
+        {online ? <Wifi size={15} style={{ color: accent }} /> : <WifiOff size={15} className="text-danger" />}
+        <span className="text-sm font-semibold">{online ? "Connected" : "Offline"}</span>
+        <span className={cn("ml-auto h-2 w-2 rounded-full", online ? "bg-ok" : "bg-danger")} />
+      </div>
+      <div className="divide-y divide-line/50 rounded-xl border border-line bg-[rgb(var(--ink-surface)/0.5)] text-xs">
+        <Row label="Status" value={online ? "Online" : "No connection"} />
+        <Row label="Connection" value={kindLabel} />
+        {quality && <Row label="Quality" value={quality.toUpperCase()} />}
+        {typeof downlink === "number" && downlink > 0 && <Row label="Est. speed" value={`${downlink} Mbps`} />}
+      </div>
+      <p className="mt-2 px-0.5 text-[10px] leading-relaxed text-fg-faint">The network name (SSID) isn&rsquo;t shown — browsers hide it for privacy. Status updates live.</p>
+    </div>
+  );
+}
+
+function ProfilePopover({ persona, accent, onLock, onSignOut, onClose }: { persona: (typeof PERSONAS)[number]; accent: string; onLock: () => void; onSignOut: () => void; onClose: () => void }) {
+  const setPersona = useSession((s) => s.setPersona);
+  const emp = employeeById(persona.id);
+  const dept = departments.find((d) => d.id === emp?.departmentId);
+  return (
+    <div className="w-[280px] overflow-hidden rounded-2xl border border-white/15 bg-[rgb(var(--ink-elevated)/0.82)] shadow-2xl backdrop-blur-2xl dz-solidify">
+      <div className="flex items-center gap-3 border-b border-line/60 p-3.5">
+        <EmpAvatar initials={persona.initials} accent={persona.accent} size={42} />
+        <div className="min-w-0">
+          <div className="truncate text-sm font-semibold">{persona.name}</div>
+          <div className="truncate text-2xs text-fg-muted">{persona.title}{dept ? ` · ${dept.name}` : ""}</div>
+          {emp?.location && <div className="mt-0.5 flex items-center gap-1 text-2xs text-fg-faint"><MapPin size={10} /> {emp.location} · {emp.timezone}</div>}
+        </div>
+      </div>
+      <div className="p-1.5">
+        <PItem icon={Lock} label="Lock Screen" onClick={onLock} />
+        <PItem icon={LogOut} label="Sign Out" onClick={onSignOut} />
+      </div>
+      <div className="border-t border-line/60 p-2">
+        <div className="px-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-fg-muted">Switch account (demo)</div>
+        <div className="flex flex-wrap gap-1.5 px-1 pb-1">
+          {PERSONAS.map((p) => (
+            <button key={p.id} onClick={() => { setPersona(p.id); onClose(); }} title={`${p.name} · ${p.title}`}
+              className={cn("flex items-center gap-1.5 rounded-full border px-1.5 py-0.5 text-2xs transition-colors", p.id === persona.id ? "border-transparent text-black" : "border-line text-fg-secondary hover:bg-white/10")}
+              style={p.id === persona.id ? { background: accent } : undefined}>
+              <span className="grid h-4 w-4 place-items-center rounded-full text-[8px] font-bold" style={{ background: p.accent, color: "#04281A" }}>{p.initials}</span>
+              {p.name.split(" ")[0]}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return <div className="flex items-center justify-between px-3 py-1.5"><span className="text-fg-muted">{label}</span><span className="font-medium">{value}</span></div>;
+}
+function PItem({ icon: Icon, label, onClick }: { icon: React.ElementType; label: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs text-fg-secondary transition-colors hover:bg-[var(--os-accent,#00ED82)] hover:text-black">
+      <Icon size={14} /> {label}
+    </button>
   );
 }
 

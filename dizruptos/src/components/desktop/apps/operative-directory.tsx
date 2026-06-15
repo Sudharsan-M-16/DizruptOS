@@ -8,9 +8,10 @@
 
 import { useMemo, useState } from "react";
 import { AlertTriangle, MapPin, Plane, Search, Sparkles } from "lucide-react";
-import { departments, employees, projects, tasks as allTasks, WEEKS } from "@/lib/data";
+import { departments, employeeById, employees, projects, tasks as allTasks, WEEKS } from "@/lib/data";
 import { EmpAvatar, CapacityBar } from "@/components/ui/primitives";
 import { useOps } from "@/lib/store";
+import { useSession } from "@/lib/session";
 import { cn, fmtPct, utilizationTone } from "@/lib/utils";
 
 type Person = (typeof employees)[number];
@@ -26,10 +27,15 @@ const ROLE_LABEL: Record<string, string> = {
 export function OperativeDirectory() {
   const roster = useMemo(loadRoster, []);
   const utilization = useOps((s) => s.utilization);
+  const personaId = useSession((s) => s.personaId);
+  const me = employeeById(personaId);
   const week = WEEKS[0];
   const [q, setQ] = useState("");
-  const [dept, setDept] = useState<string | "all">("all");
-  const [selId, setSelId] = useState<string>(roster[0]?.id ?? "");
+  // Open on YOUR team: filter to the viewer's department, and select the viewer.
+  // (Executives/admins have no single team → show everyone.)
+  const wide = me?.role === "executive" || me?.role === "admin";
+  const [dept, setDept] = useState<string | "all">(!wide && me?.departmentId ? me.departmentId : "all");
+  const [selId, setSelId] = useState<string>(me?.id ?? roster[0]?.id ?? "");
 
   const filtered = roster.filter((e) => {
     const matchesQ = !q || e.name.toLowerCase().includes(q.toLowerCase()) || e.title.toLowerCase().includes(q.toLowerCase()) || e.skills?.some((s) => s.toLowerCase().includes(q.toLowerCase()));

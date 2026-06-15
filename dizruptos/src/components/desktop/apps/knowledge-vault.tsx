@@ -105,7 +105,7 @@ export function KnowledgeVault() {
               key={s.label}
               onClick={() => setView(s.view)}
               className={cn("flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium transition-colors", active ? "text-fg" : "text-fg-secondary hover:bg-ink-elevated")}
-              style={active ? { background: "var(--os-accent-soft,rgba(0,237,130,0.12))", boxShadow: "inset 2px 0 0 var(--os-accent,#00ED82)" } : undefined}
+              style={active ? { background: "var(--os-accent-soft,rgba(0,237,130,0.12))" } : undefined}
             >
               <Icon size={15} style={{ color: active ? "var(--os-accent,#00ED82)" : undefined }} /> {s.label}
             </button>

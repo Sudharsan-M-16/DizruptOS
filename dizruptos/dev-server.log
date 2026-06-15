@@ -1288,3 +1288,345 @@ digest: "3146390913"
  ○ Compiling /executive ...
  ✓ Compiled /executive in 1512ms (1788 modules)
  GET /executive?embed=1 200 in 1924ms
+ GET /projects/p-atlas?embed=1 200 in 123ms
+ GET /projects/p-helio?embed=1 200 in 58ms
+ GET /memory?embed=1 200 in 85ms
+{"ts":"2026-06-14T17:55:42.811Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"c49b961d-e06c-4896-9978-5dbe24af7aac","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":779}}
+ GET /api/v1/decisions/memory 200 in 845ms
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 9.2s (1748 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 4.4s (1645 modules)
+ POST /api/auth/login 200 in 4622ms
+ GET /projects/p-helio?embed=1 200 in 370ms
+ POST /api/auth/login 200 in 78ms
+ GET /projects/p-helio?embed=1 200 in 181ms
+ POST /api/auth/login 200 in 88ms
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 3.3s (1652 modules)
+ GET /memory?embed=1 200 in 4208ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 980ms (1681 modules)
+{"ts":"2026-06-15T04:59:45.405Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"fac301e3-42d4-4788-9bd6-82e5354b58b5","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":2869}}
+ GET /api/v1/decisions/memory 200 in 4043ms
+ GET /projects/p-atlas?embed=1 200 in 614ms
+ GET /projects/p-helio?embed=1 200 in 218ms
+ ○ Compiling /briefing ...
+ ✓ Compiled /briefing in 4.6s (1619 modules)
+ GET /briefing?embed=1 200 in 5448ms
+ ○ Compiling /api/v1/recommendations ...
+ ✓ Compiled /api/v1/recommendations in 3.8s (1679 modules)
+ ✓ Compiled in 1ms (1681 modules)
+ ✓ Compiled in 1ms (1681 modules)
+ ✓ Compiled in 1ms (1681 modules)
+{"ts":"2026-06-15T05:02:08.097Z","level":"info","event":"api_api_org_health","ctx":{"reqId":"f8b955f7-5e12-41a6-82c1-b3acdffa19cd","method":"GET","path":"/api/v1/org-health","status":200,"ms":1152}}
+ GET /api/v1/org-health 200 in 10198ms
+{"ts":"2026-06-15T05:02:08.683Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"c9270eed-16fc-4f96-997c-2823c2622030","method":"GET","path":"/api/v1/recommendations","status":200,"ms":732}}
+ GET /api/v1/recommendations 200 in 10778ms
+ ○ Compiling /narratives ...
+ ✓ Compiled /narratives in 4.6s (1686 modules)
+ GET /narratives?embed=1 200 in 5389ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 6.1s (1577 modules)
+{"ts":"2026-06-15T05:02:28.601Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"30daf50e-e5b6-4547-9138-2d40a9179fb4","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":938}}
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 7383ms
+ ✓ Compiled in 2.5s (1924 modules)
+ ✓ Compiled in 11s (1924 modules)
+ ✓ Compiled in 1279ms (1924 modules)
+ ✓ Compiled in 6.6s (1924 modules)
+ ✓ Compiled in 1543ms (1924 modules)
+ ✓ Compiled in 10.5s (1924 modules)
+ ✓ Compiled in 3s (1924 modules)
+ ✓ Compiled in 12.5s (1924 modules)
+ ✓ Compiled in 18s (1924 modules)
+ ✓ Compiled in 16.5s (1924 modules)
+ ✓ Compiled in 13.1s (1924 modules)
+ ✓ Compiled in 5.1s (1924 modules)
+ ✓ Compiled in 8.7s (1924 modules)
+ ✓ Compiled in 11s (1924 modules)
+ ✓ Compiled in 5.7s (1924 modules)
+ ✓ Compiled in 20s (1924 modules)
+ ✓ Compiled in 10.7s (1924 modules)
+ ✓ Compiled in 9.9s (1924 modules)
+ ✓ Compiled in 10.2s (1924 modules)
+ ✓ Compiled in 3.8s (1924 modules)
+ ✓ Compiled in 20.8s (1925 modules)
+ ✓ Compiled in 4.1s (1925 modules)
+ ✓ Compiled in 10.1s (1925 modules)
+ ✓ Compiled in 2.2s (1925 modules)
+ ✓ Compiled in 12.8s (1925 modules)
+ ✓ Compiled in 2.3s (1925 modules)
+ ✓ Compiled in 1280ms (1925 modules)
+ ✓ Compiled in 20.7s (3368 modules)
+ ⨯ ./src/components/landing/os-preview.tsx
+Error: 
+  [31mx[0m Unexpected token `Link`. Expected jsx identifier
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\components\landing\os-preview.tsx[0m:30:1]
+ [2m30[0m | export function OSPreview() {
+ [2m31[0m |   const clock = useClock();
+ [2m32[0m |   return (
+ [2m33[0m |     <Link href="/login" aria-label="Enter DizruptOS" className="group relative block h-full w-full overflow-hidden rounded-xl bg-[#06070c] transition-transform duration-300 hover:scale-[1.005]">
+    : [31;1m     ^^^^[0m
+ [2m34[0m |       {/* hover: click-to-enter affordance */}
+ [2m35[0m |       <span className="pointer-events-none absolute left-1/2 top-1/2 z-30 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/55 px-4 py-2 text-xs font-semibold text-white opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+ [2m36[0m |         Enter DizruptOS <ArrowUpRight size={14} />
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/landing/os-preview.tsx
+./src/app/welcome/page.tsx
+ ✓ Compiled in 48.3s (3368 modules)
+ ✓ Compiled in 13.5s (3368 modules)
+ ✓ Compiled in 18.1s (3368 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 13.8s (1557 modules)
+ GET / 200 in 17650ms
+ GET / 200 in 1039ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 16.2s (1608 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /api/auth/login in 18.7s (1625 modules)
+ ✓ Compiled (1655 modules)
+ POST /api/auth/login 200 in 17630ms
+ GET /welcome 200 in 962ms
+ POST /api/auth/login 200 in 75ms
+ ✓ Compiled in 3.6s (1925 modules)
+ ✓ Compiled in 2.1s (1925 modules)
+ ✓ Compiled in 15.6s (3605 modules)
+ ✓ Compiled in 1508ms (1925 modules)
+ ✓ Compiled in 2.1s (1925 modules)
+ ✓ Compiled in 2.1s (1925 modules)
+ ✓ Compiled in 34.9s (3591 modules)
+ ✓ Compiled in 11.7s (3605 modules)
+ ✓ Compiled in 30.2s (3605 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 30.6s (3673 modules)
+ GET / 200 in 14477ms
+ ✓ Compiled in 29.1s (3673 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 3.4s (1643 modules)
+ POST /api/auth/login 200 in 4168ms
+ GET / 200 in 1084ms
+ ✓ Compiled in 9.3s (3697 modules)
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 2.4s (1649 modules)
+ GET /projects/p-helio?embed=1 200 in 2995ms
+ ✓ Compiled in 3.4s (1925 modules)
+ ✓ Compiled in 1512ms (1925 modules)
+ ✓ Compiled in 13.3s (3669 modules)
+ ✓ Compiled in 9.5s (3669 modules)
+ ✓ Compiled in 11.8s (3669 modules)
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 14.7s (1741 modules)
+ ✓ Compiled in 3.2s (1925 modules)
+ ✓ Compiled in 2.3s (1925 modules)
+ ✓ Compiled in 1949ms (1925 modules)
+ ✓ Compiled in 1848ms (1925 modules)
+ ✓ Compiled in 1792ms (1925 modules)
+ ✓ Compiled in 1723ms (1925 modules)
+ ✓ Compiled in 1675ms (1925 modules)
+ ✓ Compiled in 1688ms (1925 modules)
+ ✓ Compiled in 3s (1925 modules)
+ ✓ Compiled in 3.3s (1925 modules)
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 19.6s (1621 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 6.7s (1651 modules)
+ POST /api/auth/login 200 in 7301ms
+ GET /projects/p-helio?embed=1 200 in 1722ms
+ ✓ Compiled in 25.4s (3540 modules)
+ ✓ Compiled in 35.4s (3540 modules)
+ ✓ Compiled in 6.4s (1925 modules)
+ ✓ Compiled in 2.5s (1925 modules)
+ ✓ Compiled in 2.5s (1925 modules)
+ ✓ Compiled in 59.8s (3544 modules)
+ ✓ Compiled in 51.7s (3544 modules)
+ ✓ Compiled in 58.3s (3544 modules)
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 9.2s (1624 modules)
+   Reload env: .env.local
+ ✓ Compiled in 6.3s (3673 modules)
+   Reload env: .env.local
+ ✓ Compiled in 3.9s (3673 modules)
+   Reload env: .env.local
+   Reload env: .env.local
+ ⨯ Failed to find font override values for font `Newsreader`
+   Reload env: .env.local
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ Failed to find font override values for font `Newsreader`
+ ⨯ Failed to find font override values for font `Newsreader`
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (102kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (244kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 1/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+The user aborted a request.
+
+Retrying 2/3...
+ ✓ Compiled in 171.2s (3722 modules)
+ GET / 200 in 113775ms
+ ✓ Compiled in 4.9s (3659 modules)
+   Reload env: .env.local
+ ✓ Compiled in 11.8s (3659 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (102kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (244kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ GET / 200 in 346ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 4.4s (1647 modules)
+ POST /api/auth/login 200 in 4934ms
+ POST /api/auth/login 200 in 33ms
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 1081ms (1653 modules)
+ GET /capacity?embed=1 200 in 1308ms
+ POST /api/auth/login 200 in 57ms
+ GET /login 200 in 261ms
+ POST /api/auth/login 200 in 36ms
+ GET /capacity?embed=1 200 in 71ms
+ GET /capacity?embed=1 200 in 84ms
+ POST /api/auth/login 200 in 59ms
+ POST /api/auth/login 200 in 39ms
+ POST /api/auth/login 200 in 148ms
+ POST /api/auth/login 200 in 96ms
+ GET /projects/p-atlas?embed=1 200 in 473ms
+ GET /projects/p-helio?embed=1 200 in 202ms
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 6.1s (1773 modules)
+ GET /graph?embed=1 200 in 7053ms

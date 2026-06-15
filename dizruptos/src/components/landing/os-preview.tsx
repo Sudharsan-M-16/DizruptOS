@@ -5,8 +5,21 @@
 // manager, no iframes; just an honest snapshot of what signing in reveals. Kept
 // cheap so it never drags the marketing page's scroll performance.
 
-import { Activity, Bell, Flame, Home, KanbanSquare, ListChecks, Search, Settings, ShieldAlert, SlidersHorizontal, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Activity, ArrowUpRight, Bell, Flame, Home, KanbanSquare, ListChecks, Search, Settings, ShieldAlert, SlidersHorizontal, Users } from "lucide-react";
 import { DizruptMark } from "@/components/ui/logo";
+
+function useClock() {
+  const [t, setT] = useState("");
+  useEffect(() => {
+    const tick = () => setT(new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }));
+    tick();
+    const id = setInterval(tick, 15000);
+    return () => clearInterval(id);
+  }, []);
+  return t;
+}
 
 const DOCK: { icon: React.ElementType; accent: string }[] = [
   { icon: Home, accent: "#00ED82" }, { icon: ListChecks, accent: "#2BD9FF" }, { icon: KanbanSquare, accent: "#7C6CFF" },
@@ -15,8 +28,14 @@ const DOCK: { icon: React.ElementType; accent: string }[] = [
 ];
 
 export function OSPreview() {
+  const clock = useClock();
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#06070c]">
+    <Link href="/login" aria-label="Enter DizruptOS" className="group relative block h-full w-full overflow-hidden rounded-xl bg-[#06070c] transition-transform duration-300 hover:scale-[1.005]">
+      {/* hover: click-to-enter affordance */}
+      <span className="pointer-events-none absolute left-1/2 top-1/2 z-30 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/55 px-4 py-2 text-xs font-semibold text-white opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+        Enter DizruptOS <ArrowUpRight size={14} />
+      </span>
+      <div className="relative h-full w-full">
       {/* wallpaper */}
       <div className="absolute inset-0" style={{ background: "radial-gradient(120% 90% at 12% 0%, rgba(0,237,130,0.16), transparent 46%), radial-gradient(120% 90% at 100% 8%, rgba(43,217,255,0.12), transparent 52%), radial-gradient(150% 120% at 50% 130%, rgba(0,237,130,0.12), transparent 55%), linear-gradient(180deg,#06070c,#05060a 60%,#030409)" }} />
 
@@ -28,7 +47,7 @@ export function OSPreview() {
         <span className="hidden text-white/50 sm:inline">Capacity</span>
         <div className="ml-auto flex items-center gap-2 text-white/60">
           <Search size={10} /><Bell size={10} /><SlidersHorizontal size={10} />
-          <span className="tabular-nums text-white/80">9:41</span>
+          <span className="tabular-nums text-white/80">{clock || "9:41"}</span>
         </div>
       </div>
 
@@ -79,13 +98,14 @@ export function OSPreview() {
       <div className="absolute inset-x-0 bottom-1.5 z-20 flex justify-center">
         <div className="flex items-end gap-1 rounded-xl border border-white/10 bg-white/[0.06] px-1.5 py-1 backdrop-blur-md">
           {DOCK.map(({ icon: Icon, accent }, i) => (
-            <span key={i} className="grid h-6 w-6 place-items-center rounded-md border" style={{ borderColor: `${accent}40`, background: `linear-gradient(160deg, ${accent}22, rgba(13,14,17,0.7))` }}>
+            <span key={i} className="grid h-6 w-6 place-items-center rounded-md border transition-transform duration-200 hover:-translate-y-1" style={{ borderColor: `${accent}40`, background: `linear-gradient(160deg, ${accent}22, rgba(13,14,17,0.7))` }}>
               <Icon size={12} style={{ color: accent }} />
             </span>
           ))}
         </div>
       </div>
-    </div>
+      </div>
+    </Link>
   );
 }
 

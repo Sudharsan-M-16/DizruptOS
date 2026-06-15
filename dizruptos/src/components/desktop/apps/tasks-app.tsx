@@ -25,12 +25,14 @@ const PRIORITY_CLS: Record<string, string> = {
 
 type FilterId = "all" | "today" | "overdue" | "pending" | "in_progress" | "blocked" | "critical" | "done";
 
-export function TasksApp() {
+const FILTER_IDS: FilterId[] = ["all", "today", "overdue", "pending", "in_progress", "blocked", "critical", "done"];
+
+export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) {
   const personaId = useSession((s) => s.personaId);
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const allTasks = useOps((s) => s.tasks);
   const openTaskDrawer = useOps((s) => s.openTaskDrawer);
-  const [filter, setFilter] = useState<FilterId>("all");
+  const [filter, setFilter] = useState<FilterId>(FILTER_IDS.includes(initialFilter as FilterId) ? (initialFilter as FilterId) : "all");
 
   const me = employeeById(persona.id);
   const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
@@ -90,7 +92,7 @@ export function TasksApp() {
           return (
             <button key={f.id} onClick={() => setFilter(f.id)}
               className={cn("flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs font-medium transition-colors", active ? "text-fg" : "text-fg-secondary hover:bg-ink-elevated")}
-              style={active ? { background: "var(--os-accent-soft,rgba(0,237,130,0.12))", boxShadow: "inset 2px 0 0 var(--os-accent,#00ED82)" } : undefined}>
+              style={active ? { background: "var(--os-accent-soft,rgba(0,237,130,0.12))" } : undefined}>
               <Icon size={14} style={{ color: active ? "var(--os-accent,#00ED82)" : f.tone }} />
               <span className="flex-1">{f.label}</span>
               <span className={cn("rounded-full px-1.5 text-[10px] font-bold", active ? "bg-ink-elevated text-fg" : "text-fg-muted")}>{n}</span>

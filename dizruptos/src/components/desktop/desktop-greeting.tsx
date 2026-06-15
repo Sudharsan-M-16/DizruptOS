@@ -28,6 +28,14 @@ function timeGreeting(h: number) {
   return "Good night";
 }
 
+// A role-aware lead-in so the brief reads personally for whoever's signed in.
+function roleLead(role: string) {
+  if (role === "executive") return "Across the org —";
+  if (role === "dept_head") return "Your department —";
+  if (role === "project_manager" || role === "team_lead") return "Your team —";
+  return "Your week —";
+}
+
 export function DesktopGreeting() {
   const now = useClock();
   const personaId = useSession((s) => s.personaId);
@@ -50,7 +58,7 @@ export function DesktopGreeting() {
   if (overdue) bits.push(`${overdue} overdue`);
   if (dueToday) bits.push(`${dueToday} due today`);
   if (critical) bits.push(`${critical} critical`);
-  const brief = bits.length ? bits.join(" · ") : "nothing pressing — a clear runway";
+  const brief = bits.length ? bits.join(" · ") : "a clear runway, nothing pressing";
 
   // second line: team availability + the project most worth your attention
   const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client");
@@ -78,10 +86,13 @@ export function DesktopGreeting() {
       <div className="mt-2 font-display text-xl font-bold tracking-tight text-fg">
         {timeGreeting(hour)}, {persona.name.split(" ")[0]}.
       </div>
+      <div className="mt-0.5 text-sm font-medium text-fg-secondary">
+        {persona.title}{me?.location ? ` · ${me.location}` : ""}{me?.timezone ? ` (${me.timezone})` : ""}
+      </div>
       <div className="mt-1 flex items-center gap-2 text-sm text-fg-secondary">
         <span>{now ? now.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : " "}</span>
         <span className="h-1 w-1 rounded-full bg-fg-faint" />
-        <span className="text-fg-muted">{brief}</span>
+        <span className="text-fg-muted">{roleLead(persona.role)} {brief}</span>
       </div>
       {(teammates.length > 0 || topFocus) && (
         <div className="mt-1 flex items-center gap-2 text-2xs text-fg-muted">

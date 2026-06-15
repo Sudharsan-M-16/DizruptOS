@@ -7,7 +7,8 @@
 // (shell), the macOS Clone (motion/vibrancy), react-mosaic (window mechanics).
 // All data is the real store/session data — only the surface changed.
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSwipeNavigation, useHotCorners, appHistory } from "@/lib/gestures";
 import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -45,6 +46,7 @@ import { Toaster, toast } from "@/components/desktop/toaster";
 import { DesktopGreeting } from "@/components/desktop/desktop-greeting";
 import { useOS } from "@/lib/os";
 import { APPS, DEFAULT_DOCK, appById, iconFor } from "@/lib/desktop-apps";
+import { StageManager } from "@/components/desktop/stage-manager";
 
 const PULSE_HREF: Record<string, string> = {
   "Over-allocation": "/capacity", "Projects at risk": "/projects", "Awaiting decision": "/proposals",
@@ -176,6 +178,36 @@ export default function CommandCenterDesktop() {
     .filter((w) => !w.closed && !w.minimized)
     .reduce<string | undefined>((top, w) => (top && winById(top).z > w.z ? top : w.id), undefined);
 
+  // ---- macOS-grade gesture system ----
+  // Two-finger horizontal swipe: back navigates to the previous focused app;
+  // forward navigates to the next. Works on trackpads and magic mice.
+  useSwipeNavigation(surfaceRef, {
+    onBack: () => {
+      const prev = appHistory.back();
+      if (prev) dm.open(prev);
+    },
+    onForward: () => {
+      const next = appHistory.forward();
+      if (next) dm.open(next);
+    },
+    threshold: 90,
+  });
+
+  // Hot corners — macOS System Settings → Desktop & Dock → Hot Corners.
+  // Top-left: Mission Control  Top-right: Notification Center
+  // Bottom-left: Launchpad     Bottom-right: Desktop (hide all windows)
+  useHotCorners({
+    topLeft: () => window.dispatchEvent(new CustomEvent("dizrupt:mission-control")),
+    topRight: () => window.dispatchEvent(new CustomEvent("dizrupt:notifications")),
+    bottomLeft: () => window.dispatchEvent(new CustomEvent("dizrupt:launchpad")),
+    bottomRight: () => {
+      // "Show Desktop" — minimize all windows like macOS ⌘M-all
+      dm.wins.filter((w) => !w.closed && !w.minimized).forEach((w) => dm.toggleMin(w.id));
+    },
+    dwellMs: 700,
+    cornerPx: 8,
+  });
+
   // ---- the one place an app gets launched (dock, Spotlight, Launchpad, Home) ----
   const launchApp = useCallback((id: string) => {
     const app = appById(id);
@@ -186,7 +218,8 @@ export default function CommandCenterDesktop() {
       return;
     }
     if (app.kind === "special") { window.dispatchEvent(new CustomEvent("dizrupt:open-settings")); return; }
-    if (app.kind === "panel") { dm.open(app.id); return; }          // Home / Matrix / Directory
+    if (app.kind === "panel") { appHistory.push(app.id); dm.open(app.id); return; }
+    appHistory.push(app.id);
     dm.openApp({                                                    // route → iframe window
       id: app.id, title: app.label, kind: "iframe",
       url: `${app.href}?embed=1`, iconKey: app.iconKey, accent: app.accent,
@@ -226,6 +259,18 @@ export default function CommandCenterDesktop() {
     const onSettings = () => dm.open("settings");
     window.addEventListener("dizrupt:open-settings", onSettings);
     return () => window.removeEventListener("dizrupt:open-settings", onSettings);
+  }, [dm]);
+
+  // Tasks app opened pre-filtered (Home's Today/Pending/Overdue/Critical cards).
+  const [tasksFilter, setTasksFilter] = useState<string>("all");
+  useEffect(() => {
+    const onOpenTasks = (e: Event) => {
+      const f = (e as CustomEvent).detail?.filter ?? "all";
+      setTasksFilter(f);
+      dm.open("tasks");
+    };
+    window.addEventListener("dizrupt:open-tasks", onOpenTasks);
+    return () => window.removeEventListener("dizrupt:open-tasks", onOpenTasks);
   }, [dm]);
 
   const resolveWinIcon = (w: typeof dm.wins[number]) => w.iconKey ? iconFor(w.iconKey) : (WIN_META[w.id]?.icon ?? iconFor());
@@ -300,6 +345,13 @@ export default function CommandCenterDesktop() {
         {/* greeting — time-aware live block behind the windows */}
         <DesktopGreeting />
 
+        {/* Stage Manager — macOS Ventura-style window group rail */}
+        <StageManager
+          windows={dm.wins.filter((w) => !w.closed).map((w) => ({ id: w.id, title: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w) }))}
+          primaryId={frontId}
+          onSelect={(id) => { appHistory.push(id); dm.open(id); }}
+        />
+
         {/* snap preview */}
         {dm.snapZone && <SnapPreview zone={dm.snapZone} />}
 
@@ -313,7 +365,7 @@ export default function CommandCenterDesktop() {
         {renderWin("inbox", <InboxBody pending={pending} isEmployee={isEmployee} />)}
         {renderWin("portfolio", <PortfolioBody />)}
         {canSeeAudit && renderWin("activity", <ActivityBody audit={audit} />)}
-        {renderWin("tasks", <TasksApp />, true)}
+        {renderWin("tasks", <TasksApp key={tasksFilter} initialFilter={tasksFilter} />, true)}
         {renderWin("matrix", <ProjectMatrix />)}
         {renderWin("directory", <OperativeDirectory />)}
         {renderWin("chat", <ChatApp />, true)}
