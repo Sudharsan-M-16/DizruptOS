@@ -46,7 +46,7 @@ export function Menubar({ healthScore, capacityPct }: { healthScore: number; cap
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const lock = useOS((s) => s.lock);
   const accentHex = useOS((s) => s.accent().hex);
-  const unread = useOps((s) => s.notifications.filter((n) => !n.read).length);
+  const unread = useOps((s) => s.notifications.reduce((acc, n) => acc + (n.read ? 0 : 1), 0));
   const dnd = useOS((s) => s.dnd);
   const toggleDnd = useOS((s) => s.toggleDnd);
   const can = useSession((s) => s.can);
@@ -153,7 +153,13 @@ export function Menubar({ healthScore, capacityPct }: { healthScore: number; cap
           <MenuTrigger active={open === "__notif"} onClick={() => setOpen(open === "__notif" ? null : "__notif")} className="relative px-1.5" ariaLabel="Notifications">
             <Bell size={13} />
             {unread > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid h-3.5 min-w-[14px] place-items-center rounded-full px-0.5 text-[9px] font-bold leading-none text-black" style={{ background: accentHex }}>
+              <span
+                aria-live="polite"
+                aria-atomic="true"
+                aria-label={`${unread} unread notification${unread !== 1 ? "s" : ""}`}
+                className="absolute -right-0.5 -top-0.5 grid h-3.5 min-w-[14px] place-items-center rounded-full px-0.5 text-[9px] font-bold leading-none text-black"
+                style={{ background: accentHex }}
+              >
                 {unread > 9 ? "9+" : unread}
               </span>
             )}

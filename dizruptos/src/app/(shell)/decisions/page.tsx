@@ -21,10 +21,28 @@ const statusTone: Record<DecisionStatus, string> = {
 };
 
 export default function DecisionsPage() {
-  const [open, setOpen] = React.useState<string | null>(decisions[0].id);
+  const [open, setOpen] = React.useState<string | null>(decisions[0]?.id ?? null);
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#C084FC22", border: "1px solid #C084FC44" }}>
+          <Scale size={15} style={{ color: "#C084FC" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">Decision Registry</div>
+          <div className="text-[11px] text-fg-muted">{decisions.length} decisions · organizational memory</div>
+        </div>
+      </div>
+      {decisions.length === 0 && (
+        <div className="flex flex-col items-center gap-3 py-20 text-fg-muted">
+          <Scale size={32} className="opacity-30" />
+          <p className="text-sm">No decisions recorded yet.</p>
+        </div>
+      )}
+      <div aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto p-5">
+      <div className="mx-auto max-w-3xl">
       {/* Timeline spine */}
       <div className="relative space-y-4 before:absolute before:bottom-4 before:left-[15px] before:top-4 before:w-px before:bg-line">
         {decisions.map((d) => {
@@ -152,6 +170,8 @@ export default function DecisionsPage() {
       <p className="mt-6 text-center text-xs text-fg-muted">
         Decisions are first-class entities. When people leave, the rationale stays.
       </p>
+      </div>
+      </div>
     </div>
   );
 }

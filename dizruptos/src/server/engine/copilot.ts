@@ -153,6 +153,45 @@ const INTENTS: { intent: string; test: RegExp; run: (ctx: CopilotContext) => Omi
       evidence: c.health.topConcerns, source: "org-health",
     }),
   },
+  {
+    intent: "trend_analysis",
+    test: /trend|trajectory|improving|worsening|over time|getting better|getting worse/i,
+    run: (c) => ({
+      answer: `Org health is currently ${c.health.score}/100 (${c.health.band}). Top concerns: ${c.health.topConcerns.join(", ") || "none flagged"}. For a 30-day trend chart, open the Health History surface.`,
+      evidence: c.health.topConcerns.length ? c.health.topConcerns : ["No concerns flagged"],
+      source: "org-health",
+    }),
+  },
+  {
+    intent: "comparison",
+    test: /vs\b|versus|compared? to|better than|worse than|which is (more|less)/i,
+    run: (c) => {
+      const top2 = c.recommendations.slice(0, 2);
+      return top2.length >= 2
+        ? { answer: `Comparing top recommendations: "${top2[0].title}" (priority ${top2[0].priority}) vs "${top2[1].title}" (priority ${top2[1].priority}). ${top2[0].title} ranks higher due to: ${top2[0].rationale}`, evidence: [...top2[0].evidence, ...top2[1].evidence.slice(0, 1)], source: "recommendations" }
+        : { answer: "Only one active recommendation — nothing to compare against. Add more signals to generate a richer comparison.", evidence: [], source: "recommendations" };
+    },
+  },
+  {
+    intent: "aggregate",
+    test: /total|sum|aggregate|across all|overall count|how many/i,
+    run: (c) => ({
+      answer: `Org snapshot: ${c.people.length} tracked people, ${c.risks.length} active risks, ${c.capabilities.length} capabilities, ${c.recommendations.length} active recommendations. Health score: ${c.health.score}/100.`,
+      evidence: [`${c.people.length} people`, `${c.risks.length} risks`, `${c.capabilities.length} capabilities`],
+      source: "org-intelligence",
+    }),
+  },
+  {
+    intent: "succession_overview",
+    test: /succession|who can cover|back.?up|coverage|replace|single point/i,
+    run: (c) => {
+      const spof = c.succession;
+      return spof.length
+        ? { answer: `${spof.length} succession gap${spof.length > 1 ? "s" : ""} found. Most critical: ${spof[0].userName} is the sole holder of ${spof[0].capabilities.join(", ")}.`,
+            evidence: spof.slice(0, 3).map((s) => `${s.userName}: ${s.capabilities.join(", ")}`), source: "people-intelligence" }
+        : { answer: "No succession gaps detected — all strategic capabilities have backup coverage.", evidence: [], source: "people-intelligence" };
+    },
+  },
 ];
 
 export function answer(question: string, ctx: CopilotContext): CopilotAnswer {

@@ -6,17 +6,20 @@
 // routes a click straight to the relevant DizruptOS window. All routing is data-
 // driven (entityRef → app), so wiring a real backend changes nothing here.
 
-import { Bell, CheckCheck, Cpu, Handshake, Inbox, ShieldAlert } from "lucide-react";
+import { useEffect } from "react";
+import { Bell, CheckCheck, Cpu, Handshake, Inbox, MessageSquare, ShieldAlert } from "lucide-react";
 import { useOps } from "@/lib/store";
+import { realtimeChannel, CHANNELS } from "@/lib/realtime-supabase";
 import type { NotificationItem } from "@/lib/types";
 import { cn, timeAgo } from "@/lib/utils";
 
-type GroupId = "Risks" | "Proposals" | "Commitments" | "System";
+type GroupId = "Risks" | "Proposals" | "Commitments" | "Messages" | "System";
 
 const GROUPS: { id: GroupId; label: string; icon: React.ElementType; accent: string }[] = [
   { id: "Risks", label: "Risks", icon: ShieldAlert, accent: "#EF4444" },
   { id: "Proposals", label: "Proposals", icon: Inbox, accent: "#00ED82" },
   { id: "Commitments", label: "Commitments", icon: Handshake, accent: "#38BDF8" },
+  { id: "Messages", label: "Messages", icon: MessageSquare, accent: "#2BD9FF" },
   { id: "System", label: "System", icon: Cpu, accent: "#9AA3AD" },
 ];
 
@@ -24,6 +27,7 @@ function groupOf(n: NotificationItem): GroupId {
   if (n.entityRef?.startsWith("/commitments")) return "Commitments";
   if (n.klass === "manager_review" || n.entityRef?.startsWith("/proposals")) return "Proposals";
   if (n.klass === "hard_stop" || n.klass === "critical_action") return "Risks";
+  if (n.entityRef?.startsWith("/chat") || n.klass === "informational" && n.title.startsWith("💬")) return "Messages";
   return "System";
 }
 
@@ -31,7 +35,7 @@ function groupOf(n: NotificationItem): GroupId {
 // anything else opens the raw route as a window (decoupled fallback).
 const ROUTE_APP: Record<string, string> = {
   "/risks": "r-risks", "/capacity": "r-capacity", "/projects": "matrix",
-  "/people": "directory", "/commitments": "directory",
+  "/people": "directory", "/commitments": "directory", "/chat": "chat",
 };
 function openFrom(n: NotificationItem) {
   const ref = n.entityRef;
@@ -45,12 +49,35 @@ export function NotificationCenter({ onClose }: { onClose: () => void }) {
   const notifications = useOps((s) => s.notifications);
   const markAllRead = useOps((s) => s.markAllRead);
   const markRead = useOps((s) => s.markRead);
+  const addNotification = useOps((s) => s.addNotification);
   const unread = notifications.filter((n) => !n.read).length;
+
+  useEffect(() => {
+    const ch = realtimeChannel(CHANNELS.NOTIFICATIONS);
+    ch.on("notification", (payload) => {
+      addNotification({
+        id: crypto.randomUUID(),
+        klass: "informational",
+        title: String(payload.title ?? "Org update"),
+        body: String(payload.body ?? "New intelligence available"),
+        at: new Date().toISOString(),
+        read: false,
+        entityRef: payload.entityRef ? String(payload.entityRef) : undefined,
+      });
+    });
+    ch.subscribe();
+    return () => { ch.unsubscribe(); };
+  }, [addNotification]);
 
   const grouped = GROUPS.map((g) => ({ ...g, items: notifications.filter((n) => groupOf(n) === g.id) })).filter((g) => g.items.length > 0);
 
   return (
-    <div className="w-[360px] overflow-hidden rounded-2xl border border-white/15 bg-[rgb(var(--ink-elevated)/0.82)] shadow-2xl backdrop-blur-2xl">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Notifications"
+      className="w-[360px] overflow-hidden rounded-2xl border border-white/15 bg-[rgb(var(--ink-elevated)/0.82)] shadow-2xl backdrop-blur-2xl"
+    >
       {/* header */}
       <div className="flex items-center gap-2 border-b border-line/60 px-4 py-3">
         <Bell size={15} style={{ color: "var(--os-accent,#00ED82)" }} />
@@ -67,7 +94,7 @@ export function NotificationCenter({ onClose }: { onClose: () => void }) {
 
       {/* groups */}
       <div className="max-h-[64vh] overflow-y-auto p-2">
-        {grouped.length === 0 && <div className="px-3 py-10 text-center text-xs text-fg-muted">You're all caught up.</div>}
+        {grouped.length === 0 && <div className="px-3 py-10 text-center text-xs text-fg-muted">You&apos;re all caught up.</div>}
         {grouped.map((g) => {
           const GIcon = g.icon;
           const groupUnread = g.items.filter((n) => !n.read).length;

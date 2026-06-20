@@ -6,7 +6,8 @@
 // along the bottom as a "launch" tray. Stylised cards (not live thumbnails) so
 // it stays buttery at any window count. Opens on `dizrupt:mission-control`.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "@/lib/focus-trap";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
@@ -29,6 +30,8 @@ export function MissionControl({
   onLaunch: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const trapRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(trapRef, open, { onEscape: () => setOpen(false) });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -48,6 +51,7 @@ export function MissionControl({
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={trapRef}
           role="dialog" aria-modal="true" aria-label="Mission Control — all windows"
           className="fixed inset-0 z-[160] flex flex-col bg-black/45 backdrop-blur-xl"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
@@ -59,12 +63,14 @@ export function MissionControl({
 
           {/* live windows grid */}
           <div className="flex flex-1 items-center justify-center p-8">
-            <div className="grid max-w-[1100px] grid-cols-2 gap-6 sm:grid-cols-3">
+            <div role="grid" aria-label="Open windows" className="grid max-w-[1100px] grid-cols-2 gap-6 sm:grid-cols-3">
               {live.map((w, i) => {
                 const Icon = w.icon;
                 return (
                   <motion.button
                     key={w.id}
+                    role="gridcell"
+                    aria-label={`Switch to ${w.title}`}
                     initial={{ opacity: 0, scale: 0.8, y: 24 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ delay: i * 0.04, type: "spring", stiffness: 320, damping: 26 }}

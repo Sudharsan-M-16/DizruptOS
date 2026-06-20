@@ -8,7 +8,9 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { metrics } from "@/lib/telemetry";
+import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
+import { upsertExternalTask, upsertExternalProject, resolveDefaultOrgId } from "@/server/services/graph-writer";
 
 const JIRA_WEBHOOK_SECRET = process.env.JIRA_WEBHOOK_SECRET;
 
@@ -73,8 +75,10 @@ export async function POST(req: NextRequest) {
 
   const repos = getRepositories();
   const now = new Date().toISOString();
+  const status   = mapJiraStatus(issue.fields.status.name) as "todo" | "in_progress" | "completed" | "blocked";
+  const priority = mapJiraPriority(issue.fields.priority?.name ?? "medium");
 
-  // Map the Jira issue to a DIZRUPT audit event + task representation.
+  // 1. Audit trail (always, in both demo and production mode)
   await repos.audit.append({
     id: `aud-jira-${issue.key}-${Date.now()}`,
     actorId: issue.fields.assignee?.accountId ?? "jira-system",
@@ -85,27 +89,48 @@ export async function POST(req: NextRequest) {
     detail: JSON.stringify({
       jiraKey: issue.key,
       project: issue.fields.project.name,
-      status: mapJiraStatus(issue.fields.status.name),
-      priority: mapJiraPriority(issue.fields.priority?.name ?? "medium"),
+      status,
+      priority,
       assignee: issue.fields.assignee?.displayName ?? "unassigned",
     }),
     at: now,
   });
 
-  console.log(JSON.stringify({
-    ts: now,
-    level: "info",
-    event: "jira_import",
-    ctx: { key: issue.key, event: webhookEvent, project: issue.fields.project.key }
-  }));
+  // 2. Write to graph tables (production / Supabase mode; no-ops in demo)
+  const orgId = await resolveDefaultOrgId();
+  const [taskWritten] = await Promise.all([
+    upsertExternalTask({
+      externalId:    issue.key,
+      source:        "jira",
+      title:         `${issue.key}: ${issue.fields.summary}`,
+      status,
+      priority,
+      assigneeEmail: issue.fields.assignee?.emailAddress ?? null,
+      projectName:   issue.fields.project.name,
+      orgId,
+      updatedAt:     issue.fields.updated,
+    }),
+    // Also upsert the project record
+    upsertExternalProject({
+      externalId: issue.fields.project.id,
+      source:     "jira",
+      name:       issue.fields.project.name,
+      status:     "ACTIVE",
+      orgId,
+      updatedAt:  now,
+    }),
+  ]);
+
+  log("info", "jira_import", { key: issue.key, event: webhookEvent, project: issue.fields.project.key, graphWrite: taskWritten });
 
   return NextResponse.json({
     ok: true,
     imported: {
       jiraKey: issue.key,
       summary: issue.fields.summary,
-      status: mapJiraStatus(issue.fields.status.name),
-      priority: mapJiraPriority(issue.fields.priority?.name ?? "medium"),
+      status,
+      priority,
+      graphWrite: taskWritten,
     }
   });
 }

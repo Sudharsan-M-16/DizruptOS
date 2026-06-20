@@ -2,7 +2,21 @@
 // pure engines. (Server reads via service_role; tenant scoping is enforced by
 // RLS for direct access and applied here when org context is threaded through.)
 
-import { getRepositories } from "@/server/repositories";
+import { getRepositories, RepositoryError } from "@/server/repositories";
+import { createMemoryRepositories } from "@/server/repositories/memory";
+
+type RepoSet = ReturnType<typeof getRepositories>;
+
+/** Run fn with live Supabase repos; on any network/connection error fall back to
+ *  the in-memory seed so every surface stays functional in demo mode. */
+async function withFallback<T>(fn: (r: RepoSet) => Promise<T>): Promise<T> {
+  try {
+    return await fn(getRepositories());
+  } catch (err) {
+    if (err instanceof RepositoryError) throw err; // domain errors propagate normally
+    return fn(createMemoryRepositories());
+  }
+}
 import { dependency, risk, orgHealth, capability, orgMemory, simulation, decision, recommendations, lifecycle, calibration, outcome, learning, narratives, copilot } from "@/server/engine";
 import type { DepEdge } from "@/server/engine/dependency-intelligence";
 import type { Severity } from "@/server/engine/risk-intelligence";
@@ -10,13 +24,14 @@ import type { RecommendationRecord, RecommendationStatus } from "@/server/reposi
 import type { Role } from "@/lib/types";
 import { loadCapabilityGraph } from "./capability-loader";
 import { severityOf } from "@/lib/risk";
+import { semanticSearch } from "./embeddings";
 
 async function edges(): Promise<{ edges: DepEdge[]; nodes: { id: string; label: string }[] }> {
-  const rels = await getRepositories().relationships.list();
-  const edges = rels.map((r) => ({ sourceId: r.sourceId, targetId: r.targetId, relationshipType: r.relationshipType }));
+  const rels = await withFallback((r) => r.relationships.list());
+  const edgeList = rels.map((r) => ({ sourceId: r.sourceId, targetId: r.targetId, relationshipType: r.relationshipType }));
   const ids = new Set<string>();
   rels.forEach((r) => { ids.add(r.sourceId); ids.add(r.targetId); });
-  return { edges, nodes: [...ids].map((id) => ({ id, label: id })) };
+  return { edges: edgeList, nodes: [...ids].map((id) => ({ id, label: id })) };
 }
 
 export async function nodeFailureSimulation(nodeId: string, label: string) {
@@ -32,12 +47,11 @@ export async function staffingSimulation(capabilityId: string, userName: string,
 
 /** Pure computation pass — the engine's current ranked recommendations. */
 async function computeRecommendations() {
-  const repos = getRepositories();
   const [capGraph, ge, decisions, outcomes] = await Promise.all([
     loadCapabilityGraph(),
     edges(),
-    repos.decisions.list(),
-    repos.outcomes.list(),
+    withFallback((r) => r.decisions.list()),
+    withFallback((r) => r.outcomes.list()),
   ]);
   const analyses = capability.rankByRisk(capGraph).map((a) => ({
     id: a.id, name: a.name, strategicImportance: a.strategicImportance,
@@ -82,18 +96,17 @@ export interface LiveRecommendation extends recommendations.Recommendation {
  *  (idempotent — never clobbering lifecycle state), then merge each with its
  *  stored lifecycle + prediction + outcome so nothing is a dead suggestion. */
 export async function recommendationsIntel(): Promise<{ recommendations: LiveRecommendation[] }> {
-  const repos = getRepositories();
   const computed = await computeRecommendations();
 
   // Persist newly-surfaced recommendations so they enter the lifecycle.
-  await repos.recommendations.upsertComputed(
+  await withFallback((repos) => repos.recommendations.upsertComputed(
     computed.map((r) => ({
       id: r.id, type: r.type, title: r.title, rationale: r.rationale, impact: r.impact, priority: r.priority,
       evidence: r.evidence, traceKind: r.traceTo.kind, traceId: r.traceTo.id, traceLabel: r.traceTo.label,
     }))
-  );
+  ));
 
-  const persisted = await repos.recommendations.list();
+  const persisted = await withFallback((repos) => repos.recommendations.list());
   const byId = new Map(persisted.map((p) => [p.id, p]));
 
   // Union: live computed recs (current truth) + any persisted recs that the
@@ -211,11 +224,10 @@ export async function transitionRecommendation(
  *  confidence + expected vs actual), and rolls up outcome quality + captured
  *  learnings into one accountability surface. */
 export async function learningIntelligence() {
-  const repos = getRepositories();
   const [recs, outcomes, learnings] = await Promise.all([
-    repos.recommendations.list(),
-    repos.outcomes.list(),
-    repos.learnings.list(),
+    withFallback((r) => r.recommendations.list()),
+    withFallback((r) => r.outcomes.list()),
+    withFallback((r) => r.learnings.list()),
   ]);
 
   // Recommendation predictions → calibration.
@@ -271,13 +283,12 @@ export async function learningIntelligence() {
  *  risk). Deterministic prose over real numbers; the in-product narrative the
  *  sprint asked for (not a markdown file). */
 export async function executiveNarrative(period: narratives.Period = "weekly") {
-  const repos = getRepositories();
   const [health, recs, learn, risksI, persisted] = await Promise.all([
     orgHealthIntelligence(),
     recommendationsIntel(),
     learningIntelligence(),
     riskIntelligence(),
-    repos.recommendations.list(),
+    withFallback((r) => r.recommendations.list()),
   ]);
 
   const acted = persisted
@@ -304,7 +315,6 @@ export async function executiveNarrative(period: narratives.Period = "weekly") {
 
 export async function askCopilot(question: string) {
   const { peopleIntelligence } = await import("./people-loader");
-  const repos = getRepositories();
   const [capGraph, health, recs, risksI, ppl, learn, persistedRecs, decisions, outcomes] = await Promise.all([
     loadCapabilityGraph(),
     orgHealthIntelligence(),
@@ -312,9 +322,9 @@ export async function askCopilot(question: string) {
     riskIntelligence(),
     peopleIntelligence(),
     learningIntelligence(),
-    repos.recommendations.list(),
-    repos.decisions.list(),
-    repos.outcomes.list(),
+    withFallback((r) => r.recommendations.list()),
+    withFallback((r) => r.decisions.list()),
+    withFallback((r) => r.outcomes.list()),
   ]);
 
   const measured = persistedRecs.filter((r) => r.status === "measured" && r.accuracy != null);
@@ -359,9 +369,18 @@ export async function askCopilot(question: string) {
   // Deterministic engine answer — always correct, always grounded.
   const deterministicAnswer = copilot.answer(question, ctx);
 
+  // Semantic search — inject top-K entities most relevant to the question
+  // into the LLM context so it can reference specific people/capabilities/risks
+  // that the deterministic engine might not have matched by keyword.
+  let semanticHits: string[] = [];
+  try {
+    const hits = await semanticSearch(question, getRepositories(), { topK: 4 });
+    semanticHits = hits.map((h) => `${h.entityType}:${h.label} (score ${h.score.toFixed(2)}): ${h.snippet}`);
+  } catch { /* non-critical */ }
+
   // LLM enhancement — fluent, conversational, still grounded.
   const { enhancedCopilotAnswer } = await import("@/server/engine/copilot-llm");
-  return enhancedCopilotAnswer(question, deterministicAnswer, ctx);
+  return enhancedCopilotAnswer(question, deterministicAnswer, ctx, semanticHits);
 }
 
 export async function departureSimulation(personId: string) {
@@ -376,8 +395,7 @@ export async function dependencyIntelligence() {
 }
 
 export async function riskIntelligence() {
-  const repos = getRepositories();
-  const [risks, { edges: e }] = await Promise.all([repos.risks.list(), edges()]);
+  const [risks, { edges: e }] = await Promise.all([withFallback((r) => r.risks.list()), edges()]);
   const nodes = risks.map((r) => ({
     id: r.id,
     title: r.title,
@@ -388,13 +406,12 @@ export async function riskIntelligence() {
 }
 
 export async function orgHealthIntelligence() {
-  const repos = getRepositories();
   const [capGraph, decisions, outcomes, approvals, capacity] = await Promise.all([
     loadCapabilityGraph(),
-    repos.decisions.list(),
-    repos.outcomes.list(),
-    repos.approvals.list(),
-    repos.capacity.list(),
+    withFallback((r) => r.decisions.list()),
+    withFallback((r) => r.outcomes.list()),
+    withFallback((r) => r.approvals.list()),
+    withFallback((r) => r.capacity.list()),
   ]);
   const capHealth = capability.capabilityHealth(capGraph);
   const gov = orgMemory.governanceSignals(approvals.map((a) => ({ status: a.status, approverRole: a.approverRole })));

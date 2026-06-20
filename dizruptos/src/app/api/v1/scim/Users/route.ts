@@ -47,6 +47,15 @@ function toScimUser(user: Record<string, unknown>, base: string) {
   };
 }
 
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const isLive = !!(SB_URL && SB_KEY);
+
+const DEMO_USERS: Record<string, unknown>[] = [
+  { id: "u-demo-1", externalId: "okta-001", email: "noor@example.com", name: "Noor Patel", active: true, department: "Engineering", orgId: "org-1", createdAt: "2026-01-01T00:00:00Z" },
+  { id: "u-demo-2", externalId: "okta-002", email: "asha@example.com", name: "Asha Reyes", active: true, department: "Engineering", orgId: "org-1", createdAt: "2026-01-01T00:00:00Z" },
+];
+
 // GET /api/v1/scim/Users — list with optional filter
 export async function GET(req: NextRequest) {
   if (!verifyToken(req)) return scimError(401, "invalidCredentials", "Bearer token invalid");
@@ -55,19 +64,25 @@ export async function GET(req: NextRequest) {
   const startIndex = parseInt(req.nextUrl.searchParams.get("startIndex") ?? "1");
   const count = Math.min(parseInt(req.nextUrl.searchParams.get("count") ?? "100"), 200);
 
-  // In production: query users table with org_id scoping + SCIM filter parsing.
-  // Demo: return a stub list.
-  const stubUsers: Record<string, unknown>[] = [
-    { id: "u-demo-1", externalId: "okta-001", email: "noor@example.com", name: "Noor Patel", active: true, department: "Engineering", orgId: "org-1", createdAt: "2026-01-01T00:00:00Z" },
-    { id: "u-demo-2", externalId: "okta-002", email: "asha@example.com", name: "Asha Reyes", active: true, department: "Engineering", orgId: "org-1", createdAt: "2026-01-01T00:00:00Z" },
-  ];
-
-  const filtered = filter
-    ? stubUsers.filter((u) => {
+  let allUsers: Record<string, unknown>[] = DEMO_USERS;
+  if (isLive) {
+    try {
+      let path = `${SB_URL!.replace(/\/$/, "")}/rest/v1/users?select=id,email,full_name,role,department,org_id,created_at&order=created_at&limit=${count}`;
+      if (filter) {
         const m = filter.match(/userName eq "(.+?)"/);
-        return m ? u.email === m[1] : true;
-      })
-    : stubUsers;
+        if (m) path += `&email=eq.${encodeURIComponent(m[1])}`;
+      }
+      const r = await fetch(path, { headers: { apikey: SB_KEY!, Authorization: `Bearer ${SB_KEY!}` }, cache: "no-store" });
+      if (r.ok) {
+        const rows = (await r.json()) as Array<{ id: string; email: string; full_name?: string; role?: string; department?: string; org_id?: string; created_at: string }>;
+        allUsers = rows.map((u) => ({ id: u.id, email: u.email, name: u.full_name ?? u.email, active: true, department: u.department, orgId: u.org_id, createdAt: u.created_at }));
+      }
+    } catch { allUsers = DEMO_USERS; }
+  }
+
+  const filtered = filter && !isLive
+    ? allUsers.filter((u) => { const m = filter.match(/userName eq "(.+?)"/); return m ? u.email === m[1] : true; })
+    : allUsers;
 
   const base = req.nextUrl.origin;
   metrics.importRows.inc({ connector: "scim", action: "list" }, filtered.length);
@@ -89,27 +104,46 @@ export async function POST(req: NextRequest) {
   try { body = await req.json(); } catch { return scimError(400, "invalidSyntax", "Invalid JSON"); }
 
   const userName = body.userName as string | undefined;
-  const displayName = (body.displayName ?? body.name as Record<string, string>)?.toString();
+  const displayName = body.displayName?.toString() ?? String((body.name as Record<string, string>)?.formatted ?? userName ?? "");
+  const enterprise = body["urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"] as Record<string, string> | undefined;
+  const department = enterprise?.department;
   if (!userName) return scimError(400, "invalidValue", "userName is required");
 
-  // Production path:
-  //   1. supabase.auth.admin.inviteUserByEmail(userName, { data: { role, org_id, dept } })
-  //   2. upsert into public.users
-  //   3. return 201 with SCIM representation
-
-  const newUser = {
+  const now = new Date().toISOString();
+  const newUser: Record<string, unknown> = {
     id: `scim-${Date.now()}`,
     externalId: body.externalId,
     email: userName,
-    name: displayName ?? userName,
+    name: displayName,
     active: body.active ?? true,
-    department: (body["urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"] as Record<string, string>)?.department,
+    department,
     orgId: "org-1",
-    createdAt: new Date().toISOString(),
+    createdAt: now,
   };
 
+  if (isLive) {
+    // Invite user via Supabase Auth Admin (sends magic link)
+    try {
+      const authRes = await fetch(`${SB_URL!.replace(/\/$/, "")}/auth/v1/admin/users`, {
+        method: "POST",
+        headers: { apikey: SB_KEY!, Authorization: `Bearer ${SB_KEY!}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userName, email_confirm: true, user_metadata: { full_name: displayName }, app_metadata: { role: "employee", department } }),
+      });
+      if (authRes.ok) {
+        const authUser = (await authRes.json()) as { id: string };
+        newUser.id = authUser.id;
+        // Upsert into public.users
+        await fetch(`${SB_URL!.replace(/\/$/, "")}/rest/v1/users?on_conflict=email`, {
+          method: "POST",
+          headers: { apikey: SB_KEY!, Authorization: `Bearer ${SB_KEY!}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" },
+          body: JSON.stringify({ id: authUser.id, email: userName, full_name: displayName, role: "employee", department }),
+        });
+      }
+    } catch { /* best-effort; return 201 anyway so IdP doesn't retry */ }
+  }
+
   metrics.importRows.inc({ connector: "scim", action: "create" });
-  console.log(JSON.stringify({ ts: new Date().toISOString(), level: "info", event: "scim_user_provisioned", ctx: { email: userName } }));
+  console.log(JSON.stringify({ ts: now, level: "info", event: "scim_user_provisioned", ctx: { email: userName } }));
 
   return NextResponse.json(toScimUser(newUser, req.nextUrl.origin), { status: 201 });
 }

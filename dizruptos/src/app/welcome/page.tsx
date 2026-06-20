@@ -92,11 +92,11 @@ function Hero() {
 
       {/* meta row — pushed clear of the fixed 72px top nav */}
       <motion.div {...metaIn(0)} className="absolute left-6 top-[88px] z-10 flex items-center gap-3 lg:left-10 lg:top-28">
-        <span className="bg-ink px-3 py-2 font-mono text-sm font-semibold uppercase tracking-[0.2em] text-brand">
+        <span className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-brand/80">
           Resource Intelligence Platform
         </span>
       </motion.div>
-      <motion.div {...metaIn(1)} className="absolute right-6 top-[88px] z-10 hidden bg-ink px-3 py-2 font-mono text-sm text-fg-secondary lg:right-10 lg:top-28 lg:block">
+      <motion.div {...metaIn(1)} className="absolute right-6 top-[88px] z-10 hidden font-mono text-sm font-medium uppercase tracking-[0.18em] lg:right-10 lg:top-28 lg:block" style={{ color: "rgba(255,255,255,0.75)" }}>
         EST. 2026 — RUNS YOUR ORG
       </motion.div>
 
@@ -238,9 +238,10 @@ function ProductStage() {
           </motion.h2>
         </motion.div>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-fg-secondary">
-          A peek at <span className="text-brand">DizruptOS</span> — your whole workplace as a
+          <span className="text-brand">DizruptOS</span> — your whole org as a
           desktop operating system in the browser. Windows, a Dock, Spotlight, your
-          tasks and your team, all on one screen. Sign in and the real thing boots up.
+          tasks, your team, and your intelligence — all on one screen.{" "}
+          <span className="font-semibold text-fg">Click any icon to try it now.</span>
         </p>
         <div className="mt-12" style={{ perspective: 1100 }}>
           <div
@@ -253,6 +254,24 @@ function ProductStage() {
           >
             <OSPreview />
           </div>
+        </div>
+
+        {/* Feature callouts — what you're seeing in the preview above */}
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Home", desc: "Your day, classified — Today / Critical / Pending by project.", accent: "#00ED82" },
+            { label: "Project Matrix", desc: "Drag-and-drop Kanban with live capacity awareness.", accent: "#7C6CFF" },
+            { label: "Spotlight", desc: "⌘Space to search people, projects, risks, or any app.", accent: "#2BD9FF" },
+            { label: "Copilot", desc: "Ask questions. Get answers grounded in your org's data.", accent: "#F59E0B" },
+          ].map(({ label, desc, accent }) => (
+            <div key={label} className="rounded-xl border border-white/8 bg-ink-surface/60 p-4" style={{ boxShadow: `0 0 0 1px ${accent}18` }}>
+              <div className="mb-1.5 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full" style={{ background: accent }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accent }}>{label}</span>
+              </div>
+              <p className="text-xs leading-relaxed text-fg-muted">{desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

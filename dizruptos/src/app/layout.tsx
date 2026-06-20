@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Sora, Newsreader } from "next/font/google";
 import { FxProvider } from "@/components/fx/fx-provider";
 import { Providers } from "@/components/providers";
+import { SkipLink } from "@/components/ui/skip-link";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
@@ -52,8 +53,11 @@ export default function RootLayout({
       <body
         className={`${plex.variable} ${plexMono.variable} ${sora.variable} ${newsreader.variable} font-sans`}
       >
+        <SkipLink />
         <FxProvider />
-        <Providers>{children}</Providers>
+        <Providers>
+          <main id="main-content">{children}</main>
+        </Providers>
       </body>
     </html>
   );

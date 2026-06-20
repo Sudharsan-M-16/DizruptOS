@@ -8,7 +8,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createHmac } from "crypto";
 import { metrics } from "@/lib/telemetry";
+import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
+import { upsertExternalTask, upsertExternalProject, resolveDefaultOrgId } from "@/server/services/graph-writer";
 
 const WEBHOOK_SECRET = process.env.LINEAR_WEBHOOK_SECRET;
 
@@ -64,8 +66,19 @@ export async function POST(req: NextRequest) {
   const repos = getRepositories();
   const now = new Date().toISOString();
 
+  const orgId = await resolveDefaultOrgId();
+  let graphWrite = false;
+
   if (type === "Issue") {
     const issue = data as LinearIssue;
+    const priority = linearPriorityToDizrupt(issue.priority);
+    const statusRaw = issue.state?.type ?? "started";
+    const status: "todo" | "in_progress" | "completed" | "blocked" =
+      statusRaw === "completed" ? "completed"
+      : statusRaw === "started" || statusRaw === "inProgress" ? "in_progress"
+      : "todo";
+
+    // 1. Audit trail
     await repos.audit.append({
       id: `aud-linear-${issue.identifier}-${Date.now()}`,
       actorId: issue.assignee?.id ?? "linear-system",
@@ -76,15 +89,38 @@ export async function POST(req: NextRequest) {
       detail: JSON.stringify({
         identifier: issue.identifier,
         team: issue.team?.name,
-        status: issue.state?.type,
-        priority: linearPriorityToDizrupt(issue.priority),
+        status,
+        priority,
         assignee: issue.assignee?.name ?? "unassigned",
       }),
       at: now,
     });
+
+    // 2. Graph write
+    graphWrite = await upsertExternalTask({
+      externalId:    issue.id,
+      source:        "linear",
+      title:         `${issue.identifier}: ${issue.title}`,
+      status,
+      priority,
+      assigneeEmail: issue.assignee?.email ?? null,
+      projectName:   issue.team?.name ?? null,
+      orgId,
+      updatedAt:     issue.updatedAt,
+    });
+
+  } else if (type === "Project") {
+    const proj = data as { id: string; name: string; updatedAt?: string };
+    graphWrite = await upsertExternalProject({
+      externalId: proj.id,
+      source:     "linear",
+      name:       proj.name,
+      orgId,
+      updatedAt:  proj.updatedAt ?? now,
+    });
   }
 
-  return NextResponse.json({ ok: true, processed: `${type}.${action}` });
+  return NextResponse.json({ ok: true, processed: `${type}.${action}`, graphWrite });
 }
 
 export async function GET() {

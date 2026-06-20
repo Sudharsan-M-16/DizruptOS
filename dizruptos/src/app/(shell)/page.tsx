@@ -13,7 +13,7 @@ import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Activity, AlertOctagon, ArrowRight, BrainCircuit, Boxes, Clock, Crosshair, FileClock,
-  Flame, GitBranch, Inbox, KanbanSquare, Lightbulb, ListChecks, Newspaper, OctagonAlert,
+  Flame, FlaskConical, GitBranch, Inbox, KanbanSquare, Lightbulb, ListChecks, Newspaper, OctagonAlert,
   MessageSquare, ScrollText, Settings, ShieldAlert, Sparkles, Target, TrendingUp, Upload, Users, Zap,
 } from "lucide-react";
 import { NumberTicker } from "@/components/ui/ascension";
@@ -32,12 +32,17 @@ import { useDesktop, type WinDef } from "@/components/desktop/use-desktop";
 import { OSFrame } from "@/components/desktop/os-frame";
 import { SettingsBody } from "@/components/desktop/settings-app";
 import { DesktopContextMenu } from "@/components/desktop/context-menu";
-import { ProjectMatrix } from "@/components/desktop/apps/project-matrix";
-import { OperativeDirectory } from "@/components/desktop/apps/operative-directory";
-import { ChatApp } from "@/components/desktop/apps/chat";
-import { HomeApp } from "@/components/desktop/apps/home";
-import { TasksApp } from "@/components/desktop/apps/tasks-app";
-import { KnowledgeVault } from "@/components/desktop/apps/knowledge-vault";
+import { useChat } from "@/lib/chat";
+import dynamic from "next/dynamic";
+const ProjectMatrix = dynamic(() => import("@/components/desktop/apps/project-matrix").then(m => ({ default: m.ProjectMatrix })), { ssr: false });
+const OperativeDirectory = dynamic(() => import("@/components/desktop/apps/operative-directory").then(m => ({ default: m.OperativeDirectory })), { ssr: false });
+const ChatApp = dynamic(() => import("@/components/desktop/apps/chat").then(m => ({ default: m.ChatApp })), { ssr: false });
+const HomeApp = dynamic(() => import("@/components/desktop/apps/home").then(m => ({ default: m.HomeApp })), { ssr: false });
+const TasksApp = dynamic(() => import("@/components/desktop/apps/tasks-app").then(m => ({ default: m.TasksApp })), { ssr: false });
+const KnowledgeVault = dynamic(() => import("@/components/desktop/apps/knowledge-vault").then(m => ({ default: m.KnowledgeVault })), { ssr: false });
+const SimulationApp = dynamic(() => import("@/components/desktop/apps/simulation-app").then(m => ({ default: m.SimulationApp })), { ssr: false });
+const CopilotApp = dynamic(() => import("@/components/desktop/apps/copilot-app").then(m => ({ default: m.CopilotApp })), { ssr: false });
+const AdminApp = dynamic(() => import("@/components/desktop/apps/admin-app").then(m => ({ default: m.AdminApp })), { ssr: false });
 import { Spotlight } from "@/components/desktop/spotlight";
 import { MissionControl } from "@/components/desktop/mission-control";
 import { Launchpad } from "@/components/desktop/launchpad";
@@ -75,6 +80,8 @@ const WIN_META: Record<string, { icon: React.ElementType; accent: string }> = {
   directory: { icon: Users, accent: "#38BDF8" },
   chat: { icon: MessageSquare, accent: "#2BD9FF" },
   vault: { icon: Boxes, accent: "#FEBC2E" },
+  simulation: { icon: FlaskConical, accent: "#FEBC2E" },
+  copilot: { icon: BrainCircuit, accent: "#00ED82" },
 };
 
 // Open an old-style route WITHOUT leaving the desktop: map well-known roots to a
@@ -168,6 +175,9 @@ export default function CommandCenterDesktop() {
     { id: "directory", title: "Operative Directory", x: 220, y: 120, w: 780, h: 500, closed: true },
     { id: "chat", title: "Messages", x: 200, y: 100, w: 860, h: 560, closed: true },
     { id: "vault", title: "Knowledge Vault", x: 180, y: 90, w: 900, h: 560, closed: true },
+    { id: "simulation", title: "What-If Simulation", x: 120, y: 60, w: 920, h: 640, closed: true },
+    { id: "copilot", title: "AI Copilot", x: 200, y: 60, w: 860, h: 560, closed: true },
+    { id: "admin", title: "Admin Console", x: 80, y: 50, w: 1100, h: 680, closed: true },
     { id: "settings", title: "System Settings", x: 300, y: 80, w: 760, h: 560, closed: true },
   ];
 
@@ -209,7 +219,7 @@ export default function CommandCenterDesktop() {
   });
 
   // ---- the one place an app gets launched (dock, Spotlight, Launchpad, Home) ----
-  const launchApp = useCallback((id: string) => {
+  const launchApp = useCallback((id: string) => { // eslint-disable-line react-hooks/exhaustive-deps
     const app = appById(id);
     if (!app) { dm.open(id); return; }                              // org panel window
     if (app.perm && !can(app.perm)) {                               // RBAC: deny + audit + notify
@@ -218,6 +228,12 @@ export default function CommandCenterDesktop() {
       return;
     }
     if (app.kind === "special") { window.dispatchEvent(new CustomEvent("dizrupt:open-settings")); return; }
+    // Fire-and-forget audit log for successful app opens (enterprise audit trail)
+    fetch("/api/v1/audit/nav", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resource: app.href ?? `/${app.id}`, label: app.label }),
+    }).catch(() => {}); // never block UI
     if (app.kind === "panel") { appHistory.push(app.id); dm.open(app.id); return; }
     appHistory.push(app.id);
     dm.openApp({                                                    // route → iframe window
@@ -260,6 +276,65 @@ export default function CommandCenterDesktop() {
     window.addEventListener("dizrupt:open-settings", onSettings);
     return () => window.removeEventListener("dizrupt:open-settings", onSettings);
   }, [dm]);
+
+  // Chat message notifications — toast + notification center entry.
+  const addNotification = useOps((s) => s.addNotification);
+  useEffect(() => {
+    const onMsg = (e: Event) => {
+      const d = (e as CustomEvent).detail as { convId: string; authorId: string; text: string; memberIds: string[]; at: number } | undefined;
+      if (!d) return;
+      if (d.authorId === persona.id) return;          // own message
+      if (!d.memberIds.includes(persona.id)) return;  // not in this convo
+      const from = PERSONAS.find((p) => p.id === d.authorId);
+      const senderName = from?.name ?? "Someone";
+      const snippet = d.text.length > 60 ? d.text.slice(0, 57) + "…" : d.text;
+      toast(`${senderName} messaged you`, snippet, "info");
+      // Also push to the persistent notification center (bell icon)
+      addNotification({
+        id: `n-chat-${d.convId}-${d.at}`,
+        klass: "informational",
+        title: `💬 ${senderName}`,
+        body: snippet,
+        at: new Date(d.at).toISOString(),
+        read: false,
+        entityRef: "/chat",
+      });
+    };
+    window.addEventListener("dizrupt:chat-message", onMsg);
+    return () => window.removeEventListener("dizrupt:chat-message", onMsg);
+  }, [persona.id, addNotification]);
+
+  // On persona switch: surface unread messages sent while a different persona was active.
+  // This is the primary delivery path — the real-time event only fires during the same session.
+  useEffect(() => {
+    const { conversations, messages: chatMsgs, lastRead } = useChat.getState();
+    const myConvs = conversations.filter((c) => c.memberIds.includes(persona.id));
+    const LOOKBACK_MS = 48 * 60 * 60 * 1000; // 48 hours
+    const cutoff = Date.now() - LOOKBACK_MS;
+
+    for (const conv of myConvs) {
+      const readAt = lastRead[persona.id]?.[conv.id] ?? 0;
+      const unread = chatMsgs.filter(
+        (m) => m.convId === conv.id && m.authorId !== persona.id && m.at > readAt && m.at > cutoff
+      );
+      // Add the most-recent unread per conversation as a notification
+      const latest = unread[unread.length - 1];
+      if (!latest) continue;
+      const from = PERSONAS.find((p) => p.id === latest.authorId);
+      const senderName = from?.name ?? employeeById(latest.authorId)?.name ?? "Someone";
+      const snippet = latest.text.length > 60 ? latest.text.slice(0, 57) + "…" : latest.text;
+      addNotification({
+        id: `n-chat-${latest.id}`,
+        klass: "informational",
+        title: `\u{1F4AC} ${senderName}`,
+        body: snippet,
+        at: new Date(latest.at).toISOString(),
+        read: false,
+        entityRef: "/chat",
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [persona.id]);
 
   // Tasks app opened pre-filtered (Home's Today/Pending/Overdue/Critical cards).
   const [tasksFilter, setTasksFilter] = useState<string>("all");
@@ -370,6 +445,9 @@ export default function CommandCenterDesktop() {
         {renderWin("directory", <OperativeDirectory />)}
         {renderWin("chat", <ChatApp />, true)}
         {renderWin("vault", <KnowledgeVault />, true)}
+        {renderWin("simulation", <SimulationApp />, true)}
+        {renderWin("copilot", <CopilotApp />, true)}
+        {renderWin("admin", <AdminApp />, true)}
         {renderWin("settings", <SettingsBody />, true)}
 
         {/* dynamic route-as-window apps (iframes) */}

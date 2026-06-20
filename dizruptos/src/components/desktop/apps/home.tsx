@@ -7,7 +7,7 @@
 // risks that need their attention. One glance = "what's my day." Launch buttons
 // fire `dizrupt:launch` to open the matching app window. Token surfaces only.
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import {
   AlertTriangle, ArrowUpRight, CalendarClock, CircleDot, Clock, Flame, Hourglass,
   Link2, ShieldAlert,
@@ -17,6 +17,7 @@ import { PERSONAS, useSession } from "@/lib/session";
 import { useOps } from "@/lib/store";
 import type { Task } from "@/lib/types";
 import { EmpAvatar, CapacityBar, HealthPill } from "@/components/ui/primitives";
+import { OrgHealthSparkline } from "@/components/ui/org-health-sparkline";
 import { cn, fmtPct, utilizationTone } from "@/lib/utils";
 
 const launch = (id: string) => window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id } }));
@@ -32,7 +33,7 @@ const PRIORITY_CLS: Record<string, string> = {
 
 type Segment = "today" | "pending" | "critical";
 
-export function HomeApp() {
+export const HomeApp = memo(function HomeApp() {
   const personaId = useSession((s) => s.personaId);
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const utilization = useOps((s) => s.utilization);
@@ -107,10 +108,15 @@ export function HomeApp() {
         </div>
       </div>
 
+      {/* org health sparkline — live 7-day trend from health-history API */}
+      <div className="mt-3">
+        <OrgHealthSparkline days={7} />
+      </div>
+
       {/* stat row — task cards open the enlarged Tasks app */}
-      <div className="mt-4 grid grid-cols-4 gap-2.5">
+      <div className="mt-3 grid grid-cols-4 gap-2.5">
         <Stat label="Your load" value={fmtPct(myUtil)} valueClass={utilizationTone(myUtil) === "danger" ? "text-danger" : utilizationTone(myUtil) === "warn" ? "text-warn" : "text-ok"} icon={Flame} sub={`${me?.capacityHoursPerWeek ?? 40}h week`} />
-        <Stat label="Today / overdue" value={String(today.length)} icon={CalendarClock} sub="open Tasks ↗" onClick={() => openTasks(today.some((t) => t.dueDate < TODAY) ? "overdue" : "today")} />
+        <Stat label="Today / overdue" value={String(today.length)} icon={CalendarClock} sub="open Tasks ↗" onClick={() => openTasks("today_overdue")} />
         <Stat label="Pending" value={String(pending.length)} icon={Hourglass} sub="open Tasks ↗" onClick={() => openTasks("pending")} />
         <Stat label="Critical" value={String(critical.length)} valueClass={critical.length ? "text-danger" : undefined} icon={ShieldAlert} sub="open Tasks ↗" onClick={() => openTasks("critical")} />
       </div>
@@ -218,7 +224,7 @@ export function HomeApp() {
       </div>
     </div>
   );
-}
+});
 
 function TaskRow({ task: t, selfId }: { task: Task; selfId: string }) {
   const overdue = t.dueDate < TODAY && t.status !== "COMPLETED";

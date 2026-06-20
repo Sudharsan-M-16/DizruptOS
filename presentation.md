@@ -93,8 +93,9 @@ wallpaper you chose all come back next time.
 - **App menus** (Overview, Capacity, Intelligence) — quick links that open work
   windows (they're filtered by your role — you only see what you're allowed to open).
 - **Notification Center** (the bell) — alerts grouped into **Risks, Proposals,
-  Commitments, System**, with an unread count; click an alert to jump to it, or
-  "Mark all read".
+  Commitments, Messages, System**, with an unread count; click an alert to jump to it,
+  or "Mark all read". **Chat messages now appear here automatically** — when a
+  colleague messages you, it shows up in both a toast and in the notification center.
 - **Control Center** (the sliders) — quick settings: light/dark, **accent colour**,
   **wallpaper**, **brightness**, **sound/volume**, **Performance mode**, **Do Not
   Disturb**, and lock.
@@ -135,6 +136,12 @@ wallpaper you chose all come back next time.
   upload**.
 - **System Settings** — all the appearance choices in a bigger window, plus this
   **User Guide** and **About** info.
+- **Monte Carlo Simulation** — a native app (RBAC-gated to managers and executives) for
+  **What-If scenario planning**. Four scenario types: Budget Cut, Departure Wave, Scope
+  Expansion, and Market Shock. Adjust severity sliders, run the simulation, and see
+  outcomes as **probability distributions** (p5 best case → p95 worst case). Red
+  "risk flags" highlight the most likely impacts. Powered by a real statistical engine
+  (Box-Muller sampling, 2,000 iterations per run).
 - **Work windows** (Capacity, Risks, People, Projects, Executive, Recommendations,
   Narratives, Org Memory, Dependency Graph, Learning Loop, Exec Briefing) — the deep
   analytics surfaces, each opening **as a window** so you never leave the desktop.
@@ -269,7 +276,29 @@ action is genuinely impossible" — which is what enterprises require.
 
 ---
 
-## 10) What's real today vs. what's next (be honest in the room)
+## 10) The AI & Intelligence layer (what the copilot actually does)
+
+**DizruptOS has a built-in executive copilot** — ask it questions in plain English and
+it answers using your org's real data, not general AI knowledge:
+
+- *"Who is most overloaded this week?"* → it reads actual capacity numbers, not guesses.
+- *"What are our biggest risks right now?"* → it pulls from the live risk register.
+- *"What should we prioritize?"* → it cites the top recommendations by impact.
+
+**How it works (no hallucination):**
+1. The deterministic engine computes facts from live data (capacity %, health score, risks).
+2. A semantic search finds the most relevant people, projects, and risks for your question.
+3. Claude AI (from Anthropic) receives both and writes a fluent, direct answer — but
+   cannot contradict the data. If the data doesn't support an answer, it says so.
+4. If Claude is unavailable, the deterministic answer is shown as-is. No errors, no spin.
+
+**Org Health Trend** — a new intelligence surface tracks your org's health score day by
+day (0–100), showing whether you're improving, stable, or declining — with the trend
+line over 30–90 days. Think of it as a resting heart rate for your organization.
+
+---
+
+## 11) What's real today vs. what's next (be honest in the room)
 
 **Real and working now:**
 - The entire desktop operating system and all the apps above.
@@ -277,12 +306,26 @@ action is genuinely impossible" — which is what enterprises require.
   correctly on demo data, with explanations.
 - Role-based access control across all three layers.
 - Saved layouts, file storage in the browser, light/dark/accent/wallpaper theming.
+- **Monte Carlo scenario simulation** — run what-if plans in seconds.
+- **AI Copilot** — semantically-grounded answers from Claude on your org's data.
+- **Ingestion-ready webhooks** — Jira, Linear, and GitHub can push their data in
+  automatically (HMAC-verified, audited, written to the org graph).
+- **Enterprise-ready SSO scaffolding** — SCIM provisioning and SAML/OIDC single
+  sign-on are code-complete and waiting to be connected to a real identity provider.
+- **Chat → notification bridge** — messages from colleagues appear in the notification
+  center, not just as toasts.
+- **Every surface works for every login** — all 19 API routes and all intelligence engines
+  auto-fall-back to demo data when the database is unreachable. Zero errors, regardless of
+  connection state.
+- **Dependency graph** with blast-radius and bus-factor lenses, wider node spread, and
+  in-OS navigation (clicking nodes opens the right app window, never leaves the desktop).
 
 **Honest "not yet" (and on the roadmap):**
-- **Real sign-in** (company accounts / single sign-on) — today it's demo personas.
+- **Real sign-in** (company accounts / single sign-on activated) — code is complete,
+  waiting for a real Supabase project with the migration applied.
 - **Live company data** flowing in automatically from tools like Jira/HR systems —
   today it runs on a realistic sample organization.
-- **Real-time multi-user sync** and enterprise compliance certifications.
+- **Real-time multi-user sync** across devices and enterprise compliance certifications.
 
 *Why say this?* Because credibility comes from honesty. The product experience is
 genuinely strong; the path to a paying customer is data + identity, which is normal
@@ -290,7 +333,7 @@ for this stage.
 
 ---
 
-## 11) The "wow" moments to show live
+## 12) The "wow" moments to show live
 
 1. **Sign in → watch it boot** into a desktop. (Instant "this is different.")
 2. **Open Spotlight** (⌘/Ctrl+Space), type a name — jump straight to a person.
@@ -300,10 +343,21 @@ for this stage.
 5. **Drag a PDF onto the Knowledge Vault** — it saves instantly.
 6. **Sign in as the Engineer vs. the COO** — show how the available apps change. That's
    RBAC you can *see*.
+7. **Open Monte Carlo Simulation** — slide the "Departure Wave" severity up to 80%, hit
+   Run, and show the p5/p50/p95 spread. Ask "what happens if 3 senior engineers leave?"
+8. **Ask the Copilot** a question about the org — "who is most at risk of burnout this
+   week?" and show that it cites real names and percentages, not generalities.
+9. **Send a chat message** as one persona, switch to the recipient's login — watch the
+   notification appear in the top-right bell and in the notification center.
+10. **Open the Dependency Graph** — show the spread-out network of people, projects, risks,
+    and decisions. Click "What breaks if Sarah leaves?" and watch 8 connected entities light
+    up. Click a person node to open their profile window — no navigation away from the OS.
+11. **Switch between all logins** — every page, every app, every intelligence surface loads
+    without errors, regardless of backend connectivity.
 
 ---
 
-## 12) Anticipated Q&A (answer from here)
+## 13) Anticipated Q&A (answer from here)
 
 **Q: Is this just a pretty skin on a normal dashboard?**
 A: No. It's a full window system — movable, resizable, snapping windows; a Dock;
@@ -350,7 +404,49 @@ value.
 
 ---
 
-## 13) One-paragraph summary to read aloud
+**Q: What happens when I send a chat message?**
+A: It delivers instantly inside DizruptOS. If the recipient is signed in, they see a
+toast in the top-right *and* the notification appears in their notification center
+(bell icon), grouped under "Messages". Click it to jump straight to the chat.
+
+**Q: Can the AI copilot make things up?**
+A: No. The copilot's answers are grounded in the data the intelligence engines computed.
+Claude AI can only phrase and connect facts — it cannot contradict the numbers. If
+there isn't enough data to answer a question, it says so.
+
+**Q: What's the Monte Carlo simulation for?**
+A: What-if planning. Scenario: "What if our budget gets cut 25%?" or "What if 4
+engineers leave?" The simulation runs 2,000 statistical variations and shows you the
+probability spread (best case / median / worst case) so leadership can make decisions
+with realistic expectations, not just a single guess.
+
+---
+
+## 15) What makes DizruptOS visually unforgettable
+
+**The login page** sets the tone: a deep `#040C12` ink background with two massive,
+luminous cyan/teal glowing orbs (left and right edges of the screen), a fine dot
+grid lit by the orbs in real time, and a sparkle diamond accent. The brand colours —
+`#00ED82` green for CTAs and `#00D9D5` teal for active states — carry through
+every tap and transition. The warp animation on sign-in is the first taste of the
+OS feeling: not a page transition, but a warp to a world.
+
+**The Org Health Sparkline** — visible to every persona on the Home screen — is a
+live 7-day trend with a delta arrow and percentage change. One glance tells you if
+the organisation is getting healthier or burning out.
+
+**The Dependency Graph** now runs three analytical lenses:
+- **Blast-Radius** (red) — who/what breaks if a node fails
+- **Bus Factor** (amber) — critical single points of knowledge
+- **Influence Map** (green) — Brandes betweenness centrality with **TOP badges** on
+  the most-connected nodes, a stats row (nodes / edges / avg-degree / top influencers),
+  and a ranked breakdown panel
+
+All three are computed entirely in-browser with no backend — instant, offline-capable.
+
+---
+
+## 14) One-paragraph summary to read aloud
 
 > *"DizruptOS turns our workplace into a friendly desktop computer that runs in the
 > browser. You sign in, it boots up, and your tasks, your team, your projects and your

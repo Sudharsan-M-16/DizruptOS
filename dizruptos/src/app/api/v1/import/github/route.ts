@@ -11,7 +11,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { metrics } from "@/lib/telemetry";
+import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
+import { upsertExternalDecision, resolveDefaultOrgId } from "@/server/services/graph-writer";
 
 const WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 
@@ -86,7 +88,26 @@ export async function POST(req: NextRequest) {
     at: now,
   });
 
-  return NextResponse.json({ ok: true, event, processed: entityLabel });
+  // Write merged PRs as decision records (a PR merge IS a technical decision)
+  let graphWrite = false;
+  if (event === "pull_request") {
+    const pr = payload.pull_request as Record<string, unknown>;
+    const isMerged = payload.action === "closed" && pr?.merged === true;
+    if (isMerged) {
+      const orgId = await resolveDefaultOrgId();
+      graphWrite = await upsertExternalDecision({
+        externalId:  String(pr.number ?? `gh-${Date.now()}`),
+        source:      "github",
+        title:       String(pr.title ?? entityLabel),
+        description: `PR #${pr.number} merged by ${sender}. +${pr.additions ?? 0}/-${pr.deletions ?? 0} lines.`,
+        status:      "decided",
+        orgId,
+        decidedAt:   String(pr.merged_at ?? now),
+      });
+    }
+  }
+
+  return NextResponse.json({ ok: true, event, processed: entityLabel, graphWrite });
 }
 
 export async function GET() {

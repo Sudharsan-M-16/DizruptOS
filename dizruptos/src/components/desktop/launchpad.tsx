@@ -4,7 +4,8 @@
 // search, one-click launch, and a pin toggle so the user curates their own dock
 // (state lives in the OS store, persisted). Opens on `dizrupt:launchpad`.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFocusTrap } from "@/lib/focus-trap";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Plus, Search } from "lucide-react";
 import { APPS, iconFor } from "@/lib/desktop-apps";
@@ -15,6 +16,8 @@ import { cn } from "@/lib/utils";
 export function Launchpad() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const trapRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(trapRef, open, { onEscape: () => setOpen(false) });
   const dockHidden = useOS((s) => s.dockHidden);
   const removeFromDock = useOS((s) => s.removeFromDock);
   const pinToDock = useOS((s) => s.pinToDock);
@@ -41,6 +44,7 @@ export function Launchpad() {
     <AnimatePresence>
       {open && (
         <motion.div
+          ref={trapRef}
           role="dialog" aria-modal="true" aria-label="Launchpad — all apps"
           className="fixed inset-0 z-[165] flex flex-col items-center bg-black/40 backdrop-blur-2xl"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}
@@ -52,24 +56,26 @@ export function Launchpad() {
             <input
               autoFocus value={q} onChange={(e) => setQ(e.target.value)}
               placeholder="Search apps"
+              aria-label="Search apps"
               className="h-10 flex-1 bg-transparent text-sm text-white placeholder:text-white/45 focus:outline-none"
             />
           </div>
 
           {/* grid */}
-          <div className="mt-10 grid max-w-[900px] grid-cols-5 gap-x-8 gap-y-7 px-8" onClick={(e) => e.stopPropagation()}>
+          <div role="grid" aria-label="All applications" className="mt-10 grid max-w-[900px] grid-cols-5 gap-x-8 gap-y-7 px-8" onClick={(e) => e.stopPropagation()}>
             {apps.map((a, i) => {
               const Icon = iconFor(a.iconKey);
               const hidden = dockHidden.includes(a.id);
               return (
                 <motion.div
                   key={a.id}
+                  role="gridcell"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.018, type: "spring", stiffness: 360, damping: 24 }}
                   className="group relative flex flex-col items-center gap-2"
                 >
-                  <button onClick={() => launch(a.id)} className="grid h-[68px] w-[68px] place-items-center rounded-[18px] border transition-transform hover:scale-105 active:scale-95"
+                  <button onClick={() => launch(a.id)} aria-label={`Open ${a.label}`} className="grid h-[68px] w-[68px] place-items-center rounded-[18px] border transition-transform hover:scale-105 active:scale-95"
                     style={{ borderColor: `${a.accent}50`, background: `linear-gradient(160deg, ${a.accent}33, rgba(12,13,16,0.85))`, boxShadow: `inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 24px -10px ${a.accent}66` }}>
                     <Icon size={30} style={{ color: a.accent }} />
                   </button>
@@ -78,6 +84,7 @@ export function Launchpad() {
                   <button
                     onClick={() => (hidden ? pinToDock(a.id) : removeFromDock(a.id))}
                     title={hidden ? "Add to Dock" : "Remove from Dock"}
+                    aria-label={hidden ? `Add ${a.label} to Dock` : `Remove ${a.label} from Dock`}
                     className={cn("absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full border border-white/20 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100", hidden ? "bg-black/50" : "bg-black/50")}
                   >
                     {hidden ? <Plus size={11} /> : <Check size={11} />}

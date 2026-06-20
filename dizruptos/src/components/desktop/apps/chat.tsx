@@ -6,7 +6,7 @@
 // (yours accent-tinted, right-aligned) and a composer. All reads/writes go
 // through `useChat`, so it's backend-ready.
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Crown, Hash, Plus, Search, Send, UserMinus, UserPlus, Users, X } from "lucide-react";
 import { employees, employeeById } from "@/lib/data";
 import { PERSONAS, useSession } from "@/lib/session";
@@ -29,6 +29,8 @@ export function ChatApp() {
   const conversations = useChat((s) => s.conversations);
   const messages = useChat((s) => s.messages);
   const sendMessage = useChat((s) => s.sendMessage);
+  const markRead = useChat((s) => s.markRead);
+  const unreadCount = useChat((s) => s.unreadCount);
 
   const mine = useMemo(
     () => conversations.filter((c) => c.memberIds.includes(persona.id)).sort((a, b) => (lastMessage(messages, b.id)?.at ?? b.createdAt) - (lastMessage(messages, a.id)?.at ?? a.createdAt)),
@@ -47,6 +49,11 @@ export function ChatApp() {
 
   const filtered = mine.filter((c) => !q || convName(c).toLowerCase().includes(q.toLowerCase()));
 
+  // Mark active conversation as read when it changes
+  useEffect(() => {
+    if (active) markRead(active.id, persona.id);
+  }, [active?.id, persona.id, markRead]);
+
   const send = () => {
     if (!active || !composer.trim()) return;
     sendMessage(active.id, persona.id, composer);
@@ -61,9 +68,9 @@ export function ChatApp() {
         <div className="flex items-center gap-2 p-2.5">
           <div className="flex flex-1 items-center gap-2 rounded-lg border border-line bg-ink-elevated px-2.5">
             <Search size={13} className="text-fg-muted" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search chats" className="h-8 flex-1 bg-transparent text-xs text-fg placeholder:text-fg-faint focus:outline-none" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search chats" aria-label="Search conversations" className="h-8 flex-1 bg-transparent text-xs text-fg placeholder:text-fg-faint focus:outline-none" />
           </div>
-          <button onClick={() => setCreating(true)} title="New chat / group" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-black transition-transform hover:scale-105" style={{ background: "var(--os-accent,#00ED82)" }}>
+          <button onClick={() => setCreating(true)} title="New chat / group" aria-label="New chat or group" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-black transition-transform hover:scale-105" style={{ background: "var(--os-accent,#00ED82)" }}>
             <Plus size={15} />
           </button>
         </div>
@@ -72,17 +79,27 @@ export function ChatApp() {
             const lm = lastMessage(messages, c.id);
             const other = c.kind === "dm" ? employeeById(c.memberIds.find((m) => m !== persona.id)) : null;
             const activeRow = active?.id === c.id;
+            const unread = activeRow ? 0 : unreadCount(c.id, persona.id);
             return (
-              <button key={c.id} onClick={() => setActiveId(c.id)} className={cn("flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors", activeRow ? "bg-ink-elevated" : "hover:bg-ink-elevated/60")} style={activeRow ? { boxShadow: "inset 2px 0 0 var(--os-accent,#00ED82)" } : undefined}>
-                {c.kind === "group"
-                  ? <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line bg-ink-surface" style={{ color: "var(--os-accent,#00ED82)" }}><Hash size={16} /></span>
-                  : other ? <EmpAvatar initials={other.initials} accent={other.accent} size={36} /> : <span className="h-9 w-9 rounded-full bg-ink-elevated" />}
+              <button key={c.id} onClick={() => setActiveId(c.id)} className={cn("flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors", activeRow ? "bg-ink-elevated" : "hover:bg-ink-elevated/60")}>
+                <div className="relative shrink-0">
+                  {c.kind === "group"
+                    ? <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line bg-ink-surface" style={{ color: "var(--os-accent,#00ED82)" }}><Hash size={16} /></span>
+                    : other ? <EmpAvatar initials={other.initials} accent={other.accent} size={36} /> : <span className="h-9 w-9 rounded-full bg-ink-elevated" />}
+                  {unread > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-black" style={{ background: "var(--os-accent,#00ED82)" }}>
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <span className="truncate text-xs font-semibold">{convName(c)}</span>
+                    <span className={cn("truncate text-xs", unread > 0 ? "font-bold text-fg" : "font-semibold")}>{convName(c)}</span>
                     {lm && <span className="ml-auto shrink-0 text-[10px] text-fg-faint">{timeShort(lm.at)}</span>}
                   </div>
-                  <div className="truncate text-2xs text-fg-muted">{lm ? `${lm.authorId === persona.id ? "You" : employeeById(lm.authorId)?.name.split(" ")[0]}: ${lm.text}` : (c.kind === "group" ? `${c.memberIds.length} members` : "Say hello")}</div>
+                  <div className={cn("truncate text-2xs", unread > 0 ? "text-fg-secondary" : "text-fg-muted")}>
+                    {lm ? `${lm.authorId === persona.id ? "You" : employeeById(lm.authorId)?.name.split(" ")[0]}: ${lm.text}` : (c.kind === "group" ? `${c.memberIds.length} members` : "Say hello")}
+                  </div>
                 </div>
               </button>
             );
@@ -134,8 +151,8 @@ export function ChatApp() {
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); send(); }} className="flex items-center gap-2 border-t border-line p-2.5">
-              <input value={composer} onChange={(e) => setComposer(e.target.value)} placeholder={`Message ${convName(active)}`} className="h-10 flex-1 rounded-full border border-line bg-ink-surface px-4 text-xs text-fg placeholder:text-fg-faint focus:border-line-strong focus:outline-none" />
-              <button type="submit" disabled={!composer.trim()} className="grid h-10 w-10 place-items-center rounded-full text-black transition-transform hover:scale-105 disabled:opacity-40" style={{ background: "var(--os-accent,#00ED82)" }}>
+              <input value={composer} onChange={(e) => setComposer(e.target.value)} placeholder={`Message ${convName(active)}`} aria-label={`Message ${convName(active)}`} className="h-10 flex-1 rounded-full border border-line bg-ink-surface px-4 text-xs text-fg placeholder:text-fg-faint focus:border-line-strong focus:outline-none" />
+              <button type="submit" disabled={!composer.trim()} aria-label="Send message" className="grid h-10 w-10 place-items-center rounded-full text-black transition-transform hover:scale-105 disabled:opacity-40" style={{ background: "var(--os-accent,#00ED82)" }}>
                 <Send size={16} />
               </button>
             </form>
@@ -202,7 +219,7 @@ function MembersPanel({ conv, selfId, onClose }: { conv: Conversation; selfId: s
             <div className="p-2.5 pb-1.5">
               <div className="flex items-center gap-2 rounded-lg border border-line bg-ink-surface px-2.5">
                 <Search size={13} className="text-fg-muted" />
-                <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search people to add" className="h-8 flex-1 bg-transparent text-xs text-fg placeholder:text-fg-faint focus:outline-none" />
+                <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search people to add" aria-label="Search people to add" className="h-8 flex-1 bg-transparent text-xs text-fg placeholder:text-fg-faint focus:outline-none" />
               </div>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-2">

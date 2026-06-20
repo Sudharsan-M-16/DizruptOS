@@ -76,7 +76,7 @@ class SupabaseChannel implements RealtimeChannel {
 
   constructor(
     private readonly name: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     private readonly client: any
   ) {}
 

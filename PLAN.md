@@ -151,6 +151,32 @@ Per entity, app stays green throughout:
 4. Remove `lib/data.ts` seed dependence once every route reads live.
 5. Reconcile/justify demo fields as real columns (migration 0003) or drop them.
 
+## June 16 sprint — brand login, graph intelligence, accessibility, notifications
+
+- **Login page rebranded** to match the DizruptOS brand identity: deep `#040C12` navy
+  background, twin luminous cyan/teal glowing orbs (canvas-animated with real-time dot
+  illumination), brand green `#00ED82` CTA, brand teal `#00D9D5` active states, warp
+  transition on sign-in. Complete visual overhaul of `app/login/page.tsx`.
+- **Chat → notification center fix**: messages sent while another persona was active
+  now surface immediately on persona switch. `page.tsx` `useEffect` on `[persona.id]`
+  reads `useChat.getState()` directly to find unread messages and fires `addNotification`
+  — no more missed messages when switching users.
+- **Betweenness centrality + Influence Map lens** added to graph page: `approximateBetweenness()`
+  (Brandes BFS + backpropagation), TOP badges on high-centrality nodes, 4-chip stats row,
+  ranked breakdown panel alongside blast-radius and bus-factor lenses.
+- **OrgHealthSparkline** wired into Home app — 7-day trend sparkline with delta arrow
+  from `/api/v1/intelligence/health-history`.
+- **Spark primitives** (`SparkArea`, `SparkBars`, `CapacityRing`) in `components/ui/spark.tsx`
+  — reusable SVG components consumed by people/[id] and projects/[id] pages.
+- **Accessibility improvements**: `aria-live="polite"` + `aria-atomic="true"` on the
+  notification bell badge (screen reader announcements), `role="dialog" aria-modal="true"`
+  on Notification Center panel. Focus traps already wired to Spotlight/Mission Control/Launchpad.
+- **Tiered rate limiting** (10 req/min for intelligence, 60 req/min general) with
+  `Retry-After` headers; `Cache-Control: private, max-age=60, stale-while-revalidate=30`
+  on intelligence GET routes.
+- **Enterprise APIs**: SCIM token rotation, enterprise data export, nav audit logging,
+  feature flags (10 flags, O(1), env-gated).
+
 ## Remaining — priority order for "enterprise-worthy"
 
 1. **Supabase swap** (§10/12/13): wire the existing schema as the live store —

@@ -63,6 +63,19 @@ export async function importCsv(entity: ImportEntity, csv: string): Promise<Impo
       title: r.title ?? null, capacity_hours_per_week: r.capacity_hours ?? 40, org_id: org,
     }));
     imported = await upsert(c, "users", rows, "email");
+  } else if (entity === "hris_bulk") {
+    // Upsert users (employees) from an HRIS export — handles name, email, title, role, dept, location
+    const rows = records.map((r) => ({
+      email: r.email,
+      full_name: r.name,
+      role: r.role ?? "employee",
+      title: r.title ?? null,
+      department: r.department ?? null,
+      location: r.location ?? null,
+      capacity_hours_per_week: r.capacity_hours ?? 40,
+      org_id: org,
+    }));
+    imported = await upsert(c, "users", rows, "email");
   } else if (entity === "employee_capabilities") {
     // resolve email→user_id and capability name→id, then upsert edges
     const emails = [...new Set(records.map((r) => String(r.email)))];

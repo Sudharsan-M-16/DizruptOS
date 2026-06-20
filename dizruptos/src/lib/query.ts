@@ -15,13 +15,25 @@
 
 import { QueryClient } from "@tanstack/react-query";
 
+// Exponential backoff with full jitter (AWS pattern): avoids thundering-herd
+// on reconnect. Caps at 30s so the UI never freezes for long.
+function retryDelay(attemptIndex: number): number {
+  const base = Math.min(1000 * 2 ** attemptIndex, 30_000);
+  return base * (0.5 + Math.random() * 0.5);
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000, // 30s — org data changes on human timescales
       gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: 3,
+      retryDelay,
+    },
+    mutations: {
+      retry: 2,
+      retryDelay,
     },
   },
 });

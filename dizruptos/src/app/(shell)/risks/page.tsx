@@ -4,8 +4,13 @@
 // (PRD §28.2 severity law) plus a dense register with signals and mitigation.
 
 import * as React from "react";
-import Link from "next/link";
-import { ShieldAlert } from "lucide-react";
+
+function launchApp(id: string) {
+  const ev = new CustomEvent("dizrupt:launch", { detail: { id } });
+  window.dispatchEvent(ev);
+  try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
+}
+import { AlertTriangle, ShieldAlert } from "lucide-react";
 import { employeeById, projectById, risks, tasks } from "@/lib/data";
 import { PERSONAS, useSession } from "@/lib/session";
 import { risksForRole } from "@/lib/rbac";
@@ -54,7 +59,19 @@ export default function RisksPage() {
   );
 
   return (
-    <div className="grid gap-6 xl:grid-cols-5">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#EF444422", border: "1px solid #EF444444" }}>
+          <AlertTriangle size={15} style={{ color: "#EF4444" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">Risk Register</div>
+          <div className="text-[11px] text-fg-muted">{visibleRisks.length} risks · probability × impact matrix</div>
+        </div>
+      </div>
+      <div aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto p-5">
+      <div className="grid gap-6 xl:grid-cols-5">
       {/* Matrix — manager instrument; employees go straight to their risks */}
       {!isEmployee && (
       <section className="xl:col-span-2">
@@ -176,19 +193,19 @@ export default function RisksPage() {
                   </div>
                   <div className="flex items-start gap-5">
                     {proj && (
-                      <Link href={`/projects/${proj.id}`} className="text-xs text-fg-muted transition-colors hover:text-brand">
+                      <button onClick={() => launchApp("r-projects")} className="text-xs text-fg-muted transition-colors hover:text-brand">
                         <div className="label-xs">Project</div>
                         <div className="mt-1 font-mono text-xs">{proj.code}</div>
-                      </Link>
+                      </button>
                     )}
                     {owner && (
-                      <Link href={`/people/${owner.id}`} className="flex items-center gap-2.5 text-xs text-fg-secondary transition-colors hover:text-brand">
+                      <button onClick={() => launchApp("directory")} className="flex items-center gap-2.5 text-xs text-fg-secondary transition-colors hover:text-brand">
                         <EmpAvatar initials={owner.initials} accent={owner.accent} size={26} />
                         <div>
                           <div className="label-xs">Owner</div>
                           <div className="mt-0.5 text-xs">{owner.name.split(" ")[0]}</div>
                         </div>
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -197,6 +214,8 @@ export default function RisksPage() {
           })}
         </div>
       </section>
+      </div>
+      </div>
     </div>
   );
 }

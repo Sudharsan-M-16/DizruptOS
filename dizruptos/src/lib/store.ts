@@ -79,6 +79,7 @@ interface OpsState {
   openTaskDrawer: (id: string | null) => void;
   markAllRead: () => void;
   markRead: (id: string) => void;
+  addNotification: (item: NotificationItem) => void;
   /** OS access auditing — record a role-denied app open into the audit trail. */
   recordAccessDenied: (label: string) => void;
   /** Stable Kanban mutation — swap for a distributed backend call later. */
@@ -100,12 +101,22 @@ const applyDelta = (
   employeeId: string,
   weekStart: string,
   delta: number
-): CapacityCell[] =>
-  capacity.map((c) =>
+): CapacityCell[] => {
+  const exists = capacity.some(
+    (c) => c.employeeId === employeeId && c.weekStart === weekStart
+  );
+  if (!exists) {
+    return [
+      ...capacity,
+      { employeeId, weekStart, allocatedHours: Math.max(0, delta), loggedHours: 0 },
+    ];
+  }
+  return capacity.map((c) =>
     c.employeeId === employeeId && c.weekStart === weekStart
       ? { ...c, allocatedHours: Math.max(0, c.allocatedHours + delta) }
       : c
   );
+};
 
 let auditSeq = 100;
 
@@ -137,6 +148,11 @@ export const useOps = create<OpsState>((set, get) => ({
   markRead: (id) =>
     set((s) => ({
       notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    })),
+
+  addNotification: (item) =>
+    set((s) => ({
+      notifications: [item, ...s.notifications].slice(0, 60), // cap at 60 items
     })),
 
   recordAccessDenied: (label) =>

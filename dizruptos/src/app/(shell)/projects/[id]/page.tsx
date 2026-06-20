@@ -5,9 +5,13 @@
 
 import * as React from "react";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+function launchApp(id: string) {
+  const ev = new CustomEvent("dizrupt:launch", { detail: { id } });
+  window.dispatchEvent(ev);
+  try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
+}
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, Link2, ShieldAlert, ScrollText, Sparkles } from "lucide-react";
+import { CalendarDays, FolderKanban, Link2, ShieldAlert, ScrollText, Sparkles } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { severityOf } from "@/lib/risk";
 import {
@@ -33,6 +37,7 @@ const COLUMNS: { id: TaskStatus; label: string }[] = [
   { id: "TO_DO", label: "To Do" },
   { id: "IN_PROGRESS", label: "In Progress" },
   { id: "REVIEW", label: "Review" },
+  { id: "CLIENT_REVIEW", label: "Client Review" },
   { id: "BLOCKED", label: "Blocked" },
   { id: "COMPLETED", label: "Done" },
 ];
@@ -52,7 +57,19 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
   const linkedDecisions = decisions.filter((d) => d.projectId === project.id);
 
   return (
-    <div className="space-y-5">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#34D39922", border: "1px solid #34D39944" }}>
+          <FolderKanban size={15} style={{ color: "#34D399" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">{project.name}</div>
+          <div className="text-[11px] text-fg-muted">{project.code} · {project.status}</div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-5">
+      <div className="space-y-5">
       {/* Header */}
       <div className="panel p-5">
         <div className="flex flex-wrap items-start gap-4">
@@ -169,10 +186,10 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
                             <span className="font-mono text-2xs text-fg-muted">
                               {t.estimatedHours}h
                             </span>
-                            {t.dependsOn.length > 0 && (
+                            {(t.dependsOn?.length ?? 0) > 0 && (
                               <span className="flex items-center gap-0.5 text-2xs text-fg-faint">
                                 <Link2 size={9} />
-                                {t.dependsOn.length}
+                                {t.dependsOn?.length}
                               </span>
                             )}
                             <span className="ml-auto flex items-center gap-1 text-2xs text-fg-muted">
@@ -210,11 +227,11 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
               <p className="text-2xs text-fg-muted">No risks linked to this project.</p>
             )}
             {linkedRisks.map((r) => (
-              <Link key={r.id} href="/risks" className="flex items-center gap-3 rounded-lg border border-line bg-ink-elevated p-2.5 transition-colors hover:border-warn/40">
+              <button key={r.id} onClick={() => launchApp("home")} className="flex w-full items-center gap-3 rounded-lg border border-line bg-ink-elevated p-2.5 transition-colors hover:border-warn/40">
                 <SeverityBadge severity={severityOf(r)} />
                 <span className="min-w-0 flex-1 truncate text-xs">{r.title}</span>
                 <span className="text-2xs text-fg-muted">{r.status.toLowerCase()}</span>
-              </Link>
+              </button>
             ))}
           </div>
         </section>
@@ -227,16 +244,18 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
               <p className="text-2xs text-fg-muted">No recorded decisions yet.</p>
             )}
             {linkedDecisions.map((d) => (
-              <Link key={d.id} href="/decisions" className="block rounded-lg border border-line bg-ink-elevated p-2.5 transition-colors hover:border-brand/40">
+              <button key={d.id} onClick={() => launchApp("home")} className="block w-full text-left rounded-lg border border-line bg-ink-elevated p-2.5 transition-colors hover:border-brand/40">
                 <div className="flex items-center gap-2">
                   <span className="truncate text-xs font-medium">{d.title}</span>
                   <span className="ml-auto rounded-full bg-brand-soft px-2 py-px text-2xs text-brand">{d.status.toLowerCase()}</span>
                 </div>
                 <p className="mt-1 line-clamp-1 text-2xs text-fg-muted">{d.rationale}</p>
-              </Link>
+              </button>
             ))}
           </div>
         </section>
+      </div>
+      </div>
       </div>
     </div>
   );

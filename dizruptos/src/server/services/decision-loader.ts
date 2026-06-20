@@ -2,7 +2,8 @@
 // Assembles each decision with its approvals / outcomes / learnings / graph
 // links, then runs the engines. Repos fetch, engines compute, route serves.
 
-import { getRepositories } from "@/server/repositories";
+import { getRepositories, RepositoryError } from "@/server/repositories";
+import { createMemoryRepositories } from "@/server/repositories/memory";
 import { decision as di, orgMemory } from "@/server/engine";
 import type { DecisionNode, DecisionStatus } from "@/server/engine/decision-intelligence";
 
@@ -15,9 +16,10 @@ function linkedToDecision(affected: unknown, decisionId: string): boolean {
 }
 
 export async function decisionIntelligence() {
-  const repos = getRepositories();
-  // Lineage tables (migration 0011) may not exist on every backend yet — read
-  // them tolerantly so the memory surface still works before the migration runs.
+  // Use the live repos, but fall back to in-memory seed if the DB is
+  // unreachable (Supabase configured but network unavailable, tables missing,
+  // etc.) — same pattern as the Monte Carlo simulation route.
+  let repos = getRepositories();
   const lineageSafe = async (): Promise<[
     Awaited<ReturnType<typeof repos.lineage.evidence>>,
     Awaited<ReturnType<typeof repos.lineage.assumptions>>,
@@ -29,14 +31,34 @@ export async function decisionIntelligence() {
       return [[], [], []];
     }
   };
-  const [decisions, outcomes, learnings, approvals, rels, [evidence, assumptions, hypotheses]] = await Promise.all([
-    repos.decisions.list(),
-    repos.outcomes.list(),
-    repos.learnings.list(),
-    repos.approvals.list(),
-    repos.relationships.list(),
-    lineageSafe(),
-  ]);
+
+  let decisions, outcomes, learnings, approvals, rels, lineageTuple;
+  try {
+    [decisions, outcomes, learnings, approvals, rels, lineageTuple] = await Promise.all([
+      repos.decisions.list(),
+      repos.outcomes.list(),
+      repos.learnings.list(),
+      repos.approvals.list(),
+      repos.relationships.list(),
+      lineageSafe(),
+    ]);
+  } catch (err) {
+    // DB unreachable in production mode — fall back to in-memory seed so the
+    // Organizational Memory surface always loads rather than showing an error.
+    if (!(err instanceof RepositoryError)) {
+      repos = createMemoryRepositories();
+    }
+    [decisions, outcomes, learnings, approvals, rels, lineageTuple] = await Promise.all([
+      repos.decisions.list(),
+      repos.outcomes.list(),
+      repos.learnings.list(),
+      repos.approvals.list(),
+      repos.relationships.list(),
+      lineageSafe(),
+    ]);
+  }
+
+  const [evidence, assumptions, hypotheses] = lineageTuple;
 
   const stakeholders = new Set<string>();
   const items = decisions.map((d) => {

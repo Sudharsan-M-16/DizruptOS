@@ -8,6 +8,7 @@
 // by simple substring relevance — swap for a backend search later.
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useFocusTrap } from "@/lib/focus-trap";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -46,6 +47,8 @@ export function Spotlight({
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const trapRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(trapRef, open, { onEscape: () => setOpen(false) });
 
   const theme = useSession((s) => s.theme);
   const setTheme = useOS((s) => s.setTheme);
@@ -117,6 +120,7 @@ export function Spotlight({
         >
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
           <motion.div
+            ref={trapRef}
             role="dialog" aria-modal="true" aria-label="Spotlight search"
             initial={{ opacity: 0, scale: 0.97, y: -8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97, y: -8 }}
             transition={{ type: "spring", stiffness: 420, damping: 32 }}
@@ -131,15 +135,18 @@ export function Spotlight({
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 onKeyDown={onKeyDown}
-                placeholder="Search DizruptOS — apps, people, projects, actions…"
+                placeholder="Search DizruptOS — apps, people, projects, actions..."
+                aria-label="Search DizruptOS"
+                aria-controls="spotlight-results"
+                aria-autocomplete="list"
                 className="h-14 flex-1 bg-transparent text-base text-fg placeholder:text-fg-faint focus:outline-none"
               />
               <kbd className="rounded-md border border-line bg-ink-surface px-1.5 py-0.5 text-2xs text-fg-muted">esc</kbd>
             </div>
 
             {/* results */}
-            <div className="max-h-[46vh] overflow-y-auto p-2">
-              {results.length === 0 && <div className="px-3 py-8 text-center text-xs text-fg-muted">No results for “{q}”.</div>}
+            <div id="spotlight-results" role="listbox" aria-label="Search results" className="max-h-[46vh] overflow-y-auto p-2">
+              {results.length === 0 && <div className="px-3 py-8 text-center text-xs text-fg-muted">No results for &ldquo;{q}&rdquo;.</div>}
               {results.map((r, i) => {
                 const Icon = r.icon;
                 const header = r.group !== lastGroup ? r.group : null;
@@ -149,6 +156,9 @@ export function Spotlight({
                   <div key={r.key}>
                     {header && <div className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-fg-faint">{header}</div>}
                     <button
+                      id={"spotlight-result-" + i}
+                      role="option"
+                      aria-selected={isActive}
                       onMouseEnter={() => setActive(i)}
                       onClick={r.run}
                       className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors", isActive ? "text-white" : "hover:bg-ink-elevated")}

@@ -4,7 +4,12 @@
 // and live utilization. "React AND available" answerable at a glance.
 
 import * as React from "react";
-import Link from "next/link";
+
+function launchApp(id: string) {
+  const ev = new CustomEvent("dizrupt:launch", { detail: { id } });
+  window.dispatchEvent(ev);
+  try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
+}
 import {
   createColumnHelper,
   flexRender,
@@ -14,7 +19,7 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search, Users } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
 import { departmentById, employees, WEEKS } from "@/lib/data";
@@ -63,7 +68,7 @@ export default function PeoplePage() {
         cell: (info) => {
           const e = info.row.original;
           return (
-            <Link href={`/people/${e.id}`} className="flex items-center gap-2.5 hover:text-brand">
+            <button onClick={() => launchApp("directory")} className="flex items-center gap-2.5 hover:text-brand">
               <EmpAvatar initials={e.initials} accent={e.accent} size={28} />
               <div>
                 <div className="flex items-center gap-1.5 text-xs font-semibold">
@@ -76,7 +81,7 @@ export default function PeoplePage() {
                 </div>
                 <div className="text-2xs text-fg-muted">{e.title}</div>
               </div>
-            </Link>
+            </button>
           );
         },
       }),
@@ -163,7 +168,19 @@ export default function PeoplePage() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#818CF822", border: "1px solid #818CF844" }}>
+          <Users size={15} style={{ color: "#818CF8" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">Operative Directory</div>
+          <div className="text-[11px] text-fg-muted">{rows.length} people · skill & capacity view</div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-5">
+      <div className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="relative w-80">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" />
@@ -217,6 +234,8 @@ export default function PeoplePage() {
             ))}
           </tbody>
         </table>
+      </div>
+      </div>
       </div>
     </div>
   );

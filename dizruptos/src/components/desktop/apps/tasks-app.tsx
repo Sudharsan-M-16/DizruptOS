@@ -23,9 +23,9 @@ const PRIORITY_CLS: Record<string, string> = {
   URGENT: "bg-danger/15 text-danger", HIGH: "bg-warn/15 text-warn", MEDIUM: "bg-info/15 text-info", LOW: "bg-fg-muted/15 text-fg-muted",
 };
 
-type FilterId = "all" | "today" | "overdue" | "pending" | "in_progress" | "blocked" | "critical" | "done";
+type FilterId = "all" | "today" | "overdue" | "today_overdue" | "pending" | "in_progress" | "blocked" | "critical" | "done";
 
-const FILTER_IDS: FilterId[] = ["all", "today", "overdue", "pending", "in_progress", "blocked", "critical", "done"];
+const FILTER_IDS: FilterId[] = ["all", "today", "overdue", "today_overdue", "pending", "in_progress", "blocked", "critical", "done"];
 
 export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) {
   const personaId = useSession((s) => s.personaId);
@@ -46,6 +46,7 @@ export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) 
     all: scope.filter((t) => t.status !== "COMPLETED").length,
     today: scope.filter((t) => t.status !== "COMPLETED" && t.dueDate === TODAY).length,
     overdue: scope.filter((t) => t.status !== "COMPLETED" && t.dueDate < TODAY).length,
+    today_overdue: scope.filter((t) => t.status !== "COMPLETED" && t.dueDate <= TODAY).length,
     pending: scope.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG").length,
     in_progress: scope.filter((t) => t.status === "IN_PROGRESS" || t.status === "REVIEW").length,
     blocked: scope.filter((t) => t.status === "BLOCKED").length,
@@ -69,6 +70,7 @@ export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) 
       switch (filter) {
         case "today": return t.status !== "COMPLETED" && t.dueDate === TODAY;
         case "overdue": return t.status !== "COMPLETED" && t.dueDate < TODAY;
+        case "today_overdue": return t.status !== "COMPLETED" && t.dueDate <= TODAY;
         case "pending": return t.status === "TO_DO" || t.status === "BACKLOG";
         case "in_progress": return t.status === "IN_PROGRESS" || t.status === "REVIEW";
         case "blocked": return t.status === "BLOCKED";

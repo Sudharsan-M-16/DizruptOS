@@ -138,6 +138,7 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
             step={0.01}
             value={brightness}
             onChange={(e) => setBrightness(parseFloat(e.target.value))}
+            aria-label="Screen brightness"
             className="dz-range h-1.5 flex-1 cursor-pointer appearance-none rounded-full"
             style={{ background: `linear-gradient(90deg, ${accentHex} ${((brightness - 0.45) / 0.55) * 100}%, rgb(var(--line)) ${((brightness - 0.45) / 0.55) * 100}%)` }}
           />

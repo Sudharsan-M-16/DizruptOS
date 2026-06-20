@@ -53,105 +53,130 @@ export interface Wallpaper {
 }
 
 // `__A__` is replaced with the live accent hex at render time.
+// Each wallpaper has a completely distinct color identity in both dark AND light mode.
 export const WALLPAPERS: Wallpaper[] = [
   {
+    // Identity: ELECTRIC LIME/CHARTREUSE — hot neon-green, yellower than sequoia's teal
     id: "volt-flux",
     label: "Volt Flux",
-    dynamic: true,
     dark:
-      "radial-gradient(90% 70% at 8% 0%, __A__38, transparent 42%)," +
-      "radial-gradient(70% 60% at 95% 5%, rgba(0,237,130,0.18), transparent 44%)," +
-      "radial-gradient(120% 90% at 100% 8%, rgba(43,217,255,0.10), transparent 52%)," +
-      "radial-gradient(80% 60% at 50% 100%, __A__1a, transparent 50%)," +
-      "radial-gradient(60% 40% at 30% 60%, rgba(0,237,130,0.08), transparent 50%)," +
-      "linear-gradient(160deg, #030a06 0%, #04090a 40%, #030408 70%, #020306 100%)",
+      "radial-gradient(ellipse 65% 55% at 10% 5%, rgba(0,237,130,0.52), transparent 48%)," +
+      "radial-gradient(ellipse 55% 45% at 94% 8%, rgba(0,255,140,0.36), transparent 44%)," +
+      "radial-gradient(ellipse 50% 40% at 50% 96%, rgba(0,220,120,0.24), transparent 52%)," +
+      "radial-gradient(ellipse 35% 28% at 72% 52%, rgba(43,217,255,0.18), transparent 48%)," +
+      "linear-gradient(162deg, #010b04 0%, #020d06 38%, #010608 68%, #010204 100%)",
     light:
-      "radial-gradient(90% 70% at 8% 0%, __A__44, transparent 46%)," +
-      "radial-gradient(70% 60% at 95% 5%, rgba(0,237,130,0.28), transparent 48%)," +
-      "radial-gradient(120% 90% at 100% 6%, rgba(43,217,255,0.18), transparent 54%)," +
-      "linear-gradient(160deg, #e2f5ec 0%, #dff2ee 50%, #daeae6 100%)",
-    swatch: "linear-gradient(135deg, #00ED82, #2BD9FF 55%, #030a06)",
+      "radial-gradient(ellipse 75% 58% at 8% 0%, rgba(0,237,80,0.60), transparent 50%)," +
+      "radial-gradient(ellipse 55% 45% at 96% 10%, rgba(120,255,60,0.45), transparent 48%)," +
+      "radial-gradient(ellipse 80% 52% at 50% 105%, rgba(0,220,60,0.38), transparent 55%)," +
+      "radial-gradient(ellipse 40% 32% at 68% 52%, rgba(200,255,100,0.25), transparent 50%)," +
+      "linear-gradient(162deg, #f2ffe0 0%, #e8ffc8 48%, #dcfab0 100%)",
+    swatch: "linear-gradient(135deg, #00ED82 0%, #00FFAA 48%, #010b04 100%)",
   },
   {
+    // Identity: AMBER ORANGE — brand-warm ink + dual orange aurora (matches login page)
     id: "dizrupt-brand",
     label: "Dizrupt",
-    dynamic: true,
     dark:
-      "radial-gradient(ellipse 80% 60% at 15% 5%, __A__30, transparent 48%)," +
-      "radial-gradient(ellipse 60% 50% at 85% 95%, rgba(0,237,130,0.22), transparent 50%)," +
-      "radial-gradient(ellipse 100% 70% at 50% 50%, rgba(0,237,130,0.04), transparent 60%)," +
-      "radial-gradient(ellipse 40% 30% at 70% 20%, rgba(43,217,255,0.10), transparent 50%)," +
-      "linear-gradient(175deg, #020706 0%, #030a07 30%, #020407 65%, #010203 100%)",
+      "radial-gradient(ellipse 72% 58% at 18% 8%, rgba(249,115,22,0.40), transparent 52%)," +
+      "radial-gradient(ellipse 58% 48% at 88% 92%, rgba(249,115,22,0.28), transparent 50%)," +
+      "radial-gradient(ellipse 42% 36% at 60% 40%, rgba(255,160,50,0.14), transparent 55%)," +
+      "radial-gradient(ellipse 80% 55% at 50% 52%, rgba(180,70,10,0.07), transparent 65%)," +
+      "linear-gradient(175deg, #0b0502 0%, #0e0703 32%, #090402 66%, #050201 100%)",
     light:
-      "radial-gradient(ellipse 80% 60% at 15% 5%, __A__3a, transparent 52%)," +
-      "radial-gradient(ellipse 60% 50% at 85% 95%, rgba(0,237,130,0.32), transparent 54%)," +
-      "radial-gradient(ellipse 40% 30% at 70% 20%, rgba(43,217,255,0.20), transparent 50%)," +
-      "linear-gradient(175deg, #e0f5e8 0%, #d8f0e8 40%, #d0eae2 100%)",
-    swatch: "linear-gradient(135deg, #00ED82 0%, #04281A 50%, #00ED82 100%)",
+      "radial-gradient(ellipse 72% 55% at 18% 5%, rgba(249,115,22,0.36), transparent 52%)," +
+      "radial-gradient(ellipse 58% 48% at 88% 96%, rgba(251,146,60,0.30), transparent 52%)," +
+      "radial-gradient(ellipse 60% 42% at 50% 50%, rgba(255,190,80,0.18), transparent 62%)," +
+      "linear-gradient(175deg, #fffbf5 0%, #fff5e8 45%, #fef0dc 100%)",
+    swatch: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #0b0502 100%)",
   },
   {
+    // Identity: BRIGHT PERIWINKLE SKY BLUE — vivid cobalt-blue, clearly different from nocturne's purple
     id: "monterey",
     label: "Monterey",
     dark:
-      "radial-gradient(90% 80% at 80% 10%, rgba(124,108,255,0.30), transparent 55%)," +
-      "radial-gradient(80% 70% at 10% 100%, rgba(43,217,255,0.22), transparent 55%)," +
-      "linear-gradient(160deg, #1a1338 0%, #0c1230 45%, #060a1e 100%)",
+      "radial-gradient(ellipse 78% 65% at 88% 5%, rgba(124,108,255,0.60), transparent 50%)," +
+      "radial-gradient(ellipse 72% 62% at 5% 96%, rgba(43,217,255,0.48), transparent 52%)," +
+      "radial-gradient(ellipse 48% 38% at 48% 52%, rgba(100,80,220,0.16), transparent 56%)," +
+      "radial-gradient(ellipse 35% 28% at 55% 10%, rgba(180,150,255,0.14), transparent 48%)," +
+      "linear-gradient(145deg, #07051c 0%, #0a0820 40%, #040514 76%, #020310 100%)",
     light:
-      "radial-gradient(90% 80% at 80% 10%, rgba(124,108,255,0.45), transparent 60%)," +
-      "radial-gradient(80% 70% at 10% 100%, rgba(43,217,255,0.40), transparent 60%)," +
-      "linear-gradient(160deg, #e9ecff 0%, #dfeaff 50%, #d6e6ff 100%)",
-    swatch: "linear-gradient(135deg, #7C6CFF, #2BD9FF 70%, #1a1338)",
+      "radial-gradient(ellipse 100% 68% at 92% 0%, rgba(80,160,255,0.80), transparent 50%)," +
+      "radial-gradient(ellipse 80% 65% at 0% 100%, rgba(43,217,255,0.68), transparent 52%)," +
+      "radial-gradient(ellipse 60% 45% at 50% 50%, rgba(120,190,255,0.35), transparent 62%)," +
+      "radial-gradient(ellipse 40% 30% at 50% 0%, rgba(200,230,255,0.50), transparent 50%)," +
+      "linear-gradient(145deg, #e0f0ff 0%, #c8e4ff 45%, #b0d6ff 100%)",
+    swatch: "linear-gradient(135deg, #7C6CFF 0%, #2BD9FF 65%, #07051c 100%)",
   },
   {
+    // Identity: HOT ORANGE + VIVID MAGENTA — fire/sunset energy, extremely warm
     id: "solar",
     label: "Solar",
     dark:
-      "radial-gradient(80% 70% at 75% 18%, rgba(245,158,11,0.30), transparent 55%)," +
-      "radial-gradient(90% 80% at 15% 95%, rgba(255,92,138,0.20), transparent 55%)," +
-      "linear-gradient(165deg, #2a160a 0%, #1a0e10 50%, #0a0608 100%)",
+      "radial-gradient(ellipse 70% 62% at 75% 12%, rgba(249,115,22,0.60), transparent 52%)," +
+      "radial-gradient(ellipse 82% 72% at 8% 94%, rgba(255,30,130,0.45), transparent 52%)," +
+      "radial-gradient(ellipse 45% 36% at 50% 52%, rgba(255,100,40,0.16), transparent 55%)," +
+      "radial-gradient(ellipse 32% 24% at 90% 80%, rgba(255,210,50,0.22), transparent 45%)," +
+      "linear-gradient(150deg, #1e0804 0%, #1c060f 50%, #090304 100%)",
     light:
-      "radial-gradient(80% 70% at 75% 18%, rgba(245,158,11,0.50), transparent 60%)," +
-      "radial-gradient(90% 80% at 15% 95%, rgba(255,92,138,0.35), transparent 60%)," +
-      "linear-gradient(165deg, #fff1e0 0%, #ffe7ea 55%, #ffe0e6 100%)",
-    swatch: "linear-gradient(135deg, #F59E0B, #FF5C8A 70%, #2a160a)",
+      "radial-gradient(ellipse 100% 68% at 82% 5%, rgba(255,130,40,0.85), transparent 50%)," +
+      "radial-gradient(ellipse 82% 68% at 4% 96%, rgba(255,50,120,0.70), transparent 52%)," +
+      "radial-gradient(ellipse 60% 45% at 50% 50%, rgba(255,180,80,0.40), transparent 60%)," +
+      "linear-gradient(150deg, #fff2e0 0%, #ffd8c0 45%, #ffc8cc 100%)",
+    swatch: "linear-gradient(135deg, #F97316 0%, #FF2882 65%, #1e0804 100%)",
   },
   {
+    // Identity: ACHROMATIC COOL GRAY — zero hue, pure black-to-silver
     id: "graphite",
     label: "Graphite",
     dark:
-      "radial-gradient(120% 100% at 50% -10%, rgba(255,255,255,0.06), transparent 45%)," +
-      "linear-gradient(180deg, #15171b 0%, #0d0f12 60%, #08090b 100%)",
+      "radial-gradient(ellipse 100% 55% at 50% -12%, rgba(155,168,192,0.18), transparent 50%)," +
+      "radial-gradient(ellipse 72% 52% at 92% 96%, rgba(120,132,155,0.12), transparent 55%)," +
+      "radial-gradient(ellipse 52% 42% at 12% 52%, rgba(100,112,132,0.09), transparent 58%)," +
+      "linear-gradient(168deg, #0d0f16 0%, #09010e 50%, #060709 100%)",
     light:
-      "radial-gradient(120% 100% at 50% -10%, rgba(0,0,0,0.05), transparent 45%)," +
-      "linear-gradient(180deg, #f4f6f7 0%, #e9edee 60%, #e2e7e8 100%)",
-    swatch: "linear-gradient(135deg, #3a3d44, #15171b)",
+      "radial-gradient(ellipse 100% 55% at 50% -12%, rgba(155,170,200,0.55), transparent 52%)," +
+      "radial-gradient(ellipse 72% 52% at 90% 96%, rgba(140,155,185,0.38), transparent 55%)," +
+      "radial-gradient(ellipse 52% 42% at 10% 56%, rgba(175,188,212,0.28), transparent 58%)," +
+      "linear-gradient(168deg, #f4f6fa 0%, #eceef4 55%, #e4e8f2 100%)",
+    swatch: "linear-gradient(135deg, #6b717f 0%, #3c3f48 55%, #0d0f16 100%)",
   },
   {
+    // Identity: COOL CARIBBEAN TEAL — blue-green aqua, clearly cooler/bluer than volt's lime-green
     id: "sequoia",
     label: "Sequoia",
     dark:
-      "radial-gradient(70% 60% at 50% 0%, rgba(16,224,192,0.22), transparent 55%)," +
-      "radial-gradient(90% 80% at 90% 100%, rgba(0,237,130,0.16), transparent 55%)," +
-      "linear-gradient(170deg, #042018 0%, #04140f 55%, #020a08 100%)",
+      "radial-gradient(ellipse 68% 58% at 55% -6%, rgba(0,200,180,0.48), transparent 52%)," +
+      "radial-gradient(ellipse 80% 70% at 96% 100%, rgba(0,180,160,0.36), transparent 52%)," +
+      "radial-gradient(ellipse 52% 42% at 8% 62%, rgba(0,220,200,0.20), transparent 55%)," +
+      "radial-gradient(ellipse 35% 28% at 30% 25%, rgba(43,217,200,0.14), transparent 50%)," +
+      "linear-gradient(160deg, #010e0d 0%, #010b09 50%, #010807 100%)",
     light:
-      "radial-gradient(70% 60% at 50% 0%, rgba(16,224,192,0.40), transparent 60%)," +
-      "radial-gradient(90% 80% at 90% 100%, rgba(0,237,130,0.30), transparent 60%)," +
-      "linear-gradient(170deg, #e4f6ef 0%, #dcf2e9 55%, #d4efe3 100%)",
-    swatch: "linear-gradient(135deg, #10E0C0, #00ED82 70%, #042018)",
+      "radial-gradient(ellipse 88% 65% at 55% -6%, rgba(0,220,200,0.72), transparent 50%)," +
+      "radial-gradient(ellipse 80% 68% at 96% 100%, rgba(0,200,180,0.58), transparent 52%)," +
+      "radial-gradient(ellipse 52% 42% at 8% 68%, rgba(0,240,220,0.40), transparent 55%)," +
+      "radial-gradient(ellipse 40% 32% at 50% 50%, rgba(100,255,240,0.22), transparent 60%)," +
+      "linear-gradient(160deg, #d0fff8 0%, #b4faf4 45%, #98f5ef 100%)",
+    swatch: "linear-gradient(135deg, #00C8B4 0%, #00B4A0 65%, #010e0d 100%)",
   },
   {
+    // Identity: DEEP VIOLET/MAGENTA — rich warm-purple, clearly warmer/pinker than Monterey's blue
     id: "nocturne",
     label: "Nocturne",
-    dynamic: true,
     dark:
-      "radial-gradient(60% 50% at 20% 20%, __A__1f, transparent 55%)," +
-      "radial-gradient(80% 70% at 85% 85%, rgba(124,108,255,0.14), transparent 55%)," +
-      "linear-gradient(180deg, #030305 0%, #050507 60%, #020203 100%)",
+      "radial-gradient(ellipse 62% 52% at 22% 18%, rgba(168,85,247,0.48), transparent 52%)," +
+      "radial-gradient(ellipse 72% 62% at 82% 82%, rgba(217,70,239,0.40), transparent 52%)," +
+      "radial-gradient(ellipse 42% 36% at 60% 52%, rgba(147,51,234,0.14), transparent 58%)," +
+      "radial-gradient(ellipse 32% 26% at 8% 86%, rgba(192,38,211,0.22), transparent 46%)," +
+      "radial-gradient(ellipse 28% 22% at 92% 10%, rgba(139,92,246,0.20), transparent 46%)," +
+      "linear-gradient(172deg, #0a0110 0%, #0d030e 50%, #060108 100%)",
     light:
-      "radial-gradient(60% 50% at 20% 20%, __A__2a, transparent 58%)," +
-      "radial-gradient(80% 70% at 85% 85%, rgba(124,108,255,0.22), transparent 58%)," +
-      "linear-gradient(180deg, #eceef2 0%, #e6e8ee 60%, #e0e3ea 100%)",
-    swatch: "linear-gradient(135deg, #00ED82, #7C6CFF 70%, #030305)",
+      "radial-gradient(ellipse 78% 65% at 15% 10%, rgba(192,38,211,0.65), transparent 52%)," +
+      "radial-gradient(ellipse 75% 62% at 88% 92%, rgba(217,70,239,0.58), transparent 52%)," +
+      "radial-gradient(ellipse 56% 42% at 52% 50%, rgba(240,120,255,0.32), transparent 62%)," +
+      "radial-gradient(ellipse 38% 30% at 96% 5%, rgba(168,85,247,0.42), transparent 48%)," +
+      "linear-gradient(172deg, #fde8ff 0%, #f8d0ff 45%, #f0bcff 100%)",
+    swatch: "linear-gradient(135deg, #A855F7 0%, #D946EF 65%, #0a0110 100%)",
   },
 ];
 

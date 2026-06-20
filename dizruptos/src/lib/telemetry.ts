@@ -24,7 +24,7 @@ type OTelTracer = { startActiveSpan<T>(name: string, fn: (span: OTelSpan) => T):
 
 function getOTelTracer(): OTelTracer | null {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line
     const { trace } = require("@opentelemetry/api");
     return trace.getTracer("dizruptos", process.env.npm_package_version ?? "0.0.0");
   } catch {

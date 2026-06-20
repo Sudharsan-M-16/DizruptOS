@@ -4,18 +4,29 @@
 // identically on memory and Supabase without depending on the people↔users
 // model reconciliation.
 
-import { getRepositories } from "@/server/repositories";
+import { getRepositories, RepositoryError } from "@/server/repositories";
+import { createMemoryRepositories } from "@/server/repositories/memory";
 import { people as peopleEngine, capability } from "@/server/engine";
 import type { CapabilityNode } from "@/server/engine/capability-intelligence";
 import type { PersonRef, GraphEdge } from "@/server/engine/people-intelligence";
 
 async function buildContext() {
-  const repos = getRepositories();
-  const [caps, edges, rels] = await Promise.all([
-    repos.capabilities.list(),
-    repos.employeeCapabilities.list(),
-    repos.relationships.list(),
-  ]);
+  let repos = getRepositories();
+  let caps, edges, rels;
+  try {
+    [caps, edges, rels] = await Promise.all([
+      repos.capabilities.list(),
+      repos.employeeCapabilities.list(),
+      repos.relationships.list(),
+    ]);
+  } catch (err) {
+    if (!(err instanceof RepositoryError)) repos = createMemoryRepositories();
+    [caps, edges, rels] = await Promise.all([
+      repos.capabilities.list(),
+      repos.employeeCapabilities.list(),
+      repos.relationships.list(),
+    ]);
+  }
 
   const nodes: CapabilityNode[] = caps.map((c) => ({
     id: c.id,

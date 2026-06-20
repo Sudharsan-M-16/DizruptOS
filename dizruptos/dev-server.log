@@ -1679,3 +1679,701 @@ Retrying 2/3...
  ○ Compiling /executive ...
  ✓ Compiled /executive in 1772ms (1775 modules)
  GET /executive?embed=1 200 in 2106ms
+ GET /capacity?embed=1 200 in 105ms
+ POST /api/auth/login 200 in 64ms
+ ✓ Compiled in 14.1s (3666 modules)
+ ✓ Compiled in 5.1s (3664 modules)
+ ✓ Compiled in 3.7s (3664 modules)
+ ✓ Compiled in 5.5s (3664 modules)
+ ✓ Compiled in 5.5s (3664 modules)
+ ✓ Compiled in 5.6s (3664 modules)
+ ✓ Compiled in 5.5s (3664 modules)
+ ✓ Compiled in 5.1s (3664 modules)
+ ✓ Compiled in 5.7s (3664 modules)
+ ✓ Compiled in 6.3s (3664 modules)
+ ✓ Compiled in 6.1s (3664 modules)
+ ✓ Compiled in 5.7s (3664 modules)
+ GET /login 200 in 490ms
+ GET /welcome 200 in 695ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1293ms (1767 modules)
+ POST /api/auth/login 200 in 1507ms
+ GET /login?from=%2F 200 in 305ms
+ ✓ Compiled in 4.8s (3664 modules)
+ ✓ Compiled in 4.6s (3664 modules)
+ ✓ Compiled in 5.7s (3664 modules)
+ GET /login 200 in 160ms
+ GET /welcome 200 in 240ms
+ GET / 200 in 173ms
+ GET / 200 in 62ms
+ GET / 200 in 58ms
+ GET / 200 in 52ms
+ GET / 200 in 49ms
+ GET / 200 in 59ms
+ GET / 200 in 60ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1075ms (1767 modules)
+ POST /api/auth/login 200 in 1214ms
+ GET / 200 in 314ms
+ GET / 200 in 51ms
+ GET / 200 in 62ms
+ GET / 200 in 62ms
+ GET / 200 in 77ms
+ GET / 200 in 55ms
+ GET / 200 in 51ms
+ ✓ Compiled in 5.8s (3664 modules)
+ ✓ Compiled in 6.7s (3664 modules)
+ ✓ Compiled in 6s (3664 modules)
+ ✓ Compiled in 1720ms (3664 modules)
+ GET / 200 in 88ms
+ GET / 200 in 73ms
+ GET / 200 in 79ms
+ GET / 200 in 49ms
+ GET / 200 in 75ms
+ GET / 200 in 64ms
+ GET /login 200 in 115ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1355ms (1767 modules)
+ POST /api/auth/login 200 in 1488ms
+ POST /api/auth/login 200 in 20ms
+ ✓ Compiled in 5.3s (3664 modules)
+ GET /login 200 in 324ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1079ms (1767 modules)
+ POST /api/auth/login 200 in 1260ms
+ ✓ Compiled in 824ms (1927 modules)
+ ✓ Compiled in 6s (3665 modules)
+ ✓ Compiled in 5.1s (3665 modules)
+ ✓ Compiled in 1682ms (3665 modules)
+ ✓ Compiled in 2.4s (3675 modules)
+ ✓ Compiled in 1576ms (3675 modules)
+ ✓ Compiled in 2.1s (3675 modules)
+ GET /login 200 in 292ms
+ GET /login 200 in 62ms
+ GET /login 200 in 87ms
+ GET / 200 in 1058ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.3s (1773 modules)
+ POST /api/auth/login 200 in 2543ms
+ GET / 200 in 179ms
+ GET / 200 in 78ms
+ ✓ Compiled /api/health in 489ms (1775 modules)
+ GET /api/health 200 in 526ms
+ GET / 200 in 114ms
+ GET / 200 in 79ms
+ ✓ Compiled in 6.5s (3675 modules)
+ GET / 200 in 177ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1687ms (1773 modules)
+ POST /api/auth/login 200 in 1870ms
+ ○ Compiling /api/v1/simulation/monte-carlo ...
+ ✓ Compiled /api/v1/simulation/monte-carlo in 1003ms (1802 modules)
+{"ts":"2026-06-15T10:57:37.186Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"74a4dcbf-8a6a-42e8-aa76-33afa9e494eb","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":27,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 1130ms
+{"ts":"2026-06-15T10:57:40.130Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"08650e09-e0ed-455b-b87f-89da35db383f","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":3,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 18ms
+{"ts":"2026-06-15T10:57:43.716Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"82c2ae83-d9ea-40a7-bcea-52c6ef60771d","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":28,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 51ms
+{"ts":"2026-06-15T10:57:45.151Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"c44ea20f-d3b9-49eb-8c48-f2d66b180ced","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":6,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 27ms
+{"ts":"2026-06-15T10:57:47.252Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"061fccb5-2b57-4be5-b33a-641db9dac785","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":8,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 26ms
+{"ts":"2026-06-15T10:57:48.569Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"851d6163-02c5-4908-8741-9642a13919e5","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":11,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 31ms
+{"ts":"2026-06-15T10:57:50.540Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"4b102a23-896d-48b1-ac00-183bf4be801a","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":5,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 22ms
+{"ts":"2026-06-15T10:57:51.580Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"5ee35dfc-9f04-4017-adb9-89b57dc4fa77","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":6,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 29ms
+{"ts":"2026-06-15T10:58:18.567Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"67f0fe55-b582-4ecb-abc1-63ee37f25c4a","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":42,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 67ms
+{"ts":"2026-06-15T11:09:30.227Z","level":"warn","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"081eb6e0-c677-4d1e-99a9-2405ef13f59b","method":"POST","path":"/api/v1/simulation/monte-carlo","status":401,"ms":1}}
+ POST /api/v1/simulation/monte-carlo 401 in 41ms
+{"ts":"2026-06-15T11:12:40.702Z","level":"warn","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"61d60e76-a37e-481e-890a-a9402667265b","method":"POST","path":"/api/v1/simulation/monte-carlo","status":401,"ms":0}}
+ POST /api/v1/simulation/monte-carlo 401 in 10ms
+{"ts":"2026-06-15T11:12:51.665Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"1ea42237-92d8-49b9-a680-557057d32491","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":11,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 22ms
+{"ts":"2026-06-15T11:13:01.729Z","level":"error","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"debug-001","method":"POST","path":"/api/v1/simulation/monte-carlo","status":500,"ms":4,"error":"TypeError: fetch failed"}}
+ POST /api/v1/simulation/monte-carlo 500 in 15ms
+ GET /login 200 in 242ms
+ POST /api/auth/login 200 in 29ms
+ ○ Compiling /projects/[id] ...
+ ✓ Compiled /projects/[id] in 2.1s (1779 modules)
+ GET /projects/p-atlas?embed=1 200 in 2460ms
+ GET /projects/p-helio?embed=1 200 in 221ms
+ GET /graph?embed=1 200 in 199ms
+ ✓ Compiled in 746ms (1932 modules)
+ ✓ Compiled in 4.8s (3675 modules)
+ ○ Compiling /api/v1/simulation/monte-carlo ...
+ ✓ Compiled /api/v1/simulation/monte-carlo in 955ms (1800 modules)
+{"ts":"2026-06-15T11:17:41.975Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"a27067de-586c-4899-b9c7-a6407b8f647c","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":305}}
+ POST /api/v1/simulation/monte-carlo 200 in 1401ms
+{"ts":"2026-06-15T11:17:53.074Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"1ee10ba3-c25c-45f5-a26d-20bd2b8787b4","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":19}}
+ POST /api/v1/simulation/monte-carlo 200 in 52ms
+{"ts":"2026-06-15T11:17:53.138Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"4575d47e-7f5e-4413-a5b6-0560439c62ef","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":7}}
+ POST /api/v1/simulation/monte-carlo 200 in 31ms
+{"ts":"2026-06-15T11:17:53.180Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"b816ec93-6dcc-476d-ad84-59454ffe3543","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":7}}
+ POST /api/v1/simulation/monte-carlo 200 in 22ms
+{"ts":"2026-06-15T11:17:53.219Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"0a595c00-7be1-495a-a70d-3f8efaa8c951","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":6}}
+ POST /api/v1/simulation/monte-carlo 200 in 25ms
+ GET / 200 in 361ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1009ms (1802 modules)
+ POST /api/auth/login 200 in 1201ms
+ POST /api/auth/login 200 in 83ms
+{"ts":"2026-06-15T11:18:26.336Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"40b74ce0-5cd0-49a8-bc6c-43e22cafde73","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":14}}
+ POST /api/v1/simulation/monte-carlo 200 in 49ms
+ GET /login 200 in 260ms
+{"ts":"2026-06-15T11:18:31.410Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"9df04d9a-1c59-4f86-be03-b6a0fb639a30","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":22}}
+ POST /api/v1/simulation/monte-carlo 200 in 57ms
+{"ts":"2026-06-15T11:18:35.510Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"77009bea-a9db-4966-969a-0daece1893f0","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":6}}
+ POST /api/v1/simulation/monte-carlo 200 in 26ms
+{"ts":"2026-06-15T11:18:40.685Z","level":"info","event":"api_api_simulation_monte_carlo","ctx":{"reqId":"44cd3420-7e3b-442f-b705-7b3ce347c420","method":"POST","path":"/api/v1/simulation/monte-carlo","status":200,"ms":15}}
+ POST /api/v1/simulation/monte-carlo 200 in 35ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 2.8s (1809 modules)
+ GET /login 200 in 86ms
+ GET / 200 in 202ms
+ ✓ Compiled in 1274ms (1932 modules)
+ ✓ Compiled in 723ms (1932 modules)
+ ✓ Compiled in 3.1s (3680 modules)
+ ✓ Compiled in 277ms (1934 modules)
+ ✓ Compiled in 291ms (1934 modules)
+ ✓ Compiled in 368ms (1934 modules)
+ ✓ Compiled in 3.9s (3680 modules)
+ ✓ Compiled in 2.6s (3683 modules)
+ ✓ Compiled in 849ms (1935 modules)
+ ✓ Compiled in 3.7s (3812 modules)
+ ✓ Compiled in 565ms (1935 modules)
+ ✓ Compiled in 540ms (1935 modules)
+ ✓ Compiled in 3s (3812 modules)
+ ✓ Compiled in 1426ms (1935 modules)
+ ✓ Compiled in 703ms (1935 modules)
+ ✓ Compiled in 819ms (1935 modules)
+ ✓ Compiled in 736ms (1935 modules)
+ ✓ Compiled in 788ms (1935 modules)
+ ✓ Compiled in 2.7s (1935 modules)
+ ✓ Compiled in 1010ms (1935 modules)
+ ✓ Compiled in 1129ms (1935 modules)
+ ✓ Compiled in 6s (3812 modules)
+ ✓ Compiled in 1561ms (1935 modules)
+ ✓ Compiled in 6.6s (3812 modules)
+ ✓ Compiled in 1462ms (1935 modules)
+ ✓ Compiled in 1578ms (1935 modules)
+ ✓ Compiled in 1686ms (1935 modules)
+ ✓ Compiled in 6.1s (3812 modules)
+ ✓ Compiled in 8.2s (3691 modules)
+ ✓ Compiled in 693ms (1939 modules)
+ ✓ Compiled in 711ms (1939 modules)
+ ✓ Compiled in 720ms (1939 modules)
+ ✓ Compiled in 497ms (1939 modules)
+ ✓ Compiled in 473ms (1939 modules)
+ ✓ Compiled in 811ms (1939 modules)
+ ✓ Compiled in 828ms (1939 modules)
+ ✓ Compiled in 822ms (1939 modules)
+ ✓ Compiled in 1026ms (1939 modules)
+ ✓ Compiled in 701ms (1939 modules)
+ ✓ Compiled in 840ms (1939 modules)
+ ✓ Compiled in 707ms (1939 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.1s (1782 modules)
+ POST /api/auth/login 200 in 2244ms
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 2.9s (1759 modules)
+ GET /memory?embed=1 200 in 3232ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 1536ms (1816 modules)
+{"ts":"2026-06-15T16:33:12.558Z","level":"error","event":"api_api_decision_memory","ctx":{"reqId":"b43b1971-b6ff-4502-b950-55ae5f219a9c","method":"GET","path":"/api/v1/decisions/memory","status":500,"ms":17,"error":"TypeError: fetch failed"}}
+ GET /api/v1/decisions/memory 500 in 1697ms
+{"ts":"2026-06-15T16:33:13.598Z","level":"error","event":"api_api_decision_memory","ctx":{"reqId":"8ef39309-4a5d-46f4-9c42-0283e3576d9c","method":"GET","path":"/api/v1/decisions/memory","status":500,"ms":11,"error":"TypeError: fetch failed"}}
+ GET /api/v1/decisions/memory 500 in 24ms
+{"ts":"2026-06-15T16:33:14.913Z","level":"error","event":"api_api_decision_memory","ctx":{"reqId":"c0a8f5fb-2d8e-4aeb-9036-9a400be8d05e","method":"GET","path":"/api/v1/decisions/memory","status":500,"ms":14,"error":"TypeError: fetch failed"}}
+ GET /api/v1/decisions/memory 500 in 34ms
+{"ts":"2026-06-15T16:33:15.950Z","level":"error","event":"api_api_decision_memory","ctx":{"reqId":"357510ab-1f71-423e-b4fc-8bd70b7fb013","method":"GET","path":"/api/v1/decisions/memory","status":500,"ms":8,"error":"TypeError: fetch failed"}}
+ GET /api/v1/decisions/memory 500 in 23ms
+ ✓ Compiled in 3.1s (3572 modules)
+ ✓ Compiled in 11s (3572 modules)
+ ✓ Compiled in 1376ms (3572 modules)
+ ✓ Compiled in 1004ms (3572 modules)
+ ✓ Compiled in 1504ms (3572 modules)
+ ✓ Compiled in 982ms (3572 modules)
+ ✓ Compiled in 5.8s (3572 modules)
+ ✓ Compiled in 13.3s (3574 modules)
+ ✓ Compiled in 746ms (3574 modules)
+ ✓ Compiled in 724ms (3574 modules)
+ ✓ Compiled in 971ms (3574 modules)
+ ✓ Compiled in 742ms (3574 modules)
+ ✓ Compiled in 1295ms (3574 modules)
+ ✓ Compiled in 1468ms (3574 modules)
+ ✓ Compiled in 1809ms (3703 modules)
+ ✓ Compiled in 5.8s (3574 modules)
+ GET /memory?embed=1 200 in 581ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 2.1s (1691 modules)
+{"ts":"2026-06-15T16:49:53.163Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"750b7fec-e8b2-49f7-aadd-31f32817d3cf","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":17}}
+ GET /api/v1/decisions/memory 200 in 2246ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1108ms (1693 modules)
+ POST /api/auth/login 200 in 1208ms
+ ○ Compiling /narratives ...
+ ✓ Compiled /narratives in 1701ms (1698 modules)
+ GET /narratives?embed=1 200 in 1906ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 788ms (1707 modules)
+{"ts":"2026-06-15T16:50:09.796Z","level":"error","event":"api_api_narrative","ctx":{"reqId":"72e6c8ca-adf3-4ab8-8fa3-337759ad03d3","method":"GET","path":"/api/v1/intelligence/narrative","status":500,"ms":23,"error":"TypeError: fetch failed"}}
+ GET /api/v1/intelligence/narrative?period=weekly 500 in 904ms
+{"ts":"2026-06-15T16:50:10.895Z","level":"error","event":"api_api_narrative","ctx":{"reqId":"6856dda9-1573-45e7-b73a-dc0cd34a4770","method":"GET","path":"/api/v1/intelligence/narrative","status":500,"ms":16,"error":"TypeError: fetch failed"}}
+ GET /api/v1/intelligence/narrative?period=weekly 500 in 39ms
+{"ts":"2026-06-15T16:50:16.331Z","level":"error","event":"api_api_narrative","ctx":{"reqId":"860a2050-460c-4141-aa84-aa5b10421709","method":"GET","path":"/api/v1/intelligence/narrative","status":500,"ms":29,"error":"TypeError: fetch failed"}}
+ GET /api/v1/intelligence/narrative?period=weekly 500 in 51ms
+{"ts":"2026-06-15T16:50:17.367Z","level":"error","event":"api_api_narrative","ctx":{"reqId":"e78f461d-14c3-4c9a-a2ed-15f2e2c8fcc3","method":"GET","path":"/api/v1/intelligence/narrative","status":500,"ms":11,"error":"TypeError: fetch failed"}}
+ GET /api/v1/intelligence/narrative?period=weekly 500 in 24ms
+ GET /memory?embed=1 200 in 182ms
+{"ts":"2026-06-15T16:50:21.885Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"f92e4487-7b5b-40e0-9ba2-0358f4bf86fa","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":20}}
+ GET /api/v1/decisions/memory 200 in 63ms
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 2.7s (1833 modules)
+ GET /graph?embed=1 200 in 2982ms
+ GET /narratives?embed=1 200 in 78ms
+{"ts":"2026-06-15T16:50:47.758Z","level":"error","event":"api_api_narrative","ctx":{"reqId":"57da06e1-ce9f-40d1-81bf-8b11be014c21","method":"GET","path":"/api/v1/intelligence/narrative","status":500,"ms":55,"error":"TypeError: fetch failed"}}
+ GET /api/v1/intelligence/narrative?period=weekly 500 in 124ms
+{"ts":"2026-06-15T16:50:48.819Z","level":"error","event":"api_api_narrative","ctx":{"reqId":"16007193-2350-48b2-b0d1-5f9fbf2c9b50","method":"GET","path":"/api/v1/intelligence/narrative","status":500,"ms":18,"error":"TypeError: fetch failed"}}
+ GET /api/v1/intelligence/narrative?period=weekly 500 in 37ms
+ ○ Compiling /recommendations ...
+ ✓ Compiled /recommendations in 3.2s (1819 modules)
+ GET /recommendations?embed=1 200 in 3438ms
+ ○ Compiling /api/v1/recommendations ...
+ ✓ Compiled /api/v1/recommendations in 1077ms (1821 modules)
+{"ts":"2026-06-15T16:50:55.437Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"34421ac2-dddc-48f9-b9a8-bf4d32515d6c","method":"GET","path":"/api/v1/recommendations","status":500,"ms":12,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 1174ms
+{"ts":"2026-06-15T16:50:56.474Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"115b9610-586d-4bbd-b490-be659685be47","method":"GET","path":"/api/v1/recommendations","status":500,"ms":6,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 21ms
+ ○ Compiling /capacity ...
+ ✓ Compiled /capacity in 1504ms (1827 modules)
+ GET /capacity?embed=1 200 in 1709ms
+ ○ Compiling /briefing ...
+ ✓ Compiled /briefing in 1044ms (1831 modules)
+ GET /briefing?embed=1 200 in 1193ms
+{"ts":"2026-06-15T16:51:05.084Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"4064dbbc-6283-43f9-a9ad-a5f50f6b4918","method":"GET","path":"/api/v1/recommendations","status":500,"ms":21,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 99ms
+ ○ Compiling /api/v1/org-health ...
+ ✓ Compiled /api/v1/org-health in 700ms (1833 modules)
+{"ts":"2026-06-15T16:51:05.784Z","level":"error","event":"api_api_org_health","ctx":{"reqId":"55299e01-5cc6-419d-8d64-6dd9f77d8e82","method":"GET","path":"/api/v1/org-health","status":500,"ms":7,"error":"TypeError: fetch failed"}}
+ GET /api/v1/org-health 500 in 797ms
+{"ts":"2026-06-15T16:51:06.135Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"28c6ccbc-9870-4980-871b-5d18037f9147","method":"GET","path":"/api/v1/recommendations","status":500,"ms":6,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 30ms
+{"ts":"2026-06-15T16:51:07.553Z","level":"error","event":"api_api_org_health","ctx":{"reqId":"7c94d8c8-c02b-4b5b-b927-8e452c21ffa4","method":"GET","path":"/api/v1/org-health","status":500,"ms":7,"error":"TypeError: fetch failed"}}
+ GET /api/v1/org-health 500 in 56ms
+ GET /recommendations?embed=1 200 in 152ms
+{"ts":"2026-06-15T16:51:28.032Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"68a1f1cf-c4bc-44b6-bafc-e60d0bed696d","method":"GET","path":"/api/v1/recommendations","status":500,"ms":12,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 45ms
+ GET /graph?embed=1 200 in 154ms
+ GET /capacity?embed=1 200 in 189ms
+ GET /recommendations?embed=1 200 in 85ms
+{"ts":"2026-06-15T16:53:31.588Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"9cc55837-0f74-4382-9907-9b476663ff55","method":"GET","path":"/api/v1/recommendations","status":500,"ms":20,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 65ms
+{"ts":"2026-06-15T16:53:32.642Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"00fc9381-065b-4b7f-a7a8-b014228ae4ca","method":"GET","path":"/api/v1/recommendations","status":500,"ms":6,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 25ms
+ GET /memory?embed=1 200 in 111ms
+{"ts":"2026-06-15T16:53:34.600Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"4bfb2d2e-90fd-4c40-89ca-da053df56c94","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":16}}
+ GET /api/v1/decisions/memory 200 in 52ms
+ ○ Compiling /risks ...
+ ✓ Compiled /risks in 3s (1149 modules)
+ GET /risks?embed=1 200 in 3289ms
+ ○ Compiling /people ...
+ ✓ Compiled /people in 2.5s (1157 modules)
+ GET /people?embed=1 200 in 2747ms
+ GET /capacity?embed=1 200 in 277ms
+ ○ Compiling /executive ...
+ ✓ Compiled /executive in 1881ms (1649 modules)
+ GET /executive?embed=1 200 in 2759ms
+ GET /briefing?embed=1 200 in 81ms
+ ✓ Compiled /api/v1/org-health in 445ms (1651 modules)
+{"ts":"2026-06-15T16:54:03.867Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"485d2540-554a-461e-a349-5557d6b274f7","method":"GET","path":"/api/v1/recommendations","status":500,"ms":24,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 934ms
+{"ts":"2026-06-15T16:54:03.871Z","level":"error","event":"api_api_org_health","ctx":{"reqId":"afdcde48-eb98-49e8-bfa5-8ac1bdea2ba1","method":"GET","path":"/api/v1/org-health","status":500,"ms":15,"error":"TypeError: fetch failed"}}
+ GET /api/v1/org-health 500 in 937ms
+{"ts":"2026-06-15T16:54:04.910Z","level":"error","event":"api_api_recommendations","ctx":{"reqId":"3991410b-0ee9-4dd8-b434-7ec2bca359c5","method":"GET","path":"/api/v1/recommendations","status":500,"ms":7,"error":"TypeError: fetch failed"}}
+ GET /api/v1/recommendations 500 in 26ms
+{"ts":"2026-06-15T16:54:04.923Z","level":"error","event":"api_api_org_health","ctx":{"reqId":"fead5cee-722e-4e94-9927-d36fecba59b2","method":"GET","path":"/api/v1/org-health","status":500,"ms":8,"error":"TypeError: fetch failed"}}
+ GET /api/v1/org-health 500 in 39ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1575ms (1721 modules)
+ ○ Compiling /welcome ...
+ ✓ Compiled /welcome in 2.4s (1744 modules)
+ ✓ Compiled in 3.2s (3008 modules)
+ ✓ Compiled in 858ms (1940 modules)
+ ✓ Compiled in 780ms (1940 modules)
+ ✓ Compiled in 713ms (1940 modules)
+ ✓ Compiled in 765ms (1940 modules)
+ ✓ Compiled in 758ms (1940 modules)
+ ✓ Compiled in 689ms (1940 modules)
+ ✓ Compiled in 772ms (1940 modules)
+ ✓ Compiled in 756ms (1940 modules)
+ ✓ Compiled in 825ms (1940 modules)
+ ✓ Compiled in 714ms (1940 modules)
+ ✓ Compiled in 503ms (1940 modules)
+ ✓ Compiled in 770ms (1940 modules)
+ ✓ Compiled in 713ms (1940 modules)
+ ✓ Compiled in 3.5s (3008 modules)
+ ✓ Compiled in 2.7s (3008 modules)
+ ✓ Compiled in 2.8s (3008 modules)
+ ✓ Compiled in 2.8s (3008 modules)
+ ○ Compiling /login ...
+ ✓ Compiled / in 30s (3103 modules)
+ ✓ Compiled (3710 modules)
+ GET /welcome 200 in 5578ms
+ ✓ Compiled in 911ms (1940 modules)
+ ✓ Compiled in 3.3s (1940 modules)
+ ✓ Compiled in 914ms (1940 modules)
+ ✓ Compiled in 2.7s (1940 modules)
+ ✓ Compiled in 1014ms (1940 modules)
+ ✓ Compiled in 2.8s (1940 modules)
+ ✓ Compiled in 852ms (1940 modules)
+ ✓ Compiled in 2.7s (1940 modules)
+ ✓ Compiled in 952ms (1940 modules)
+ ✓ Compiled in 3s (1940 modules)
+ ✓ Compiled in 1176ms (1940 modules)
+ ⨯ ./src/app/(shell)/executive/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\executive\page.tsx[0m:53:1]
+ [2m53[0m |     active.filter((e) => e.burnoutFlag).length / active.length;
+ [2m54[0m | 
+ [2m55[0m |   return (
+ [2m56[0m |     <div className="space-y-6">
+    : [31;1m     ^^^[0m
+ [2m57[0m |       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+ [2m58[0m |         <MetricTile
+ [2m59[0m |           label="Revenue at risk"
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/executive/page.tsx
+ ⨯ ./src/app/(shell)/executive/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+    ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\executive\page.tsx[0m:53:1]
+ [2m53[0m |     active.filter((e) => e.burnoutFlag).length / active.length;
+ [2m54[0m | 
+ [2m55[0m |   return (
+ [2m56[0m |     <div className="space-y-6">
+    : [31;1m     ^^^[0m
+ [2m57[0m |       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+ [2m58[0m |         <MetricTile
+ [2m59[0m |           label="Revenue at risk"
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/executive/page.tsx
+ ✓ Compiled in 3s (1940 modules)
+ ✓ Compiled in 1146ms (1940 modules)
+ ✓ Compiled in 2.5s (1940 modules)
+ ✓ Compiled in 1052ms (1940 modules)
+ ✓ Compiled in 2.3s (1940 modules)
+ ✓ Compiled in 988ms (1940 modules)
+ ✓ Compiled in 2.7s (1940 modules)
+ ✓ Compiled in 926ms (1940 modules)
+ ✓ Compiled in 2.9s (1940 modules)
+ ✓ Compiled in 925ms (1940 modules)
+ ✓ Compiled in 2.8s (1940 modules)
+ ✓ Compiled in 1071ms (1940 modules)
+ ✓ Compiled in 1020ms (1940 modules)
+ GET /welcome 200 in 108ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 9.8s (1187 modules)
+ POST /api/auth/login 200 in 10077ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4.2s (3735 modules)
+ ○ Compiling /memory ...
+ ✓ Compiled /memory in 2.9s (1640 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1137ms (1670 modules)
+ POST /api/auth/login 200 in 1278ms
+ ○ Compiling /narratives ...
+ ✓ Compiled /narratives in 2.9s (1675 modules)
+ GET /narratives?embed=1 200 in 3136ms
+ ○ Compiling /api/v1/intelligence/narrative ...
+ ✓ Compiled /api/v1/intelligence/narrative in 1360ms (1710 modules)
+{"ts":"2026-06-15T17:12:12.220Z","level":"info","event":"api_api_narrative","ctx":{"reqId":"28014e85-b768-4cb0-91a1-0d6a12cc1290","method":"GET","path":"/api/v1/intelligence/narrative","status":200,"ms":26}}
+ GET /api/v1/intelligence/narrative?period=weekly 200 in 1487ms
+ ○ Compiling /graph ...
+ ✓ Compiled /graph in 2.7s (1836 modules)
+ GET /graph?embed=1 200 in 3023ms
+ ✓ Compiled in 1600ms (1940 modules)
+ ✓ Compiled in 881ms (1940 modules)
+ ✓ Compiled in 978ms (1940 modules)
+ ✓ Compiled in 14s (3824 modules)
+ ✓ Compiled in 5.1s (3824 modules)
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (102kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (244kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⨯ ./src/app/(shell)/graph/page.tsx
+Error: 
+  [31mx[0m Unexpected character '“'
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\graph\page.tsx[0m:312:1]
+ [2m312[0m | 
+ [2m313[0m |   const nodeCount = Object.keys(NODE_META).length;
+ [2m314[0m |   const edgeCount = relationships.filter((r) => NODE_META[r.source.id] && NODE_META[r.target.id]).length;
+ [2m315[0m |   const avgDegree = nodeCount > 0 ? ((edgeCount * 2) / nodeCount).toFixed(1) : “0”;
+     : [31;1m                                                                               ^[0m
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className=”space-y-3”>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/graph/page.tsx
+ ○ Compiling /_error ...
+ ⨯ ./src/app/(shell)/graph/page.tsx
+Error: 
+  [31mx[0m Unexpected character '“'
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\graph\page.tsx[0m:312:1]
+ [2m312[0m | 
+ [2m313[0m |   const nodeCount = Object.keys(NODE_META).length;
+ [2m314[0m |   const edgeCount = relationships.filter((r) => NODE_META[r.source.id] && NODE_META[r.target.id]).length;
+ [2m315[0m |   const avgDegree = nodeCount > 0 ? ((edgeCount * 2) / nodeCount).toFixed(1) : “0”;
+     : [31;1m                                                                               ^[0m
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className=”space-y-3”>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/graph/page.tsx
+ GET / 500 in 34ms
+ ⨯ ./src/app/(shell)/graph/page.tsx
+Error: 
+  [31mx[0m Unexpected character '“'
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\graph\page.tsx[0m:312:1]
+ [2m312[0m | 
+ [2m313[0m |   const nodeCount = Object.keys(NODE_META).length;
+ [2m314[0m |   const edgeCount = relationships.filter((r) => NODE_META[r.source.id] && NODE_META[r.target.id]).length;
+ [2m315[0m |   const avgDegree = nodeCount > 0 ? ((edgeCount * 2) / nodeCount).toFixed(1) : “0”;
+     : [31;1m                                                                               ^[0m
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className=”space-y-3”>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/graph/page.tsx
+ GET /_next/static/webpack/c1244f31bea6e2c8.webpack.hot-update.json 500 in 1756ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 500 in 23ms
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ GET / 500 in 29ms
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ GET / 500 in 91ms
+ ⨯ ./src/app/(shell)/graph/page.tsx
+Error: 
+  [31mx[0m Unexpected character '“'
+     ,-[[36;1;4mC:\Users\sudha\DizruptOS\dizruptos\src\app\(shell)\graph\page.tsx[0m:312:1]
+ [2m312[0m | 
+ [2m313[0m |   const nodeCount = Object.keys(NODE_META).length;
+ [2m314[0m |   const edgeCount = relationships.filter((r) => NODE_META[r.source.id] && NODE_META[r.target.id]).length;
+ [2m315[0m |   const avgDegree = nodeCount > 0 ? ((edgeCount * 2) / nodeCount).toFixed(1) : “0”;
+     : [31;1m                                                                               ^[0m
+ [2m316[0m | 
+ [2m317[0m |   return (
+ [2m318[0m |     <div className=”space-y-3”>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/(shell)/graph/page.tsx
+ GET /_next/static/webpack/c1244f31bea6e2c8.webpack.hot-update.json 500 in 2235ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 500 in 33ms
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 200 in 3520ms
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ⚠ ./src/app/(shell)/people/[id]/page.tsx
+Attempted import error: 'CapacityRing' is not exported from '@/components/ui/spark' (imported as 'CapacityRing').
+
+Import trace for requested module:
+./src/app/(shell)/people/[id]/page.tsx
+
+./src/app/(shell)/projects/[id]/page.tsx
+Attempted import error: 'SparkBars' is not exported from '@/components/ui/spark' (imported as 'SparkBars').
+
+Import trace for requested module:
+./src/app/(shell)/projects/[id]/page.tsx
+ ✓ Compiled /_error in 27.2s (3218 modules)

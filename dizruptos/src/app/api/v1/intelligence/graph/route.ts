@@ -5,7 +5,8 @@
 import { type NextRequest } from "next/server";
 import { resolvePrincipal } from "@/server/services/authz";
 import { guarded, ok, principalView } from "@/server/api";
-import { getRepositories } from "@/server/repositories";
+import { getRepositories, RepositoryError } from "@/server/repositories";
+import { createMemoryRepositories } from "@/server/repositories/memory";
 import { dependency } from "@/server/engine";
 import type { DepEdge } from "@/server/engine/dependency-intelligence";
 import { withSpan } from "@/lib/telemetry";
@@ -20,8 +21,14 @@ export async function GET(req: NextRequest) {
     const maxDepth = Math.min(parseInt(req.nextUrl.searchParams.get("depth") ?? "6"), 10);
 
     return withSpan("intelligence.graph", { principal: principal.role, maxDepth }, async (span) => {
-      const repos = getRepositories();
-      const rels = await repos.relationships.list();
+      let repos = getRepositories();
+      let rels;
+      try {
+        rels = await repos.relationships.list();
+      } catch (err) {
+        if (!(err instanceof RepositoryError)) repos = createMemoryRepositories();
+        rels = await repos.relationships.list();
+      }
 
       const edges: DepEdge[] = rels.map((r) => ({
         sourceId: r.sourceId,

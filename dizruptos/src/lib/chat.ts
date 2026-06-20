@@ -63,12 +63,20 @@ const seedMessages: ChatMessage[] = [
 interface ChatState {
   conversations: Conversation[];
   messages: ChatMessage[];
+  /** lastRead[personaId][convId] = timestamp — tracks per-persona read state */
+  lastRead: Record<string, Record<string, number>>;
   sendMessage: (convId: string, authorId: string, text: string) => void;
   createGroup: (name: string, memberIds: string[], adminId: string) => string;
   openDm: (selfId: string, otherId: string) => string;
   /** Admin-only — guarded by the UI; callers pass the acting user. */
   addMembers: (convId: string, ids: string[]) => void;
   removeMember: (convId: string, id: string) => void;
+  /** Mark all messages in a conversation as read for a persona */
+  markRead: (convId: string, personaId: string) => void;
+  /** Count unread messages in a conversation for a persona */
+  unreadCount: (convId: string, personaId: string) => number;
+  /** Total unread across all conversations for a persona */
+  totalUnread: (personaId: string) => number;
 }
 
 export const useChat = create<ChatState>()(
@@ -76,11 +84,48 @@ export const useChat = create<ChatState>()(
     (set, get) => ({
       conversations: seedConversations,
       messages: seedMessages,
+      lastRead: {},
 
       sendMessage: (convId, authorId, text) => {
         const t = text.trim();
         if (!t) return;
-        set((s) => ({ messages: [...s.messages, { id: uid("m"), convId, authorId, text: t, at: Date.now() }] }));
+        const now = Date.now();
+        set((s) => ({ messages: [...s.messages, { id: uid("m"), convId, authorId, text: t, at: now }] }));
+        // Dispatch a browser event so the desktop can show a notification
+        if (typeof window !== "undefined") {
+          const conv = get().conversations.find((c) => c.id === convId);
+          if (conv) {
+            window.dispatchEvent(new CustomEvent("dizrupt:chat-message", {
+              detail: { convId, authorId, text: t, memberIds: conv.memberIds, at: now },
+            }));
+          }
+        }
+      },
+
+      markRead: (convId, personaId) => {
+        set((s) => ({
+          lastRead: {
+            ...s.lastRead,
+            [personaId]: { ...(s.lastRead[personaId] ?? {}), [convId]: Date.now() },
+          },
+        }));
+      },
+
+      unreadCount: (convId, personaId) => {
+        const { messages, lastRead, conversations } = get();
+        const conv = conversations.find((c) => c.id === convId);
+        if (!conv || !conv.memberIds.includes(personaId)) return 0;
+        const since = lastRead[personaId]?.[convId] ?? 0;
+        return messages.filter(
+          (m) => m.convId === convId && m.authorId !== personaId && m.at > since
+        ).length;
+      },
+
+      totalUnread: (personaId) => {
+        const { conversations } = get();
+        return conversations
+          .filter((c) => c.memberIds.includes(personaId))
+          .reduce((sum, c) => sum + get().unreadCount(c.id, personaId), 0);
       },
 
       createGroup: (name, memberIds, adminId) => {

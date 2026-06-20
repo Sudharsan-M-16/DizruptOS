@@ -25,6 +25,7 @@ const COLUMNS: { id: TaskStatus; label: string; tone: string }[] = [
   { id: "IN_PROGRESS", label: "In Progress", tone: "#F59E0B" },
   { id: "BLOCKED", label: "Blocked", tone: "#EF4444" },
   { id: "REVIEW", label: "In Review", tone: "#7C6CFF" },
+  { id: "CLIENT_REVIEW", label: "Client Review", tone: "#2BD9FF" },
   { id: "COMPLETED", label: "Done", tone: "#10B981" },
 ];
 
@@ -41,7 +42,7 @@ export function ProjectMatrix() {
   const personaId = useSession((s) => s.personaId);
   const canReallocate = useSession((s) => s.can("reallocate"));
   const canDrag = (t: Task) => canReallocate || t.assigneeId === personaId; // RBAC: own tasks only
-  const [projectId, setProjectId] = useState<string | "all">("p-atlas");
+  const [projectId, setProjectId] = useState<string | "all">("all");
 
   const scoped = useMemo(
     () => (projectId === "all" ? tasks : tasks.filter((t) => t.projectId === projectId)),

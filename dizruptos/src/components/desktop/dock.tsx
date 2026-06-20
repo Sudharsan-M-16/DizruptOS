@@ -6,7 +6,7 @@
 // minimized/closed window can be summoned back. Magnification follows the
 // cursor with a gaussian falloff, the way the real Dock does.
 
-import { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useOS } from "@/lib/os";
@@ -141,7 +141,7 @@ function DockMenuItem({ onClick, children }: { onClick: () => void; children: Re
   );
 }
 
-function DockItem({
+const DockItem = memo(function DockItem({
   app, size, setRef, onActivate, onContext,
 }: { app: DockApp; size: number; setRef: (el: HTMLButtonElement | null) => void; onActivate: () => void; onContext?: (e: React.MouseEvent) => void }) {
   const Icon = app.icon;
@@ -164,6 +164,8 @@ function DockItem({
       onClick={() => { bounce(); onActivate(); }}
       onContextMenu={onContext}
       title={app.label}
+      aria-label={app.label}
+      aria-pressed={app.running ? "true" : undefined}
       className="group relative flex flex-col items-center justify-end"
       style={{ width: size, height: size, transition: "width 90ms ease-out, height 90ms ease-out" }}
     >
@@ -192,4 +194,4 @@ function DockItem({
       />
     </button>
   );
-}
+});

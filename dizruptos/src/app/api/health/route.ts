@@ -4,7 +4,7 @@
 //
 // See RFC 7807 for error details, and /api/v1/metrics for time-series.
 
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { env, isDemoMode } from "@/lib/env";
 import { metrics } from "@/lib/telemetry";
 
@@ -21,16 +21,18 @@ function buildInfo() {
   return _buildInfo;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
   const uptimeSeconds = Math.round((Date.now() - startedAt) / 1000);
   metrics.httpRequests.inc({ route: "/api/health", method: "GET", status: "200" });
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     status: "ok",
     service: "dizruptos-web",
     mode: env.mode,
     version: process.env.npm_package_version ?? "0.1.0",
     uptime_s: uptimeSeconds,
+    requestId,
     ...buildInfo(),
     checks: {
       app: "ok",
@@ -56,4 +58,6 @@ export async function GET() {
     },
     ts: new Date().toISOString(),
   });
+  res.headers.set("X-Request-ID", requestId);
+  return res;
 }

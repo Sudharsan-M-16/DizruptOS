@@ -54,6 +54,7 @@ export function OperativeDirectory() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search people, skills…"
+            aria-label="Search people by name or skills"
             className="h-8 flex-1 bg-transparent text-xs text-fg placeholder:text-fg-faint focus:outline-none"
           />
         </div>
@@ -104,6 +105,7 @@ function Profile({ person: e, util }: { person: Person; util: number }) {
   const dept = departments.find((d) => d.id === e.departmentId);
   const owned = projects.filter((p) => p.ownerId === e.id);
   const taskCount = allTasks.filter((t) => t.assigneeId === e.id && t.status !== "COMPLETED").length;
+  const canSeeBurnout = useSession((s) => s.can("view_burnout"));
 
   return (
     <div className="min-w-0 flex-1 overflow-y-auto pl-5">
@@ -163,8 +165,8 @@ function Profile({ person: e, util }: { person: Person; util: number }) {
         </Section>
       ) : null}
 
-      {/* burnout */}
-      {e.burnoutFlag && (
+      {/* burnout — gated: only managers/dept-heads/admins can see this */}
+      {e.burnoutFlag && canSeeBurnout && (
         <Section title="Burnout signals (manager-private)">
           <div className="space-y-1 rounded-xl border border-danger/30 bg-danger/[0.06] p-3">
             {e.burnoutSignals?.map((s) => (

@@ -25,7 +25,7 @@ export function parseCSV(text: string): string[][] {
   return rows.filter((r) => r.some((c) => c.trim() !== ""));
 }
 
-export type ImportEntity = "employees" | "capabilities" | "employee_capabilities";
+export type ImportEntity = "employees" | "capabilities" | "employee_capabilities" | "hris_bulk";
 
 export interface FieldSpec {
   csv: string; // header in the CSV
@@ -61,6 +61,22 @@ export const SCHEMAS: Record<ImportEntity, { fields: FieldSpec[]; sample: string
       { csv: "proficiency", required: true, number: true },
     ],
     sample: ["email,capability,proficiency", "dana@acme.io,Kubernetes,4"],
+  },
+  hris_bulk: {
+    fields: [
+      { csv: "name", required: true },
+      { csv: "email", required: true },
+      { csv: "title" },
+      { csv: "role", enum: ["admin", "executive", "dept_head", "project_manager", "team_lead", "employee"] },
+      { csv: "department" },
+      { csv: "location" },
+      { csv: "capacity_hours", number: true },
+    ],
+    sample: [
+      "name,email,title,role,department,location,capacity_hours",
+      "Sarah Chen,sarah@company.com,Engineering Manager,dept_head,Engineering,San Francisco,40",
+      "James Kim,james@company.com,Backend Engineer,employee,Engineering,Remote,40",
+    ],
   },
 };
 

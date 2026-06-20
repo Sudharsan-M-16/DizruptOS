@@ -73,3 +73,53 @@ describe("financial redaction (GET /api/v1/employees)", () => {
     expect(roleCan(role, "view_financials")).toBe(false);
   });
 });
+
+describe("simulation permission (POST /api/v1/simulation/monte-carlo)", () => {
+  it("only view_executive roles may run simulation", () => {
+    const execRoles: Role[] = ["admin", "executive"];
+    const nonExecRoles: Role[] = ["project_manager", "team_lead", "employee"];
+    for (const r of execRoles) expect(roleCan(r, "view_executive")).toBe(true);
+    for (const r of nonExecRoles) expect(roleCan(r, "view_executive")).toBe(false);
+  });
+});
+
+describe("graph intelligence permission (GET /api/v1/intelligence/graph)", () => {
+  it("only roles with view_executive may query the full org graph", () => {
+    expect(roleCan("admin", "view_executive")).toBe(true);
+    expect(roleCan("executive", "view_executive")).toBe(true);
+    expect(roleCan("employee", "view_executive")).toBe(false);
+  });
+});
+
+describe("in-memory repository resilience", () => {
+  it("memory repos return consistent employee list across multiple calls", async () => {
+    const { createMemoryRepositories } = await import("../../server/repositories/memory");
+    const repos = createMemoryRepositories();
+    const list1 = await repos.employees.list();
+    const list2 = await repos.employees.list();
+    expect(list1.length).toBeGreaterThan(0);
+    expect(list1.length).toBe(list2.length);
+  });
+
+  it("memory repos return non-empty relationship graph", async () => {
+    const { createMemoryRepositories } = await import("../../server/repositories/memory");
+    const repos = createMemoryRepositories();
+    const rels = await repos.relationships.list();
+    expect(rels.length).toBeGreaterThan(0);
+    for (const r of rels) {
+      expect(r.sourceId).toBeTruthy();
+      expect(r.targetId).toBeTruthy();
+      expect(r.sourceId).not.toBe(r.targetId);
+    }
+  });
+
+  it("memory repo proposals have required fields and valid status", async () => {
+    const { createMemoryRepositories } = await import("../../server/repositories/memory");
+    const repos = createMemoryRepositories();
+    const list = await repos.proposals.list();
+    for (const p of list) {
+      expect(p.id).toBeTruthy();
+      expect(p.status).toMatch(/^(pending|approved|rejected|expired)$/);
+    }
+  });
+});

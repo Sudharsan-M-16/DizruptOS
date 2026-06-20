@@ -16,15 +16,24 @@ import type {
   Task,
 } from "./types";
 
-export const TODAY = "2026-06-10";
-export const WEEKS = [
-  "2026-06-08",
-  "2026-06-15",
-  "2026-06-22",
-  "2026-06-29",
-  "2026-07-06",
-  "2026-07-13",
-];
+// Derive today's date dynamically so overdue/due-today filters stay accurate.
+function toISO(d: Date) { return d.toISOString().slice(0, 10); }
+function thisMonday(): Date {
+  const d = new Date();
+  const day = d.getDay();
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+export const TODAY = toISO(new Date());
+export const WEEKS: string[] = (() => {
+  const start = thisMonday();
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i * 7);
+    return toISO(d);
+  });
+})();
 
 export const departments: Department[] = [
   { id: "d-eng", name: "Engineering", headId: "u-priya" },

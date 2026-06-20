@@ -25,6 +25,7 @@ import {
   type RecommendationRecord,
   type Repositories,
 } from "./types";
+import { log } from "@/server/lib/logger";
 
 interface SupabaseConfig {
   url: string;
@@ -32,11 +33,14 @@ interface SupabaseConfig {
   key: string;
 }
 
+const SLOW_QUERY_THRESHOLD_MS = 500;
+
 async function rest<T>(
   cfg: SupabaseConfig,
   path: string,
   init?: RequestInit
 ): Promise<T> {
+  const start = performance.now();
   const res = await fetch(`${cfg.url}/rest/v1/${path}`, {
     ...init,
     headers: {
@@ -48,6 +52,10 @@ async function rest<T>(
     },
     cache: "no-store",
   });
+  const ms = Math.round(performance.now() - start);
+  if (ms > SLOW_QUERY_THRESHOLD_MS) {
+    log("warn", "slow_query", { path, ms, method: init?.method ?? "GET" });
+  }
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new RepositoryError(

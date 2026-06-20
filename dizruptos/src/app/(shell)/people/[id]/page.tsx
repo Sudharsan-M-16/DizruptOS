@@ -4,8 +4,12 @@
 // panel, current load, and bus-factor context. LinkedIn card meets ops intel.
 
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Flame, MapPin, Clock3, CalendarDays, ShieldAlert } from "lucide-react";
+function launchApp(id: string) {
+  const ev = new CustomEvent("dizrupt:launch", { detail: { id } });
+  window.dispatchEvent(ev);
+  try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
+}
+import { Flame, MapPin, Clock3, CalendarDays, ShieldAlert, User } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
 import {
@@ -42,7 +46,19 @@ export default function PersonPage({ params }: { params: { id: string } }) {
   const dept = departmentById(emp.departmentId);
 
   return (
-    <div className="grid gap-5 xl:grid-cols-3">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#818CF822", border: "1px solid #818CF844" }}>
+          <User size={15} style={{ color: "#818CF8" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">{emp.name}</div>
+          <div className="text-[11px] text-fg-muted">{emp.title} · {dept?.name}</div>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-5">
+      <div className="grid gap-5 xl:grid-cols-3">
       {/* Identity card */}
       <div className="space-y-5">
         <div className="panel relative overflow-hidden p-6">
@@ -187,13 +203,13 @@ export default function PersonPage({ params }: { params: { id: string } }) {
             </div>
             <div className="space-y-2">
               {ownedRisks.map((r) => (
-                <Link key={r.id} href="/risks" className="block rounded-lg border border-line bg-ink-elevated p-3 transition-colors hover:border-warn/40">
+                <button key={r.id} onClick={() => launchApp("home")} className="block w-full text-left rounded-lg border border-line bg-ink-elevated p-3 transition-colors hover:border-warn/40">
                   <div className="flex items-center gap-2 text-xs font-medium">
                     {r.title}
                     <span className="ml-auto rounded-full bg-warn-soft px-2 py-px text-2xs text-warn">{r.status.toLowerCase()}</span>
                   </div>
                   <p className="mt-1 text-2xs text-fg-muted">{r.mitigationPlan}</p>
-                </Link>
+                </button>
               ))}
             </div>
           </div>
@@ -214,6 +230,8 @@ export default function PersonPage({ params }: { params: { id: string } }) {
             </p>
           )}
         </div>
+      </div>
+      </div>
       </div>
     </div>
   );

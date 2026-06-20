@@ -135,12 +135,15 @@ async function callClaude(
 }
 
 /** Enhance a deterministic copilot answer with LLM fluency.
+ *  semanticHits — top entities from TF-IDF semantic search injected into the prompt
+ *  for contextual grounding beyond what the deterministic engine matched.
  *  Always falls back to the deterministic answer if LLM is unavailable or errors. */
 export async function enhancedCopilotAnswer(
   question: string,
   deterministicResult: CopilotAnswer,
-  ctx: CopilotContext
-): Promise<CopilotAnswer & { llmEnhanced: boolean }> {
+  ctx: CopilotContext,
+  semanticHits: string[] = []
+): Promise<CopilotAnswer & { llmEnhanced: boolean; semanticHits?: string[] }> {
   metrics.copilotQueries.inc({ intent: deterministicResult.intent });
 
   if (!LLM_ENABLED) {
@@ -148,13 +151,20 @@ export async function enhancedCopilotAnswer(
   }
 
   try {
-    const systemPrompt = buildSystemPrompt(ctx);
+    let systemPrompt = buildSystemPrompt(ctx);
+
+    // Inject semantic search hits as additional grounding context
+    if (semanticHits.length > 0) {
+      systemPrompt += `\n\nSEMANTIC CONTEXT (entities most relevant to this question):\n${semanticHits.map((h) => `• ${h}`).join("\n")}\nUse these only if relevant — do not force them in.`;
+    }
+
     const llmAnswer = await callClaude(systemPrompt, question, deterministicResult.answer);
 
     return {
       ...deterministicResult,
       answer: llmAnswer,
       llmEnhanced: true,
+      semanticHits: semanticHits.length > 0 ? semanticHits : undefined,
     };
   } catch (err) {
     // LLM failure is never fatal — fall through to deterministic answer.
