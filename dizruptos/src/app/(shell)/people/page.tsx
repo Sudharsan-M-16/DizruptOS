@@ -19,10 +19,12 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Search, Users } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpDown, Plus, Search, Users, X } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
-import { departmentById, employees, WEEKS } from "@/lib/data";
+import { departmentById, WEEKS, departments } from "@/lib/data";
+import { useEmployees, useCreateEmployee } from "@/lib/hooks/live";
 import {
   CapacityBar,
   EmpAvatar,
@@ -35,20 +37,109 @@ type Row = Employee & { pct: number; headroom: number };
 
 const col = createColumnHelper<Row>();
 
+function AddPersonPanel({ onClose }: { onClose: () => void }) {
+  const [name, setName] = React.useState("");
+  const [title, setTitle] = React.useState("");
+  const [departmentId, setDepartmentId] = React.useState(departments[0]?.id ?? "");
+  const [capacity, setCapacity] = React.useState(40);
+  const [skillInput, setSkillInput] = React.useState("");
+  const { mutate: createEmployee, isPending } = useCreateEmployee();
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    const skills = skillInput.split(",").map((s) => s.trim()).filter(Boolean);
+    createEmployee({
+      name: name.trim(),
+      title: title.trim() || "Team member",
+      role: "employee",
+      departmentId: departmentId || departments[0]?.id,
+      capacityHoursPerWeek: capacity,
+      skills,
+      timezone: "UTC",
+    }, { onSuccess: () => onClose() });
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <motion.form
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 40, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+        className="w-full max-w-md rounded-t-2xl border border-line bg-ink-surface p-6 shadow-2xl sm:rounded-2xl"
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold tracking-tight">Add person</h2>
+          <button type="button" onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full bg-ink-elevated text-fg-muted hover:text-fg">
+            <X size={13} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label-xs mb-1 block">Full name</label>
+              <input autoFocus required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+            </div>
+            <div>
+              <label className="label-xs mb-1 block">Job title</label>
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Senior Engineer" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label-xs mb-1 block">Department</label>
+              <select value={departmentId} onChange={(e) => setDepartmentId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label-xs mb-1 block">Capacity (h/week)</label>
+              <input type="number" min={8} max={60} value={capacity} onChange={(e) => setCapacity(Number(e.target.value))} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+            </div>
+          </div>
+
+          <div>
+            <label className="label-xs mb-1 block">Skills <span className="text-fg-muted">(comma-separated)</span></label>
+            <input value={skillInput} onChange={(e) => setSkillInput(e.target.value)} placeholder="Payments, TypeScript, PostgreSQL" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+          </div>
+        </div>
+
+        <button type="submit" disabled={isPending} className="mt-5 w-full rounded-card bg-brand py-2.5 text-sm font-semibold text-ink shadow-[0_0_20px_#00ED8244] transition-opacity hover:opacity-90 disabled:opacity-60">
+          {isPending ? "Adding…" : "Add person"}
+        </button>
+      </motion.form>
+    </motion.div>
+  );
+}
+
 export default function PeoplePage() {
   const utilization = useOps((s) => s.utilization);
   const canSeeBurnout = useSession((s) => s.can("view_burnout"));
-  // Colleagues' load is manager-private data: employees see who people ARE
-  // (skills, expertise), never how loaded they are (dynamic view, PRD §6).
   const canSeeLoad = useSession((s) => s.can("view_capacity"));
+  const canManagePeople = useSession((s) => s.can("reallocate"));
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: canSeeLoad ? "pct" : "name", desc: canSeeLoad },
   ]);
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [addingPerson, setAddingPerson] = React.useState(false);
+  const { data: liveEmployees } = useEmployees();
 
   const rows: Row[] = React.useMemo(
     () =>
-      employees
+      liveEmployees
         .filter((e) => e.role !== "client")
         .map((e) => {
           const pct = utilization(e.id, WEEKS[0]);
@@ -58,7 +149,7 @@ export default function PeoplePage() {
             headroom: Math.max(0, Math.round((1 - pct) * e.capacityHoursPerWeek)),
           };
         }),
-    [utilization]
+    [liveEmployees, utilization]
   );
 
   const columns = React.useMemo(
@@ -194,6 +285,14 @@ export default function PeoplePage() {
         <span className="text-2xs text-fg-muted">
           {table.getRowModel().rows.length} people · sorted by load — overloads surface first
         </span>
+        {canManagePeople && (
+          <button
+            onClick={() => setAddingPerson(true)}
+            className="ml-auto flex items-center gap-1.5 rounded-full border border-brand/40 bg-brand-soft px-3 py-1.5 text-2xs font-semibold text-brand hover:bg-brand/20 transition-colors"
+          >
+            <Plus size={11} /> Add person
+          </button>
+        )}
       </div>
 
       <div className="panel table-scroll overflow-x-auto">
@@ -237,6 +336,11 @@ export default function PeoplePage() {
       </div>
       </div>
       </div>
+      <AnimatePresence>
+        {addingPerson && (
+          <AddPersonPanel onClose={() => setAddingPerson(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

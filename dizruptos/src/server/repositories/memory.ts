@@ -105,11 +105,23 @@ export function createMemoryRepositories(): Repositories {
     employees: {
       list: async () => employees,
       byId: async (id) => employees.find((e) => e.id === id) ?? null,
+      create: async (e) => {
+        const initials = e.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+        const colors = ["#00ED82", "#F97316", "#6366F1", "#EC4899", "#0EA5E9"];
+        const emp = { ...e, id: `u-${Date.now()}`, initials, accent: colors[employees.length % colors.length], expertise: [], ptoDays: [], burnoutScore: 0 };
+        (employees as import("@/lib/types").Employee[]).push(emp);
+        return emp;
+      },
     },
 
     tasks: {
       list: async () => tasks,
       byId: async (id) => tasks.find((t) => t.id === id) ?? null,
+      create: async (t) => {
+        const task = { ...t, id: `task-${Date.now()}`, loggedHours: 0, labels: [], dependsOn: [] };
+        tasks = [...tasks, task];
+        return task;
+      },
       reassign: async (taskId, toEmployeeId) => {
         const task = tasks.find((t) => t.id === taskId);
         const target = employees.find((e) => e.id === toEmployeeId);
@@ -149,10 +161,21 @@ export function createMemoryRepositories(): Repositories {
     projects: {
       list: async () => projects,
       byId: async (id) => projects.find((p) => p.id === id) ?? null,
+      create: async (p) => {
+        const code = p.name.replace(/[^A-Za-z]/g, "").slice(0, 3).toUpperCase() || "PRJ";
+        const proj = { ...p, id: `p-${Date.now()}`, code, velocityTrend: [] };
+        (projects as import("@/lib/types").Project[]).push(proj);
+        return proj;
+      },
     },
 
     risks: {
       list: async () => risks,
+      create: async (r) => {
+        const risk = { ...r, id: `risk-${Date.now()}` };
+        (risks as import("@/lib/types").Risk[]).push(risk);
+        return risk;
+      },
     },
 
     audit: {

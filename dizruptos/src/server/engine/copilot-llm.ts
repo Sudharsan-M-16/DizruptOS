@@ -1,43 +1,35 @@
 // LLM-powered copilot layer — wraps the deterministic engine context with a
-// Claude call so answers are fluent, contextual, and conversational while
+// Gemini call so answers are fluent, contextual, and conversational while
 // remaining GROUNDED IN ENGINE DATA (no hallucination — the context is facts).
 //
 // Architecture:
 //   1. deterministic engine builds `CopilotContext` from live data (unchanged)
-//   2. if ANTHROPIC_API_KEY is set, we call Claude claude-sonnet-4-6 with the context
+//   2. if GEMINI_API_KEY is set, we call gemini-2.0-flash with the context
 //   3. the LLM receives: (a) the deterministic answer as "ground truth",
 //      (b) the full org context as structured data, (c) the question
-//   4. Claude enhances delivery but CANNOT contradict the engine evidence
+//   4. Gemini enhances delivery but CANNOT contradict the engine evidence
 //   5. fallback: if LLM call fails, return the deterministic answer as-is
 //
-// This means the product is always correct; the LLM only improves phrasing + depth.
+// Free tier: 15 requests/min, 1M tokens/day — no credit card required.
+// Get a key at https://aistudio.google.com/apikey
 
 import type { CopilotContext, CopilotAnswer } from "./copilot";
 import { metrics } from "@/lib/telemetry";
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const LLM_ENABLED = !!ANTHROPIC_API_KEY;
-const MODEL = "claude-sonnet-4-6";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const LLM_ENABLED = !!GEMINI_API_KEY;
+const MODEL = "gemini-2.0-flash";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 const MAX_TOKENS = 512;
-const TEMPERATURE = 0;  // Zero temperature — we want grounded, consistent answers.
 
-interface AnthropicMessage {
+interface GeminiPart { text: string }
+interface GeminiContent { role: "user" | "model"; parts: GeminiPart[] }
+
+// Exported so the copilot route can pass history as Anthropic-shaped messages
+// (role: user|assistant) — we translate internally.
+interface ConversationTurn {
   role: "user" | "assistant";
   content: string;
-}
-
-interface AnthropicRequest {
-  model: string;
-  max_tokens: number;
-  temperature: number;
-  system: string;
-  messages: AnthropicMessage[];
-}
-
-interface AnthropicResponse {
-  content: Array<{ type: string; text: string }>;
-  usage?: { input_tokens: number; output_tokens: number };
-  error?: { message: string };
 }
 
 function buildSystemPrompt(ctx: CopilotContext): string {
@@ -86,34 +78,39 @@ RULES:
 - End with one concrete next action when appropriate.`;
 }
 
-async function callClaude(
+async function callGemini(
   systemPrompt: string,
   question: string,
-  deterministicAnswer: string
+  deterministicAnswer: string,
+  history: ConversationTurn[] = []
 ): Promise<string> {
-  const request: AnthropicRequest = {
-    model: MODEL,
-    max_tokens: MAX_TOKENS,
-    temperature: TEMPERATURE,
-    system: systemPrompt,
-    messages: [
+  // Gemini uses alternating user/model roles — map assistant → model.
+  const priorTurns: GeminiContent[] = history.slice(-10).map((t) => ({
+    role: t.role === "assistant" ? "model" : "user",
+    parts: [{ text: t.content }],
+  }));
+
+  const body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [
+      ...priorTurns,
       {
         role: "user",
-        content: `${question}\n\n[Engine analysis: ${deterministicAnswer}]`,
+        parts: [{ text: `${question}\n\n[Engine analysis: ${deterministicAnswer}]` }],
       },
     ],
+    generationConfig: {
+      maxOutputTokens: MAX_TOKENS,
+      temperature: 0,
+    },
   };
 
   const start = Date.now();
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": ANTHROPIC_API_KEY!,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify(request),
-    signal: AbortSignal.timeout(8000),  // 8s timeout — never block a user longer
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000),
   });
 
   const elapsed = (Date.now() - start) / 1000;
@@ -121,17 +118,19 @@ async function callClaude(
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Anthropic API ${res.status}: ${err}`);
+    throw new Error(`Gemini API ${res.status}: ${err}`);
   }
 
-  const data: AnthropicResponse = await res.json();
+  const data = await res.json();
 
-  if (data.usage) {
-    const total = (data.usage.input_tokens ?? 0) + (data.usage.output_tokens ?? 0);
-    metrics.llmTokens.inc({ model: MODEL }, total);
+  const tokenCount =
+    (data.usageMetadata?.promptTokenCount ?? 0) +
+    (data.usageMetadata?.candidatesTokenCount ?? 0);
+  if (tokenCount > 0) {
+    metrics.llmTokens.inc({ model: MODEL }, tokenCount);
   }
 
-  return data.content?.[0]?.text?.trim() ?? deterministicAnswer;
+  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? deterministicAnswer;
 }
 
 /** Enhance a deterministic copilot answer with LLM fluency.
@@ -142,7 +141,8 @@ export async function enhancedCopilotAnswer(
   question: string,
   deterministicResult: CopilotAnswer,
   ctx: CopilotContext,
-  semanticHits: string[] = []
+  semanticHits: string[] = [],
+  history: ConversationTurn[] = []
 ): Promise<CopilotAnswer & { llmEnhanced: boolean; semanticHits?: string[] }> {
   metrics.copilotQueries.inc({ intent: deterministicResult.intent });
 
@@ -153,12 +153,11 @@ export async function enhancedCopilotAnswer(
   try {
     let systemPrompt = buildSystemPrompt(ctx);
 
-    // Inject semantic search hits as additional grounding context
     if (semanticHits.length > 0) {
       systemPrompt += `\n\nSEMANTIC CONTEXT (entities most relevant to this question):\n${semanticHits.map((h) => `• ${h}`).join("\n")}\nUse these only if relevant — do not force them in.`;
     }
 
-    const llmAnswer = await callClaude(systemPrompt, question, deterministicResult.answer);
+    const llmAnswer = await callGemini(systemPrompt, question, deterministicResult.answer, history);
 
     return {
       ...deterministicResult,
@@ -167,7 +166,6 @@ export async function enhancedCopilotAnswer(
       semanticHits: semanticHits.length > 0 ? semanticHits : undefined,
     };
   } catch (err) {
-    // LLM failure is never fatal — fall through to deterministic answer.
     console.error(JSON.stringify({ ts: new Date().toISOString(), level: "warn", event: "copilot_llm_fallback", ctx: { error: String(err) } }));
     return { ...deterministicResult, llmEnhanced: false };
   }

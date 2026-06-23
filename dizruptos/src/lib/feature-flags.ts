@@ -28,7 +28,7 @@ const FLAGS: Record<FeatureFlag, boolean> = {
   betweenness_centrality:  true,
 
   // Env-gated features
-  copilot:                 typeof process !== "undefined" && !!process.env.ANTHROPIC_API_KEY,
+  copilot:                 typeof process !== "undefined" && !!process.env.GEMINI_API_KEY,
   health_history:          true,
   data_export:             true,
   follow_up_suggestions:   true,

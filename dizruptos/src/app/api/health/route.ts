@@ -38,13 +38,13 @@ export async function GET(req: NextRequest) {
       app: "ok",
       database: isDemoMode ? "demo_in_memory" : "configured",
       realtime: isDemoMode ? "broadcast_channel" : "supabase_realtime",
-      ai_copilot: process.env.ANTHROPIC_API_KEY ? "llm_enhanced" : "deterministic",
+      ai_copilot: process.env.GEMINI_API_KEY ? "llm_enhanced" : "deterministic",
       scim: process.env.SCIM_TOKEN ? "token_configured" : "open_demo",
       sso: Object.keys(process.env).some((k) => k.startsWith("SSO_CONFIG_")) ? "configured" : "not_configured",
       metrics: "ok",
     },
     capabilities: {
-      auth: ["magic_link", "google_oauth", "microsoft_oauth", ...(process.env.ANTHROPIC_API_KEY ? [] : []), "demo_personas"],
+      auth: ["magic_link", "google_oauth", "microsoft_oauth", ...(process.env.GEMINI_API_KEY ? [] : []), "demo_personas"],
       enterprise: [
         "saml_sso_scaffold",
         "scim_2_0_provisioning",

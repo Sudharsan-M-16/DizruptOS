@@ -10,9 +10,11 @@ function launchApp(id: string) {
   window.dispatchEvent(ev);
   try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
 }
-import { AlertTriangle, ShieldAlert } from "lucide-react";
-import { employeeById, projectById, risks, tasks } from "@/lib/data";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, Plus, ShieldAlert, X } from "lucide-react";
+import { employeeById, employees, projectById, projects, tasks } from "@/lib/data";
 import { PERSONAS, useSession } from "@/lib/session";
+import { useRisks, useCreateRisk } from "@/lib/hooks/live";
 import { risksForRole } from "@/lib/rbac";
 import {
   EmpAvatar,
@@ -21,9 +23,112 @@ import {
   SeverityBadge,
 } from "@/components/ui/primitives";
 import { cn, fmtDate } from "@/lib/utils";
-import type { Risk } from "@/lib/types";
+import type { Risk, RiskImpact, RiskProbability } from "@/lib/types";
 
 import { SEVERITY_MATRIX, severityOf } from "@/lib/risk";
+
+const CATEGORIES = ["operational", "vendor", "security", "compliance", "financial", "people"] as const;
+const PROBS = ["low", "medium", "high"] as const;
+const IMPACTS = ["low", "medium", "high", "critical"] as const;
+
+function AddRiskPanel({ onClose }: { onClose: () => void }) {
+  const { mutate: createRisk, isPending } = useCreateRisk();
+  const [title, setTitle] = React.useState("");
+  const [category, setCategory] = React.useState<Risk["category"]>("operational");
+  const [probability, setProbability] = React.useState<RiskProbability>("medium");
+  const [impact, setImpact] = React.useState<RiskImpact>("medium");
+  const [ownerId, setOwnerId] = React.useState(employees[0]?.id ?? "");
+  const [projectId, setProjectId] = React.useState("");
+  const [mitigation, setMitigation] = React.useState("");
+
+  const teamMembers = employees.filter((e) => e.role !== "client");
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    createRisk({
+      title: title.trim(),
+      category,
+      probability,
+      impact,
+      ownerId,
+      projectId: projectId || undefined,
+      mitigationPlan: mitigation.trim() || "Under assessment",
+    }, { onSuccess: () => onClose() });
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-end justify-end bg-black/40 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.form
+        onSubmit={submit}
+        initial={{ x: 64, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: 64, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 320, damping: 32 }}
+        className="flex h-full w-full max-w-sm flex-col gap-4 overflow-y-auto border-l border-line bg-ink p-6 shadow-2xl"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold">Log Risk</h2>
+          <button type="button" onClick={onClose} className="rounded-lg p-1 text-fg-muted hover:text-fg"><X size={16} /></button>
+        </div>
+        <div>
+          <label className="label-xs mb-1 block">Title <span className="text-danger">*</span></label>
+          <input autoFocus required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Describe the risk…" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-danger/60" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="label-xs mb-1 block">Category</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value as Risk["category"])} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label-xs mb-1 block">Probability</label>
+            <select value={probability} onChange={(e) => setProbability(e.target.value as RiskProbability)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+              {PROBS.map((p) => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="label-xs mb-1 block">Impact</label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {IMPACTS.map((imp) => (
+              <button key={imp} type="button" onClick={() => setImpact(imp)}
+                className={cn("rounded-lg border py-1.5 text-xs font-medium transition-colors capitalize", impact === imp ? "border-danger/60 bg-danger-soft text-danger" : "border-line bg-ink-elevated text-fg-muted hover:border-line-strong")}
+              >{imp}</button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <label className="label-xs mb-1 block">Owner</label>
+          <select value={ownerId} onChange={(e) => setOwnerId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+            {teamMembers.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="label-xs mb-1 block">Project <span className="text-fg-muted">(optional)</span></label>
+          <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+            <option value="">— no project —</option>
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="label-xs mb-1 block">Mitigation plan <span className="text-fg-muted">(optional)</span></label>
+          <textarea value={mitigation} onChange={(e) => setMitigation(e.target.value)} rows={3} placeholder="How will this risk be mitigated?" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand resize-none" />
+        </div>
+        <button type="submit" disabled={isPending} className="mt-auto w-full rounded-card bg-danger py-2.5 text-sm font-semibold text-white shadow-[0_0_20px_#EF444433] transition-opacity hover:opacity-90 disabled:opacity-60">
+          {isPending ? "Logging…" : "Log risk"}
+        </button>
+      </motion.form>
+    </motion.div>
+  );
+}
 
 const PROB = ["high", "medium", "low"] as const;
 const IMPACT = ["low", "medium", "high", "critical"] as const;
@@ -48,13 +153,16 @@ const statusTone: Record<Risk["status"], string> = {
 
 export default function RisksPage() {
   const [selected, setSelected] = React.useState<string | null>(null);
+  const [showAdd, setShowAdd] = React.useState(false);
   const personaId = useSession((s) => s.personaId);
+  const canLog = useSession((s) => s.can("reallocate"));
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const isEmployee = persona.role === "employee" || persona.role === "client";
+  const { data: liveRisks } = useRisks();
 
   // Dynamic view: employees see the risks that touch them (owned, or on a
   // project they execute) — the full register is a manager instrument.
-  const visibleRisks = risksForRole(risks, persona.role, persona.id, (empId, projectId) =>
+  const visibleRisks = risksForRole(liveRisks, persona.role, persona.id, (empId, projectId) =>
     projectId ? tasks.some((t) => t.assigneeId === empId && t.projectId === projectId) : false
   );
 
@@ -65,10 +173,18 @@ export default function RisksPage() {
         <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#EF444422", border: "1px solid #EF444444" }}>
           <AlertTriangle size={15} style={{ color: "#EF4444" }} />
         </span>
-        <div>
+        <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold">Risk Register</div>
           <div className="text-[11px] text-fg-muted">{visibleRisks.length} risks · probability × impact matrix</div>
         </div>
+        {canLog && (
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-1.5 rounded-full border border-danger/40 bg-danger-soft px-3 py-1.5 text-2xs font-semibold text-danger hover:bg-danger/20 transition-colors"
+          >
+            <Plus size={11} /> Log risk
+          </button>
+        )}
       </div>
       <div aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto p-5">
       <div className="grid gap-6 xl:grid-cols-5">
@@ -89,7 +205,7 @@ export default function RisksPage() {
               <React.Fragment key={p}>
                 <div className="label-xs flex items-center">{p}</div>
                 {IMPACT.map((i) => {
-                  const cellRisks = risks.filter(
+                  const cellRisks = visibleRisks.filter(
                     (r) => r.probability === p && r.impact === i
                   );
                   const sev = SEVERITY_MATRIX[p][i];
@@ -216,6 +332,9 @@ export default function RisksPage() {
       </section>
       </div>
       </div>
+      <AnimatePresence>
+        {showAdd && <AddRiskPanel onClose={() => setShowAdd(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

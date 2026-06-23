@@ -117,13 +117,20 @@ export const CopilotApp = memo(function CopilotApp() {
     setInput("");
     setLoading(true);
 
+    // Capture history before the new messages are added (includes all prior completed turns)
+    const historyForApi = messages
+      .filter((m) => !m.loading)
+      .map((m) => ({ role: m.role, content: m.text }));
+
     const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text: q };
     const loadMsg: Message = { id: `l-${Date.now()}`, role: "assistant", text: "", loading: true };
     setMessages((prev) => [...prev, userMsg, loadMsg]);
 
     try {
-      const res = await fetch(`/api/v1/copilot?q=${encodeURIComponent(q)}`, {
+      const res = await fetch("/api/v1/copilot", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q, history: historyForApi }),
       });
       const json: CopilotResponse = await res.json();
       const { answer, intent, evidence, llmEnhanced } = json.data;
@@ -168,7 +175,7 @@ export const CopilotApp = memo(function CopilotApp() {
         </div>
         <div>
           <div className="text-sm font-bold text-fg">Executive Copilot</div>
-          <div className="text-xs text-fg-muted">Grounded in live org-intelligence · powered by Claude</div>
+          <div className="text-xs text-fg-muted">Grounded in live org-intelligence · powered by Gemini</div>
         </div>
         {messages.length > 0 && (
           <button
@@ -232,7 +239,7 @@ export const CopilotApp = memo(function CopilotApp() {
                           ))}
                           {m.llmEnhanced && (
                             <span className="flex items-center gap-1 rounded-md border border-brand/20 bg-brand/5 px-2 py-0.5 text-[10px] text-brand">
-                              <Sparkles size={8} /> Claude
+                              <Sparkles size={8} /> Gemini
                             </span>
                           )}
                         </div>

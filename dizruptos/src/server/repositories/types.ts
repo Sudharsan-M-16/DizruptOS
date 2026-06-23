@@ -32,6 +32,7 @@ export class RepositoryError extends Error {
 export interface EmployeeRepository {
   list(): Promise<Employee[]>;
   byId(id: string): Promise<Employee | null>;
+  create(e: Omit<Employee, "id" | "initials" | "accent" | "expertise" | "ptoDays" | "burnoutScore">): Promise<Employee>;
 }
 
 export interface TaskRepository {
@@ -39,6 +40,7 @@ export interface TaskRepository {
   byId(id: string): Promise<Task | null>;
   /** Reassign + apply both capacity deltas as ONE unit (PRD §11 atomicity). */
   reassign(taskId: string, toEmployeeId: string): Promise<void>;
+  create(t: Omit<Task, "id" | "loggedHours" | "labels" | "dependsOn">): Promise<Task>;
 }
 
 export interface CapacityRepository {
@@ -54,10 +56,12 @@ export interface ProposalRepository {
 export interface ProjectRepository {
   list(): Promise<Project[]>;
   byId(id: string): Promise<Project | null>;
+  create(p: Omit<Project, "id" | "code" | "velocityTrend">): Promise<Project>;
 }
 
 export interface RiskRepository {
   list(): Promise<Risk[]>;
+  create(r: Omit<Risk, "id">): Promise<Risk>;
 }
 
 export interface AuditRepository {

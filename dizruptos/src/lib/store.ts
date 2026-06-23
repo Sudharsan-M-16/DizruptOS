@@ -94,6 +94,9 @@ interface OpsState {
   cancelReallocate: () => void;
 
   reviewProposal: (id: string, verdict: "approved" | "rejected") => void;
+  addTask: (task: Omit<Task, "id" | "loggedHours" | "labels" | "dependsOn">) => void;
+  /** Assignee refines their own estimate, or manager sets it. Writes to audit. */
+  updateTaskEstimate: (taskId: string, hours: number) => void;
 }
 
 const applyDelta = (
@@ -430,6 +433,109 @@ export const useOps = create<OpsState>((set, get) => ({
       lastAction:
         verdict === "approved" ? "Proposal approved — action executed" : "Proposal rejected — agent memory updated",
     });
+    publishSync(get());
+  },
+
+  addTask: (task) => {
+    const session = useSession.getState();
+    const me = session.persona();
+
+    // Employees can only create tasks assigned to themselves.
+    // Assigning to someone else requires the reallocate grant (managers+).
+    if (task.assigneeId && task.assigneeId !== me.id && !session.can("reallocate")) {
+      set({ lastAction: "Not permitted — you can only create tasks for yourself." });
+      return;
+    }
+
+    const id = `t-${Date.now()}`;
+    const newTask: Task = {
+      id,
+      loggedHours: 0,
+      labels: [],
+      dependsOn: [],
+      ...task,
+    };
+    let cap = get().capacity;
+    if (newTask.assigneeId) {
+      cap = applyDelta(cap, newTask.assigneeId, newTask.weekStart, newTask.estimatedHours);
+    }
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "task_created",
+      entityType: "task",
+      entityLabel: newTask.title,
+      detail: `Task created: ${newTask.estimatedHours}h est, due ${newTask.dueDate}, priority ${newTask.priority}${newTask.assigneeId && newTask.assigneeId !== me.id ? " · manager-assigned" : ""}.`,
+      at: new Date().toISOString(),
+    };
+    set((s) => ({
+      tasks: [...s.tasks, newTask],
+      capacity: cap,
+      audit: [event, ...s.audit],
+      lastAction: `Task "${newTask.title}" created`,
+    }));
+    publishSync(get());
+    // Fire-and-forget write-through to the live backend (if available).
+    // Failures are silent — the local state is already updated.
+    fetch("/api/v1/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: newTask.title,
+        projectId: newTask.projectId,
+        assigneeId: newTask.assigneeId,
+        status: newTask.status,
+        priority: newTask.priority,
+        estimatedHours: newTask.estimatedHours,
+        weekStart: newTask.weekStart,
+        dueDate: newTask.dueDate,
+      }),
+      credentials: "include",
+    }).catch(() => {/* demo fallback */ });
+  },
+
+  updateTaskEstimate: (taskId, hours) => {
+    const session = useSession.getState();
+    const me = session.persona();
+    const task = get().tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    // Only the assignee or someone with reallocate (manager) can set the estimate.
+    const isAssignee = task.assigneeId === me.id;
+    const isManager = session.can("reallocate");
+    if (!isAssignee && !isManager) {
+      set({ lastAction: "Not permitted — only the assignee or a manager can update the estimate." });
+      return;
+    }
+
+    const prev = task.estimatedHours;
+    const delta = hours - prev;
+
+    // Adjust capacity: remove old allocation, add new.
+    let cap = get().capacity;
+    if (task.assigneeId) {
+      if (prev > 0) cap = applyDelta(cap, task.assigneeId, task.weekStart, -prev);
+      cap = applyDelta(cap, task.assigneeId, task.weekStart, hours);
+    }
+
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "task_estimated",
+      entityType: "task",
+      entityLabel: task.title,
+      detail: isAssignee
+        ? `Engineer refined estimate: ${prev || "?"}h → ${hours}h (${delta >= 0 ? "+" : ""}${delta}h)`
+        : `Manager set estimate: ${prev || "?"}h → ${hours}h`,
+      at: new Date().toISOString(),
+    };
+
+    set((s) => ({
+      tasks: s.tasks.map((t) => t.id === taskId ? { ...t, estimatedHours: hours } : t),
+      capacity: cap,
+      audit: [event, ...s.audit],
+      lastAction: `Estimate updated: ${hours}h`,
+    }));
     publishSync(get());
   },
 }));

@@ -82,12 +82,43 @@ export function createSupabaseRepositories(cfg: SupabaseConfig): Repositories {
         (await rest<UserRow[]>(cfg, "users?deleted_at=is.null&select=*")).map(fromUserRow),
       byId: async (id) =>
         (await rest<UserRow[]>(cfg, `users?id=eq.${id}&select=*`)).map(fromUserRow)[0] ?? null,
+      create: async (e) => {
+        const rows = await rest<UserRow[]>(cfg, "users", {
+          method: "POST",
+          body: JSON.stringify({
+            full_name: e.name,
+            role: e.role,
+            department_id: e.departmentId || null,
+            capacity_hours_per_week: e.capacityHoursPerWeek,
+            skill_tags: e.skills,
+            timezone: e.timezone ?? "UTC",
+            title: e.title ?? null,
+          }),
+        });
+        return fromUserRow(rows[0]);
+      },
     },
 
     tasks: {
       list: async () => (await rest<TaskRow[]>(cfg, "tasks?deleted_at=is.null&select=*")).map(fromTaskRow),
       byId: async (id) =>
         (await rest<TaskRow[]>(cfg, `tasks?id=eq.${id}&select=*`)).map(fromTaskRow)[0] ?? null,
+      create: async (t) => {
+        const rows = await rest<TaskRow[]>(cfg, "tasks", {
+          method: "POST",
+          body: JSON.stringify({
+            title: t.title,
+            project_id: t.projectId || null,
+            assignee_id: t.assigneeId || null,
+            status: t.status,
+            priority: t.priority,
+            estimated_hours: t.estimatedHours,
+            week_start: t.weekStart,
+            due_date: t.dueDate || null,
+          }),
+        });
+        return fromTaskRow(rows[0]);
+      },
       // Transactional reassign via Postgres function — task update and both
       // capacity deltas commit or roll back together.
       reassign: async (taskId, toEmployeeId) => {
@@ -119,10 +150,47 @@ export function createSupabaseRepositories(cfg: SupabaseConfig): Repositories {
       list: async () => (await rest<ProjectRow[]>(cfg, "projects?deleted_at=is.null&select=*")).map(fromProjectRow),
       byId: async (id) =>
         (await rest<ProjectRow[]>(cfg, `projects?id=eq.${id}&select=*`)).map(fromProjectRow)[0] ?? null,
+      create: async (p) => {
+        const rows = await rest<ProjectRow[]>(cfg, "projects", {
+          method: "POST",
+          body: JSON.stringify({
+            name: p.name,
+            description: p.description || null,
+            department_id: p.departmentId || null,
+            owner_id: p.ownerId || null,
+            status: p.status,
+            health_status: p.health,
+            health_reasons: p.healthReasons ?? [],
+            budget_hours: p.budgetHours,
+            consumed_hours: 0,
+            budget_amount: p.budgetMicro ?? 0,
+            consumed_amount: 0,
+          }),
+        });
+        return fromProjectRow(rows[0]);
+      },
     },
 
     risks: {
       list: async () => (await rest<RiskRow[]>(cfg, "risks?deleted_at=is.null&select=*")).map(fromRiskRow),
+      create: async (r) => {
+        const rows = await rest<RiskRow[]>(cfg, "risks", {
+          method: "POST",
+          body: JSON.stringify({
+            title: r.title,
+            category: r.category,
+            probability: r.probability,
+            impact: r.impact,
+            owner_id: r.ownerId || null,
+            project_id: r.projectId || null,
+            mitigation_plan: r.mitigationPlan || null,
+            mitigation_status: r.mitigationStatus,
+            status: r.status,
+            signals: r.signals ?? [],
+          }),
+        });
+        return fromRiskRow(rows[0]);
+      },
     },
 
     audit: {
