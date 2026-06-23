@@ -1,18 +1,12 @@
 "use client";
 
-// Tasks — the enlarged "all my work" window. Opens when you click a task on Home
-// (instead of a confusing jump to the old dashboard). A left filter rail (All /
-// Today / Overdue / Pending / In Progress / Blocked / Critical / Done) drives a
-// dense, readable table: task, project, status, priority, due, hours, assignee.
-// Click any row to open its detail drawer. Scope is role-aware (an IC sees their
-// own work; a leader also sees the projects/department they own).
-
 import { useMemo, useState } from "react";
-import { CalendarClock, CheckCircle2, CircleDot, Filter, Flame, Hourglass, ListChecks, OctagonX, ShieldAlert, Clock } from "lucide-react";
-import { TODAY, employeeById, projects } from "@/lib/data";
+import { AnimatePresence, motion } from "framer-motion";
+import { CalendarClock, CheckCircle2, CircleDot, Filter, Flame, Hourglass, ListChecks, OctagonX, Plus, ShieldAlert, Clock, X } from "lucide-react";
+import { TODAY, WEEKS, employeeById, employees, projects } from "@/lib/data";
 import { useOps } from "@/lib/store";
 import { PERSONAS, useSession } from "@/lib/session";
-import type { Task } from "@/lib/types";
+import type { Task, TaskPriority } from "@/lib/types";
 import { EmpAvatar } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 
@@ -24,15 +18,127 @@ const PRIORITY_CLS: Record<string, string> = {
 };
 
 type FilterId = "all" | "today" | "overdue" | "today_overdue" | "pending" | "in_progress" | "blocked" | "critical" | "done";
-
 const FILTER_IDS: FilterId[] = ["all", "today", "overdue", "today_overdue", "pending", "in_progress", "blocked", "critical", "done"];
+
+function AddTaskPanel({ onClose, defaultProjectId }: { onClose: () => void; defaultProjectId?: string }) {
+  const addTask = useOps((s) => s.addTask);
+  const personaId = useSession((s) => s.personaId);
+  const canAssignOthers = useSession((s) => s.can("reallocate"));
+  const meId = personaId;
+
+  const [title, setTitle] = useState("");
+  const [projectId, setProjectId] = useState(defaultProjectId ?? projects[0]?.id ?? "");
+  const [assigneeId, setAssigneeId] = useState(canAssignOthers ? "" : meId);
+  const [hours, setHours] = useState(canAssignOthers ? 0 : 4);
+  const [dueDate, setDueDate] = useState(new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10));
+  const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
+
+  const pickableAssignees = canAssignOthers
+    ? employees.filter((e) => e.role !== "client")
+    : employees.filter((e) => e.id === meId);
+
+  const teamProjects = projects.filter((p) => p.status === "ACTIVE");
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim() || !projectId) return;
+    addTask({
+      title: title.trim(),
+      projectId,
+      assigneeId: assigneeId || pickableAssignees[0]?.id,
+      estimatedHours: hours,
+      dueDate,
+      priority,
+      status: "TO_DO",
+      weekStart: WEEKS[0],
+    });
+    onClose();
+  }
+
+  const PRIORITIES: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+  const PRIORITY_LABELS: Record<TaskPriority, string> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High", URGENT: "Urgent" };
+  const PRIORITY_TONE: Record<TaskPriority, string> = { LOW: "border-fg-muted/40 text-fg-muted", MEDIUM: "border-info/40 text-info", HIGH: "border-warn/40 text-warn", URGENT: "border-danger/40 text-danger" };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <motion.form
+        initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+        onClick={(e) => e.stopPropagation()} onSubmit={submit}
+        className="w-full max-w-md rounded-t-2xl border border-line bg-ink-surface p-6 shadow-2xl sm:rounded-2xl"
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold tracking-tight">New task</h2>
+          <button type="button" onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full bg-ink-elevated text-fg-muted hover:text-fg"><X size={13} /></button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="label-xs mb-1 block">Task title</label>
+            <input autoFocus required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to get done?" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+          </div>
+
+          <div>
+            <label className="label-xs mb-1 block">Project</label>
+            <select required value={projectId} onChange={(e) => setProjectId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+              {teamProjects.map((p) => <option key={p.id} value={p.id}>{p.code} — {p.name}</option>)}
+            </select>
+          </div>
+
+          {canAssignOthers && (
+            <div>
+              <label className="label-xs mb-1 block">Assignee</label>
+              <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+                <option value="">Unassigned</option>
+                {pickableAssignees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+              </select>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label-xs mb-1 block">Due date</label>
+              <input type="date" required value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+            </div>
+            <div>
+              <label className="label-xs mb-1 block">Estimate (hrs)</label>
+              <input type="number" min={0} max={200} step={0.5} value={hours} onChange={(e) => setHours(Number(e.target.value))} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+            </div>
+          </div>
+
+          <div>
+            <label className="label-xs mb-2 block">Priority</label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {PRIORITIES.map((p) => (
+                <button key={p} type="button" onClick={() => setPriority(p)}
+                  className={cn("rounded-card border py-1.5 text-xs font-medium transition-colors", priority === p ? PRIORITY_TONE[p] + " bg-ink-elevated" : "border-line text-fg-muted hover:border-line-strong")}>
+                  {PRIORITY_LABELS[p]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" className="mt-5 w-full rounded-card bg-brand py-2.5 text-sm font-semibold text-ink shadow-[0_0_20px_#00ED8244] transition-opacity hover:opacity-90">
+          Create task
+        </button>
+      </motion.form>
+    </motion.div>
+  );
+}
 
 export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) {
   const personaId = useSession((s) => s.personaId);
+  const canCreate = useSession((s) => s.can("reallocate") || true); // everyone can create tasks for themselves
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const allTasks = useOps((s) => s.tasks);
   const openTaskDrawer = useOps((s) => s.openTaskDrawer);
   const [filter, setFilter] = useState<FilterId>(FILTER_IDS.includes(initialFilter as FilterId) ? (initialFilter as FilterId) : "all");
+  const [showAdd, setShowAdd] = useState(false);
 
   const me = employeeById(persona.id);
   const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
@@ -101,6 +207,12 @@ export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) 
             </button>
           );
         })}
+        {canCreate && (
+          <button onClick={() => setShowAdd(true)}
+            className="mt-3 flex items-center gap-2 rounded-lg border border-brand/30 bg-brand/10 px-2.5 py-2 text-xs font-semibold text-brand transition-colors hover:bg-brand/20">
+            <Plus size={13} /> New task
+          </button>
+        )}
         <div className="mt-auto px-2 pt-2 text-2xs text-fg-faint">Click any task for full detail &amp; (manager) reassignment.</div>
       </aside>
 
@@ -110,7 +222,16 @@ export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) 
           <span>Task</span><span>Project</span><span>Status</span><span>Priority</span><span>Due</span><span className="text-right">Hours</span><span></span>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {rows.length === 0 && <div className="px-4 py-12 text-center text-xs text-fg-muted">No tasks here.</div>}
+          {rows.length === 0 && (
+            <div className="flex flex-col items-center gap-3 px-4 py-16 text-center">
+              <div className="text-xs text-fg-muted">No tasks here.</div>
+              {canCreate && (
+                <button onClick={() => setShowAdd(true)} className="flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-3 py-1.5 text-xs font-semibold text-brand hover:bg-brand/20">
+                  <Plus size={13} /> Create your first task
+                </button>
+              )}
+            </div>
+          )}
           {rows.map((t, i) => {
             const p = projects.find((x) => x.id === t.projectId);
             const a = employeeById(t.assigneeId);
@@ -136,6 +257,10 @@ export function TasksApp({ initialFilter = "all" }: { initialFilter?: string }) 
           })}
         </div>
       </div>
+
+      <AnimatePresence>
+        {showAdd && <AddTaskPanel onClose={() => setShowAdd(false)} />}
+      </AnimatePresence>
     </div>
   );
 }

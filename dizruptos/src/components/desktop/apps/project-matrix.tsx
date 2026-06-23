@@ -10,12 +10,13 @@
 // distributed/CRDT backend replaces. The board itself stays pure.
 
 import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
-import { Circle, Clock, Filter, ListChecks } from "lucide-react";
-import { employees, projects } from "@/lib/data";
+import { Circle, Clock, Filter, ListChecks, Plus, X } from "lucide-react";
+import { WEEKS, employees, projects } from "@/lib/data";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
-import type { Task, TaskStatus } from "@/lib/types";
+import type { Task, TaskPriority, TaskStatus } from "@/lib/types";
 import { EmpAvatar } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,68 @@ const PRIORITY: Record<string, { label: string; cls: string }> = {
   LOW: { label: "Low", cls: "bg-fg-muted/15 text-fg-muted" },
 };
 
+function AddTaskQuick({ defaultProjectId, onClose }: { defaultProjectId?: string; onClose: () => void }) {
+  const addTask = useOps((s) => s.addTask);
+  const personaId = useSession((s) => s.personaId);
+  const canAssignOthers = useSession((s) => s.can("reallocate"));
+  const [title, setTitle] = useState("");
+  const [projId, setProjId] = useState(defaultProjectId ?? projects[0]?.id ?? "");
+  const [assigneeId, setAssigneeId] = useState(canAssignOthers ? "" : personaId);
+  const [hours, setHours] = useState(4);
+  const [dueDate, setDueDate] = useState(new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10));
+  const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
+
+  const teamMembers = employees.filter((e) => e.role !== "client");
+  const PRIORITIES: TaskPriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    addTask({ title: title.trim(), projectId: projId, assigneeId: assigneeId || teamMembers[0]?.id, estimatedHours: hours, dueDate, priority, status: "TO_DO", weekStart: WEEKS[0] });
+    onClose();
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center" onClick={onClose}>
+      <motion.form initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+        onClick={(e) => e.stopPropagation()} onSubmit={submit}
+        className="w-full max-w-md rounded-t-2xl border border-line bg-ink-surface p-6 shadow-2xl sm:rounded-2xl">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold">New task</h2>
+          <button type="button" onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full bg-ink-elevated text-fg-muted hover:text-fg"><X size={13} /></button>
+        </div>
+        <div className="space-y-3">
+          <input autoFocus required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+          <select required value={projId} onChange={(e) => setProjId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+            {projects.filter((p) => p.status === "ACTIVE").map((p) => <option key={p.id} value={p.id}>{p.code} — {p.name}</option>)}
+          </select>
+          {canAssignOthers && (
+            <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)} className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand">
+              <option value="">Unassigned</option>
+              {teamMembers.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+            </select>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+            <input type="number" min={0} max={200} step={0.5} value={hours} onChange={(e) => setHours(Number(e.target.value))} placeholder="Hours" className="rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none focus:border-brand" />
+          </div>
+          <div className="grid grid-cols-4 gap-1.5">
+            {PRIORITIES.map((p) => (
+              <button key={p} type="button" onClick={() => setPriority(p)}
+                className={cn("rounded-card border py-1 text-xs font-medium transition-colors", priority === p ? "border-brand bg-brand/10 text-brand" : "border-line text-fg-muted hover:border-line-strong")}>
+                {p[0] + p.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button type="submit" className="mt-4 w-full rounded-card bg-brand py-2.5 text-sm font-semibold text-ink shadow-[0_0_20px_#00ED8244] hover:opacity-90">Create task</button>
+      </motion.form>
+    </motion.div>
+  );
+}
+
 export function ProjectMatrix() {
   const tasks = useOps((s) => s.tasks);
   const moveTask = useOps((s) => s.moveTask);
@@ -43,6 +106,7 @@ export function ProjectMatrix() {
   const canReallocate = useSession((s) => s.can("reallocate"));
   const canDrag = (t: Task) => canReallocate || t.assigneeId === personaId; // RBAC: own tasks only
   const [projectId, setProjectId] = useState<string | "all">("all");
+  const [showAdd, setShowAdd] = useState(false);
 
   const scoped = useMemo(
     () => (projectId === "all" ? tasks : tasks.filter((t) => t.projectId === projectId)),
@@ -74,8 +138,14 @@ export function ProjectMatrix() {
             </FilterChip>
           ))}
         </div>
-        <span className="ml-auto rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-2xs font-medium text-fg-secondary">
-          {scoped.length} tasks · {canReallocate ? "drag to update" : "drag your tasks"}
+        <span className="ml-auto flex items-center gap-2">
+          <span className="rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-2xs font-medium text-fg-secondary">
+            {scoped.length} tasks · {canReallocate ? "drag to update" : "drag your tasks"}
+          </span>
+          <button onClick={() => setShowAdd(true)}
+            className="flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand transition-colors hover:bg-brand/20">
+            <Plus size={12} /> New task
+          </button>
         </span>
       </div>
 
@@ -132,6 +202,15 @@ export function ProjectMatrix() {
           })}
         </div>
       </DragDropContext>
+
+      <AnimatePresence>
+        {showAdd && (
+          <AddTaskQuick
+            defaultProjectId={projectId !== "all" ? projectId : undefined}
+            onClose={() => setShowAdd(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
