@@ -1,286 +1,181 @@
 "use client";
 
-// Recommendation Center — the operational workspace where intelligence becomes
-// ACTION. Every recommendation is a first-class entity moving through a
-// lifecycle: pending → accepted (prediction written) → completed → measured
-// (accuracy scored → feeds calibration). No dead recommendations; every one
-// shows its reasoning, evidence, what it touches, and where it is in the loop.
+// Recommendations — "what should we do next?" in plain language, grounded in the
+// live seed. Three things a manager actually acts on: relieve overloaded people,
+// staff work nobody owns, and add the next build steps a project is missing.
+// Every suggestion names the best-fit person (right skills + most room) and why.
+// Acting happens in the Project Matrix (the live native surface) via the button.
 
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { SectionHeader } from "@/components/ui/primitives";
-import {
-  useRecommendations,
-  useRecommendationTransition,
-  type Impact,
-  type RecStatus,
-  type Recommendation,
-} from "@/lib/hooks/use-executive";
-import { Check, Clock, X, FlaskConical, CircleDot, CheckCircle2 } from "lucide-react";
+import * as React from "react";
+import { ArrowRightLeft, Flame, Sparkles, UserPlus, KanbanSquare } from "lucide-react";
+import { employees, projectById, projects, WEEKS } from "@/lib/data";
+import { useOps } from "@/lib/store";
+import { isQualified, skillMatchScore } from "@/lib/skills";
+import { EmpAvatar } from "@/components/ui/primitives";
+import { cn, fmtPct } from "@/lib/utils";
+import type { Employee, Task } from "@/lib/types";
 
-const impactTone: Record<Impact, string> = {
-  critical: "border-danger/50 text-danger bg-danger-soft",
-  high: "border-warn/50 text-warn bg-warn-soft",
-  medium: "border-info/50 text-info bg-info-soft",
-  low: "border-ok/50 text-ok bg-ok-soft",
-};
+const BUILD_STEPS: { label: string; title: string }[] = [
+  { label: "design", title: "Design the screens" },
+  { label: "frontend", title: "Build the screens" },
+  { label: "backend", title: "Build the API" },
+  { label: "database", title: "Set up the database" },
+  { label: "testing", title: "Write tests for the main features" },
+];
 
-const statusMeta: Record<RecStatus, { label: string; tone: string; icon: React.ElementType }> = {
-  pending: { label: "Pending", tone: "text-fg-muted bg-ink-elevated border-line", icon: CircleDot },
-  acknowledged: { label: "Acknowledged", tone: "text-info bg-info-soft border-info/40", icon: CircleDot },
-  accepted: { label: "Accepted · predicted", tone: "text-brand bg-brand-soft border-brand/40", icon: Check },
-  rejected: { label: "Rejected", tone: "text-fg-muted bg-ink-elevated border-line line-through", icon: X },
-  deferred: { label: "Deferred", tone: "text-warn bg-warn-soft border-warn/40", icon: Clock },
-  completed: { label: "Completed · awaiting measure", tone: "text-info bg-info-soft border-info/40", icon: CheckCircle2 },
-  measured: { label: "Measured · loop closed", tone: "text-ok bg-ok-soft border-ok/40", icon: FlaskConical },
-};
+function launchMatrix() {
+  const evt = new CustomEvent("dizrupt:launch", { detail: { id: "matrix" } });
+  window.dispatchEvent(evt);
+  window.parent?.dispatchEvent(evt);
+}
 
-const STAGES: RecStatus[] = ["pending", "accepted", "completed", "measured"];
+export default function RecommendationsPage() {
+  const tasks = useOps((s) => s.tasks);
+  const utilization = useOps((s) => s.utilization);
+  const week = WEEKS[0];
 
-export default function RecommendationCenterPage() {
-  const recs = useRecommendations();
-  const transition = useRecommendationTransition();
-  const [measuring, setMeasuring] = useState<string | null>(null);
-  const [actual, setActual] = useState<string>("");
+  // Best-fit recipient for a set of skills: qualified, then most spare capacity.
+  const bestFit = React.useCallback((labels: string[], excludeId?: string): { emp: Employee; load: number } | null => {
+    const t = { labels } as Pick<Task, "labels">;
+    const ranked = employees
+      .filter((e) => e.role !== "client" && e.role !== "executive" && e.id !== excludeId)
+      .map((e) => ({ emp: e, qualified: isQualified(e, t), score: skillMatchScore(e, t), load: utilization(e.id, week) }))
+      .filter((c) => c.qualified)
+      .sort((a, b) => (b.score !== a.score ? b.score - a.score : a.load - b.load));
+    return ranked[0] ? { emp: ranked[0].emp, load: ranked[0].load } : null;
+  }, [utilization, week]);
 
-  if (recs.isLoading)
-    return (
-      <div className="space-y-4">
-        <div className="panel h-24 animate-pulse" />
-        {[0, 1, 2].map((i) => <div key={i} className="panel h-40 animate-pulse" />)}
-      </div>
-    );
+  // 1) Relieve overload — for each person over 100%, move one movable task to a fit.
+  const overloadRecs = employees
+    .filter((e) => utilization(e.id, week) >= 1)
+    .map((e) => {
+      const movable = tasks
+        .filter((t) => t.assigneeId === e.id && t.status !== "COMPLETED" && t.status !== "BLOCKED")
+        .sort((a, b) => a.estimatedHours - b.estimatedHours)[0];
+      if (!movable) return null;
+      const fit = bestFit(movable.labels, e.id);
+      if (!fit) return null;
+      return { person: e, task: movable, fit, load: utilization(e.id, week) };
+    })
+    .filter(Boolean) as { person: Employee; task: Task; fit: { emp: Employee; load: number }; load: number }[];
 
-  if (recs.isError)
-    return (
-      <div className="panel flex flex-col items-start gap-3 p-8">
-        <div className="text-lg font-semibold text-danger">Couldn&apos;t load recommendations</div>
-        <p className="text-sm text-fg-muted">{(recs.error as Error)?.message}</p>
-        <button onClick={() => recs.refetch()} className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-[#04281A]">Retry</button>
-      </div>
-    );
+  // 2) Staff unowned work — unassigned tasks → best fit.
+  const unstaffed = tasks
+    .filter((t) => !t.assigneeId && t.status !== "COMPLETED")
+    .map((t) => ({ task: t, fit: bestFit(t.labels) }))
+    .filter((s) => s.fit) as { task: Task; fit: { emp: Employee; load: number } }[];
 
-  const list = recs.data ?? [];
-  const open = list.filter((r) => r.status !== "measured" && r.status !== "rejected");
-  const closed = list.filter((r) => r.status === "measured" || r.status === "rejected");
-  const counts = {
-    open: open.length,
-    accepted: list.filter((r) => r.status === "accepted" || r.status === "completed").length,
-    measured: list.filter((r) => r.status === "measured").length,
-  };
+  // 3) Suggested next steps — standard build steps a needy project is missing.
+  const needy = projects.filter((p) => p.health === "AT_RISK" || p.health === "DELAYED" || p.status === "PLANNING");
+  const nextSteps = needy.flatMap((p) => {
+    const present = new Set(tasks.filter((t) => t.projectId === p.id).flatMap((t) => t.labels));
+    return BUILD_STEPS
+      .filter((s) => !present.has(s.label))
+      .map((s) => ({ project: p, step: s, fit: bestFit([s.label]) }))
+      .filter((s) => s.fit) as { project: typeof projects[number]; step: { label: string; title: string }; fit: { emp: Employee; load: number } }[];
+  });
 
-  const act = (id: string, to: RecStatus, extra?: { actualValue?: number; confidence?: number }) =>
-    transition.mutate({ id, to, ...extra });
+  const total = overloadRecs.length + unstaffed.length + nextSteps.length;
 
   return (
-    <div className="space-y-8">
-      {/* Loop header — the strip that makes the closed loop legible */}
-      <section className="panel p-6">
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-          <div>
-            <div className="label-xs">Recommendation Center</div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">Intelligence → Action → Outcome</h1>
-            <p className="mt-1 max-w-xl text-sm text-fg-muted">
-              Each recommendation is tracked end-to-end. Accepting one writes a prediction; measuring it scores
-              accuracy and feeds calibration. Nothing dies as a suggestion.
-            </p>
-          </div>
-          <div className="ml-auto flex gap-6">
-            <Stat label="Open" value={counts.open} />
-            <Stat label="In flight" value={counts.accepted} tone="text-brand" />
-            <Stat label="Measured" value={counts.measured} tone="text-ok" />
-          </div>
-        </div>
-      </section>
+    <div className="space-y-6">
+      <header className="panel p-6">
+        <div className="label-xs">Recommendations</div>
+        <h1 className="font-display text-2xl font-bold tracking-tight">What to do next</h1>
+        <p className="mt-1 max-w-xl text-sm text-fg-muted">
+          {total} suggestions from the live plan — who&apos;s overloaded, what work has no owner, and the next steps each
+          project needs. Each one is matched to the person with the right skills and the most room.
+        </p>
+      </header>
 
-      {/* Open recommendations — actionable */}
-      <section>
-        <SectionHeader title="Open recommendations" hint="Ranked by impact. Drive each through its lifecycle." />
-        <div className="space-y-3">
-          {open.length === 0 && (
-            <div className="panel p-6 text-fg-muted">Nothing open — every recommendation is measured or declined.</div>
-          )}
-          {open.map((r) => (
-            <RecCard
-              key={r.id} r={r} pending={transition.isPending}
-              measuring={measuring === r.id} actual={actual}
-              onActual={setActual}
-              onMeasureOpen={() => { setMeasuring(r.id); setActual(""); }}
-              onMeasureCancel={() => setMeasuring(null)}
-              onAct={act}
+      {total === 0 && (
+        <div className="panel p-8 text-center text-sm text-fg-muted">Nothing to recommend right now — load is balanced and every task has an owner.</div>
+      )}
+
+      {/* Relieve overload */}
+      {overloadRecs.length > 0 && (
+        <Section title="Relieve overloaded people" icon={Flame} tone="#EF4444" hint="These people are over 100% this week.">
+          {overloadRecs.map(({ person, task, fit, load }) => (
+            <RecRow
+              key={`ov-${task.id}`}
+              title={`Move “${task.title}” off ${person.name.split(" ")[0]}`}
+              reason={`${person.name} is at ${fmtPct(load)}. ${fit.emp.name} has the right skills and is at ${fmtPct(fit.load)}.`}
+              fit={fit} icon={ArrowRightLeft}
             />
           ))}
-        </div>
-      </section>
-
-      {/* Closed loop — measured + rejected, the learning record */}
-      {closed.length > 0 && (
-        <section>
-          <SectionHeader title="Closed loop" hint="Measured outcomes (accuracy scored) and declined recommendations." />
-          <div className="space-y-3">
-            {closed.map((r) => (
-              <RecCard key={r.id} r={r} pending={transition.isPending} measuring={false} actual="" onActual={() => {}} onMeasureOpen={() => {}} onMeasureCancel={() => {}} onAct={act} />
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  );
-}
-
-function Stat({ label, value, tone }: { label: string; value: number; tone?: string }) {
-  return (
-    <div className="text-right">
-      <div className="label-xs">{label}</div>
-      <div className={cn("font-display text-3xl font-bold leading-none", tone)}>{value}</div>
-    </div>
-  );
-}
-
-function LifecycleRail({ status }: { status: RecStatus }) {
-  const activeIdx = STAGES.indexOf(status === "acknowledged" || status === "deferred" ? "pending" : status);
-  return (
-    <div className="flex items-center gap-1.5">
-      {STAGES.map((s, i) => (
-        <div key={s} className="flex items-center gap-1.5">
-          <span
-            className={cn(
-              "h-1.5 w-6 rounded-full transition-colors",
-              i <= activeIdx && activeIdx >= 0 ? "bg-brand" : "bg-ink-elevated"
-            )}
-            title={s}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RecCard({
-  r, pending, measuring, actual, onActual, onMeasureOpen, onMeasureCancel, onAct,
-}: {
-  r: Recommendation;
-  pending: boolean;
-  measuring: boolean;
-  actual: string;
-  onActual: (v: string) => void;
-  onMeasureOpen: () => void;
-  onMeasureCancel: () => void;
-  onAct: (id: string, to: RecStatus, extra?: { actualValue?: number; confidence?: number }) => void;
-}) {
-  const meta = statusMeta[r.status];
-  const Icon = meta.icon;
-  const can = (s: RecStatus) => r.nextStates.includes(s);
-
-  return (
-    <div className="panel p-5">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold", meta.tone)}>
-          <Icon size={12} /> {meta.label}
-        </span>
-        <span className="font-display text-lg font-bold tracking-tight">{r.title}</span>
-        <span className={cn("rounded-md border px-2.5 py-0.5 text-xs font-semibold uppercase", impactTone[r.impact])}>
-          {r.impact}
-        </span>
-        <span className="ml-auto font-mono text-xs text-fg-muted">priority {Math.round(r.priority * 100)}%</span>
-      </div>
-
-      <p className="mt-3 max-w-3xl text-base leading-7 text-fg-secondary">{r.rationale}</p>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs text-fg-muted">Evidence:</span>
-        {r.evidence.map((e) => (
-          <span key={e} className="rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-xs text-fg-secondary">{e}</span>
-        ))}
-        <span className="ml-auto text-xs text-fg-muted">
-          concerns <span className="text-fg-secondary">{r.traceTo.label}</span>
-        </span>
-      </div>
-
-      {/* Prediction / outcome ledger — the closed-loop receipt */}
-      {(r.confidence != null || r.accuracy != null) && (
-        <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-line-subtle bg-ink-elevated/40 p-3 sm:grid-cols-4">
-          <Ledger label="Confidence" value={r.confidence != null ? `${Math.round(r.confidence * 100)}%` : "—"} />
-          <Ledger label="Expected Δ" value={r.expectedDelta != null ? `+${r.expectedDelta.toFixed(2)}` : "—"} />
-          <Ledger label="Actual" value={r.actualValue != null ? r.actualValue.toFixed(2) : "—"} />
-          <Ledger
-            label="Accuracy"
-            value={r.accuracy != null ? `${Math.round(r.accuracy * 100)}%` : "—"}
-            tone={r.accuracy == null ? undefined : r.accuracy >= 0.7 ? "text-ok" : r.accuracy >= 0.4 ? "text-warn" : "text-danger"}
-          />
-        </div>
+        </Section>
       )}
 
-      {/* Lifecycle controls */}
-      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line-subtle pt-3">
-        <LifecycleRail status={r.status} />
-        <div className="ml-auto flex flex-wrap gap-2">
-          {can("accepted") && (
-            <ActBtn primary disabled={pending} onClick={() => onAct(r.id, "accepted")}>Accept · predict</ActBtn>
-          )}
-          {can("deferred") && (
-            <ActBtn disabled={pending} onClick={() => onAct(r.id, "deferred")}>Defer</ActBtn>
-          )}
-          {can("rejected") && (
-            <ActBtn disabled={pending} onClick={() => onAct(r.id, "rejected")}>Reject</ActBtn>
-          )}
-          {can("completed") && (
-            <ActBtn primary disabled={pending} onClick={() => onAct(r.id, "completed")}>Mark done</ActBtn>
-          )}
-          {can("measured") && !measuring && (
-            <ActBtn primary disabled={pending} onClick={onMeasureOpen}>Measure outcome</ActBtn>
-          )}
-        </div>
-      </div>
+      {/* Staff unowned work */}
+      {unstaffed.length > 0 && (
+        <Section title="Staff work with no owner" icon={UserPlus} tone="#F59E0B" hint="Tasks nobody is assigned to yet.">
+          {unstaffed.map(({ task, fit }) => {
+            const p = projectById(task.projectId);
+            return (
+              <RecRow
+                key={`un-${task.id}`}
+                title={`Assign “${task.title}”`}
+                reason={`${p?.name} · ${task.estimatedHours}h. Best fit: ${fit.emp.name} (${fit.emp.title}), at ${fmtPct(fit.load)}.`}
+                fit={fit} icon={UserPlus}
+              />
+            );
+          })}
+        </Section>
+      )}
 
-      {/* Measurement form — record the observed post-action metric (0..1) */}
-      {measuring && (
-        <div className="mt-3 flex flex-wrap items-end gap-3 rounded-lg border border-brand/30 bg-brand-soft/30 p-3">
-          <div>
-            <label className="label-xs mb-1 block">Observed risk metric after action (0–1)</label>
-            <input
-              type="number" min={0} max={1} step={0.05} value={actual}
-              onChange={(e) => onActual(e.target.value)}
-              placeholder={r.baselineValue != null ? `was ${r.baselineValue.toFixed(2)}` : "0.00"}
-              className="w-44 rounded-lg border border-line bg-ink-surface px-3 py-2 font-mono text-sm outline-none focus:border-brand"
+      {/* Suggested next steps */}
+      {nextSteps.length > 0 && (
+        <Section title="Suggested next steps" icon={Sparkles} tone="#7C6CFF" hint="Standard build steps these projects are missing.">
+          {nextSteps.map(({ project, step, fit }) => (
+            <RecRow
+              key={`ns-${project.id}-${step.label}`}
+              title={`Add “${step.title}” to ${project.name}`}
+              reason={`This project has no ${step.label} task yet. Best fit: ${fit.emp.name}, at ${fmtPct(fit.load)}.`}
+              fit={fit} icon={Sparkles}
             />
-          </div>
-          <ActBtn
-            primary disabled={pending || actual === ""}
-            onClick={() => { onAct(r.id, "measured", { actualValue: Number(actual) }); onMeasureCancel(); }}
-          >
-            Score accuracy
-          </ActBtn>
-          <ActBtn disabled={pending} onClick={onMeasureCancel}>Cancel</ActBtn>
-          <span className="text-xs text-fg-muted">Lower than baseline = the risk dropped. Accuracy = how close to the predicted Δ.</span>
+          ))}
+        </Section>
+      )}
+    </div>
+  );
+}
+
+function Section({ title, icon: Icon, tone, hint, children }: { title: string; icon: React.ElementType; tone: string; hint: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <div className="mb-2 flex items-center gap-2">
+        <span className="grid h-7 w-7 place-items-center rounded-lg" style={{ background: `${tone}22`, border: `1px solid ${tone}44` }}>
+          <Icon size={14} style={{ color: tone }} />
+        </span>
+        <h2 className="font-display text-lg font-bold tracking-tight">{title}</h2>
+        <span className="text-2xs text-fg-muted">· {hint}</span>
+      </div>
+      <div className="space-y-2">{children}</div>
+    </section>
+  );
+}
+
+function RecRow({ title, reason, fit, icon: Icon }: { title: string; reason: string; fit: { emp: Employee; load: number }; icon: React.ElementType }) {
+  return (
+    <div className="panel flex flex-wrap items-center gap-3 p-4">
+      <Icon size={15} className="shrink-0 text-fg-muted" />
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-semibold">{title}</div>
+        <div className="mt-0.5 text-xs text-fg-muted">{reason}</div>
+      </div>
+      <div className="flex items-center gap-2">
+        <EmpAvatar initials={fit.emp.initials} accent={fit.emp.accent} size={26} />
+        <div className="text-right">
+          <div className="text-2xs font-medium text-fg">{fit.emp.name.split(" ")[0]}</div>
+          <div className={cn("text-[10px]", fit.load >= 1 ? "text-danger" : fit.load >= 0.8 ? "text-warn" : "text-ok")}>{fmtPct(fit.load)} loaded</div>
         </div>
-      )}
+      </div>
+      <button
+        onClick={launchMatrix}
+        className="flex items-center gap-1.5 rounded-lg border border-brand/40 bg-brand/10 px-2.5 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand/20"
+      >
+        <KanbanSquare size={12} /> Apply in Matrix
+      </button>
     </div>
-  );
-}
-
-function Ledger({ label, value, tone }: { label: string; value: string; tone?: string }) {
-  return (
-    <div>
-      <div className="text-2xs uppercase tracking-wide text-fg-muted">{label}</div>
-      <div className={cn("mt-0.5 font-mono text-lg font-semibold", tone)}>{value}</div>
-    </div>
-  );
-}
-
-function ActBtn({ children, onClick, primary, disabled }: { children: React.ReactNode; onClick: () => void; primary?: boolean; disabled?: boolean }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors disabled:opacity-40",
-        primary
-          ? "bg-brand text-[#04281A] hover:bg-brand/90"
-          : "border border-line text-fg-secondary hover:bg-ink-elevated hover:text-fg"
-      )}
-    >
-      {children}
-    </button>
   );
 }

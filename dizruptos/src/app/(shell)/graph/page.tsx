@@ -196,18 +196,18 @@ function computePageRank(
 /* Presentation layer for the registry slice: position + live-state labels.
    Anything in `relationships` without a card here simply doesn't render. */
 const NODE_META: Record<string, { x: number; y: number } & GraphData> = {
-  "g-revenue":    { x: 0,    y: 200,  label: "Protect $4.2M ARR",        sub: "Goal · COO",                   kind: "goal",       tone: "#C084FC", appId: "r-goals" },
-  "g-expansion":  { x: 0,    y: 460,  label: "Land 3 enterprise logos",   sub: "Goal · Client Ops",            kind: "goal",       tone: "#C084FC", appId: "r-goals" },
-  "p-atlas":      { x: 420,  y: 110,  label: "Atlas Payments Migration",  sub: "Project · CRITICAL",           kind: "project",    tone: "#EF4444", appId: "r-projects", alert: true },
-  "p-helio":      { x: 420,  y: 460,  label: "Helio Client Portal",       sub: "Project · At Risk",            kind: "project",    tone: "#F59E0B", appId: "r-projects" },
-  "c-acme":       { x: 420,  y: -80,  label: "Acme Corp",                 sub: "Customer · $4.2M ARR",         kind: "customer",   tone: "#38BDF8", appId: "r-projects" },
-  "cap-payments": { x: 860,  y: 20,   label: "Payments Capability",       sub: "",                             kind: "capability", tone: "#F59E0B", appId: "r-capabilities" },
-  "u-sarah":      { x: 860,  y: 220,  label: "Sarah Okafor",              sub: "Lead · 112% · burnout flag",   kind: "employee",   tone: "#EF4444", appId: "directory", alert: true },
+  "g-revenue":    { x: 0,    y: 200,  label: "Launch the AI Chatbot",    sub: "Goal · CEO",                   kind: "goal",       tone: "#C084FC", appId: "r-goals" },
+  "g-expansion":  { x: 0,    y: 460,  label: "Ship Fitness App & Store",  sub: "Goal · Product",               kind: "goal",       tone: "#C084FC", appId: "r-goals" },
+  "p-atlas":      { x: 420,  y: 110,  label: "AI Support Chatbot",        sub: "Project · CRITICAL",           kind: "project",    tone: "#EF4444", appId: "r-projects", alert: true },
+  "p-helio":      { x: 420,  y: 460,  label: "Fitness Mobile App",        sub: "Project · On Track",           kind: "project",    tone: "#10B981", appId: "r-projects" },
+  "c-acme":       { x: 420,  y: -80,  label: "Acme Support",              sub: "Customer · Chatbot",           kind: "customer",   tone: "#38BDF8", appId: "r-projects" },
+  "cap-payments": { x: 860,  y: 20,   label: "Backend & APIs",            sub: "",                             kind: "capability", tone: "#F59E0B", appId: "r-capabilities" },
+  "u-sarah":      { x: 860,  y: 220,  label: "Sarah Okafor",              sub: "Lead · 115% · burnout flag",   kind: "employee",   tone: "#EF4444", appId: "directory", alert: true },
   "u-ahmed":      { x: 860,  y: 420,  label: "Ahmed Hassan",              sub: "Backend · headroom",           kind: "employee",   tone: "#10B981", appId: "directory" },
-  "v-clearsettle":{ x: 1300, y: 20,   label: "ClearSettle Ltd",           sub: "Vendor · 8 days late",         kind: "vendor",     tone: "#F87171", appId: "r-risks" },
-  "r-1":          { x: 1300, y: 220,  label: "Expertise concentration",   sub: "Risk · Critical severity",     kind: "risk",       tone: "#EF4444", appId: "r-risks" },
-  "r-2":          { x: 1300, y: 420,  label: "Vendor slippage",           sub: "Risk · Escalated",             kind: "risk",       tone: "#F59E0B", appId: "r-risks" },
-  "dec-1":        { x: 1740, y: 220,  label: "Ledger-first decision",     sub: "Decision · Active",            kind: "decision",   tone: "#2BD9FF", appId: "r-decisions" },
+  "v-clearsettle":{ x: 1300, y: 20,   label: "SecureCloud Ltd",           sub: "Vendor · blocking review",     kind: "vendor",     tone: "#F87171", appId: "r-risks" },
+  "r-1":          { x: 1300, y: 220,  label: "Backend in one person",     sub: "Risk · Critical severity",     kind: "risk",       tone: "#EF4444", appId: "r-risks" },
+  "r-2":          { x: 1300, y: 420,  label: "Vendor delay",              sub: "Risk · Escalated",             kind: "risk",       tone: "#F59E0B", appId: "r-risks" },
+  "dec-1":        { x: 1740, y: 220,  label: "Build UI + AI together",    sub: "Decision · Active",            kind: "decision",   tone: "#2BD9FF", appId: "r-decisions" },
 };
 
 type Lens = "blast" | "bus" | "influence" | "pagerank" | null;
@@ -375,7 +375,18 @@ export default function GraphPage() {
   const avgDegree = nodeCount > 0 ? ((edgeCount * 2) / nodeCount).toFixed(1) : "0";
 
   return (
-    <div className="space-y-3">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#6366F122", border: "1px solid #6366F144" }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v3M5.2 17.5l4.8-5.5M18.8 17.5l-4.8-5.5"/></svg>
+        </span>
+        <div>
+          <div className="text-sm font-semibold">Dependency Graph</div>
+          <div className="text-[11px] text-fg-muted">{nodeCount} nodes · {edgeCount} relationships · blast radius + bus factor + influence lenses</div>
+        </div>
+      </div>
+    <div className="flex-1 overflow-auto p-3 space-y-3">
       {/* Search + stats row */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 rounded-lg border border-line bg-ink-elevated px-3 py-1.5">
@@ -599,8 +610,8 @@ export default function GraphPage() {
           onNodeMouseEnter={(_, node) => setHoveredId(node.id)}
           onNodeMouseLeave={() => setHoveredId(null)}
           fitView
-          fitViewOptions={{ padding: 0.12, minZoom: 0.3 }}
-          minZoom={0.2}
+          fitViewOptions={{ padding: 0.18, minZoom: 0.1, maxZoom: 1 }}
+          minZoom={0.1}
           proOptions={{ hideAttribution: true }}
           colorMode={mode}
           style={{ background: "transparent" }}
@@ -626,6 +637,7 @@ export default function GraphPage() {
         1-hop traversals are direct reads; the blast-radius and bus-factor
         lenses run the same utilities the scenario engine will use.
       </p>
+    </div>
     </div>
   );
 }

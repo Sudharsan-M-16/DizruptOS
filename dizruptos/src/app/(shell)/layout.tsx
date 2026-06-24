@@ -4,6 +4,8 @@ import { TaskDrawer } from "@/components/shell/task-drawer";
 import { ShortcutManager } from "@/components/shell/shortcuts";
 import { AuthGate } from "@/components/shell/auth-gate";
 import { ShellFrame } from "@/components/shell/shell-frame";
+import { RoleGate } from "@/components/shell/role-gate";
+import { PerfAutoDetect } from "@/components/desktop/perf-autodetect";
 
 export default function ShellLayout({
   children,
@@ -12,11 +14,14 @@ export default function ShellLayout({
 }) {
   return (
     <AuthGate>
-      <ShellFrame>{children}</ShellFrame>
+      <ShellFrame>
+        <RoleGate>{children}</RoleGate>
+      </ShellFrame>
       <CommandPalette />
       <GuardrailModal />
       <TaskDrawer />
       <ShortcutManager />
+      <PerfAutoDetect />
     </AuthGate>
   );
 }

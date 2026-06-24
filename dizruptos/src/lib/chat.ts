@@ -30,7 +30,7 @@ const uid = (p: string) => `${p}-${Date.now().toString(36)}-${Math.random().toSt
 const T = (mins: number) => Date.now() - mins * 60_000;
 
 const seedConversations: Conversation[] = [
-  { id: "c-atlas", kind: "group", name: "Atlas Payments War Room", adminId: "u-sarah", memberIds: ["u-asha", "u-sarah", "u-ahmed", "u-mei", "u-jonas", "u-yuki"], createdAt: T(6000) },
+  { id: "c-atlas", kind: "group", name: "AI Chatbot War Room", adminId: "u-sarah", memberIds: ["u-asha", "u-sarah", "u-ahmed", "u-mei", "u-jonas", "u-zara"], createdAt: T(6000) },
   { id: "c-eng", kind: "group", name: "Engineering", adminId: "u-priya", memberIds: ["u-priya", "u-ahmed", "u-sarah", "u-mei", "u-jonas", "u-diego", "u-fatima"], createdAt: T(9000) },
   { id: "c-lead", kind: "group", name: "Leadership", adminId: "u-noor", memberIds: ["u-noor", "u-priya", "u-asha", "u-marcus"], createdAt: T(12000) },
   { id: "c-sec", kind: "group", name: "Security & Admin", adminId: "u-elias", memberIds: ["u-elias", "u-fatima", "u-priya"], createdAt: T(8000) },
@@ -43,21 +43,21 @@ const seedConversations: Conversation[] = [
 ];
 
 const seedMessages: ChatMessage[] = [
-  { id: "m1", convId: "c-atlas", authorId: "u-sarah", text: "QA is at 112% — I need another pair of hands on the settlement ingestion before Friday.", at: T(180) },
-  { id: "m2", convId: "c-atlas", authorId: "u-ahmed", text: "I can take the idempotent retry layer off your plate. Pushing a branch now.", at: T(168) },
-  { id: "m3", convId: "c-atlas", authorId: "u-asha", text: "Thanks both. I've flagged the vendor settlement as critical — Marcus is chasing the sign-off.", at: T(150) },
-  { id: "m4", convId: "c-atlas", authorId: "u-mei", text: "Double-entry property tests are green ✅", at: T(95) },
-  { id: "m5", convId: "c-eng", authorId: "u-priya", text: "Reminder: RLS coverage gate is now blocking merges. Ping Fatima if it trips.", at: T(420) },
-  { id: "m6", convId: "c-eng", authorId: "u-diego", text: "Milestone timeline component is in review 👀", at: T(300) },
-  { id: "m7", convId: "c-lead", authorId: "u-noor", text: "Board wants the Atlas risk picture before Monday. Asha, can you prep the one-pager?", at: T(240) },
-  { id: "m8", convId: "c-lead", authorId: "u-asha", text: "On it — I'll pull it from the Risk register tonight.", at: T(232) },
-  { id: "m9", convId: "c-asha-priya", authorId: "u-priya", text: "Do you have bandwidth to take Sarah's overflow this week? She's tipping over 100%.", at: T(60) },
-  { id: "m10", convId: "c-asha-priya", authorId: "u-asha", text: "Looking now. I think Ahmed has ~6h free — I'll rebalance.", at: T(54) },
-  { id: "m11", convId: "c-ahmed-sarah", authorId: "u-sarah", text: "Can you grab the webhook retry ticket? I'm drowning.", at: T(40) },
+  { id: "m1", convId: "c-atlas", authorId: "u-sarah", text: "I'm at 115% this week — I need someone to take the chatbot database setup before Friday.", at: T(180) },
+  { id: "m2", convId: "c-atlas", authorId: "u-ahmed", text: "I can take the database setup off your plate. Starting now.", at: T(168) },
+  { id: "m3", convId: "c-atlas", authorId: "u-asha", text: "Thanks both. I've flagged the cloud security vendor as critical — Marcus is chasing them.", at: T(150) },
+  { id: "m4", convId: "c-atlas", authorId: "u-zara", text: "AI reply model is training — first results look good ✅", at: T(95) },
+  { id: "m5", convId: "c-eng", authorId: "u-priya", text: "Reminder: the cloud security review is still blocked on the vendor. Ping Fatima if you're stuck.", at: T(420) },
+  { id: "m6", convId: "c-eng", authorId: "u-diego", text: "Chat window UI is in review 👀", at: T(300) },
+  { id: "m7", convId: "c-lead", authorId: "u-noor", text: "I need the Chatbot risk picture before Monday. Asha, can you prep the one-pager?", at: T(240) },
+  { id: "m8", convId: "c-lead", authorId: "u-asha", text: "On it — I'll pull it from the risk register tonight.", at: T(232) },
+  { id: "m9", convId: "c-asha-priya", authorId: "u-priya", text: "Do you have a plan for Sarah's overflow this week? She's over 100%.", at: T(60) },
+  { id: "m10", convId: "c-asha-priya", authorId: "u-asha", text: "Looking now. Ahmed has plenty of room — I'll move the database task to him.", at: T(54) },
+  { id: "m11", convId: "c-ahmed-sarah", authorId: "u-sarah", text: "Can you grab the chatbot database setup? I'm drowning.", at: T(40) },
   { id: "m12", convId: "c-ahmed-sarah", authorId: "u-ahmed", text: "Yep, already on it 💪", at: T(36) },
-  { id: "m13", convId: "c-noor-asha", authorId: "u-noor", text: "Great work holding Atlas together. Let me know if you need air cover with the vendor.", at: T(120) },
-  { id: "m14", convId: "c-priya-ahmed", authorId: "u-priya", text: "Nice turnaround on the retry layer. Code review looks clean.", at: T(20) },
-  { id: "m15", convId: "c-elias-priya", authorId: "u-elias", text: "Pen-test scope is blocked on the vendor doc. Escalating.", at: T(75) },
+  { id: "m13", convId: "c-noor-asha", authorId: "u-noor", text: "Great work holding the Chatbot together. Tell me if you need help with the vendor.", at: T(120) },
+  { id: "m14", convId: "c-priya-ahmed", authorId: "u-priya", text: "Nice work picking up the database setup. Looks clean.", at: T(20) },
+  { id: "m15", convId: "c-elias-priya", authorId: "u-elias", text: "Security review is blocked on the vendor's doc. Escalating.", at: T(75) },
 ];
 
 interface ChatState {

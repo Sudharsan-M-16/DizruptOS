@@ -18,7 +18,9 @@ import { useOps } from "@/lib/store";
 import type { Task } from "@/lib/types";
 import { EmpAvatar, CapacityBar, HealthPill } from "@/components/ui/primitives";
 import { OrgHealthSparkline } from "@/components/ui/org-health-sparkline";
+import { isQualified, skillMatchScore } from "@/lib/skills";
 import { cn, fmtPct, utilizationTone } from "@/lib/utils";
+import { Plus, Sparkles } from "lucide-react";
 
 const launch = (id: string) => window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id } }));
 // open the Tasks app pre-filtered (today / overdue / pending / critical / …)
@@ -112,6 +114,11 @@ export const HomeApp = memo(function HomeApp() {
       <div className="mt-3">
         <OrgHealthSparkline days={7} />
       </div>
+
+      {/* self-service: an IC with spare capacity can pick up matching work */}
+      {me && (persona.role === "employee" || persona.role === "team_lead") && myUtil < 0.75 && (
+        <SelfServiceBanner meId={persona.id} />
+      )}
 
       {/* stat row — task cards open the enlarged Tasks app */}
       <div className="mt-3 grid grid-cols-4 gap-2.5">
@@ -225,6 +232,49 @@ export const HomeApp = memo(function HomeApp() {
     </div>
   );
 });
+
+// Free-time self-service — when you have room, the system offers you matching
+// work to pick up yourself. No manager approval needed; it keeps the project
+// moving and is bounded by claimTask (stays under 100%, unowned tasks only).
+function SelfServiceBanner({ meId }: { meId: string }) {
+  const allTasks = useOps((s) => s.tasks);
+  const claimTask = useOps((s) => s.claimTask);
+  const me = employeeById(meId);
+  if (!me) return null;
+  const fits = allTasks
+    .filter((t) => !t.assigneeId && t.status !== "COMPLETED" && isQualified(me, t))
+    .sort((a, b) => skillMatchScore(me, b) - skillMatchScore(me, a))
+    .slice(0, 3);
+  if (fits.length === 0) return null;
+
+  return (
+    <div className="mt-3 rounded-xl border border-ok/30 bg-ok/[0.06] p-3">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-ok">
+        <Sparkles size={13} /> You&apos;ve got room this week — want to pick up more?
+      </div>
+      <p className="mt-0.5 text-2xs text-fg-muted">Work that matches your skills and has no owner yet. Picking one up moves the project forward.</p>
+      <div className="mt-2 space-y-1.5">
+        {fits.map((t) => {
+          const p = projects.find((x) => x.id === t.projectId);
+          return (
+            <div key={t.id} className="flex items-center gap-2 rounded-lg border border-line bg-ink-surface px-2.5 py-1.5">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs font-medium text-fg">{t.title}</span>
+                <span className="text-2xs text-fg-muted">{p?.code} · {t.estimatedHours}h</span>
+              </span>
+              <button
+                onClick={() => claimTask(t.id)}
+                className="flex shrink-0 items-center gap-1 rounded-md bg-ok/15 px-2 py-1 text-2xs font-semibold text-ok transition-colors hover:bg-ok/25"
+              >
+                <Plus size={11} /> Pick up
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function TaskRow({ task: t, selfId }: { task: Task; selfId: string }) {
   const overdue = t.dueDate < TODAY && t.status !== "COMPLETED";

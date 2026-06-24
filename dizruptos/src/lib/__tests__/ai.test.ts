@@ -5,7 +5,7 @@ import {
   rankCandidates,
   validateProposal,
 } from "../ai";
-import { employees, projects, tasks, proposals } from "../data";
+import { employees, projects, tasks, proposals, TODAY } from "../data";
 import type { Proposal, Task } from "../types";
 
 const allocated = (employeeId: string, _week: string) =>
@@ -42,7 +42,7 @@ describe("proposal validation engine (law 12)", () => {
   });
 
   it("fails when an upstream dependency is BLOCKED", () => {
-    const task = tasks.find((t) => t.id === "t-10")!;
+    const task = tasks.find((t) => t.id === "t-3")!; // pr-1's target task
     const withDep: Task[] = tasks.map((t) =>
       t.id === task.id ? { ...t, dependsOn: ["t-4"] } : t // t-4 is BLOCKED in seed
     );
@@ -69,10 +69,10 @@ describe("proposal validation engine (law 12)", () => {
 describe("context compression (PRD §11.6)", () => {
   it("compresses a project to a sub-1k-token vector", () => {
     const atlas = projects.find((p) => p.id === "p-atlas")!;
-    const ctx = compressProjectContext(atlas, tasks, () => 0.9, "2026-06-10");
+    const ctx = compressProjectContext(atlas, tasks, () => 0.9, TODAY);
     expect(ctx.approx_tokens).toBeLessThan(1000);
-    expect(ctx.overdue_pct).toBeGreaterThan(0); // Atlas has overdue work
-    expect(ctx.critical_path_blocked).toBe(true); // t-2 is URGENT + BLOCKED
+    expect(ctx.overdue_pct).toBeGreaterThan(0); // Chatbot has overdue work
+    expect(ctx.critical_path_blocked).toBe(true); // t-4 is URGENT + BLOCKED
     expect(ctx.velocity_ratio).toBeLessThan(1); // declining velocity
     expect(ctx.budget_burn_ratio).toBeCloseTo(998 / 1200, 3);
   });

@@ -59,10 +59,10 @@ describe("RBAC matrix", () => {
     ).forEach((perm) => expect(roleCan("client", perm)).toBe(false));
   });
 
-  it("demo personas cover all five privileged role tiers", () => {
+  it("demo personas cover every role tier, including team lead and client", () => {
     const roles = new Set(PERSONAS.map((p) => p.role));
     expect(roles).toEqual(
-      new Set(["project_manager", "executive", "dept_head", "employee", "admin"])
+      new Set(["executive", "dept_head", "project_manager", "team_lead", "employee", "admin", "client"])
     );
   });
 });

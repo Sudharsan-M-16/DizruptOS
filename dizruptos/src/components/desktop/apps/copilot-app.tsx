@@ -34,7 +34,7 @@ interface Message {
 const FOLLOW_UPS: Record<string, string[]> = {
   capacity_overview:   ["Who is most at risk of burnout?", "Which roles have headroom?", "What happens if we hire 2 more engineers?"],
   burnout_risk:        ["What tasks can we reassign?", "Show me over-allocation by department", "What's the blast radius if they leave?"],
-  project_health:      ["Which projects are on track?", "What's blocking Atlas Payments?", "Show revenue at risk"],
+  project_health:      ["Which projects are on track?", "What's blocking the AI Chatbot?", "Which projects are understaffed?"],
   risk_overview:       ["What's the highest-severity risk?", "Which risks are unmitigated?", "Who owns the critical risks?"],
   recommendations:     ["How confident are these recommendations?", "What was our last recommendation accuracy?", "Show me calibration history"],
   succession:          ["Who are the single points of failure?", "What capabilities are most fragile?", "How do I reduce bus factor?"],

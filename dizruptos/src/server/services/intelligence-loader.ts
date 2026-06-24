@@ -313,7 +313,7 @@ export async function executiveNarrative(period: narratives.Period = "weekly") {
   });
 }
 
-export async function askCopilot(question: string) {
+export async function askCopilot(question: string, history: { role: string; content: string }[] = []) {
   const { peopleIntelligence } = await import("./people-loader");
   const [capGraph, health, recs, risksI, ppl, learn, persistedRecs, decisions, outcomes] = await Promise.all([
     loadCapabilityGraph(),
@@ -380,7 +380,8 @@ export async function askCopilot(question: string) {
 
   // LLM enhancement — fluent, conversational, still grounded.
   const { enhancedCopilotAnswer } = await import("@/server/engine/copilot-llm");
-  return enhancedCopilotAnswer(question, deterministicAnswer, ctx, semanticHits);
+  // Cast history to AnthropicMessage[] — role values are always "user"|"assistant" from the client
+  return enhancedCopilotAnswer(question, deterministicAnswer, ctx, semanticHits, history as { role: "user" | "assistant"; content: string }[]);
 }
 
 export async function departureSimulation(personId: string) {

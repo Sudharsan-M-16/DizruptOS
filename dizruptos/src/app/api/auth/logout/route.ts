@@ -4,10 +4,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
+import { securityEvent } from "@/server/services/security-audit";
 
 const authConfigured = env.mode === "production" && !!env.supabaseUrl && !!env.supabaseAnonKey;
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+  const session = req.cookies.get("dz_session")?.value;
+  void securityEvent("auth_logout", { actorId: session, ip, outcome: "success" });
   const res = NextResponse.json({ ok: true });
 
   // Revoke Supabase session if auth is configured

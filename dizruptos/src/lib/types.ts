@@ -251,6 +251,8 @@ export interface NotificationItem {
   at: string;
   read: boolean;
   entityRef?: string;
+  /** If set, this notification is addressed to a specific person (assign/reassign). */
+  recipientId?: string;
 }
 
 export interface CausalSignal {

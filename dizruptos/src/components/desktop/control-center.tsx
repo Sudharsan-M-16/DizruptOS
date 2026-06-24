@@ -6,12 +6,40 @@
 // control writes straight to the OS store, so the change is instant and live
 // across the menubar, dock and every window. macOS-grade tile layout.
 
+import { useEffect, useState } from "react";
 import { Lock, Moon, Sun, SunMoon, Volume2, VolumeX, Wifi, Sparkles, LayoutDashboard } from "lucide-react";
 import { ACCENTS, WALLPAPERS, useOS } from "@/lib/os";
 import { useSession, type Theme } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
+interface HealthStatus {
+  status: "ok" | "degraded" | "error";
+  checks: Record<string, { status: string }>;
+}
+
+function useSystemHealth() {
+  const [health, setHealth] = useState<HealthStatus | null>(null);
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then((d) => setHealth(d))
+      .catch(() => setHealth({ status: "degraded", checks: {} }));
+  }, []);
+  return health;
+}
+
+function StatusDot({ ok }: { ok?: boolean }) {
+  if (ok === undefined) return <span className="inline-block h-2 w-2 rounded-full bg-white/20 animate-pulse" />;
+  return (
+    <span
+      className="inline-block h-2 w-2 rounded-full"
+      style={{ background: ok ? "#00ED82" : "#FEBC2E" }}
+    />
+  );
+}
+
 export function ControlCenter({ onClose }: { onClose: () => void }) {
+  const health = useSystemHealth();
   const theme = useSession((s) => s.theme);
   const setTheme = useOS((s) => s.setTheme);
   const accentId = useOS((s) => s.accentId);
@@ -191,6 +219,31 @@ export function ControlCenter({ onClose }: { onClose: () => void }) {
           <span className={cn("absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all", stageManager ? "left-[18px]" : "left-0.5")} />
         </span>
       </button>
+
+      {/* system status */}
+      <Section label="System">
+        <div className="space-y-1.5 rounded-xl border border-white/[0.06] bg-white/[0.04] px-3 py-2.5">
+          {[
+            { label: "Database", key: "database" },
+            { label: "AI Copilot", key: "openai" },
+            { label: "Realtime", key: "realtime" },
+          ].map(({ label, key }) => {
+            const check = health?.checks?.[key];
+            const isOk = check ? check.status === "ok" || check.status === "connected" : undefined;
+            return (
+              <div key={key} className="flex items-center justify-between">
+                <span className="text-xs text-fg-muted">{label}</span>
+                <div className="flex items-center gap-1.5">
+                  <StatusDot ok={isOk} />
+                  <span className="text-[10px] text-fg-faint">
+                    {isOk === undefined ? "checking" : isOk ? "ok" : "degraded"}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Section>
 
       <style jsx>{`
         .dz-range::-webkit-slider-thumb { appearance: none; width: 15px; height: 15px; border-radius: 9999px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.4); cursor: pointer; }

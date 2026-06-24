@@ -9,13 +9,14 @@
 // persistence; ICONS resolves the key back to a lucide component at render time.
 
 import {
-  Activity, AppWindow, BrainCircuit, Download, FolderOpen, Flame, FileClock, GitBranch, Home,
+  Activity, AppWindow, Bell, BrainCircuit, Download, FolderOpen, Flame, FileClock, GitBranch, Home,
   Inbox, KanbanSquare, Lightbulb, ListChecks, MessageSquare, Newspaper, Scale, Settings, Shield, ShieldAlert, Sparkles,
   AlertOctagon, Target, TrendingUp, Users, FlaskConical, Bot, Zap,
 } from "lucide-react";
 
 export const ICONS: Record<string, React.ElementType> = {
   home: Home, tasks: ListChecks, matrix: KanbanSquare, directory: Users, settings: Settings, vault: FolderOpen, chat: MessageSquare,
+  alerts: Bell,
   executive: Activity, briefing: Sparkles, narratives: Newspaper,
   recommendations: Lightbulb, learning: TrendingUp, capacity: Flame,
   people: Users, projects: KanbanSquare, graph: GitBranch, memory: BrainCircuit,
@@ -50,13 +51,15 @@ export const APPS: AppEntry[] = [
   { id: "home", label: "Home", iconKey: "home", accent: "#00ED82", kind: "panel", dock: true },
   { id: "tasks", label: "Tasks", iconKey: "tasks", accent: "#2BD9FF", kind: "panel", dock: true },
   { id: "matrix", label: "Project Matrix", iconKey: "matrix", accent: "#7C6CFF", kind: "panel", dock: true },
-  { id: "directory", label: "Operative Directory", iconKey: "directory", accent: "#38BDF8", kind: "panel", dock: true },
+  // Folded into the Capacity matrix (click a person → sidebar). Kept launchable
+  // for deep links, but no longer a separate dock app.
+  { id: "directory", label: "Operative Directory", iconKey: "directory", accent: "#38BDF8", kind: "panel", dock: false },
   { id: "chat", label: "Messages", iconKey: "chat", accent: "#2BD9FF", kind: "panel", dock: true },
   { id: "vault", label: "Knowledge Vault", iconKey: "vault", accent: "#FEBC2E", kind: "panel", dock: true },
 
   // product routes, shown as windows (RBAC-gated where the surface is sensitive)
   { id: "r-executive", label: "Executive", iconKey: "executive", accent: "#00ED82", kind: "iframe", href: "/executive", dock: true, perm: "view_executive", ...IFRAME_RECT },
-  { id: "r-briefing", label: "Exec Briefing", iconKey: "briefing", accent: "#3DF59E", kind: "iframe", href: "/briefing", dock: true, perm: "view_executive", ...IFRAME_RECT },
+  { id: "r-briefing", label: "Exec Briefing", iconKey: "briefing", accent: "#3DF59E", kind: "iframe", href: "/briefing", dock: false, perm: "view_executive", ...IFRAME_RECT },
   { id: "r-narratives", label: "Narratives", iconKey: "narratives", accent: "#2BD9FF", kind: "iframe", href: "/narratives", dock: true, perm: "view_executive", ...IFRAME_RECT },
   { id: "r-recommendations", label: "Recommendations", iconKey: "recommendations", accent: "#FEBC2E", kind: "iframe", href: "/recommendations", dock: true, perm: "review_proposals", ...IFRAME_RECT },
   { id: "r-learning", label: "Learning Loop", iconKey: "learning", accent: "#10B981", kind: "iframe", href: "/learning", dock: false, ...IFRAME_RECT },
@@ -68,7 +71,7 @@ export const APPS: AppEntry[] = [
   { id: "r-risks", label: "Risks", iconKey: "risks", accent: "#EF4444", kind: "iframe", href: "/risks", dock: true, perm: "review_proposals", ...IFRAME_RECT },
 
   // Monte Carlo simulation — native panel (no iframe needed)
-  { id: "simulation", label: "What-If Simulation", iconKey: "simulation", accent: "#FEBC2E", kind: "panel", dock: true, perm: "view_executive", x: 120, y: 60, w: 920, h: 640 },
+  { id: "simulation", label: "What-If Simulation", iconKey: "simulation", accent: "#FEBC2E", kind: "panel", dock: false, perm: "view_executive", x: 120, y: 60, w: 920, h: 640 },
 
   // AI Copilot — native panel with follow-up chips, grounded on live org data
   { id: "copilot", label: "AI Copilot", iconKey: "copilot", accent: "#00ED82", kind: "panel", dock: true, x: 200, y: 60, w: 860, h: 560 },
@@ -80,6 +83,9 @@ export const APPS: AppEntry[] = [
   { id: "r-capabilities", label: "Capabilities", iconKey: "capabilities", accent: "#38BDF8", kind: "iframe", href: "/capabilities", dock: false, ...IFRAME_RECT },
   { id: "r-audit", label: "Audit Trail", iconKey: "audit", accent: "#9AA3AD", kind: "iframe", href: "/audit", dock: false, perm: "view_audit", ...IFRAME_RECT },
   { id: "r-import", label: "Data Import", iconKey: "import", accent: "#F59E0B", kind: "iframe", href: "/import", dock: false, ...IFRAME_RECT },
+
+  // Alert Center — executive alerts, escalations, digests
+  { id: "alerts", label: "Alert Center", iconKey: "alerts", accent: "#FF5F57", kind: "panel", dock: false, perm: "view_executive", x: 100, y: 50, w: 920, h: 640 },
 
   // Admin Console — multi-tenant management (RBAC: view_audit)
   { id: "admin", label: "Admin Console", iconKey: "admin", accent: "#F59E0B", kind: "panel", dock: false, perm: "view_audit", x: 80, y: 50, w: 1100, h: 680 },

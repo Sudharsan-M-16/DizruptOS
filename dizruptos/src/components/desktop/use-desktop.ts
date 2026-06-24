@@ -66,7 +66,7 @@ function toState(d: WinDef, z: number): WinState {
 
 /* ------------------------------ persistence ------------------------------- */
 interface Persisted {
-  rects: Record<string, Pick<WinState, "x" | "y" | "w" | "h" | "z" | "minimized" | "maximized" | "closed">>;
+  rects: Record<string, Pick<WinState, "x" | "y" | "w" | "h" | "z" | "minimized" | "maximized" | "closed"> & { restore?: WinState["restore"] }>;
   dynamic: WinDef[]; // spawned (non-default) windows, so they can be recreated
 }
 const keyFor = (k?: string) => (k ? `dz-os-layout:${k}` : null);
@@ -82,7 +82,7 @@ function save(k: string | undefined, wins: WinState[], defIds: Set<string>) {
   const rects: Persisted["rects"] = {};
   const dynamic: WinDef[] = [];
   wins.forEach((w) => {
-    rects[w.id] = { x: w.x, y: w.y, w: w.w, h: w.h, z: w.z, minimized: w.minimized, maximized: w.maximized, closed: w.closed };
+    rects[w.id] = { x: w.x, y: w.y, w: w.w, h: w.h, z: w.z, minimized: w.minimized, maximized: w.maximized, closed: w.closed, restore: w.restore };
     if (!defIds.has(w.id)) dynamic.push({ id: w.id, title: w.title, x: w.x, y: w.y, w: w.w, h: w.h, kind: w.kind, url: w.url, iconKey: w.iconKey, accent: w.accent });
   });
   try { localStorage.setItem(key, JSON.stringify({ rects, dynamic })); } catch { /* quota */ }
@@ -101,7 +101,11 @@ export function useDesktop(defs: WinDef[], surfaceRef: React.RefObject<HTMLEleme
     // apply saved rects/state
     return all.map((w) => {
       const r = saved.rects[w.id];
-      return r ? { ...w, ...r } : w;
+      if (!r) return w;
+      // If saved as maximized but no restore position (old localStorage data),
+      // synthesize a sensible centered restore position so "Exit Fullscreen" works.
+      const restore = r.restore ?? (r.maximized ? { x: 80, y: 60, w: 960, h: 580 } : undefined);
+      return { ...w, ...r, restore };
     });
   });
 

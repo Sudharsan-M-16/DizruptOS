@@ -14,6 +14,7 @@ import { metrics } from "@/lib/telemetry";
 import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
 import { upsertExternalDecision, resolveDefaultOrgId } from "@/server/services/graph-writer";
+import { createJob, finishJob } from "@/server/services/import-jobs";
 
 const WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 
@@ -107,7 +108,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, event, processed: entityLabel, graphWrite });
+  // Track this webhook event as an import job for the jobs dashboard.
+  const jobEntity = event === "pull_request" ? "decisions" : "activity";
+  const job = createJob({ entity: jobEntity, source: "github", triggeredBy: "webhook" });
+  finishJob(job.id, { status: "success", parsed: 1, imported: graphWrite ? 1 : 0, errors: [] });
+
+  return NextResponse.json({ ok: true, jobId: job.id, event, processed: entityLabel, graphWrite });
 }
 
 export async function GET() {

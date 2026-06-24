@@ -43,6 +43,7 @@ const KnowledgeVault = dynamic(() => import("@/components/desktop/apps/knowledge
 const SimulationApp = dynamic(() => import("@/components/desktop/apps/simulation-app").then(m => ({ default: m.SimulationApp })), { ssr: false });
 const CopilotApp = dynamic(() => import("@/components/desktop/apps/copilot-app").then(m => ({ default: m.CopilotApp })), { ssr: false });
 const AdminApp = dynamic(() => import("@/components/desktop/apps/admin-app").then(m => ({ default: m.AdminApp })), { ssr: false });
+const AlertsApp = dynamic(() => import("@/components/desktop/apps/alerts-app").then(m => ({ default: m.AlertsApp })), { ssr: false });
 import { Spotlight } from "@/components/desktop/spotlight";
 import { MissionControl } from "@/components/desktop/mission-control";
 import { Launchpad } from "@/components/desktop/launchpad";
@@ -151,7 +152,7 @@ export default function CommandCenterDesktop() {
       ]
     : [
         { label: "Over-allocation", value: <NumberTicker value={Math.round(overRate * 100)} suffix="%" />, delta: "−9 pts wk/wk", good: true, signals: overloaded.map((e) => `${e.name} at ${fmtPct(utilization(e.id, week))}`) },
-        { label: "Projects at risk", value: (<><NumberTicker value={critical.length} /><span className="text-sm font-normal text-fg-muted"> / {projects.length}</span></>), delta: "Atlas → Critical", good: false, signals: critical.map((p) => `${p.name}: ${p.healthReasons[0]}`) },
+        { label: "Projects at risk", value: (<><NumberTicker value={critical.length} /><span className="text-sm font-normal text-fg-muted"> / {projects.length}</span></>), delta: "Chatbot → Critical", good: false, signals: critical.map((p) => `${p.name}: ${p.healthReasons[0]}`) },
         { label: "Awaiting decision", value: <NumberTicker value={pending.length} />, delta: "1 staged", good: true, signals: pending.map((p) => `${p.title} (${Math.round(p.confidence * 100)}%)`) },
         { label: "Commitments overdue", value: <NumberTicker value={overdueCommitments.length} />, delta: "oldest Jun 9", good: false, signals: commitments.map((c) => `${employeeById(c.ownerId)?.name} → ${employeeById(c.toId)?.name}: ${c.title}`) },
       ];
@@ -163,7 +164,7 @@ export default function CommandCenterDesktop() {
   // Order matters: later = higher z (frontmost). Home is listed LAST among the
   // open windows so it opens on top — it's the most important "what's my day" view.
   const defs: WinDef[] = [
-    { id: "situation", title: "Situation — Atlas Payments", x: 812, y: 14, w: 588, h: 188 },
+    { id: "situation", title: "Situation — AI Chatbot", x: 812, y: 14, w: 588, h: 188 },
     { id: "pulse", title: isEmployee ? "Your Pulse" : "Org Pulse", x: 812, y: 214, w: 588, h: 300 },
     { id: "home", title: "Home", x: 24, y: 14, w: 772, h: 588 },
     { id: "capacity", title: canSeeCapacity ? "Capacity — week of Jun 8" : `Your week — ${persona.name.split(" ")[0]}`, x: 812, y: 478, w: 600, h: 280, closed: true },
@@ -177,6 +178,7 @@ export default function CommandCenterDesktop() {
     { id: "vault", title: "Knowledge Vault", x: 180, y: 90, w: 900, h: 560, closed: true },
     { id: "simulation", title: "What-If Simulation", x: 120, y: 60, w: 920, h: 640, closed: true },
     { id: "copilot", title: "AI Copilot", x: 200, y: 60, w: 860, h: 560, closed: true },
+    { id: "alerts", title: "Alert Center", x: 100, y: 50, w: 920, h: 640, closed: true },
     { id: "admin", title: "Admin Console", x: 80, y: 50, w: 1100, h: 680, closed: true },
     { id: "settings", title: "System Settings", x: 300, y: 80, w: 760, h: 560, closed: true },
   ];
@@ -447,6 +449,7 @@ export default function CommandCenterDesktop() {
         {renderWin("vault", <KnowledgeVault />, true)}
         {renderWin("simulation", <SimulationApp />, true)}
         {renderWin("copilot", <CopilotApp />, true)}
+        {renderWin("alerts", <AlertsApp />, true)}
         {renderWin("admin", <AdminApp />, true)}
         {renderWin("settings", <SettingsBody />, true)}
 
@@ -487,11 +490,11 @@ function greeting() {
 
 // Translucent accent zone shown while dragging a window toward an edge.
 function SnapPreview({ zone }: { zone: "left" | "right" | "max" }) {
-  const base = "pointer-events-none absolute z-[5] rounded-2xl border-2 transition-all duration-100";
+  const base = "pointer-events-none absolute z-[5] border-2 transition-all duration-100";
   const style = { borderColor: "var(--os-accent,#00ED82)", background: "var(--os-accent-soft, rgba(0,237,130,0.13))" };
-  if (zone === "max") return <div className={cn(base, "inset-3")} style={style} />;
-  if (zone === "left") return <div className={cn(base, "left-3 top-3 bottom-3 w-[calc(50%-12px)]")} style={style} />;
-  return <div className={cn(base, "right-3 top-3 bottom-3 w-[calc(50%-12px)]")} style={style} />;
+  if (zone === "max") return <div className={cn(base, "inset-0 rounded-none")} style={style} />;
+  if (zone === "left") return <div className={cn(base, "left-0 top-0 bottom-0 w-1/2 rounded-none")} style={style} />;
+  return <div className={cn(base, "right-0 top-0 bottom-0 w-1/2 rounded-none")} style={style} />;
 }
 
 /* ------------------------------- window bodies ----------------------------- */
@@ -507,10 +510,10 @@ function SituationBody({ canReview, canSeeCapacity, compromise, worstOverload, u
         <span className="label-xs text-danger">Situation · right now</span>
       </div>
       <h2 className="mt-1.5 font-display text-lg font-bold leading-snug tracking-tight">
-        Atlas Payments Migration is CRITICAL — <span className="text-danger">$4.2M ARR exposed</span>
+        AI Support Chatbot is CRITICAL — <span className="text-danger">launch at risk</span>
       </h2>
       <p className="mt-1.5 text-xs leading-relaxed text-fg-secondary">
-        7 tasks overdue · QA at 112% · velocity −38% vs 3-sprint average · vendor settlement 8 days late.
+        3 tasks overdue · Sarah & Zara both over 100% this week · work going slower than planned.
       </p>
       <div className="mt-auto flex flex-wrap gap-2 pt-3">
         {canReview && compromise && (
@@ -519,7 +522,7 @@ function SituationBody({ canReview, canSeeCapacity, compromise, worstOverload, u
         {canSeeCapacity && worstOverload && (
           <Button variant="secondary" className="h-8" onClick={() => osOpen("/capacity")}><Flame size={12} /> Relieve {worstOverload.name.split(" ")[0]} · {fmtPct(utilization(worstOverload.id, week))}</Button>
         )}
-        <Button variant={canReview ? "secondary" : "primary"} className="h-8" onClick={() => osOpen("/projects/p-atlas")}><Crosshair size={12} /> Open Atlas</Button>
+        <Button variant={canReview ? "secondary" : "primary"} className="h-8" onClick={() => osOpen("/projects/p-atlas")}><Crosshair size={12} /> Open Chatbot</Button>
       </div>
     </div>
   );

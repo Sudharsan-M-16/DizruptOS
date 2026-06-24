@@ -7,6 +7,8 @@ import { guarded, ok, fail, principalView } from "@/server/api";
 import { log } from "@/server/lib/logger";
 import { withSpan } from "@/lib/telemetry";
 export const dynamic = "force-dynamic";
+
+// GET /api/v1/copilot?q= — stateless single-turn (kept for E2E + backward compat)
 export async function GET(req: NextRequest) {
   return guarded(req, "api_copilot", async () => {
     const principal = resolvePrincipal(req);
@@ -17,6 +19,27 @@ export async function GET(req: NextRequest) {
       try {
         const result = await askCopilot(q);
         log("info", "copilot_answered", { intent: result.intent, requestId });
+        return ok(result, { ...principalView(principal) });
+      } catch (err) {
+        log("error", "copilot_failed", { err: String(err), requestId });
+        throw err;
+      }
+    });
+  });
+}
+
+// POST /api/v1/copilot — multi-turn with conversation history
+export async function POST(req: NextRequest) {
+  return guarded(req, "api_copilot", async () => {
+    const principal = resolvePrincipal(req);
+    const body = await req.json().catch(() => ({}));
+    const { q, history } = body as { q?: string; history?: { role: string; content: string }[] };
+    if (!q) return fail(422, "INVALID_INPUT", "q (question) required");
+    const requestId = req.headers.get("x-request-id") ?? undefined;
+    return withSpan("copilot.answer", { "copilot.q_length": q.length, "copilot.history_turns": history?.length ?? 0, principal: principal.role }, async () => {
+      try {
+        const result = await askCopilot(q, history ?? []);
+        log("info", "copilot_answered", { intent: result.intent, historyTurns: history?.length ?? 0, requestId });
         return ok(result, { ...principalView(principal) });
       } catch (err) {
         log("error", "copilot_failed", { err: String(err), requestId });

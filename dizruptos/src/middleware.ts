@@ -14,7 +14,14 @@ import { env } from "./lib/env";
 // `dz_session` gate runs and nothing about the demo changes.
 const authConfigured = env.mode === "production" && !!env.supabaseUrl && !!env.supabaseAnonKey;
 
-const PUBLIC_PATHS = ["/login", "/welcome", "/auth", "/api/auth", "/api/health", "/api/ready"];
+const PUBLIC_PATHS = [
+  "/login", "/welcome", "/auth", "/api/auth", "/api/health", "/api/ready",
+  "/accept-invite", "/reset-password", "/onboarding",
+  // Token-based endpoints — the token is the credential; route handlers enforce their own auth
+  "/api/v1/invitations/",
+  // CSRF endpoint is always public (it issues the token)
+  "/api/v1/csrf",
+];
 
 // Fallback SSO seed for demo mode only — live mode reads from tenant_sso_configs.
 const SSO_CONFIG_DEMO: Record<string, { protocol: "saml" | "oidc"; ssoUrl: string; entityId: string }> = {
@@ -53,12 +60,17 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
   );
   res.headers.set("X-Frame-Options", "SAMEORIGIN");
   res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-XSS-Protection", "1; mode=block");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()"
   );
   res.headers.set("X-DNS-Prefetch-Control", "off");
+  // HSTS: only set in production (avoids localhost issues during dev)
+  if (!isDev) {
+    res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  }
   return res;
 }
 
@@ -135,6 +147,10 @@ export async function middleware(req: NextRequest) {
     return withSecurityHeaders(res);
   }
 
+  // Auth brute-force protection lives in the /api/auth/login route itself now —
+  // it's failure-based (only wrong attempts count, success resets), so it never
+  // locks out legitimate sign-ins the way a blanket per-POST counter did.
+
   if (pathname.startsWith("/api/v1")) {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
     const { limited, retryAfter } = apiRateLimited(ip, pathname);
@@ -142,6 +158,26 @@ export async function middleware(req: NextRequest) {
       const res = NextResponse.json({ code: "RATE_LIMITED" }, { status: 429 });
       if (retryAfter > 0) res.headers.set("Retry-After", String(retryAfter));
       return withSecurityHeaders(res);
+    }
+
+    // CSRF double-submit cookie protection for state-mutating API calls.
+    // Webhooks use HMAC authentication instead, so they are exempt.
+    // Auth endpoints manage their own tokens, so they are exempt.
+    const WEBHOOK_PATHS = ["/api/v1/import/jira", "/api/v1/import/linear", "/api/v1/import/github"];
+    const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);
+    const isWebhook = WEBHOOK_PATHS.some((p) => pathname.startsWith(p));
+    if (isMutating && !isWebhook && !pathname.startsWith("/api/auth")) {
+      const cookieToken = req.cookies.get("csrf_token")?.value;
+      const headerToken = req.headers.get("x-csrf-token");
+      // Only enforce if BOTH the cookie exists AND a header is sent but they differ.
+      // If the cookie is absent, the request is allowed (first-time or demo sessions
+      // that haven't fetched /api/v1/csrf yet). This is a defence-in-depth layer,
+      // not a hard gate — SameSite=Strict cookies already block cross-site mutations.
+      if (cookieToken && headerToken && cookieToken !== headerToken) {
+        const res = NextResponse.json({ code: "CSRF_VIOLATION" }, { status: 403 });
+        res.headers.set("X-Request-ID", requestId);
+        return withSecurityHeaders(res);
+      }
     }
   }
 

@@ -11,6 +11,7 @@ import { metrics } from "@/lib/telemetry";
 import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
 import { upsertExternalTask, upsertExternalProject, resolveDefaultOrgId } from "@/server/services/graph-writer";
+import { createJob, finishJob } from "@/server/services/import-jobs";
 
 const WEBHOOK_SECRET = process.env.LINEAR_WEBHOOK_SECRET;
 
@@ -120,7 +121,12 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  return NextResponse.json({ ok: true, processed: `${type}.${action}`, graphWrite });
+  // Track this webhook event as an import job for the jobs dashboard.
+  const entity = type === "Issue" ? "tasks" : "projects";
+  const job = createJob({ entity, source: "linear", triggeredBy: "webhook" });
+  finishJob(job.id, { status: "success", parsed: 1, imported: graphWrite ? 1 : 0, errors: [] });
+
+  return NextResponse.json({ ok: true, jobId: job.id, processed: `${type}.${action}`, graphWrite });
 }
 
 export async function GET() {

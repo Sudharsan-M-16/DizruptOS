@@ -106,7 +106,16 @@ export const useSession = create<SessionState>()(
         theme: s.theme,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) applyTheme(state.theme);
+        if (state) {
+          applyTheme(state.theme);
+          // Guard: if a known demo persona is loaded but authenticated is false
+          // (stale from a previous SupabaseAuthSync bug), restore to true.
+          // Demo personas are always authenticated — the dz_session cookie is
+          // the credential; Supabase JWT absence should not evict them.
+          if (PERSONAS.some((p) => p.id === state.personaId) && !state.authenticated) {
+            state.authenticated = true;
+          }
+        }
       },
     }
   )

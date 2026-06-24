@@ -11,15 +11,19 @@ function launchApp(id: string) {
   try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
 }
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, FolderKanban, Link2, ShieldAlert, ScrollText, Sparkles } from "lucide-react";
+import { CalendarDays, FolderKanban, Link2, Plus, ShieldAlert, ScrollText, Sparkles, X } from "lucide-react";
 import { useOps } from "@/lib/store";
+import { useSession } from "@/lib/session";
 import { severityOf } from "@/lib/risk";
 import {
   decisions,
+  employees,
   employeeById,
   projectById,
   risks,
+  WEEKS,
 } from "@/lib/data";
+import type { TaskPriority } from "@/lib/types";
 import {
   CapacityBar,
   EmpAvatar,
@@ -42,6 +46,245 @@ const COLUMNS: { id: TaskStatus; label: string }[] = [
   { id: "COMPLETED", label: "Done" },
 ];
 
+function AddTaskPanel({
+  projectId,
+  onClose,
+}: {
+  projectId: string;
+  onClose: () => void;
+}) {
+  const addTask = useOps((s) => s.addTask);
+  const canAssignOthers = useSession((s) => s.can("reallocate"));
+  const meId = useSession((s) => s.personaId);
+
+  // Employees can only self-assign. Managers see the full team.
+  const pickableAssignees = canAssignOthers
+    ? employees.filter((e) => e.role !== "client")
+    : employees.filter((e) => e.id === meId);
+
+  const [title, setTitle] = React.useState("");
+  const [assigneeId, setAssigneeId] = React.useState(
+    canAssignOthers ? "" : meId
+  );
+  // 0 = unestimated (engineer will fill in later).
+  // Managers often don't know hours; engineers always do.
+  const [hours, setHours] = React.useState(canAssignOthers ? 0 : 4);
+  const [dueDate, setDueDate] = React.useState(
+    new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10)
+  );
+  const [priority, setPriority] = React.useState<TaskPriority>("MEDIUM");
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    addTask({
+      title: title.trim(),
+      projectId,
+      assigneeId: assigneeId || pickableAssignees[0]?.id,
+      estimatedHours: hours,
+      dueDate,
+      priority,
+      status: "TO_DO",
+      weekStart: WEEKS[0],
+    });
+    onClose();
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <motion.form
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 40, opacity: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+        className="w-full max-w-md rounded-t-2xl border border-line bg-ink-surface p-6 shadow-2xl sm:rounded-2xl"
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-base font-semibold tracking-tight">Add task</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-7 w-7 place-items-center rounded-full bg-ink-elevated text-fg-muted hover:text-fg"
+          >
+            <X size={13} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Title */}
+          <div>
+            <label className="label-xs mb-1 block">Task name</label>
+            <input
+              autoFocus
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="What needs to be done?"
+              className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none ring-brand focus:border-brand focus:ring-1"
+            />
+          </div>
+
+          {/* Assignee */}
+          <div>
+            <label className="label-xs mb-1.5 block">
+              Assignee
+              {!canAssignOthers && (
+                <span className="ml-2 text-fg-muted normal-case font-normal">— your tasks only</span>
+              )}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {pickableAssignees.map((emp) => (
+                <button
+                  key={emp.id}
+                  type="button"
+                  onClick={() => setAssigneeId(emp.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-2xs font-medium transition-colors",
+                    assigneeId === emp.id
+                      ? "border-brand bg-brand-soft text-brand"
+                      : "border-line bg-ink-elevated text-fg-secondary hover:border-brand/40"
+                  )}
+                >
+                  <EmpAvatar initials={emp.initials} accent={emp.accent} size={16} />
+                  {emp.name.split(" ")[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {/* Hours */}
+            <div>
+              <label className="label-xs mb-1 block">
+                Est. hours
+                {canAssignOthers && (
+                  <span className="ml-1 font-normal normal-case text-fg-muted">— engineer will refine</span>
+                )}
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={80}
+                placeholder={canAssignOthers ? "Leave 0 if unknown" : "How long will this take?"}
+                value={hours || ""}
+                onChange={(e) => setHours(Number(e.target.value) || 0)}
+                className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none ring-brand focus:border-brand focus:ring-1"
+              />
+            </div>
+
+            {/* Due date */}
+            <div>
+              <label className="label-xs mb-1 block">Due date</label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full rounded-card border border-line bg-ink-elevated px-3 py-2 text-sm outline-none ring-brand focus:border-brand focus:ring-1"
+              />
+            </div>
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label className="label-xs mb-1.5 block">Priority</label>
+            <div className="flex gap-2">
+              {(["URGENT", "HIGH", "MEDIUM", "LOW"] as TaskPriority[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPriority(p)}
+                  className={cn(
+                    "flex-1 rounded-card border py-1.5 text-2xs font-semibold uppercase tracking-wider transition-colors",
+                    priority === p
+                      ? p === "URGENT"
+                        ? "border-danger bg-danger/10 text-danger"
+                        : p === "HIGH"
+                        ? "border-amber-500 bg-amber-500/10 text-amber-400"
+                        : p === "MEDIUM"
+                        ? "border-brand bg-brand-soft text-brand"
+                        : "border-line bg-ink-elevated text-fg-muted"
+                      : "border-line bg-ink-elevated text-fg-muted hover:border-brand/40"
+                  )}
+                >
+                  {p.charAt(0) + p.slice(1).toLowerCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="mt-5 w-full rounded-card bg-brand py-2.5 text-sm font-semibold text-ink shadow-[0_0_20px_#00ED8244] transition-opacity hover:opacity-90"
+        >
+          Add task
+        </button>
+      </motion.form>
+    </motion.div>
+  );
+}
+
+function InlineEstimate({ task }: { task: { id: string; estimatedHours: number; assigneeId?: string } }) {
+  const updateTaskEstimate = useOps((s) => s.updateTaskEstimate);
+  const meId = useSession((s) => s.personaId);
+  const canEdit = useSession((s) => s.can("reallocate")) || task.assigneeId === meId;
+  const [editing, setEditing] = React.useState(false);
+  const [val, setVal] = React.useState(String(task.estimatedHours || ""));
+
+  if (!canEdit) {
+    return (
+      <span className="font-mono text-2xs text-fg-muted">
+        {task.estimatedHours ? `${task.estimatedHours}h` : "?h"}
+      </span>
+    );
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        type="number"
+        min={1}
+        max={80}
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        onBlur={() => {
+          const h = parseInt(val);
+          if (h > 0) updateTaskEstimate(task.id, h);
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+          if (e.key === "Escape") setEditing(false);
+        }}
+        className="w-10 rounded border border-brand bg-ink-surface px-1 font-mono text-2xs text-brand outline-none"
+        onClick={(e) => e.stopPropagation()}
+      />
+    );
+  }
+
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); setEditing(true); setVal(String(task.estimatedHours || "")); }}
+      className={cn(
+        "rounded px-1 font-mono text-2xs transition-colors hover:bg-brand-soft",
+        task.estimatedHours === 0 ? "text-warn animate-pulse" : "text-fg-muted"
+      )}
+      title={task.estimatedHours === 0 ? "Click to set your estimate" : "Click to refine estimate"}
+    >
+      {task.estimatedHours === 0 ? "set hrs" : `${task.estimatedHours}h`}
+    </button>
+  );
+}
+
 export default function ProjectDetail({ params }: { params: { id: string } }) {
   const project = projectById(params.id);
   const tasks = useOps((s) => s.tasks);
@@ -49,6 +292,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
   const openTaskDrawer = useOps((s) => s.openTaskDrawer);
   const [dragId, setDragId] = React.useState<string | null>(null);
   const [overCol, setOverCol] = React.useState<TaskStatus | null>(null);
+  const [addingTask, setAddingTask] = React.useState(false);
 
   if (!project) return notFound();
   const owner = employeeById(project.ownerId);
@@ -119,6 +363,15 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
       </div>
 
       {/* Kanban */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-secondary">Board</h2>
+        <button
+          onClick={() => setAddingTask(true)}
+          className="flex items-center gap-1.5 rounded-full border border-brand/40 bg-brand-soft px-3 py-1 text-2xs font-semibold text-brand hover:bg-brand/20 transition-colors"
+        >
+          <Plus size={11} /> Add task
+        </button>
+      </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         {COLUMNS.map((col) => {
           const colTasks = projTasks.filter((t) => t.status === col.id);
@@ -183,9 +436,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
                           </div>
                           <div className="mt-2 flex items-center gap-1.5">
                             <PriorityDot priority={t.priority} />
-                            <span className="font-mono text-2xs text-fg-muted">
-                              {t.estimatedHours}h
-                            </span>
+                            <InlineEstimate task={t} />
                             {(t.dependsOn?.length ?? 0) > 0 && (
                               <span className="flex items-center gap-0.5 text-2xs text-fg-faint">
                                 <Link2 size={9} />
@@ -257,6 +508,11 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
       </div>
       </div>
       </div>
+      <AnimatePresence>
+        {addingTask && (
+          <AddTaskPanel projectId={project.id} onClose={() => setAddingTask(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

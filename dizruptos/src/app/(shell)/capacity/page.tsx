@@ -16,7 +16,12 @@ import {
   PriorityDot,
 } from "@/components/ui/primitives";
 import { NumberTicker } from "@/components/ui/ascension";
+import { Gauge } from "lucide-react";
 import { cn, fmtDate, fmtPct, utilizationTone } from "@/lib/utils";
+import { AnimatePresence } from "framer-motion";
+import { CapacityPersonSidebar } from "@/components/desktop/capacity-person-sidebar";
+
+const UNDERLOADED = 0.6; // below 60% = has room for more work
 
 export default function CapacityPage() {
   const tasks = useOps((s) => s.tasks);
@@ -29,6 +34,7 @@ export default function CapacityPage() {
   const [deptFilter, setDeptFilter] = React.useState<string>("all");
   const [dragTaskId, setDragTaskId] = React.useState<string | null>(null);
   const [dropTarget, setDropTarget] = React.useState<string | null>(null);
+  const [selectedEmpId, setSelectedEmpId] = React.useState<string | null>(null);
 
   const visible = employees.filter(
     (e) =>
@@ -44,9 +50,21 @@ export default function CapacityPage() {
   const avgLoad = nowPcts.reduce((s, p) => s + p, 0) / Math.max(1, nowPcts.length);
   const redCount = nowPcts.filter((p) => p >= 1).length;
   const warnCount = nowPcts.filter((p) => p >= 0.8 && p < 1).length;
+  const freeCount = nowPcts.filter((p) => p < UNDERLOADED).length;
 
   return (
-    <div className="space-y-4">
+    <div className="relative flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#F9731622", border: "1px solid #F9731644" }}>
+          <Gauge size={15} style={{ color: "#F97316" }} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold">Capacity Matrix</div>
+          <div className="text-[11px] text-fg-muted">{visible.length} people · drag tasks to reallocate</div>
+        </div>
+      </div>
+    <div className="flex-1 overflow-y-auto p-5 space-y-4">
       {/* Org-load strip */}
       <div className="panel flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
         <div className="flex items-baseline gap-2">
@@ -71,9 +89,13 @@ export default function CapacityPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-ok" />
             {visible.length - redCount - warnCount} healthy
           </span>
+          <span className="flex items-center gap-1.5 font-medium text-info">
+            <span className="h-1.5 w-1.5 rounded-full bg-info" />
+            {freeCount} free for work
+          </span>
         </div>
         <span className="ml-auto hidden text-xs text-fg-muted md:block">
-          Drag any chip onto a green row — both bars update in &lt;50ms
+          Click a person to see their work and move tasks
         </span>
       </div>
 
@@ -164,16 +186,25 @@ export default function CapacityPage() {
                     : "bg-ok-soft/30 ring-1 ring-inset ring-ok/40")
               )}
             >
-              {/* Identity column */}
-              <div className="flex items-center gap-2.5 px-4 py-3">
+              {/* Identity column — click to open the person sidebar */}
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedEmpId(emp.id)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedEmpId(emp.id); } }}
+                className="flex cursor-pointer items-center gap-2.5 px-4 py-3 transition-colors hover:bg-ink-elevated/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand/50"
+                title="View work & reassign"
+              >
                 <EmpAvatar initials={emp.initials} accent={emp.accent} size={30} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="truncate text-xs font-semibold">{emp.name}</span>
                     {emp.burnoutFlag && canSeeBurnout && (
-                      <Explain title="Burnout signals (manager-private)" signals={emp.burnoutSignals ?? []}>
-                        <button className="h-2 w-2 rounded-full bg-danger shadow-[0_0_6px_#EF4444]" aria-label="Burnout flag" />
-                      </Explain>
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Explain title="Burnout signals (manager-private)" signals={emp.burnoutSignals ?? []}>
+                          <button className="h-2 w-2 rounded-full bg-danger shadow-[0_0_6px_#EF4444]" aria-label="Burnout flag" />
+                        </Explain>
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-fg-muted">
@@ -269,6 +300,14 @@ export default function CapacityPage() {
         Mutations are atomic increments — drops that project ≥100% require a typed
         override reason and are written to the audit log.
       </p>
+    </div>
+
+      {/* Person sidebar — work, projects, skills + skill-aware reassign/assign */}
+      <AnimatePresence>
+        {selectedEmpId && (
+          <CapacityPersonSidebar employeeId={selectedEmpId} onClose={() => setSelectedEmpId(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

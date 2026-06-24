@@ -7,37 +7,40 @@
 // cookie. Request/response contract here is forward-compatible.
 
 import { NextResponse, type NextRequest } from "next/server";
+import { securityEvent } from "@/server/services/security-audit";
+import { PERSONAS } from "@/lib/personas";
 
-const VALID_PERSONAS = new Set([
-  "u-asha",
-  "u-noor",
-  "u-priya",
-  "u-ahmed",
-  "u-elias",
-]);
+// Valid personas are derived from the canonical list, so adding a role/login in
+// one place keeps demo sign-in working everywhere (no second hardcoded set).
+const VALID_PERSONAS = new Set(PERSONAS.map((p) => p.id));
 
-// In-memory rate limit: 10 attempts / IP / 15 min (PRD §14.1 step 3).
-// Production: Redis or Postgres counter — serverless instances don't share memory.
-const attempts = new Map<string, { count: number; resetAt: number }>();
+// Brute-force protection — FAILURE-based. Only invalid attempts count toward the
+// lockout, and a successful sign-in clears the counter. This protects against
+// credential guessing without ever locking out legitimate (demo) sign-ins.
+const failures = new Map<string, { count: number; resetAt: number }>();
 const WINDOW_MS = 15 * 60 * 1000;
-const MAX_ATTEMPTS = 10;
+const MAX_FAILURES = 10;
 
-function rateLimited(ip: string): boolean {
+function lockedOut(ip: string): boolean {
+  const entry = failures.get(ip);
+  if (!entry || entry.resetAt < Date.now()) return false;
+  return entry.count >= MAX_FAILURES;
+}
+function recordFailure(ip: string) {
   const now = Date.now();
-  const entry = attempts.get(ip);
-  if (!entry || entry.resetAt < now) {
-    attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > MAX_ATTEMPTS;
+  const entry = failures.get(ip);
+  if (!entry || entry.resetAt < now) failures.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+  else entry.count += 1;
+}
+function clearFailures(ip: string) {
+  failures.delete(ip);
 }
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
-  if (rateLimited(ip)) {
+  if (lockedOut(ip)) {
     return NextResponse.json(
-      { code: "RATE_LIMITED", message: "Too many attempts. Try again in 15 minutes." },
+      { code: "RATE_LIMITED", message: "Too many failed attempts. Try again in 15 minutes." },
       { status: 429 }
     );
   }
@@ -54,12 +57,16 @@ export async function POST(req: NextRequest) {
 
   const personaId = (body as { personaId?: unknown })?.personaId;
   if (typeof personaId !== "string" || !VALID_PERSONAS.has(personaId)) {
+    recordFailure(ip);
+    void securityEvent("auth_failure", { ip, outcome: "failure", meta: { reason: "invalid_persona" } });
     return NextResponse.json(
       { code: "INVALID_PERSONA", message: "Unknown persona." },
       { status: 422 }
     );
   }
 
+  clearFailures(ip); // legitimate sign-in resets the brute-force counter
+  void securityEvent("auth_success", { actorId: personaId, ip, outcome: "success" });
   const res = NextResponse.json({ ok: true, personaId });
   res.cookies.set("dz_session", personaId, {
     httpOnly: true,

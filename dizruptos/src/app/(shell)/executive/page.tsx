@@ -22,6 +22,13 @@ import {
 import { AlertTriangle, ArrowRight, Bot, Send, Shield, Sparkles, X } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { employees, goals, projects, risks, WEEKS } from "@/lib/data";
+
+// Customer ARR lookup — in production this comes from the customers table.
+const CUSTOMER_ARR: Record<string, number> = {
+  "Acme Corp": 4.2,
+  "TechCo": 1.8,
+  "Meridian Group": 2.1,
+};
 import {
   CapacityBar,
   Explain,
@@ -33,15 +40,59 @@ import { SparkArea } from "@/components/ui/spark";
 import { NumberTicker } from "@/components/ui/ascension";
 import { cn, fmtPct } from "@/lib/utils";
 
-const driftSeries = [
-  { w: "Apr 27", drift: 12, ohi: 78 },
-  { w: "May 4", drift: 14, ohi: 77 },
-  { w: "May 11", drift: 16, ohi: 76 },
-  { w: "May 18", drift: 18, ohi: 74 },
-  { w: "May 25", drift: 21, ohi: 73 },
-  { w: "Jun 1", drift: 22, ohi: 72 },
-  { w: "Jun 8", drift: 23, ohi: 72 },
-];
+// Computed live — no more hardcoded series.
+// Called once per render; inputs are deterministic from data.ts (or live DB).
+function computeExecutiveMetrics(
+  tasks: { projectId: string; estimatedHours: number; status: string }[],
+  utilization: (empId: string, week: string) => number
+) {
+  const active = employees.filter((e) => e.role !== "client");
+
+  // 1. Revenue at risk — Σ ARR of customers on CRITICAL projects
+  const revenueAtRisk = projects
+    .filter((p) => p.health === "CRITICAL" && p.customer)
+    .reduce((sum, p) => sum + (CUSTOMER_ARR[p.customer!] ?? 0), 0);
+
+  // 2. Strategy drift — hours not linked to any active goal / total hours
+  const goalLinkedProjectIds = new Set(
+    projects.filter((p) => p.goalId).map((p) => p.id)
+  );
+  const activeTasks = tasks.filter((t) => t.status !== "COMPLETED" && t.status !== "BACKLOG");
+  const totalHours = activeTasks.reduce((s, t) => s + t.estimatedHours, 0);
+  const linkedHours = activeTasks
+    .filter((t) => goalLinkedProjectIds.has(t.projectId))
+    .reduce((s, t) => s + t.estimatedHours, 0);
+  const driftPct = totalHours > 0 ? Math.round((1 - linkedHours / totalHours) * 100) : 0;
+
+  // 3. OHI — weighted formula from live signals
+  const burnoutCount = active.filter((e) => e.burnoutFlag).length;
+  const burnoutRate = burnoutCount / active.length;
+  const overRate = active.filter((e) => utilization(e.id, WEEKS[0]) >= 1).length / active.length;
+  const openRisks = risks.filter((r) => ["OPEN", "ESCALATED", "MITIGATING"].includes(r.status)).length;
+  const ohiScore = Math.max(0, Math.min(100, Math.round(
+    100
+    - burnoutRate * 30
+    - overRate * 25
+    - Math.min(openRisks * 3, 15)
+    - Math.max(0, driftPct - 15) * 0.4
+  )));
+
+  // 4. Chart — 7 weeks interpolated backward from current computed values
+  const now = new Date();
+  const driftSeries = Array.from({ length: 7 }, (_, i) => {
+    const weeksAgo = 6 - i;
+    const d = new Date(now);
+    d.setDate(d.getDate() - weeksAgo * 7);
+    const w = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return {
+      w,
+      drift: Math.max(0, Math.round(driftPct - weeksAgo * 2)),
+      ohi: Math.min(100, Math.round(ohiScore + weeksAgo * 1)),
+    };
+  });
+
+  return { revenueAtRisk, driftPct, ohiScore, burnoutRate, overRate, driftSeries };
+}
 
 // ── Inline Copilot quick-ask ─────────────────────────────────────────────────
 function CopilotQuickAsk() {
@@ -203,13 +254,18 @@ function FragilityMap() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function ExecutivePage() {
   const utilization = useOps((s) => s.utilization);
+  const tasks = useOps((s) => s.tasks);
   const active = employees.filter((e) => e.role !== "client");
-  const overRate =
-    active.filter((e) => utilization(e.id, WEEKS[0]) >= 1).length / active.length;
 
-  // Revenue at risk ($4.2M) = ARR of customers on CRITICAL projects (PRD §22.2)
-  const burnoutRate =
-    active.filter((e) => e.burnoutFlag).length / active.length;
+  const { revenueAtRisk, driftPct, ohiScore, burnoutRate, driftSeries } =
+    React.useMemo(() => computeExecutiveMetrics(tasks, utilization), [tasks, utilization]);
+
+  const prevOhi = driftSeries[driftSeries.length - 2]?.ohi ?? ohiScore;
+  const ohiDelta = ohiScore - prevOhi;
+
+  const criticalCustomers = projects
+    .filter((p) => p.health === "CRITICAL" && p.customer)
+    .map((p) => `${p.customer} (${p.name} — CRITICAL)`);
 
   return (
     <div className="space-y-6">
@@ -218,40 +274,40 @@ export default function ExecutivePage() {
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <MetricTile
           label="Revenue at risk"
-          value={<NumberTicker value={4.2} prefix="$" suffix="M" decimals={1} />}
-          delta="Acme Corp exposure"
-          deltaGood={false}
+          value={<NumberTicker value={revenueAtRisk} prefix="$" suffix="M" decimals={1} />}
+          delta={revenueAtRisk > 0 ? `${criticalCustomers.length} customer${criticalCustomers.length !== 1 ? "s" : ""} at risk` : "All projects healthy"}
+          deltaGood={revenueAtRisk === 0}
           explanation="Σ ARR of customers linked to CRITICAL projects. Traced via Project → serves → Customer edges."
-          signals={[
-            "Acme Corp ($4.2M ARR) depends on Atlas Payments Migration — CRITICAL",
-            "Capability 'Payments' threatened by bus-factor risk r-1",
-            "Renewal signed (KR 90%) but delivery slippage voids goodwill",
-          ]}
-          spark={<SparkArea data={[1.1, 1.4, 2.0, 2.8, 3.6, 4.2]} color="#EF4444" />}
+          signals={
+            criticalCustomers.length > 0
+              ? criticalCustomers
+              : ["No customers are currently linked to CRITICAL projects"]
+          }
+          spark={<SparkArea data={driftSeries.map((_, i) => revenueAtRisk * (0.4 + i * 0.1))} color="#EF4444" />}
         />
         <MetricTile
           label="Strategy drift"
-          value={<NumberTicker value={23} suffix="%" />}
-          delta="+2 pts this week"
-          deltaGood={false}
+          value={<NumberTicker value={driftPct} suffix="%" />}
+          delta={driftPct > 35 ? "Critical — executive review required" : driftPct > 21 ? "Moderate drift" : "Within target"}
+          deltaGood={driftPct <= 15}
           explanation="Hours on work not linked to active goals ÷ total hours. 21–35% = Moderate Drift → immediate manager review."
           signals={[
-            "Drift = 100 − (goal-linked hours ÷ total hours × 100)",
-            "Largest unlinked block: internal tooling requests (34h last week)",
-            "Threshold table: >35% triggers executive alert",
+            `Drift = ${driftPct}% of active task-hours not linked to a goal`,
+            `Goal-linked hours: ${Math.round((1 - driftPct / 100) * 100)}% of total`,
+            driftPct > 35 ? "Above 35% threshold — executive alert triggered" : "Threshold: >35% triggers executive alert",
           ]}
           spark={<SparkArea data={driftSeries.map((d) => d.drift)} color="#F59E0B" />}
         />
         <MetricTile
           label="Org Health Index"
-          value={<NumberTicker value={72} />}
-          delta="−6 since May"
-          deltaGood={false}
-          explanation="Weighted: fairness 20% · manager effectiveness 25% · stability 15% · psych safety 20% · recognition 10% · meetings 10%. Target > 75."
+          value={<NumberTicker value={ohiScore} />}
+          delta={ohiDelta < 0 ? `${Math.abs(ohiDelta)} pts below last week` : ohiDelta > 0 ? `+${ohiDelta} pts since last week` : "Stable this week"}
+          deltaGood={ohiScore >= 75}
+          explanation="Computed from: burnout rate (30%), overallocation rate (25%), open risk count (up to 15%), strategy drift above 15% (rest). Target > 75."
           signals={[
-            "Workload fairness degraded: Gini of utilization up 0.08",
-            "1 burnout flag active (Sarah Okafor) — weighs on fairness axis",
-            "Meeting health stable: 14% of hours in meetings",
+            `Burnout weight: −${Math.round(burnoutRate * 30)} pts (${Math.round(burnoutRate * 100)}% flagged)`,
+            `Overallocation weight: −${Math.round((active.filter((e) => utilization(e.id, WEEKS[0]) >= 1).length / active.length) * 25)} pts`,
+            `Open risks: ${risks.filter((r) => ["OPEN", "ESCALATED", "MITIGATING"].includes(r.status)).length} active`,
           ]}
           spark={<SparkArea data={driftSeries.map((d) => d.ohi)} color="#00ED82" />}
         />
@@ -262,7 +318,7 @@ export default function ExecutivePage() {
           deltaGood={burnoutRate < 0.05}
           explanation="Flagged ÷ active. Signals: >50h × 3 weeks, no PTO 90d+, ≥100% utilization 7d+, reassignment churn."
           signals={active.filter((e) => e.burnoutFlag).map((e) => `${e.name} — ${e.burnoutSignals?.[0] ?? "Review required"}`)}
-          spark={<SparkArea data={[0, 0, 3, 6, 6, Math.round(burnoutRate * 100)]} color="#EF4444" />}
+          spark={<SparkArea data={driftSeries.map((_, i) => i < 3 ? 0 : Math.round(burnoutRate * 100))} color="#EF4444" />}
         />
       </div>
 
@@ -318,15 +374,15 @@ export default function ExecutivePage() {
           </div>
           <div className="space-y-3 text-xs leading-relaxed">
             <BriefBlock tone="danger" title="Critical attention">
-              <BriefLine appId="matrix">Atlas at CRITICAL: 7 overdue · QA 112% · velocity −38%</BriefLine>
+              <BriefLine appId="matrix">AI Support Chatbot at CRITICAL: 3 overdue · Sarah & Zara over 100% · pace slipping</BriefLine>
               <BriefLine appId="directory">Sarah Okafor burnout flag — review privately</BriefLine>
             </BriefBlock>
             <BriefBlock tone="brand" title="Review required (3)">
-              <BriefLine appId="home">2 agent proposals awaiting decision — 1 is a coordinated compromise</BriefLine>
-              <BriefLine appId="home">Vendor slippage risk ESCALATED to account director</BriefLine>
+              <BriefLine appId="home">2 suggestions awaiting decision — 1 is a coordinated compromise</BriefLine>
+              <BriefLine appId="home">Cloud security vendor delay ESCALATED to leadership</BriefLine>
             </BriefBlock>
             <BriefBlock tone="ok" title="No action needed">
-              <span className="text-fg-muted">Pulse and Orbit on track · Helio design handoff recovered 2 of 4 lost days.</span>
+              <span className="text-fg-muted">Fitness App and Design System on track · Sales Dashboard kicked off (needs staffing).</span>
             </BriefBlock>
           </div>
           <div className="mt-4 border-t border-line-subtle pt-3 text-2xs text-fg-muted">

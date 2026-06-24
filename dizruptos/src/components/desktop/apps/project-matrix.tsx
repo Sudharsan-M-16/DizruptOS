@@ -12,8 +12,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
-import { Circle, Clock, Filter, ListChecks, Plus, X } from "lucide-react";
+import { Circle, Clock, Filter, ListChecks, Plus, Sparkles, X } from "lucide-react";
 import { WEEKS, employees, projects } from "@/lib/data";
+import { TaskSuggestionsPanel } from "@/components/desktop/task-suggestions-panel";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/types";
@@ -102,11 +103,13 @@ function AddTaskQuick({ defaultProjectId, onClose }: { defaultProjectId?: string
 export function ProjectMatrix() {
   const tasks = useOps((s) => s.tasks);
   const moveTask = useOps((s) => s.moveTask);
+  const openTaskDrawer = useOps((s) => s.openTaskDrawer);
   const personaId = useSession((s) => s.personaId);
   const canReallocate = useSession((s) => s.can("reallocate"));
   const canDrag = (t: Task) => canReallocate || t.assigneeId === personaId; // RBAC: own tasks only
   const [projectId, setProjectId] = useState<string | "all">("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const scoped = useMemo(
     () => (projectId === "all" ? tasks : tasks.filter((t) => t.projectId === projectId)),
@@ -124,7 +127,7 @@ export function ProjectMatrix() {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="relative flex h-full flex-col">
       {/* toolbar */}
       <div className="mb-3 flex items-center gap-3">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-fg-secondary">
@@ -142,6 +145,12 @@ export function ProjectMatrix() {
           <span className="rounded-full border border-line bg-ink-elevated px-2.5 py-0.5 text-2xs font-medium text-fg-secondary">
             {scoped.length} tasks · {canReallocate ? "drag to update" : "drag your tasks"}
           </span>
+          {canReallocate && (
+            <button onClick={() => setShowSuggestions(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-[#7C6CFF]/40 bg-[#7C6CFF]/10 px-2.5 py-1 text-xs font-semibold text-[#7C6CFF] transition-colors hover:bg-[#7C6CFF]/20">
+              <Sparkles size={12} /> Suggestions
+            </button>
+          )}
           <button onClick={() => setShowAdd(true)}
             className="flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand transition-colors hover:bg-brand/20">
             <Plus size={12} /> New task
@@ -179,11 +188,13 @@ export function ProjectMatrix() {
                               ref={dp.innerRef}
                               {...dp.draggableProps}
                               {...dp.dragHandleProps}
+                              onClick={() => openTaskDrawer(t.id)}
                               style={dp.draggableProps.style as React.CSSProperties}
                               className={cn(
-                                "rounded-xl border bg-ink-surface p-3 transition-shadow",
+                                "cursor-pointer rounded-xl border bg-ink-surface p-3 transition-shadow",
                                 ds.isDragging ? "border-[var(--os-accent,#00ED82)] shadow-2xl" : "border-line shadow-[var(--shadow-card)] hover:border-line-strong"
                               )}
+                              title="Click for details · drag to move"
                             >
                               <Card task={t} tone={col.tone} emp={empById(t.assigneeId)} />
                             </div>
@@ -208,6 +219,12 @@ export function ProjectMatrix() {
           <AddTaskQuick
             defaultProjectId={projectId !== "all" ? projectId : undefined}
             onClose={() => setShowAdd(false)}
+          />
+        )}
+        {showSuggestions && (
+          <TaskSuggestionsPanel
+            scopeProjectId={projectId}
+            onClose={() => setShowSuggestions(false)}
           />
         )}
       </AnimatePresence>

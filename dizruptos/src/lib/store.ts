@@ -95,6 +95,10 @@ interface OpsState {
 
   reviewProposal: (id: string, verdict: "approved" | "rejected") => void;
   addTask: (task: Omit<Task, "id" | "loggedHours" | "labels" | "dependsOn">) => void;
+  /** Self-service: an employee picks up an UNOWNED task for themselves. No
+   *  manager grant needed, but bounded — only unassigned tasks, only to the
+   *  current user, only if it keeps them under 100%. */
+  claimTask: (taskId: string) => void;
   /** Assignee refines their own estimate, or manager sets it. Writes to audit. */
   updateTaskEstimate: (taskId: string, hours: number) => void;
 }
@@ -316,13 +320,46 @@ export const useOps = create<OpsState>((set, get) => ({
       override: Boolean(overrideReason),
     });
 
-    // Dual-sided story: the toast and the notification name BOTH people —
-    // who was relieved (and to what), who absorbed the load (and to what).
+    // Dual-sided story: the toast names both people; and we deliver a
+    // notification ADDRESSED to each person affected — the one who picked up the
+    // work, and the one it was moved off — so nobody learns about a change to
+    // their week second-hand.
     const relievedBit =
       fromEmp && fromBefore !== null
         ? `Relieved ${fromEmp.name.split(" ")[0]} ${fromBefore}% → ${fromAfter}%`
         : "Assigned from backlog";
     const loadedBit = `loaded ${toEmp?.name.split(" ")[0]} ${toBefore}% → ${toAfter}%`;
+    const at = new Date().toISOString();
+
+    const newNotifs: NotificationItem[] = [];
+    // → the person who now owns the task
+    newNotifs.push({
+      id: `n-assign-${auditSeq}`,
+      klass: "manager_review",
+      title: `New task assigned to you — ${task.estimatedHours}h`,
+      body: `'${task.title}' is now yours (week of ${task.weekStart.slice(5)}). Your week: ${toBefore}% → ${toAfter}%.`,
+      at, read: false, entityRef: "/tasks", recipientId: to,
+    });
+    // → the person it was moved off (if any)
+    if (from && fromEmp) {
+      newNotifs.push({
+        id: `n-relieve-${auditSeq}`,
+        klass: "informational",
+        title: "A task was moved off your plate",
+        body: `'${task.title}' (${task.estimatedHours}h) went to ${toEmp?.name}. Your week: ${fromBefore}% → ${fromAfter}%.`,
+        at, read: false, entityRef: "/capacity", recipientId: from,
+      });
+    }
+    // → managers: heads-up if this move tips the receiver over 100%
+    if (toAfter >= 100) {
+      newNotifs.push({
+        id: `n-overload-${auditSeq}`,
+        klass: "critical_action",
+        title: `${toEmp?.name.split(" ")[0]} is now overloaded`,
+        body: `'${task.title}' pushed ${toEmp?.name} to ${toAfter}% (week of ${task.weekStart.slice(5)}). Consider moving other work off them.`,
+        at, read: false, entityRef: "/capacity",
+      });
+    }
 
     set({
       tasks: tasks.map((t) =>
@@ -331,18 +368,7 @@ export const useOps = create<OpsState>((set, get) => ({
       capacity: cap,
       audit: [event, ...get().audit],
       pendingDrop: null,
-      notifications: [
-        {
-          id: `n-realloc-${auditSeq}`,
-          klass: "manager_review" as const,
-          title: `Reallocation confirmed — ${task.estimatedHours}h`,
-          body: `'${task.title}': ${relievedBit}; ${loadedBit} (week of ${task.weekStart.slice(5)}). Both heatmap rows updated atomically.`,
-          at: new Date().toISOString(),
-          read: false,
-          entityRef: "/capacity",
-        },
-        ...get().notifications,
-      ],
+      notifications: [...newNotifs, ...get().notifications],
       lastAction: `${relievedBit} · ${loadedBit} (${task.estimatedHours}h)`,
     });
     publishSync(get());
@@ -468,10 +494,26 @@ export const useOps = create<OpsState>((set, get) => ({
       detail: `Task created: ${newTask.estimatedHours}h est, due ${newTask.dueDate}, priority ${newTask.priority}${newTask.assigneeId && newTask.assigneeId !== me.id ? " · manager-assigned" : ""}.`,
       at: new Date().toISOString(),
     };
+    // If a manager created this for someone else, tell that person directly.
+    const assignNotif: NotificationItem[] =
+      newTask.assigneeId && newTask.assigneeId !== me.id
+        ? [{
+            id: `n-newtask-${auditSeq++}`,
+            klass: "manager_review",
+            title: `New task assigned to you — ${newTask.estimatedHours}h`,
+            body: `'${newTask.title}' was assigned to you (due ${newTask.dueDate}).`,
+            at: new Date().toISOString(),
+            read: false,
+            entityRef: "/tasks",
+            recipientId: newTask.assigneeId,
+          }]
+        : [];
+
     set((s) => ({
       tasks: [...s.tasks, newTask],
       capacity: cap,
       audit: [event, ...s.audit],
+      notifications: [...assignNotif, ...s.notifications],
       lastAction: `Task "${newTask.title}" created`,
     }));
     publishSync(get());
@@ -492,6 +534,48 @@ export const useOps = create<OpsState>((set, get) => ({
       }),
       credentials: "include",
     }).catch(() => {/* demo fallback */ });
+  },
+
+  claimTask: (taskId) => {
+    const me = useSession.getState().persona();
+    const emp = employeeById(me.id);
+    const task = get().tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    if (!emp) { set({ lastAction: "Only team members can pick up tasks." }); return; }
+    if (task.assigneeId) { set({ lastAction: "That task already has an owner." }); return; }
+    const projected = (get().allocated(me.id, task.weekStart) + task.estimatedHours) / emp.capacityHoursPerWeek;
+    if (projected >= 1) { set({ lastAction: "That would put you over 100% this week — check with your manager first." }); return; }
+
+    const cap = applyDelta(get().capacity, me.id, task.weekStart, task.estimatedHours);
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "task_claimed",
+      entityType: "task",
+      entityLabel: task.title,
+      detail: `${emp.name} picked up '${task.title}' (${task.estimatedHours}h, week of ${task.weekStart.slice(5)}) — self-service.`,
+      at: new Date().toISOString(),
+    };
+    set((s) => ({
+      tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, assigneeId: me.id } : t)),
+      capacity: cap,
+      audit: [event, ...s.audit],
+      notifications: [
+        {
+          id: `n-claim-${auditSeq}`,
+          klass: "informational" as const,
+          title: "You picked up a task",
+          body: `'${task.title}' (${task.estimatedHours}h) is now yours. Nice — that keeps the project moving.`,
+          at: new Date().toISOString(),
+          read: false,
+          entityRef: "/tasks",
+          recipientId: me.id,
+        },
+        ...s.notifications,
+      ],
+      lastAction: `You picked up "${task.title}"`,
+    }));
+    publishSync(get());
   },
 
   updateTaskEstimate: (taskId, hours) => {

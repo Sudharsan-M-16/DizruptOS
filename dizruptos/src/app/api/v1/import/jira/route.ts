@@ -11,6 +11,7 @@ import { metrics } from "@/lib/telemetry";
 import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
 import { upsertExternalTask, upsertExternalProject, resolveDefaultOrgId } from "@/server/services/graph-writer";
+import { createJob, finishJob } from "@/server/services/import-jobs";
 
 const JIRA_WEBHOOK_SECRET = process.env.JIRA_WEBHOOK_SECRET;
 
@@ -123,8 +124,13 @@ export async function POST(req: NextRequest) {
 
   log("info", "jira_import", { key: issue.key, event: webhookEvent, project: issue.fields.project.key, graphWrite: taskWritten });
 
+  // Track this webhook event as an import job for the jobs dashboard.
+  const job = createJob({ entity: "tasks", source: "jira", triggeredBy: "webhook" });
+  finishJob(job.id, { status: "success", parsed: 1, imported: taskWritten ? 1 : 0, errors: [] });
+
   return NextResponse.json({
     ok: true,
+    jobId: job.id,
     imported: {
       jiraKey: issue.key,
       summary: issue.fields.summary,
