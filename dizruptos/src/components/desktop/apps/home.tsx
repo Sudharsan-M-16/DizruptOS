@@ -44,11 +44,16 @@ export const HomeApp = memo(function HomeApp() {
   // open on whatever needs attention first: Critical → Today/overdue → Pending.
   const [seg, setSeg] = useState<Segment>(() => pickDefaultSegment());
 
+  const overrides = useOps((s) => s.projectOverrides);
+  const healthOf = (id: string) => overrides[id]?.health ?? projects.find((p) => p.id === id)?.health;
   const taskById = (id: string) => allTasks.find((t) => t.id === id) ?? seedTasks.find((t) => t.id === id);
-  const projectById = (id: string) => projects.find((p) => p.id === id);
+  const projectById = (id: string) => {
+    const p = projects.find((x) => x.id === id);
+    return p && overrides[id] ? { ...p, ...overrides[id] } : p;
+  };
   const isCriticalProject = (id: string) => {
-    const p = projectById(id);
-    return p ? p.health === "CRITICAL" || p.health === "AT_RISK" || p.health === "DELAYED" : false;
+    const h = healthOf(id);
+    return h === "CRITICAL" || h === "AT_RISK" || h === "DELAYED";
   };
   const me = employeeById(persona.id);
 

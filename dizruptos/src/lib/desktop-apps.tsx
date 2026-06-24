@@ -66,7 +66,7 @@ export const APPS: AppEntry[] = [
   { id: "r-capacity", label: "Capacity", iconKey: "capacity", accent: "#F59E0B", kind: "iframe", href: "/capacity", dock: true, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-people", label: "People", iconKey: "people", accent: "#38BDF8", kind: "iframe", href: "/people", dock: false, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-projects", label: "Projects", iconKey: "projects", accent: "#7C6CFF", kind: "iframe", href: "/projects", dock: false, ...IFRAME_RECT },
-  { id: "r-graph", label: "Dependency Graph", iconKey: "graph", accent: "#A78BFA", kind: "iframe", href: "/graph", dock: true, ...IFRAME_RECT },
+  { id: "r-graph", label: "Dependency Graph", iconKey: "graph", accent: "#A78BFA", kind: "iframe", href: "/graph", dock: true, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-memory", label: "Org Memory", iconKey: "memory", accent: "#C084FC", kind: "iframe", href: "/memory", dock: false, ...IFRAME_RECT },
   { id: "r-risks", label: "Risks", iconKey: "risks", accent: "#EF4444", kind: "iframe", href: "/risks", dock: true, perm: "review_proposals", ...IFRAME_RECT },
 
@@ -74,7 +74,7 @@ export const APPS: AppEntry[] = [
   { id: "simulation", label: "What-If Simulation", iconKey: "simulation", accent: "#FEBC2E", kind: "panel", dock: false, perm: "view_executive", x: 120, y: 60, w: 920, h: 640 },
 
   // AI Copilot — native panel with follow-up chips, grounded on live org data
-  { id: "copilot", label: "AI Copilot", iconKey: "copilot", accent: "#00ED82", kind: "panel", dock: true, x: 200, y: 60, w: 860, h: 560 },
+  { id: "copilot", label: "AI Copilot", iconKey: "copilot", accent: "#00ED82", kind: "panel", dock: true, perm: "view_capacity", x: 200, y: 60, w: 860, h: 560 },
 
   // Previously orphaned routes — now first-class OS apps
   { id: "r-goals", label: "Goals & OKRs", iconKey: "goals", accent: "#10B981", kind: "iframe", href: "/goals", dock: true, ...IFRAME_RECT },

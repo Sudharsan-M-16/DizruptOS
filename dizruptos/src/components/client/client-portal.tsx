@@ -29,9 +29,13 @@ export function ClientPortal() {
   const persona = useSession((s) => s.persona());
   const setPersona = useSession((s) => s.setPersona);
   const liveTasks = useOps((s) => s.tasks);
+  const overrides = useOps((s) => s.projectOverrides);
 
-  // The client only ever sees the project(s) booked under their name.
-  const myProjects = projects.filter((p) => p.customer === persona.customer);
+  // The client only ever sees the project(s) booked under their name — with the
+  // team's live status changes applied (e.g. "Behind schedule" → "On track").
+  const myProjects = projects
+    .filter((p) => p.customer === persona.customer)
+    .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
 
   return (
     <div className="min-h-screen bg-ink text-fg">

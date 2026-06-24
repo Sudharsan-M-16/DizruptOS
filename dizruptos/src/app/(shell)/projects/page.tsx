@@ -16,6 +16,10 @@ import {
 } from "@/components/ui/primitives";
 import { SparkArea } from "@/components/ui/spark";
 import { cn, fmtDate, fmtMoney } from "@/lib/utils";
+import type { HealthStatus, ProjectStatus } from "@/lib/types";
+
+const PROJECT_STATUSES: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"];
+const HEALTH_STATUSES: HealthStatus[] = ["ON_TRACK", "DELAYED", "AT_RISK", "BLOCKED", "CRITICAL"];
 
 function AddProjectPanel({ onClose }: { onClose: () => void }) {
   const [name, setName] = React.useState("");
@@ -133,6 +137,8 @@ export default function ProjectsPage() {
   const canManageProjects = useSession((s) => s.can("reallocate"));
   const [addingProject, setAddingProject] = React.useState(false);
   const { data: allProjects } = useProjects();
+  const overrides = useOps((s) => s.projectOverrides);
+  const setProjectStage = useOps((s) => s.setProjectStage);
 
   const onProject = (projectId: string) =>
     tasks.some((t) => t.projectId === projectId && t.assigneeId === persona.id);
@@ -162,7 +168,9 @@ export default function ProjectsPage() {
       </div>
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
-        {ordered.map((p) => {
+        {ordered.map((rawP) => {
+          // live status/health — manager changes reflect here and everywhere.
+          const p = overrides[rawP.id] ? { ...rawP, ...overrides[rawP.id] } : rawP;
           const owner = employeeById(p.ownerId);
           const open = tasks.filter(
             (t) => t.projectId === p.id && t.status !== "COMPLETED"
@@ -224,6 +232,30 @@ export default function ProjectsPage() {
                   </div>
                 )}
               </div>
+
+              {/* Manager stage control — changes are live across every login */}
+              {canManageProjects && (
+                <div
+                  className="mt-3 flex flex-wrap items-center gap-2 border-t border-line-subtle pt-3"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                >
+                  <span className="label-xs">Stage</span>
+                  <select
+                    value={p.status}
+                    onChange={(e) => setProjectStage(p.id, { status: e.target.value as ProjectStatus })}
+                    className="rounded-md border border-line bg-ink-elevated px-2 py-1 text-2xs text-fg-secondary outline-none focus:border-brand"
+                  >
+                    {PROJECT_STATUSES.map((s) => <option key={s} value={s}>{s.replace("_", " ").toLowerCase()}</option>)}
+                  </select>
+                  <select
+                    value={p.health}
+                    onChange={(e) => setProjectStage(p.id, { health: e.target.value as HealthStatus })}
+                    className="rounded-md border border-line bg-ink-elevated px-2 py-1 text-2xs text-fg-secondary outline-none focus:border-brand"
+                  >
+                    {HEALTH_STATUSES.map((h) => <option key={h} value={h}>{h.replace("_", " ").toLowerCase()}</option>)}
+                  </select>
+                </div>
+              )}
             </Link>
           );
         })}

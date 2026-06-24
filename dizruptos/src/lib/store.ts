@@ -12,7 +12,9 @@ import {
   notifications as seedNotifications,
   proposals as seedProposals,
   tasks as seedTasks,
+  projects as seedProjects,
   employeeById,
+  projectById,
 } from "./data";
 import { validateProposal } from "./ai";
 import { useSession } from "./session";
@@ -21,11 +23,19 @@ import { createChannel } from "./realtime";
 import type {
   AuditEvent,
   CapacityCell,
+  HealthStatus,
   NotificationItem,
+  Project,
+  ProjectStatus,
   Proposal,
   Task,
   TaskStatus,
 } from "./types";
+
+/** Mutable, syncable overrides for a project's lifecycle fields. The static
+ *  seed stays the source of identity; managers change status/health/stage and it
+ *  reflects everywhere, live. */
+export type ProjectOverride = Partial<Pick<Project, "status" | "health" | "healthReasons">>;
 
 /* ------------------------------ realtime sync ------------------------------ */
 // Cross-tab live sync of shared operational state. Mutations publish the new
@@ -39,6 +49,7 @@ interface SyncMessage {
   capacity: CapacityCell[];
   proposals: Proposal[];
   audit: AuditEvent[];
+  projectOverrides: Record<string, ProjectOverride>;
 }
 
 const syncChannel = createChannel<SyncMessage>("dizrupt-ops-sync");
@@ -48,6 +59,7 @@ const publishSync = (s: {
   capacity: CapacityCell[];
   proposals: Proposal[];
   audit: AuditEvent[];
+  projectOverrides: Record<string, ProjectOverride>;
 }) =>
   syncChannel.publish({
     kind: "ops_state",
@@ -55,6 +67,7 @@ const publishSync = (s: {
     capacity: s.capacity,
     proposals: s.proposals,
     audit: s.audit,
+    projectOverrides: s.projectOverrides,
   });
 
 interface PendingDrop {
@@ -70,6 +83,8 @@ interface OpsState {
   proposals: Proposal[];
   audit: AuditEvent[];
   notifications: NotificationItem[];
+  /** Live project lifecycle changes (status/health), keyed by project id. */
+  projectOverrides: Record<string, ProjectOverride>;
   paletteOpen: boolean;
   drawerTaskId: string | null;
   pendingDrop: PendingDrop | null; // guardrail modal state
@@ -94,6 +109,8 @@ interface OpsState {
   cancelReallocate: () => void;
 
   reviewProposal: (id: string, verdict: "approved" | "rejected") => void;
+  /** Manager moves a project's stage/health. Live + audited + notified. */
+  setProjectStage: (projectId: string, patch: ProjectOverride) => void;
   addTask: (task: Omit<Task, "id" | "loggedHours" | "labels" | "dependsOn">) => void;
   /** Self-service: an employee picks up an UNOWNED task for themselves. No
    *  manager grant needed, but bounded — only unassigned tasks, only to the
@@ -140,6 +157,7 @@ export const useOps = create<OpsState>((set, get) => ({
   proposals: seedProposals,
   audit: seedAudit,
   notifications: seedNotifications,
+  projectOverrides: {},
   paletteOpen: false,
   drawerTaskId: null,
   pendingDrop: null,
@@ -375,6 +393,51 @@ export const useOps = create<OpsState>((set, get) => ({
   },
 
   cancelReallocate: () => set({ pendingDrop: null }),
+
+  setProjectStage: (projectId, patch) => {
+    // RBAC: changing a project's stage is a manager action (same grant as
+    // reallocating work). ICs and clients can never reach this.
+    if (!useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — only managers can change a project's stage." });
+      return;
+    }
+    const project = projectById(projectId);
+    if (!project) return;
+    const prev = get().projectOverrides[projectId] ?? {};
+    const merged: ProjectOverride = { ...prev, ...patch };
+    const newStatus = merged.status ?? project.status;
+    const newHealth = merged.health ?? project.health;
+
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "project_status_changed",
+      entityType: "project",
+      entityLabel: project.name,
+      detail: `${project.name} → ${newStatus.toLowerCase()} · ${newHealth.replace("_", " ").toLowerCase()}.`,
+      at: new Date().toISOString(),
+    };
+    log.info("project_stage_changed", { projectId, status: newStatus, health: newHealth });
+
+    set((s) => ({
+      projectOverrides: { ...s.projectOverrides, [projectId]: merged },
+      audit: [event, ...s.audit],
+      notifications: [
+        {
+          id: `n-proj-${auditSeq}`,
+          klass: newStatus === "COMPLETED" ? "informational" as const : "manager_review" as const,
+          title: newStatus === "COMPLETED" ? `${project.name} marked done` : `${project.name} updated`,
+          body: `Now ${newStatus.toLowerCase()} · ${newHealth.replace("_", " ").toLowerCase()}.`,
+          at: new Date().toISOString(),
+          read: false,
+          entityRef: "/projects",
+        },
+        ...s.notifications,
+      ],
+      lastAction: `${project.name} → ${newStatus.toLowerCase()}`,
+    }));
+    publishSync(get());
+  },
 
   reviewProposal: (id, verdict) => {
     if (!useSession.getState().can("review_proposals")) { set({ lastAction: "Not permitted — reviewing agent proposals requires manager access." }); return; }
@@ -632,6 +695,29 @@ syncChannel.subscribe((msg) => {
     capacity: msg.capacity,
     proposals: msg.proposals,
     audit: msg.audit,
+    projectOverrides: msg.projectOverrides ?? {},
     lastAction: "Synced from another session",
   });
 });
+
+/* ----------------------------- live projects ------------------------------ */
+// Merge the static project seed with any live overrides. Components that show a
+// project's status/health should read THESE so manager changes appear live,
+// everywhere, for every login.
+export function mergeProject(p: Project, overrides: Record<string, ProjectOverride>): Project {
+  const o = overrides[p.id];
+  return o ? { ...p, ...o } : p;
+}
+
+/** Hook: all projects with live status/health applied. */
+export function useLiveProjects(): Project[] {
+  const overrides = useOps((s) => s.projectOverrides);
+  return seedProjects.map((p) => mergeProject(p, overrides));
+}
+
+/** Hook: a single project with live status/health applied. */
+export function useLiveProject(id?: string): Project | undefined {
+  const overrides = useOps((s) => s.projectOverrides);
+  const p = seedProjects.find((x) => x.id === id);
+  return p ? mergeProject(p, overrides) : undefined;
+}
