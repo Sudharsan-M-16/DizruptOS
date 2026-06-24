@@ -79,10 +79,10 @@ export const APPS: AppEntry[] = [
   // Previously orphaned routes — now first-class OS apps
   { id: "r-goals", label: "Goals & OKRs", iconKey: "goals", accent: "#10B981", kind: "iframe", href: "/goals", dock: true, ...IFRAME_RECT },
   { id: "r-proposals", label: "Agent Inbox", iconKey: "proposals", accent: "#FEBC2E", kind: "iframe", href: "/proposals", dock: true, perm: "review_proposals", ...IFRAME_RECT },
-  { id: "r-decisions", label: "Decisions", iconKey: "decisions", accent: "#C084FC", kind: "iframe", href: "/decisions", dock: false, ...IFRAME_RECT },
-  { id: "r-capabilities", label: "Capabilities", iconKey: "capabilities", accent: "#38BDF8", kind: "iframe", href: "/capabilities", dock: false, ...IFRAME_RECT },
+  { id: "r-decisions", label: "Decisions", iconKey: "decisions", accent: "#C084FC", kind: "iframe", href: "/decisions", dock: false, perm: "view_capacity", ...IFRAME_RECT },
+  { id: "r-capabilities", label: "Capabilities", iconKey: "capabilities", accent: "#38BDF8", kind: "iframe", href: "/capabilities", dock: false, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-audit", label: "Audit Trail", iconKey: "audit", accent: "#9AA3AD", kind: "iframe", href: "/audit", dock: false, perm: "view_audit", ...IFRAME_RECT },
-  { id: "r-import", label: "Data Import", iconKey: "import", accent: "#F59E0B", kind: "iframe", href: "/import", dock: false, ...IFRAME_RECT },
+  { id: "r-import", label: "Data Import", iconKey: "import", accent: "#F59E0B", kind: "iframe", href: "/import", dock: false, perm: "reallocate", ...IFRAME_RECT },
 
   // Alert Center — executive alerts, escalations, digests
   { id: "alerts", label: "Alert Center", iconKey: "alerts", accent: "#FF5F57", kind: "panel", dock: false, perm: "view_executive", x: 100, y: 50, w: 920, h: 640 },

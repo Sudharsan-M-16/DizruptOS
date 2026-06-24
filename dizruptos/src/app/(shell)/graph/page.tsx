@@ -37,8 +37,15 @@ import {
 } from "lucide-react";
 import { relationships, expertiseConcentration, reachable } from "@/lib/graph";
 import type { EntityType } from "@/lib/graph";
-import { employeeById } from "@/lib/data";
-import { cn } from "@/lib/utils";
+import { employeeById, projectById, WEEKS } from "@/lib/data";
+import { useOps } from "@/lib/store";
+import { cn, fmtPct } from "@/lib/utils";
+import type { HealthStatus } from "@/lib/types";
+
+// Live project health → node colour, so stage changes recolour the graph.
+const HEALTH_TONE: Record<HealthStatus, string> = {
+  ON_TRACK: "#10B981", DELAYED: "#F59E0B", AT_RISK: "#F59E0B", BLOCKED: "#EF4444", CRITICAL: "#EF4444",
+};
 
 type GraphData = {
   label: string;
@@ -216,6 +223,10 @@ export default function GraphPage() {
   const [hoveredId, setHoveredId] = React.useState<string | null>(null);
   const [lens, setLens] = React.useState<Lens>(null);
   const [searchQ, setSearchQ] = React.useState("");
+  // Live state: project stage changes and task reassignments recolour/relabel
+  // the graph in real time.
+  const projectOverrides = useOps((s) => s.projectOverrides);
+  const utilization = useOps((s) => s.utilization);
 
   // Track the live theme so the canvas (and edge contrast) follow light/dark.
   const [mode, setMode] = React.useState<"light" | "dark">("dark");
@@ -260,18 +271,35 @@ export default function GraphPage() {
       );
 
       const top = holders[0];
-      const nodes: Node[] = Object.entries(NODE_META).map(([id, m]) => ({
-        id,
-        position: { x: m.x, y: m.y },
-        type: "entity",
-        data: {
-          ...m,
-          sub:
-            id === "cap-payments" && top
-              ? `Capability · top holder ${(top.share * 100).toFixed(0)}% of depth`
-              : m.sub,
-        } as unknown as Record<string, unknown>,
-      }));
+      const nodes: Node[] = Object.entries(NODE_META).map(([id, m]) => {
+        let tone = m.tone;
+        let sub = m.sub;
+        let alert = m.alert;
+        // Live project health — recolour + relabel from the live stage.
+        if (m.kind === "project") {
+          const base = projectById(id);
+          const health = (projectOverrides[id]?.health ?? base?.health) as HealthStatus | undefined;
+          if (health) {
+            tone = HEALTH_TONE[health];
+            sub = `Project · ${health.replace("_", " ").toLowerCase()}`;
+            alert = health === "CRITICAL" || health === "BLOCKED";
+          }
+        }
+        // Live person load — reassigning work changes the number here.
+        if (m.kind === "employee") {
+          const u = utilization(id, WEEKS[0]);
+          const role = m.sub.split(" · ")[0];
+          sub = `${role} · ${fmtPct(u)}${employeeById(id)?.burnoutFlag ? " · burnout flag" : ""}`;
+        }
+        // Capability bus-factor headline stays.
+        if (id === "cap-payments" && top) sub = `Capability · top holder ${(top.share * 100).toFixed(0)}% of depth`;
+        return {
+          id,
+          position: { x: m.x, y: m.y },
+          type: "entity",
+          data: { ...m, tone, sub, alert } as unknown as Record<string, unknown>,
+        };
+      });
 
       const edges: Edge[] = relationships
         .filter((r) => NODE_META[r.source.id] && NODE_META[r.target.id])
@@ -305,10 +333,13 @@ export default function GraphPage() {
         pagerank,
         pagerankIds,
       };
-    }, []);
+    }, [projectOverrides, utilization]);
 
   // Controlled nodes so lens dimming re-renders while dragging keeps working.
-  const [rfNodes, , onNodesChange] = useNodesState(nodes);
+  const [rfNodes, setRfNodes, onNodesChange] = useNodesState(nodes);
+
+  // Keep the rendered nodes in sync when live data (health/load) changes.
+  React.useEffect(() => { setRfNodes(nodes); }, [nodes, setRfNodes]);
 
   const lensIds = lens === "blast" ? blastIds : lens === "bus" ? busIds : lens === "influence" ? influenceIds : lens === "pagerank" ? pagerankIds : null;
 

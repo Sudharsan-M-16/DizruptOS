@@ -1,12 +1,14 @@
 "use client";
 
-// Client Portal — what a customer sees when they log in. It is deliberately
-// narrow: only THEIR project(s). Plain-language status, what's being worked on,
-// who's on the team, and anything that puts their delivery at risk. No company
-// data, no capacity %, no burnout, no financials, no other projects or people.
+// Client Portal — what a customer sees when they log in. Deliberately narrow:
+// only THEIR project(s). Designed to be understood in one glance by a non-
+// technical client — a friendly status line, a progress ring, a Design → Build →
+// Test → Launch timeline, then what's happening now / next / done, the team, and
+// (only if relevant) a calm "what we're watching" note. No company data, no
+// capacity %, no burnout, no financials, no other projects or people.
 
 import * as React from "react";
-import { CheckCircle2, CircleDot, Clock, LogOut, ShieldAlert, Sparkles } from "lucide-react";
+import { Check, ChevronRight, CircleDot, Clock, LogOut, ShieldAlert } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession, PERSONAS } from "@/lib/session";
 import { projects, risks as seedRisks, employeeById } from "@/lib/data";
@@ -14,16 +16,24 @@ import { EmpAvatar } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 import type { HealthStatus, Task } from "@/lib/types";
 
-const HEALTH: Record<HealthStatus, { label: string; tone: string; msg: string }> = {
-  ON_TRACK: { label: "On track", tone: "ok", msg: "Everything is going to plan." },
-  DELAYED: { label: "Slightly behind", tone: "warn", msg: "A few things are running late — the team is catching up." },
-  AT_RISK: { label: "Needs attention", tone: "warn", msg: "Some parts are at risk — the team is on it." },
-  BLOCKED: { label: "Blocked", tone: "danger", msg: "Work is blocked and being escalated." },
-  CRITICAL: { label: "Behind schedule", tone: "danger", msg: "This project is behind — the team is focused on getting it back on track." },
+const HEALTH: Record<HealthStatus, { label: string; tone: string; line: string }> = {
+  ON_TRACK: { label: "On track", tone: "ok", line: "Everything's on plan for your delivery date." },
+  DELAYED: { label: "A little behind", tone: "warn", line: "A few things slipped — the team is catching up." },
+  AT_RISK: { label: "Needs attention", tone: "warn", line: "Some parts are at risk — the team is on it." },
+  BLOCKED: { label: "Blocked", tone: "danger", line: "Work is blocked and being escalated for you." },
+  CRITICAL: { label: "Behind schedule", tone: "danger", line: "We're behind — the team has this as top priority." },
 };
 
 const toneText: Record<string, string> = { ok: "text-ok", warn: "text-warn", danger: "text-danger" };
-const toneBg: Record<string, string> = { ok: "bg-ok/10 border-ok/30", warn: "bg-warn/10 border-warn/30", danger: "bg-danger/10 border-danger/30" };
+const toneHex: Record<string, string> = { ok: "#10B981", warn: "#F59E0B", danger: "#EF4444" };
+
+// The build journey, in words a client understands.
+const PHASES: { key: string; label: string; labels: string[] }[] = [
+  { key: "design", label: "Design", labels: ["design"] },
+  { key: "build", label: "Build", labels: ["frontend", "backend", "database", "ai", "data", "devops"] },
+  { key: "test", label: "Test", labels: ["testing"] },
+  { key: "launch", label: "Launch", labels: ["launch"] },
+];
 
 export function ClientPortal() {
   const persona = useSession((s) => s.persona());
@@ -31,27 +41,22 @@ export function ClientPortal() {
   const liveTasks = useOps((s) => s.tasks);
   const overrides = useOps((s) => s.projectOverrides);
 
-  // The client only ever sees the project(s) booked under their name — with the
-  // team's live status changes applied (e.g. "Behind schedule" → "On track").
   const myProjects = projects
     .filter((p) => p.customer === persona.customer)
     .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
 
   return (
     <div className="min-h-screen bg-ink text-fg">
-      {/* header */}
-      <header className="flex items-center gap-3 border-b border-line bg-ink-surface/80 px-6 py-3.5 backdrop-blur">
-        <span className="grid h-9 w-9 place-items-center rounded-xl font-bold text-ink" style={{ background: persona.accent }}>
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-ink-surface/85 px-6 py-3.5 backdrop-blur">
+        <span className="grid h-9 w-9 place-items-center rounded-xl text-sm font-bold text-ink" style={{ background: persona.accent }}>
           {persona.initials}
         </span>
         <div className="flex-1">
           <div className="text-sm font-semibold">{persona.name}</div>
-          <div className="text-2xs text-fg-muted">Client portal · your project status</div>
+          <div className="text-2xs text-fg-muted">Your project, in plain English</div>
         </div>
-        {/* demo convenience: jump back to an internal login */}
-        <label className="sr-only" htmlFor="cp-switch">Switch login</label>
         <select
-          id="cp-switch"
+          aria-label="Switch login"
           value={persona.id}
           onChange={(e) => setPersona(e.target.value)}
           className="rounded-lg border border-line bg-ink-elevated px-2.5 py-1.5 text-xs text-fg-secondary outline-none focus:border-brand"
@@ -63,9 +68,9 @@ export function ClientPortal() {
         </a>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-6 px-6 py-8">
+      <main className="mx-auto max-w-3xl space-y-8 px-6 py-8">
         {myProjects.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-line p-10 text-center text-sm text-fg-muted">
+          <div className="rounded-2xl border border-dashed border-line p-12 text-center text-sm text-fg-muted">
             No projects are linked to your account yet. Your account manager will be in touch.
           </div>
         )}
@@ -84,106 +89,176 @@ function ProjectStatus({ project, tasks }: { project: (typeof projects)[number];
   const upcoming = tasks.filter((t) => ["TO_DO", "BACKLOG"].includes(t.status));
   const pct = tasks.length ? Math.round((done.length / tasks.length) * 100) : 0;
 
-  // Team: people with work on this project — names + roles only, no internal metrics.
   const team = Array.from(new Set(tasks.map((t) => t.assigneeId).filter(Boolean) as string[]))
     .map((id) => employeeById(id))
     .filter(Boolean);
 
-  // Only delivery-relevant risks — never internal people/burnout risks.
   const clientRisks = seedRisks.filter(
     (r) => r.projectId === project.id && r.category !== "people" && r.status !== "CLOSED"
   );
 
+  // Phase progress from task labels.
+  const phaseInfo = PHASES.map((ph) => {
+    const phTasks = tasks.filter((t) => t.labels?.some((l) => ph.labels.includes(l)));
+    const phDone = phTasks.filter((t) => t.status === "COMPLETED").length;
+    const ratio = phTasks.length ? phDone / phTasks.length : null; // null = no work in this phase
+    return { ...ph, count: phTasks.length, ratio };
+  });
+  const currentPhaseIdx = phaseInfo.findIndex((p) => p.ratio !== null && p.ratio < 1);
+
   const targetDate = new Date(project.targetDate).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
 
   return (
-    <section className="space-y-5">
-      {/* hero status */}
-      <div className="rounded-2xl border border-line bg-ink-surface p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">{project.name}</h1>
-            <p className="mt-1 max-w-lg text-sm text-fg-secondary">{project.description}</p>
+    <section className="space-y-6">
+      {/* hero — friendly status + progress ring */}
+      <div className="overflow-hidden rounded-3xl border border-line bg-gradient-to-br from-ink-surface to-ink-elevated/40">
+        <div className="flex flex-col gap-6 p-7 sm:flex-row sm:items-center">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-2xs font-semibold", `${toneText[h.tone]}`)} style={{ background: `${toneHex[h.tone]}1a` }}>
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: toneHex[h.tone] }} /> {h.label}
+              </span>
+            </div>
+            <h1 className="mt-2 font-display text-3xl font-bold leading-tight tracking-tight">{project.name}</h1>
+            <p className={cn("mt-2 text-sm leading-relaxed", toneText[h.tone])}>{h.line}</p>
+            <p className="mt-3 max-w-md text-xs leading-relaxed text-fg-muted">{project.description}</p>
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-line bg-ink-surface/60 px-3 py-1.5 text-2xs text-fg-secondary">
+              <Clock size={12} /> Delivery target: <span className="font-semibold text-fg">{targetDate}</span>
+            </div>
           </div>
-          <span className={cn("rounded-full border px-3 py-1 text-xs font-semibold", toneBg[h.tone], toneText[h.tone])}>
-            {h.label}
-          </span>
+          <ProgressRing pct={pct} tone={toneHex[h.tone]} done={done.length} total={tasks.length} />
         </div>
 
-        <p className={cn("mt-4 text-sm", toneText[h.tone])}>{h.msg}</p>
-
-        {/* progress */}
-        <div className="mt-5">
-          <div className="mb-1.5 flex items-center justify-between text-2xs text-fg-muted">
-            <span>{done.length} of {tasks.length} tasks done</span>
-            <span className="font-mono">{pct}%</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-ink-elevated">
-            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: h.tone === "danger" ? "#EF4444" : h.tone === "warn" ? "#F59E0B" : "#10B981" }} />
-          </div>
-          <div className="mt-2 flex items-center gap-1.5 text-2xs text-fg-muted">
-            <Clock size={11} /> Target delivery: <span className="text-fg-secondary">{targetDate}</span>
+        {/* phase timeline */}
+        <div className="border-t border-line bg-ink/30 px-7 py-5">
+          <div className="flex items-center justify-between">
+            {phaseInfo.map((ph, i) => {
+              const complete = ph.ratio === 1;
+              const current = i === currentPhaseIdx;
+              const dim = ph.ratio === null && i > (currentPhaseIdx === -1 ? PHASES.length : currentPhaseIdx);
+              return (
+                <React.Fragment key={ph.key}>
+                  <div className="flex flex-col items-center gap-1.5 text-center">
+                    <span
+                      className={cn("grid h-8 w-8 place-items-center rounded-full border text-2xs font-bold transition-colors",
+                        complete ? "border-ok bg-ok/15 text-ok"
+                          : current ? "border-brand bg-brand/15 text-brand"
+                            : "border-line bg-ink-elevated text-fg-faint")}
+                    >
+                      {complete ? <Check size={14} /> : current ? <CircleDot size={14} /> : i + 1}
+                    </span>
+                    <span className={cn("text-2xs font-medium", complete ? "text-ok" : current ? "text-fg" : dim ? "text-fg-faint" : "text-fg-muted")}>{ph.label}</span>
+                  </div>
+                  {i < phaseInfo.length - 1 && (
+                    <div className="mx-1 h-px flex-1" style={{ background: complete ? toneHex.ok : "rgb(var(--line))" }} />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* deadline / risk flags */}
+      {/* gentle watch note */}
       {(h.tone === "danger" || clientRisks.length > 0) && (
-        <div className={cn("rounded-xl border p-4", h.tone === "danger" ? toneBg.danger : toneBg.warn)}>
+        <div className="rounded-2xl border p-4" style={{ borderColor: `${toneHex[h.tone === "danger" ? "danger" : "warn"]}55`, background: `${toneHex[h.tone === "danger" ? "danger" : "warn"]}12` }}>
           <div className={cn("flex items-center gap-2 text-xs font-semibold", h.tone === "danger" ? toneText.danger : toneText.warn)}>
-            <ShieldAlert size={13} /> Things we're watching
+            <ShieldAlert size={14} /> What we're watching
           </div>
           <ul className="mt-2 space-y-1 text-xs text-fg-secondary">
-            {h.tone === "danger" && <li>• This project is behind its target date — the team has it as top priority.</li>}
-            {clientRisks.map((r) => (
-              <li key={r.id}>• {r.title}{r.status === "ESCALATED" ? " (being escalated)" : ""}</li>
-            ))}
+            {h.tone === "danger" && <li>• We're behind the target date — the team is focused on recovery.</li>}
+            {clientRisks.map((r) => <li key={r.id}>• {r.title}{r.status === "ESCALATED" ? " (being escalated)" : ""}</li>)}
           </ul>
         </div>
       )}
 
-      {/* work columns */}
-      <div className="grid gap-3 sm:grid-cols-3">
-        <TaskColumn title="Done" icon={CheckCircle2} tone="ok" tasks={done} />
-        <TaskColumn title="In progress" icon={CircleDot} tone="warn" tasks={active} />
-        <TaskColumn title="Coming up" icon={Sparkles} tone="muted" tasks={upcoming} />
+      {/* happening now */}
+      <Block title="Happening now" hint="What the team is actively working on">
+        {active.length === 0 ? <Empty>Nothing in progress right now.</Empty> : (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {active.map((t) => (
+              <div key={t.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-surface px-3.5 py-3">
+                <CircleDot size={14} className="shrink-0 text-warn" />
+                <span className="text-sm text-fg">{t.title}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Block>
+
+      {/* up next + done */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Block title="Coming up" hint="Planned next">
+          <List tasks={upcoming} icon={ChevronRight} tone="muted" empty="Nothing queued." />
+        </Block>
+        <Block title="Recently done" hint="Completed work">
+          <List tasks={done} icon={Check} tone="ok" empty="Nothing completed yet." />
+        </Block>
       </div>
 
       {/* team */}
-      <div className="rounded-2xl border border-line bg-ink-surface p-5">
-        <div className="mb-3 text-2xs font-semibold uppercase tracking-wider text-fg-muted">Your team ({team.length})</div>
+      <Block title="Your team" hint={`${team.length} ${team.length === 1 ? "person" : "people"} on your project`}>
         <div className="flex flex-wrap gap-3">
           {team.map((e) => e && (
-            <div key={e.id} className="flex items-center gap-2">
-              <EmpAvatar initials={e.initials} accent={e.accent} size={28} />
+            <div key={e.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-ink-surface px-3 py-2">
+              <EmpAvatar initials={e.initials} accent={e.accent} size={30} />
               <div>
-                <div className="text-xs font-medium">{e.name}</div>
+                <div className="text-xs font-semibold">{e.name}</div>
                 <div className="text-2xs text-fg-muted">{e.title}</div>
               </div>
             </div>
           ))}
-          {team.length === 0 && <div className="text-xs text-fg-faint">The team is being assigned.</div>}
+          {team.length === 0 && <Empty>The team is being assigned.</Empty>}
         </div>
-      </div>
+      </Block>
     </section>
   );
 }
 
-function TaskColumn({ title, icon: Icon, tone, tasks }: { title: string; icon: React.ElementType; tone: string; tasks: Task[] }) {
+function ProgressRing({ pct, tone, done, total }: { pct: number; tone: string; done: number; total: number }) {
+  const r = 46;
+  const c = 2 * Math.PI * r;
+  const off = c - (pct / 100) * c;
   return (
-    <div className="rounded-xl border border-line bg-ink-surface p-3">
-      <div className="mb-2 flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-wider text-fg-muted">
-        <Icon size={12} className={tone === "ok" ? "text-ok" : tone === "warn" ? "text-warn" : "text-fg-muted"} />
-        {title} <span className="ml-auto font-mono">{tasks.length}</span>
-      </div>
-      <div className="space-y-1.5">
-        {tasks.length === 0 && <div className="px-1 py-2 text-2xs text-fg-faint">Nothing here.</div>}
-        {tasks.map((t) => (
-          <div key={t.id} className="rounded-lg border border-line bg-ink-elevated/60 px-2.5 py-1.5 text-xs text-fg-secondary">
-            {t.title}
-          </div>
-        ))}
+    <div className="relative grid shrink-0 place-items-center">
+      <svg width="120" height="120" viewBox="0 0 120 120" className="-rotate-90">
+        <circle cx="60" cy="60" r={r} fill="none" stroke="rgb(var(--ink-elevated))" strokeWidth="10" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke={tone} strokeWidth="10" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off} style={{ transition: "stroke-dashoffset 600ms cubic-bezier(0.4,0,0.2,1)" }} />
+      </svg>
+      <div className="absolute flex flex-col items-center">
+        <span className="font-display text-2xl font-bold tracking-tight">{pct}%</span>
+        <span className="text-2xs text-fg-muted">{done}/{total} done</span>
       </div>
     </div>
   );
+}
+
+function Block({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <div className="mb-2.5 flex items-baseline gap-2">
+        <h2 className="font-display text-base font-bold tracking-tight">{title}</h2>
+        <span className="text-2xs text-fg-muted">{hint}</span>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function List({ tasks, icon: Icon, tone, empty }: { tasks: Task[]; icon: React.ElementType; tone: string; empty: string }) {
+  if (tasks.length === 0) return <Empty>{empty}</Empty>;
+  return (
+    <div className="space-y-1.5">
+      {tasks.map((t) => (
+        <div key={t.id} className="flex items-center gap-2 rounded-lg border border-line bg-ink-surface px-3 py-2 text-xs text-fg-secondary">
+          <Icon size={13} className={tone === "ok" ? "text-ok" : "text-fg-muted"} />
+          <span className={cn("truncate", tone === "ok" && "line-through opacity-70")}>{t.title}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Empty({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-xl border border-dashed border-line py-5 text-center text-2xs text-fg-faint">{children}</div>;
 }

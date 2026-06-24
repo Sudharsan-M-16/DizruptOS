@@ -23,6 +23,7 @@ import {
   SeverityBadge,
 } from "@/components/ui/primitives";
 import { cn, fmtDate } from "@/lib/utils";
+import { CapacityPersonSidebar } from "@/components/desktop/capacity-person-sidebar";
 import type { Risk, RiskImpact, RiskProbability } from "@/lib/types";
 
 import { SEVERITY_MATRIX, severityOf } from "@/lib/risk";
@@ -154,6 +155,7 @@ const statusTone: Record<Risk["status"], string> = {
 export default function RisksPage() {
   const [selected, setSelected] = React.useState<string | null>(null);
   const [showAdd, setShowAdd] = React.useState(false);
+  const [ownerSidebarId, setOwnerSidebarId] = React.useState<string | null>(null);
   const personaId = useSession((s) => s.personaId);
   const canLog = useSession((s) => s.can("reallocate"));
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
@@ -167,7 +169,7 @@ export default function RisksPage() {
   );
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="relative flex h-full flex-col">
       {/* OS page header */}
       <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
         <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#EF444422", border: "1px solid #EF444444" }}>
@@ -315,7 +317,7 @@ export default function RisksPage() {
                       </button>
                     )}
                     {owner && (
-                      <button onClick={() => launchApp("directory")} className="flex items-center gap-2.5 text-xs text-fg-secondary transition-colors hover:text-brand">
+                      <button onClick={() => setOwnerSidebarId(owner.id)} className="flex items-center gap-2.5 text-xs text-fg-secondary transition-colors hover:text-brand">
                         <EmpAvatar initials={owner.initials} accent={owner.accent} size={26} />
                         <div>
                           <div className="label-xs">Owner</div>
@@ -334,6 +336,7 @@ export default function RisksPage() {
       </div>
       <AnimatePresence>
         {showAdd && <AddRiskPanel onClose={() => setShowAdd(false)} />}
+        {ownerSidebarId && <CapacityPersonSidebar employeeId={ownerSidebarId} onClose={() => setOwnerSidebarId(null)} />}
       </AnimatePresence>
     </div>
   );
