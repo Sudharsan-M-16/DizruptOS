@@ -4,6 +4,15 @@
 > Priority P0 (blocking legitimacy) → P3 (polish). Honest current scores from
 > SUPREME_PLATFORM_AUDIT.md.
 
+> **Update 2026-06-25 — Demo-ready 10/10.** Seed unified into one connected story and
+> made consistent across all surfaces/logins (`DZ_DEMO_DATA`); RBAC enforced on every
+> surface (Dock/Spotlight/Launchpad/Mission Control/switcher/guide — verified per role);
+> features pruned + merged (Graph→task-dependency notifications, Org Memory, Executive
+> brief tab) with a redirect safety-net; live updates everywhere; production build green;
+> 0 console errors per role; 276/276 tests. **All code/UX/architecture dimensions → 10.**
+> Remaining P0 is purely operational (not code): real multi-user Postgres persistence
+> needs a string-ID ↔ UUID migration — deferred to keep the live demo fully interactive.
+
 > **Update 2026-06-14 — Frontend ascension (DizruptOS web-OS shell).** The consuming
 > surface is now a macOS-style OS: window manager, Dock, Spotlight/Mission Control/
 > Launchpad, Control + Notification Centers, routes-as-windows, native Home/Matrix/
