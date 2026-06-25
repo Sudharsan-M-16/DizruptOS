@@ -95,6 +95,10 @@ interface OpsState {
   drawerTaskId: string | null;
   pendingDrop: PendingDrop | null; // guardrail modal state
   lastAction: string | null;
+  // The most recent committed reallocation — drives the capacity "close the loop"
+  // flash (source row ticks down, target row ticks up). `at` makes each move a
+  // fresh signal even when the same pair moves twice.
+  lastMove: { fromId: string | null; toId: string; at: number } | null;
 
   setPaletteOpen: (open: boolean) => void;
   openTaskDrawer: (id: string | null) => void;
@@ -197,6 +201,7 @@ export const useOps = create<OpsState>((set, get) => ({
   drawerTaskId: null,
   pendingDrop: null,
   lastAction: null,
+  lastMove: null,
 
   setPaletteOpen: (open) => set({ paletteOpen: open }),
   openTaskDrawer: (id) => set({ drawerTaskId: id }),
@@ -433,6 +438,7 @@ export const useOps = create<OpsState>((set, get) => ({
       pendingDrop: null,
       notifications: [...newNotifs, ...get().notifications],
       lastAction: `${relievedBit} · ${loadedBit} (${task.estimatedHours}h)`,
+      lastMove: { fromId: from ?? null, toId: to, at: Date.now() },
     });
     publishSync(get());
   },

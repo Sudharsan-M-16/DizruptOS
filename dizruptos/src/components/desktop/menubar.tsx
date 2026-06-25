@@ -9,7 +9,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Activity, AppWindow, BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Bell, Cpu, Info, Lock, LogOut, MapPin, Moon, Power, Search, SlidersHorizontal, Wifi, WifiOff } from "lucide-react";
+import { Activity, BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, Bell, Cpu, Info, Lock, LogOut, MapPin, Moon, Power, Search, SlidersHorizontal, Wifi, WifiOff } from "lucide-react";
 import { useSession, PERSONAS } from "@/lib/session";
 import { departments, employeeById } from "@/lib/data";
 import { EmpAvatar } from "@/components/ui/primitives";
@@ -52,7 +52,7 @@ export function Menubar({ healthScore, capacityPct }: { healthScore: number; cap
   const can = useSession((s) => s.can);
   // hide menu items the viewer's role can't open (no dead clicks)
   const visibleMenus = APP_MENUS
-    .map((m) => ({ ...m, items: m.items.filter((it) => { const a = appById(it.app); return !a?.perm || can(a.perm); }) }))
+    .map((m) => ({ ...m, items: m.items.filter((it) => { const a = appById(it.app); return !a?.hidden && (!a?.perm || can(a.perm)); }) }))
     .filter((m) => m.items.length > 0);
 
   const [open, setOpen] = useState<string | null>(null); // which menu/popover is open
@@ -117,10 +117,7 @@ export function Menubar({ healthScore, capacityPct }: { healthScore: number; cap
 
       {/* right cluster — control center */}
       <div className="ml-auto flex items-center gap-0.5 text-fg-secondary">
-        <button onClick={() => window.dispatchEvent(new CustomEvent("dizrupt:mission-control"))} title="Mission Control (F3)" className="grid h-5 w-5 place-items-center rounded transition-colors hover:bg-white/10 hover:text-fg">
-          <AppWindow size={13} />
-        </button>
-        <button onClick={() => window.dispatchEvent(new CustomEvent("dizrupt:spotlight"))} title="Spotlight (⌘Space)" className="grid h-5 w-5 place-items-center rounded transition-colors hover:bg-white/10 hover:text-fg">
+        <button onClick={() => window.dispatchEvent(new CustomEvent("dizrupt:mission-control"))} title="Launcher — apps, windows & search (F3 / ⌘Space)" aria-label="Open launcher" className="grid h-5 w-5 place-items-center rounded transition-colors hover:bg-white/10 hover:text-fg">
           <Search size={13} />
         </button>
         <Stat icon={Activity} tone={healthTone} label={`${healthScore}`} title={`Org health ${healthScore}/100`} />

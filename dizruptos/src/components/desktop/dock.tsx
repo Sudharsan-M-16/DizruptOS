@@ -123,7 +123,7 @@ export function Dock({ apps }: { apps: (DockApp | "sep")[] }) {
           {menu.app.appId && (
             <DockMenuItem onClick={() => { removeFromDock(menu.app.appId!); setMenu(null); }}>Remove from Dock</DockMenuItem>
           )}
-          <DockMenuItem onClick={() => { window.dispatchEvent(new CustomEvent("dizrupt:launchpad")); setMenu(null); }}>Show in Launchpad</DockMenuItem>
+          <DockMenuItem onClick={() => { window.dispatchEvent(new CustomEvent("dizrupt:launchpad")); setMenu(null); }}>Open Launcher</DockMenuItem>
         </div>
       )}
     </div>

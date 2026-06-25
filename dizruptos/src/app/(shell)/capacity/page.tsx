@@ -8,7 +8,9 @@ import { motion } from "framer-motion";
 import { GripVertical, Info, Plane } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
+import { isQualified } from "@/lib/skills";
 import { departments, employees, projectById, WEEKS } from "@/lib/data";
+import { Sparkles } from "lucide-react";
 import {
   CapacityBar,
   EmpAvatar,
@@ -29,8 +31,20 @@ export default function CapacityPage() {
   const allocated = useOps((s) => s.allocated);
   const requestReallocate = useOps((s) => s.requestReallocate);
   const openTaskDrawer = useOps((s) => s.openTaskDrawer);
+  const lastMove = useOps((s) => s.lastMove);
 
   const canSeeBurnout = useSession((s) => s.can("view_burnout"));
+  const canReallocate = useSession((s) => s.can("reallocate"));
+
+  // "Close the loop" flash — after a reallocation the source row ticks down and
+  // the target row ticks up; we briefly ring both so the change is visible.
+  const [flash, setFlash] = React.useState<{ fromId: string | null; toId: string } | null>(null);
+  React.useEffect(() => {
+    if (!lastMove) return;
+    setFlash({ fromId: lastMove.fromId, toId: lastMove.toId });
+    const id = setTimeout(() => setFlash(null), 1900);
+    return () => clearTimeout(id);
+  }, [lastMove?.at]);
   const [deptFilter, setDeptFilter] = React.useState<string>("all");
   const [dragTaskId, setDragTaskId] = React.useState<string | null>(null);
   const [dropTarget, setDropTarget] = React.useState<string | null>(null);
@@ -51,6 +65,15 @@ export default function CapacityPage() {
   const redCount = nowPcts.filter((p) => p >= 1).length;
   const warnCount = nowPcts.filter((p) => p >= 0.8 && p < 1).length;
   const freeCount = nowPcts.filter((p) => p < UNDERLOADED).length;
+
+  // "No employee should be free without higher-ups knowing." Free people who
+  // also have skills matching unowned work elsewhere — the loudest manager nudge.
+  const unowned = tasks.filter((t) => !t.assigneeId && t.status !== "COMPLETED");
+  const freeWithSkills = visible
+    .filter((e) => utilization(e.id, WEEKS[0]) < UNDERLOADED)
+    .map((e) => ({ emp: e, jobs: unowned.filter((t) => isQualified(e, t)) }))
+    .filter((x) => x.jobs.length > 0)
+    .sort((a, b) => utilization(a.emp.id, WEEKS[0]) - utilization(b.emp.id, WEEKS[0]));
 
   return (
     <div className="relative flex h-full flex-col">
@@ -98,6 +121,34 @@ export default function CapacityPage() {
           Click a person to see their work and move tasks
         </span>
       </div>
+
+      {/* Free-people nudge — managers only. The brief: free people must be
+          surfaced to higher-ups. Click a name to open them and assign matching work. */}
+      {canReallocate && freeWithSkills.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-info/40 bg-info/[0.07] px-4 py-3">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-info/15 text-info">
+            <Sparkles size={14} />
+          </span>
+          <span className="text-xs font-semibold text-fg">
+            {freeWithSkills.length} {freeWithSkills.length === 1 ? "person has" : "people have"} spare capacity with skills needed elsewhere
+          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {freeWithSkills.slice(0, 4).map(({ emp, jobs }) => (
+              <button
+                key={emp.id}
+                onClick={() => setSelectedEmpId(emp.id)}
+                className="flex items-center gap-1.5 rounded-full border border-info/40 bg-ink-surface px-2 py-0.5 text-2xs font-medium text-fg-secondary transition-colors hover:border-info hover:text-fg"
+                title={`Open ${emp.name} — ${jobs.length} matching ${jobs.length === 1 ? "task" : "tasks"} waiting`}
+              >
+                <EmpAvatar initials={emp.initials} accent={emp.accent} size={16} />
+                {emp.name.split(" ")[0]}
+                <span className="font-mono text-info">{fmtPct(utilization(emp.id, WEEKS[0]))}</span>
+              </button>
+            ))}
+          </div>
+          <span className="ml-auto hidden text-2xs text-fg-muted sm:block">Click a name to allocate →</span>
+        </div>
+      )}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
@@ -183,7 +234,10 @@ export default function CapacityPage() {
                 isTarget &&
                   (projected !== null && projected >= 1
                     ? "bg-danger-soft/40 ring-1 ring-inset ring-danger/40"
-                    : "bg-ok-soft/30 ring-1 ring-inset ring-ok/40")
+                    : "bg-ok-soft/30 ring-1 ring-inset ring-ok/40"),
+                // close-the-loop flash: source ticks down (amber), target up (green)
+                !isTarget && flash?.fromId === emp.id && "animate-[pulse_0.55s_ease-in-out_3] bg-warn-soft/40 ring-2 ring-inset ring-warn/60",
+                !isTarget && flash?.toId === emp.id && "animate-[pulse_0.55s_ease-in-out_3] bg-ok-soft/40 ring-2 ring-inset ring-ok/60"
               )}
             >
               {/* Identity column — click to open the person sidebar */}

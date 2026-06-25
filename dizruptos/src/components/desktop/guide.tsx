@@ -132,9 +132,7 @@ const SECTIONS: Section[] = [
   {
     title: "Ways to find and switch", icon: Search,
     items: [
-      { term: "Spotlight — search everything", desc: "The fastest way to do anything. Click the magnifying glass (top-right) or press ⌘/Ctrl + Space. Start typing — apps, people, projects and settings all appear. Click one to open it." },
-      { term: "Mission Control — see all open windows", desc: "Click the windows icon (top-right) or press F3. Every open window shrinks into a tidy grid so you can spot the one you want and click it." },
-      { term: "Launchpad — all your apps", desc: "Click the grid icon on the far-left of the Dock, or press F4. You get a full page of every app. Click one to open it. You can also pin/unpin apps to your Dock from here (hover an app and click the small circle)." },
+      { term: "Launcher — apps, windows & search in one place", desc: "The fastest way to get anywhere. Click the search icon (top-right, or the far-left of the Dock), or press F3, F4, or ⌘/Ctrl + Space. Your open windows appear at the top (click one to jump back to it), every app you can use is below, and the search box filters them as you type." },
     ],
   },
   {
@@ -195,9 +193,8 @@ const SECTIONS: Section[] = [
 ];
 
 const SHORTCUTS: [string, string][] = [
-  ["⌘/Ctrl + Space", "Open Spotlight search"],
-  ["F3", "Mission Control (see all windows)"],
-  ["F4", "Launchpad (all apps)"],
+  ["⌘/Ctrl + Space", "Open the Launcher (apps, windows & search)"],
+  ["F3 / F4", "Open the Launcher"],
   ["⌘/Ctrl + `", "Switch to the next window"],
   ["⌃⌘ + Q", "Lock the screen"],
   ["Esc", "Close any open menu or search"],

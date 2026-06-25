@@ -1,196 +1,205 @@
-# DIZRUPT — The Demo Story
+# DIZRUPT — The Story
 
-> Read this top to bottom and you can present the whole product as one story.
-> Plain language. Every feature appears where it naturally belongs, tied to the
-> live demo data and the people who use it. Each moment has a **▶ You'd use it
-> when…** line so a non-technical audience always knows *why* it matters.
-
----
-
-## The problem (say this first)
-
-Every company runs on two questions that never quite line up:
-
-1. **Who's doing what, and who has time?** (workforce)
-2. **What's happening on each project, and what does it need next?** (projects)
-
-Normally these live in different tools — a spreadsheet for people, a board for
-tasks, Slack for "is anyone free?", a deck for the executive summary. Nobody has
-one honest picture. So people get overloaded silently, projects stall waiting on
-one person, and the client finds out late.
-
-**DIZRUPT puts both into one place** — a workplace that runs like an operating
-system in your browser. One source of truth: who's free, who's drowning, what
-each project needs, and what to do about it — live, for everyone, scoped to what
-their role should see.
-
-> **The one-sentence pitch:** *DIZRUPT shows you who's overloaded, who's free,
-> and what to do about it — and everyone, from the CEO to the client, sees exactly
-> the right slice of the same live truth.*
+> This isn't a script to memorise. It's the story of the product — read it once,
+> understand it, and you'll be able to tell it in your own words. It walks through
+> the real demo data, the people in it, and how each part of DIZRUPT solves the
+> problem it was built for. Plain language throughout.
 
 ---
 
-## The world of the demo (our seed)
+## 1. The problem, in one breath
 
-A small software studio building real things you recognise:
+Every company is really two companies tangled together.
 
-- **AI Support Chatbot** — the flagship. It's **on fire**: behind schedule, the
-  two key people (Sarah, Zara) are over 100%, and the AI model is *blocked*
-  waiting on a database task.
-- **Sales Analytics Dashboard** — just started, **understaffed**: several tasks
-  have nobody on them.
-- **Ray (45% busy) and Inés (50%)** are sitting with spare time — and they have
-  exactly the skills the Dashboard needs.
-- Plus a Fitness App, a Cloud setup (blocked on a vendor), a Design System, and
-  an Online Store in planning.
+One is about **people**: who works here, what are they good at, what are they
+doing this week, and — the question nobody can ever answer honestly — *who has
+time to take on more?*
 
-That tension — *one team drowning, one project starving, and the right free
-people right there* — is the whole story. Watch how DIZRUPT makes it obvious and
-fixable in seconds.
+The other is about **projects**: what are we building, how is each one going,
+what does it need next, and *who should we put on it?*
 
----
+These two live in different tools — a spreadsheet of names, a board of tasks, a
+chat app full of "is anyone free?", and a slide deck for the boss. Because they're
+separate, the truth slips through the cracks. Someone quietly drowns under too
+much work. A project stalls because it's waiting on one person. A customer finds
+out their project is late only when it's already late.
 
-## Seven logins, one truth (this is the magic)
-
-Everyone signs into the **same desktop**, but **role-based access** means each
-person sees only what they should. Switch logins live in the demo — it's the
-strongest thing to show.
-
-### 1. Noor — the CEO (executive)
-Opens to the **Executive** cockpit: one screen — org health, what changed this
-week, what's on fire (the Chatbot), what needs a decision. A **Weekly Brief** tab
-writes the story in plain prose. She can see everything strategic; she *can't*
-reassign work (that's not her job).
-> **▶ You'd use it when** you have five minutes before a board call and need the
-> honest state of the company without chasing six people.
-
-### 2. Asha — the Project Manager
-The operator. Opens **Capacity** — a colour grid of the whole team by week. Red =
-overloaded (Sarah 115%, Zara 110%), blue/green = free (Ray 45%, Inés 50%). She
-clicks **Sarah** → a sidebar shows Sarah's tasks, skills, and a one-click **Move**
-that lists the *best-fit* people first (right skills + most room). She moves
-"Set up the chatbot database" to **Ahmed** — both get notified, both rows update
-instantly.
-> **▶ You'd use it when** someone's drowning and you need to hand work to the
-> right person — not just *anyone*, the one who actually has the skill and the time.
-
-### 3. Sarah — the Team Lead
-Sees her team's load and burnout flags (she's flagged herself — 115%, no time off
-in 112 days). She can *surface* problems but not reassign — leads raise, managers
-act. The system already nudged a fix for her overload into the manager's inbox.
-> **▶ You'd use it when** you're slammed and want the system to notice and route
-> help, instead of suffering quietly until something breaks.
-
-### 4. Ahmed — the Engineer (employee)
-Opens **Home** — just *his* world: today's work, what's pending, what's critical,
-and what's blocking him. Because he's only ~65% loaded, a green banner appears:
-**"You've got room this week — want to pick up more?"** with skill-matched
-unowned tasks he can claim himself, no manager needed. He sees a task **⛔ blocked
-by** a teammate's work, and gets a **🔓 you're unblocked** ping the moment it's done.
-He cannot see Capacity, Executive, the org graph, or anyone's salary — that's RBAC.
-> **▶ You'd use it when** you finish early and want to help move the project
-> forward — the system hands you work that fits, instead of you pinging "anything
-> I can do?".
-
-### 5. Acme Support — the Client
-A completely separate, locked-down **portal**. They see *only their project* (the
-Chatbot): a friendly status ("Behind schedule"), a progress ring, a
-**Design → Build → Test → Launch** timeline, what's happening now / next / done,
-the team's names, and a calm "what we're watching." They can **approve** a
-deliverable (it completes live for the team) and **message the team**. No company
-data, no other projects, no internal capacity — ever.
-> **▶ You'd use it when** you're the customer and you just want to know "is my
-> thing on track, who's on it, and what do you need from me?" — without a status call.
-
-### 6. Elias — the IT Admin
-Full access plus the **Admin Console** (tenants, SSO, SCIM) and the **Audit Trail**
-— every consequential action is logged (who moved what, who overrode a limit, who
-approved).
-> **▶ You'd use it when** you need to prove what happened, manage accounts, or pass
-> a security review.
-
-### 7. Priya — the Head of Engineering (dept head)
-The bridge: the executive view *and* the power to reassign — the org-wide picture
-with the operational controls.
+**DIZRUPT joins those two companies back into one.** It's a workplace that opens
+like a computer desktop in your browser, where people and projects share a single
+living picture — and it doesn't just show you what's happening, it tells you what
+to do about it. And because everyone from the CEO to the customer logs into the
+*same* place, each person sees exactly the slice that's theirs to see, and nothing
+they shouldn't.
 
 ---
 
-## The magic moment (do this live)
+## 2. Meet the studio (the world of the demo)
 
-This 30-second flow is the demo's punchline:
+The demo is a small software studio. You don't have to imagine it — it's all
+there in the data, and every screen is telling the same connected story.
 
-1. As **Asha**, open **Capacity**. The Chatbot team is red. Ray and Inés are blue
-   ("free for work").
-2. Open **Recommendations** → *"What to do next."* It already says, in plain
-   English: **"Staff the Sales Dashboard — assign 'Build the data pipeline' to Ray
-   (Data Engineer, 45% loaded — best fit)"** and **"Relieve Sarah — move a task to
-   Ahmed."** Nobody wrote those; the system read the live plan.
-3. Apply one. Now switch to **Ahmed's** login → the task is on his Home, he's
-   notified. Switch to the **Client** → the project status reflects it. Switch to
-   the **CEO** → the brief updates.
+They're building six things. One of them is in trouble, and that's where the
+story lives:
 
-**One change, true everywhere, instantly — scoped to each person's role.** That's
-the product.
+- **The AI Support Chatbot** is the big one, and it's **on fire.** It's behind
+  schedule, it's the studio's flagship for a customer called **Acme**, and the
+  two people holding it up — **Sarah**, the backend lead, and **Zara**, the only
+  person who understands the AI model — are both working over 100%. Worse, a key
+  task (training the AI) is **blocked**, waiting on someone to finish the database.
+- **The Sales Analytics Dashboard** has the opposite problem: it just started and
+  **nobody's really on it.** Several of its tasks have no owner at all.
+- And sitting right there, with hours to spare, are **Ray** (a data engineer, 45%
+  busy) and **Inés** (design, 50% busy) — whose skills are exactly what those
+  two projects need.
 
-> **▶ You'd use it when** you want to stop guessing. The system surfaces the move,
-> you approve it, and the whole org stays in sync without a single status meeting.
+That's the whole tension: **one team drowning, one project starving, and the
+right free people standing between them.** Everything DIZRUPT does is about making
+that obvious, and fixable, in seconds. The other projects — a Fitness App, a
+Cloud setup that's stuck waiting on a security vendor, a shared Design System, and
+an Online Store still in planning — fill out the world and keep the picture real.
 
----
-
-## How it maps to the original ask (say this to close the loop)
-
-The brief was: *workforce management + project management, clubbed into one; free
-people flagged to higher-ups; the underloaded can take on more; skill-based
-allocation; managers see status and what everyone's doing; employees see what's
-done, what's left, and what's next.* Point by point:
-
-| The ask | Where it lives in DIZRUPT |
-|---|---|
-| Workforce + projects in **one** thing | The desktop — Capacity (people) and Project Matrix/Projects (work) share one live store |
-| See **what each person did / is doing** | Click anyone in Capacity → their tasks, projects, skills, load |
-| See **who's free / can contribute more** | Capacity's "free for work" count + the blue rows; Recommendations lists them |
-| **Flag free people** to higher-ups | Underload signal on Capacity + the "people are free" notification |
-| Free employees can **take on more themselves** | Home's "You've got room — pick up" self-service (no manager needed) |
-| **Skill-based** allocation | Every reassign/suggestion ranks by skill match (a UI task never goes to a database expert) |
-| Move a person to where their **skill is needed** | Recommendations + Capacity sidebar route the right person to the understaffed project |
-| Managers know **status of project + people** | Executive, Projects (health), Capacity, Agent Inbox |
-| Employees know **done / to-do / next** | Home (Today / Pending / Critical) + blocked-by/blocking |
-
-**Yes — the problem statement is solved, end to end, and visible from every seat.**
+Around those projects are about sixteen people, each with real skills (backend,
+AI, design, data, testing, DevOps) and a real workload. The app knows who they
+are, what they can do, and how loaded they are — and that's the engine that makes
+the rest work.
 
 ---
 
-## Why this over a spreadsheet + a board + Slack
+## 3. How the day unfolds, seat by seat
 
-- **It's one truth, not four tools.** Capacity, tasks, risks, decisions, and the
-  executive summary all read the same live data — change it once, it's right
-  everywhere.
-- **It tells you what to do, not just what is.** Recommendations and the AI agents
-  turn "Sarah's at 115%" into "move this task to Ahmed — he fits."
-- **It respects who you are.** The CEO, an engineer, and a client open the *same*
-  app and each see a correct, safe slice. That's hard to fake and impossible in a
-  spreadsheet.
-- **Nobody's stuck or invisible.** Overload is flagged, free time is offered,
-  blocked work pings the people involved, and the client is never in the dark.
+Here's the same Tuesday, lived by six different people. Watch how the *one* truth
+shows up differently for each of them — that's the heart of the product.
+
+**The CEO, Noor, opens her laptop first.** She doesn't want detail; she wants the
+truth in one screen. Her **Executive** view gives it to her: the company's overall
+health, what changed this week, and one thing glowing red — the AI Support
+Chatbot is critical. A short written brief explains why, in plain prose, as if a
+chief of staff wrote it overnight. Noor can see everything that matters
+strategically, but she can't go in and shuffle people around — that's not her job,
+and the app respects that.
+
+**The project manager, Asha, picks up where Noor left off.** She opens
+**Capacity**, and the problem is suddenly physical: a grid of the whole team,
+coloured by how loaded they are. Sarah and Zara are deep red. And right at the top,
+the app is already shouting the thing the brief asked for — *"two people have
+spare capacity with skills needed elsewhere: Ray, Inés."* Asha clicks Sarah, and a
+panel slides out with everything Sarah's carrying. She picks the database task and
+asks the app to move it. The app doesn't just list names — it ranks them, best fit
+first, and tells her *why*: "Ahmed — has Backend, Databases ✓ · 65% loaded." She
+moves it to Ahmed. Both capacity bars flash — Sarah's ticks down, Ahmed's ticks up
+— and it's done.
+
+**The team lead, Sarah, feels the relief without lifting a finger.** Her own view
+had already flagged her as overloaded and burning out, and the system had quietly
+pushed a "relieve Sarah" suggestion up to her manager. Leads surface problems; the
+app makes sure they're heard.
+
+**The engineer, Ahmed, just sees his work.** His **Home** is only his world:
+what's due today, what's pending, what's critical, and what's blocking him. Because
+he's not fully loaded, a green banner invites him: *"You've got room this week —
+want to pick up more?"* — and offers tasks that actually fit his skills, which he
+can claim himself without waiting for a manager. He also sees that one of his
+tasks is **blocked by** a teammate's work, and the moment that teammate finishes,
+Ahmed gets a little *"you're unblocked"* nudge. Ahmed never sees the company's
+capacity grid, the executive numbers, or anyone's private burnout flags — that's
+not his to see, and the app simply doesn't show it to him.
+
+**The customer, Acme, lives in a different building entirely.** They log into a
+calm, separate portal that shows *only their project* — the chatbot — in friendly
+language: how it's going, a simple Design → Build → Test → Launch timeline, what's
+happening now and next, who's on the team, and what the studio is keeping an eye
+on. They can approve a finished piece of work (which marks it done for the team)
+and send the team a message. They never see another project, another customer, or
+a single internal number.
+
+**And the IT admin, Elias, keeps the lights on.** He has the run of the place to
+manage people and access. (The heavyweight admin and alerting consoles aren't part
+of the everyday story, so they stay out of the way.)
+
+---
+
+## 4. The moment that sells it
+
+If you only show one thing, show this — it takes about thirty seconds and it *is*
+the product:
+
+Start in **Capacity** as the manager. The chatbot team is red; Ray and Inés are
+calm blue, and the banner up top is already naming them. Open **Recommendations**
+— the app's "what to do next" list — and it's already written the answer in plain
+English: *"Staff the Sales Dashboard — give 'build the data pipeline' to Ray, he's
+the best fit and has the room,"* and *"Relieve Sarah — move a task to Ahmed."* No
+one typed those. The app read the live plan and worked them out.
+
+Apply one. Then switch logins. As **Ahmed**, the task is already on his Home and
+he's been notified. As the **customer**, the project's status has shifted. As the
+**CEO**, the brief reflects it. One change, made once, true everywhere — and each
+person sees only their correct slice of it.
+
+That's the pitch: **stop guessing, stop chasing.** The system spots the move, you
+approve it, and the whole company stays in sync without a single status meeting.
+
+---
+
+## 5. The supporting cast of features
+
+The spine of the product is small on purpose — Home, Capacity, Projects,
+Recommendations, the Executive view, and the Client Portal — so it never feels
+bloated. A few more pieces quietly back it up:
+
+- **Project Matrix** — a drag-and-drop board of every task by stage, for when you
+  want to work the project directly rather than the people.
+- **Tasks & Messages** — an employee's personal to-do list and a place for the
+  team to talk, so the daily loop lives inside the same desktop.
+- **Risks** — the things that could go wrong (like "only one person knows the AI
+  model"), tracked so they don't ambush anyone.
+- **AI Copilot** — ask the org a question in plain English ("who's overloaded?",
+  "what's risky about the chatbot?") and get a grounded answer with its reasoning.
+- **One Launcher** — everything opens from a single search-driven launcher (press
+  the search key, or click it on the dock): your open windows at the top, every app
+  you're allowed to use below, and a search box that filters as you type. No maze
+  of menus — one place to find anything.
+
+Everything reads from the same live data, so a change in one place is instantly
+true in all of them.
+
+---
+
+## 6. Why it beats the spreadsheet-and-chat way
+
+- **One honest picture instead of four guesses.** People, projects, risks and the
+  executive summary are the same living data — change it once, it's right
+  everywhere, for everyone.
+- **It tells you what to do, not just what is.** "Sarah's at 115%" becomes "move
+  this task to Ahmed — here's why he fits."
+- **The right view for every person.** The CEO, an engineer, and a customer open
+  the same app and each get a correct, safe slice. A spreadsheet can't do that.
+- **Nobody's invisible and nobody's stuck.** Overload is surfaced, spare time is
+  offered up, blocked work pings the people involved, and the customer is never
+  left in the dark.
 - **It's calm.** A clean desktop, plain words, one click to act.
 
 ---
 
-## A 3-minute script (if you only have one slot)
+## 7. How it answers the original brief, point for point
 
-1. **Sign in as the CEO.** "One screen: is the company healthy? The AI Chatbot is
-   critical." (Executive)
-2. **Switch to the PM.** "Here's why — Sarah and Zara are over 100%. And look,
-   Ray's free with the right skills." (Capacity) "The system already knows what to
-   do." (Recommendations → apply one.)
-3. **Switch to the Engineer.** "Ahmed only sees his work — and because he's free,
-   it's offering him the task we just routed." (Home self-service)
-4. **Switch to the Client.** "Acme sees only their project, in plain English, and
-   can approve work — nothing else." (Client portal)
-5. **Land it:** "One team, one truth, the right view for everyone — that's DIZRUPT."
+The ask was: join workforce and project management into one thing; make sure no
+one is silently free; let the underloaded take on more; allocate by skill; let
+managers see status and what everyone's doing; let employees see what's done,
+what's left, and what's next.
+
+- *Workforce + projects in one* → the desktop: Capacity (people) and
+  Projects/Matrix (work) read the same live data.
+- *Nobody silently free* → the Capacity banner names free people with needed
+  skills, right at the top, for managers.
+- *The underloaded take on more* → Home's "you've got room — pick up" lets them
+  claim fitting work themselves.
+- *Allocate by skill* → every suggestion and reassignment ranks people by skill
+  match and shows the reason.
+- *Managers see status + people* → Executive, Capacity, Projects.
+- *Employees see done / to-do / next* → Home, plus blocked/unblocked nudges.
+
+It's all there, and it's all visible from whichever seat you're sitting in.
 
 ---
 
-*Tip: keep the demo on the built-in data (it's deterministic and fully
-interactive — every click works and stays in sync). Switch logins from the
-profile menu to tell the story.*
+*One team, one truth, the right view for everyone. That's DIZRUPT.*

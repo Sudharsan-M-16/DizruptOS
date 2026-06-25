@@ -11,7 +11,7 @@ import { AlertTriangle, ArrowRightLeft, MapPin, Plane, Plus, X } from "lucide-re
 import { employeeById, employees, projectById, projects, WEEKS } from "@/lib/data";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
-import { isQualified, skillMatchScore } from "@/lib/skills";
+import { isQualified, skillMatchScore, taskRequiredSkills } from "@/lib/skills";
 import { EmpAvatar, CapacityBar, PriorityDot } from "@/components/ui/primitives";
 import { cn, fmtPct, utilizationTone } from "@/lib/utils";
 import type { Task } from "@/lib/types";
@@ -56,6 +56,7 @@ export function CapacityPersonSidebar({ employeeId, onClose }: { employeeId: str
 
   // Candidates to receive a task moved off this person: ranked by skill, then load.
   function candidatesFor(task: Task) {
+    const required = taskRequiredSkills(task);
     return employees
       .filter((e) => e.role !== "client" && e.id !== emp!.id)
       .map((e) => ({
@@ -63,6 +64,8 @@ export function CapacityPersonSidebar({ employeeId, onClose }: { employeeId: str
         qualified: isQualified(e, task),
         score: skillMatchScore(e, task),
         load: utilization(e.id, task.weekStart),
+        // the "why": which required skills this person actually has
+        matched: required.filter((s) => (e.skills ?? []).includes(s)),
       }))
       .sort((a, b) =>
         a.qualified !== b.qualified ? Number(b.qualified) - Number(a.qualified)
@@ -174,14 +177,23 @@ export function CapacityPersonSidebar({ employeeId, onClose }: { employeeId: str
                             <button
                               key={c.emp.id}
                               onClick={() => reassign(t.id, c.emp.id)}
-                              className="flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-ink-elevated"
+                              className="flex w-full items-start gap-2 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-ink-elevated"
+                              title={`${c.matched.length ? "Has " + c.matched.join(", ") : "General fit"} · ${fmtPct(c.load)} loaded`}
                             >
                               <EmpAvatar initials={c.emp.initials} accent={c.emp.accent} size={20} />
-                              <span className="min-w-0 flex-1 truncate text-2xs font-medium text-fg">{c.emp.name}</span>
-                              {c.qualified
-                                ? <span className="shrink-0 rounded bg-ok/15 px-1 text-[10px] font-semibold text-ok">fits</span>
-                                : <span className="shrink-0 rounded bg-warn/15 px-1 text-[10px] font-semibold text-warn">stretch</span>}
-                              <span className={cn("w-9 shrink-0 text-right font-mono text-[10px]",
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="truncate text-2xs font-medium text-fg">{c.emp.name}</span>
+                                  {c.qualified
+                                    ? <span className="shrink-0 rounded bg-ok/15 px-1 text-[10px] font-semibold text-ok">fits</span>
+                                    : <span className="shrink-0 rounded bg-warn/15 px-1 text-[10px] font-semibold text-warn">stretch</span>}
+                                </span>
+                                {/* the "why" — turns the suggestion into something you can trust */}
+                                <span className="mt-0.5 block truncate text-[10px] text-fg-muted">
+                                  {c.matched.length ? `${c.matched.join(", ")} ✓` : "general fit"} · {fmtPct(c.load)} loaded
+                                </span>
+                              </span>
+                              <span className={cn("mt-0.5 w-9 shrink-0 text-right font-mono text-[10px]",
                                 c.load >= 1 ? "text-danger" : c.load >= 0.8 ? "text-warn" : "text-ok")}>{fmtPct(c.load)}</span>
                             </button>
                           ))}

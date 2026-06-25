@@ -41,16 +41,12 @@ const TasksApp = dynamic(() => import("@/components/desktop/apps/tasks-app").the
 const KnowledgeVault = dynamic(() => import("@/components/desktop/apps/knowledge-vault").then(m => ({ default: m.KnowledgeVault })), { ssr: false });
 const SimulationApp = dynamic(() => import("@/components/desktop/apps/simulation-app").then(m => ({ default: m.SimulationApp })), { ssr: false });
 const CopilotApp = dynamic(() => import("@/components/desktop/apps/copilot-app").then(m => ({ default: m.CopilotApp })), { ssr: false });
-const AdminApp = dynamic(() => import("@/components/desktop/apps/admin-app").then(m => ({ default: m.AdminApp })), { ssr: false });
-const AlertsApp = dynamic(() => import("@/components/desktop/apps/alerts-app").then(m => ({ default: m.AlertsApp })), { ssr: false });
-import { Spotlight } from "@/components/desktop/spotlight";
 import { MissionControl } from "@/components/desktop/mission-control";
-import { Launchpad } from "@/components/desktop/launchpad";
 import { WindowSwitcher } from "@/components/desktop/window-switcher";
 import { Toaster, toast } from "@/components/desktop/toaster";
 import { DesktopGreeting } from "@/components/desktop/desktop-greeting";
 import { useOS } from "@/lib/os";
-import { APPS, DEFAULT_DOCK, appById, iconFor } from "@/lib/desktop-apps";
+import { DEFAULT_DOCK, LAUNCHER_APPS, appById, iconFor } from "@/lib/desktop-apps";
 import { StageManager } from "@/components/desktop/stage-manager";
 
 const PULSE_HREF: Record<string, string> = {
@@ -175,8 +171,6 @@ export default function CommandCenterDesktop() {
     { id: "vault", title: "Knowledge Vault", x: 180, y: 90, w: 900, h: 560, closed: true },
     { id: "simulation", title: "What-If Simulation", x: 120, y: 60, w: 920, h: 640, closed: true },
     { id: "copilot", title: "AI Copilot", x: 200, y: 60, w: 860, h: 560, closed: true },
-    { id: "alerts", title: "Alert Center", x: 100, y: 50, w: 920, h: 640, closed: true },
-    { id: "admin", title: "Admin Console", x: 80, y: 50, w: 1100, h: 680, closed: true },
     { id: "settings", title: "System Settings", x: 300, y: 80, w: 760, h: 560, closed: true },
   ];
 
@@ -369,7 +363,7 @@ export default function CommandCenterDesktop() {
     const open = dm.wins.some((w) => w.id === id && !w.closed); // open (incl. minimized)
     return { id, appId: id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent, running: open, onClick: () => launchApp(id), onClose: () => dm.close(id) };
   });
-  const launchpadApp: DockApp = { id: "launchpad", label: "Launchpad", icon: iconFor("launchpad"), accent: "#2BD9FF", onClick: () => window.dispatchEvent(new CustomEvent("dizrupt:launchpad")) };
+  const launchpadApp: DockApp = { id: "launchpad", label: "Launcher", icon: iconFor("launchpad"), accent: "#2BD9FF", onClick: () => window.dispatchEvent(new CustomEvent("dizrupt:launchpad")) };
   // RBAC for windows: a window backed by a perm-gated app is hidden from anyone
   // who lacks the perm — applied to EVERY surface that can open a window
   // (dock tiles, Spotlight, Mission Control, window switcher) so an employee can
@@ -378,6 +372,7 @@ export default function CommandCenterDesktop() {
     // The native "inbox" panel mirrors the Agent Inbox: employees see their own
     // requests, managers (review_proposals) see the review queue, nobody else.
     if (id === "inbox") return isEmployee || canReview;
+    if (appById(id)?.hidden) return false; // power-ups never surface in a launcher
     return appAllowed(id) && (canSeeAudit || id !== "activity");
   };
 
@@ -387,13 +382,11 @@ export default function CommandCenterDesktop() {
     .map((w) => ({ id: `win-${w.id}`, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w), running: true, onClick: () => dm.open(w.id), onClose: () => dm.close(w.id) }));
   const dockApps: (DockApp | "sep")[] = [launchpadApp, ...pinnedDock, ...(openTiles.length ? ["sep" as const, ...openTiles] : [])];
 
-  // ---- Spotlight + Mission Control feeds ----
-  const orgPanels = dm.wins.filter((w) => !["home", "matrix"].includes(w.id) && winAllowed(w.id));
-  const spotApps = [
-    ...APPS.filter((a) => a.kind !== "special" && appAllowed(a.id)).map((a) => ({ id: a.id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent })),
-    ...orgPanels.map((w) => ({ id: w.id, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w) })),
-  ];
-  const spotRoutes: { label: string; href: string; icon: React.ElementType; accent?: string }[] = [];
+  // ---- Launcher (merged Mission Control + Launchpad + search) feeds ----
+  // every app the viewer may launch (RBAC + hidden filtered) for the app grid
+  const launcherApps = LAUNCHER_APPS
+    .filter((a) => a.kind !== "special" && appAllowed(a.id))
+    .map((a) => ({ id: a.id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent }));
   const mcItems = dm.wins
     .filter((w) => winAllowed(w.id))
     .map((w) => ({ id: w.id, title: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w), minimized: w.minimized, closed: w.closed }));
@@ -464,8 +457,6 @@ export default function CommandCenterDesktop() {
         {renderWin("vault", <KnowledgeVault />, true)}
         {renderWin("simulation", <SimulationApp />, true)}
         {renderWin("copilot", <CopilotApp />, true)}
-        {renderWin("alerts", <AlertsApp />, true)}
-        {renderWin("admin", <AdminApp />, true)}
         {renderWin("settings", <SettingsBody />, true)}
 
         {/* dynamic route-as-window apps (iframes) */}
@@ -486,9 +477,7 @@ export default function CommandCenterDesktop() {
         ))}
 
         <Toaster />
-        <Launchpad />
-        <Spotlight apps={spotApps} routes={spotRoutes} onOpenWindow={launchApp} />
-        <MissionControl items={mcItems} onSelect={(id) => dm.open(id)} onLaunch={(id) => dm.open(id)} />
+        <MissionControl items={mcItems} apps={launcherApps} onSelect={(id) => dm.open(id)} onLaunch={(id) => launchApp(id)} />
         <WindowSwitcher windows={switchItems} onSelect={(id) => dm.open(id)} />
         <Dock apps={dockApps} />
       </div>
