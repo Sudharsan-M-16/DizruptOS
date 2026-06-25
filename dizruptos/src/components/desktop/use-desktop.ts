@@ -13,6 +13,7 @@
 // State stays simple + synchronous so animations never fight a transform.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { appById } from "@/lib/desktop-apps";
 
 export type WinKind = "panel" | "iframe";
 
@@ -95,8 +96,11 @@ export function useDesktop(defs: WinDef[], surfaceRef: React.RefObject<HTMLEleme
     const saved = load(persistKey);
     const base = defs.map((d, i) => toState(d, i + 1));
     if (!saved) return base;
-    // recreate spawned apps
-    const dyn = (saved.dynamic ?? []).map((d, i) => toState({ ...d, closed: false }, base.length + i + 1));
+    // recreate spawned apps — but drop any whose app no longer exists (e.g. a
+    // feature we pruned), so stale windows never reappear in Mission Control.
+    const dyn = (saved.dynamic ?? [])
+      .filter((d) => defs.some((x) => x.id === d.id) || !!appById(d.id))
+      .map((d, i) => toState({ ...d, closed: false }, base.length + i + 1));
     const all = [...base, ...dyn];
     // apply saved rects/state
     return all.map((w) => {

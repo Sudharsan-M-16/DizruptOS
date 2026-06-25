@@ -12,6 +12,17 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Building2, CheckCircle2, UserPlus, X } from "lucide-react";
+
+// Uses useSearchParams (token/email) — opt out of static prerender.
+export const dynamic = "force-dynamic";
+
+export default function AcceptInvitePage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen" style={{ background: "#040C12" }} />}>
+      <AcceptInviteContent />
+    </React.Suspense>
+  );
+}
 import { signInWithMagicLink, isAuthConfigured } from "@/lib/auth-supabase";
 import { useSession } from "@/lib/session";
 
@@ -32,7 +43,7 @@ function roleLabel(role: string) {
   return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export default function AcceptInvitePage() {
+function AcceptInviteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";

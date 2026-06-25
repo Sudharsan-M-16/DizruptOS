@@ -31,7 +31,7 @@ export function GuardrailModal() {
     <Dialog.Root open={open} onOpenChange={(o) => !o && cancelReallocate()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 animate-riseIn rounded-card border border-danger/40 bg-ink-elevated p-6 shadow-pop">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100vh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto animate-riseIn rounded-card border border-danger/40 bg-ink-elevated p-5 shadow-pop">
           <div className="flex items-start gap-3">
             <div className="rounded-lg bg-danger-soft p-2 text-danger">
               <OctagonAlert size={18} />

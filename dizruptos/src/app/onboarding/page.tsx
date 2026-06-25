@@ -21,6 +21,17 @@ import { StepImportData } from "./steps/3-import-data";
 import { StepConnectTools } from "./steps/4-connect-tools";
 import { StepReady } from "./steps/5-ready";
 
+// Uses useSearchParams — opt out of static prerender.
+export const dynamic = "force-dynamic";
+
+export default function OnboardingPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen" style={{ background: "#040C12" }} />}>
+      <OnboardingContent />
+    </React.Suspense>
+  );
+}
+
 const BRAND_GREEN = "#00ED82";
 const BRAND_TEAL = "#00D9D5";
 
@@ -50,7 +61,7 @@ export interface StepProps {
   isLastStep: boolean;
 }
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialStep = parseInt(searchParams.get("step") ?? "1", 10);

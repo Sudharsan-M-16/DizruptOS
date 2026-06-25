@@ -66,8 +66,15 @@ export default function RecommendationsPage() {
     .map((t) => ({ task: t, fit: bestFit(t.labels) }))
     .filter((s) => s.fit) as { task: Task; fit: { emp: Employee; load: number } }[];
 
-  // 3) Suggested next steps — standard build steps a needy project is missing.
-  const needy = projects.filter((p) => p.health === "AT_RISK" || p.health === "DELAYED" || p.status === "PLANNING");
+  // 3) Suggested next steps — standard build steps a project is missing. A
+  // project qualifies if it needs attention (at-risk/delayed/planning) OR it's
+  // just getting started (few tasks) — so a NEW project added as admin
+  // immediately gets a recommended plan of what to build.
+  const taskCountByProject = (id: string) => tasks.filter((t) => t.projectId === id).length;
+  const needy = projects.filter(
+    (p) => p.status !== "COMPLETED" && p.status !== "CANCELLED" &&
+      (p.health === "AT_RISK" || p.health === "DELAYED" || p.status === "PLANNING" || taskCountByProject(p.id) < 3)
+  );
   const nextSteps = needy.flatMap((p) => {
     const present = new Set(tasks.filter((t) => t.projectId === p.id).flatMap((t) => t.labels));
     return BUILD_STEPS

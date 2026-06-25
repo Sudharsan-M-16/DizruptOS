@@ -165,10 +165,10 @@ function ProjectStatus({ project, tasks }: { project: (typeof projects)[number];
       {(h.tone === "danger" || clientRisks.length > 0) && (
         <div className="rounded-2xl border p-4" style={{ borderColor: `${toneHex[h.tone === "danger" ? "danger" : "warn"]}55`, background: `${toneHex[h.tone === "danger" ? "danger" : "warn"]}12` }}>
           <div className={cn("flex items-center gap-2 text-xs font-semibold", h.tone === "danger" ? toneText.danger : toneText.warn)}>
-            <ShieldAlert size={14} /> What we're watching
+            <ShieldAlert size={14} /> What we&apos;re watching
           </div>
           <ul className="mt-2 space-y-1 text-xs text-fg-secondary">
-            {h.tone === "danger" && <li>• We're behind the target date — the team is focused on recovery.</li>}
+            {h.tone === "danger" && <li>• We&apos;re behind the target date — the team is focused on recovery.</li>}
             {clientRisks.map((r) => <li key={r.id}>• {r.title}{r.status === "ESCALATED" ? " (being escalated)" : ""}</li>)}
           </ul>
         </div>

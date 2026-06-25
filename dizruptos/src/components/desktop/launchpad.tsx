@@ -34,9 +34,10 @@ export function Launchpad() {
   }, [open]);
 
   const can = useSession((s) => s.can);
+  const personaId = useSession((s) => s.personaId); // re-filter when the login changes
   const apps = useMemo(
     () => APPS.filter((a) => (!a.perm || can(a.perm)) && (!q || a.label.toLowerCase().includes(q.toLowerCase()))),
-    [q, can]
+    [q, can, personaId]
   );
   const launch = (id: string) => { window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id } })); setOpen(false); };
 

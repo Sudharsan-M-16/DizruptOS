@@ -18,6 +18,18 @@ import { useOS } from "@/lib/os";
 import { RealAuthForm } from "@/components/auth/real-auth-form";
 import { isAuthConfigured } from "@/lib/auth-supabase";
 
+// Uses useSearchParams (reason/from) — opt out of static prerender.
+export const dynamic = "force-dynamic";
+
+// useSearchParams must sit under a Suspense boundary for the production build.
+export default function LoginPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen" style={{ background: "#040C12" }} />}>
+      <LoginContent />
+    </React.Suspense>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Brand background — twin cyan halos + dot grid                        */
 /* ------------------------------------------------------------------ */
@@ -233,7 +245,7 @@ function BrandBackground() {
 const BRAND_TEAL = "#00D9D5";
 const BRAND_GREEN = "#00ED82";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionExpired = searchParams.get("reason") === "session_expired";

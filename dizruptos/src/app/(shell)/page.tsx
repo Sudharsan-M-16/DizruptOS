@@ -370,25 +370,31 @@ export default function CommandCenterDesktop() {
     return { id, appId: id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent, running: open, onClick: () => launchApp(id), onClose: () => dm.close(id) };
   });
   const launchpadApp: DockApp = { id: "launchpad", label: "Launchpad", icon: iconFor("launchpad"), accent: "#2BD9FF", onClick: () => window.dispatchEvent(new CustomEvent("dizrupt:launchpad")) };
+  // RBAC for windows: a window backed by a perm-gated app is hidden from anyone
+  // who lacks the perm — applied to EVERY surface that can open a window
+  // (dock tiles, Spotlight, Mission Control, window switcher) so an employee can
+  // never reach Capacity/Executive/Admin/etc. via any path.
+  const winAllowed = (id: string) => appAllowed(id) && (canSeeAudit || id !== "activity");
+
   // open windows that aren't already pinned → restore tiles on the right
   const openTiles: DockApp[] = dm.wins
-    .filter((w) => !w.closed && !pinnedIds.includes(w.id) && (canSeeAudit || w.id !== "activity"))
+    .filter((w) => !w.closed && !pinnedIds.includes(w.id) && winAllowed(w.id))
     .map((w) => ({ id: `win-${w.id}`, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w), running: true, onClick: () => dm.open(w.id), onClose: () => dm.close(w.id) }));
   const dockApps: (DockApp | "sep")[] = [launchpadApp, ...pinnedDock, ...(openTiles.length ? ["sep" as const, ...openTiles] : [])];
 
   // ---- Spotlight + Mission Control feeds ----
-  const orgPanels = dm.wins.filter((w) => !["home", "matrix"].includes(w.id) && (canSeeAudit || w.id !== "activity"));
+  const orgPanels = dm.wins.filter((w) => !["home", "matrix"].includes(w.id) && winAllowed(w.id));
   const spotApps = [
     ...APPS.filter((a) => a.kind !== "special" && appAllowed(a.id)).map((a) => ({ id: a.id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent })),
     ...orgPanels.map((w) => ({ id: w.id, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w) })),
   ];
   const spotRoutes: { label: string; href: string; icon: React.ElementType; accent?: string }[] = [];
   const mcItems = dm.wins
-    .filter((w) => canSeeAudit || w.id !== "activity")
+    .filter((w) => winAllowed(w.id))
     .map((w) => ({ id: w.id, title: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w), minimized: w.minimized, closed: w.closed }));
   // most-recently-used order (focus z desc) for the ⌘/Ctrl+` window switcher
   const switchItems = dm.wins
-    .filter((w) => !w.closed)
+    .filter((w) => !w.closed && winAllowed(w.id))
     .sort((a, b) => b.z - a.z)
     .map((w) => ({ id: w.id, title: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w) }));
 

@@ -11,8 +11,11 @@ import { browserClient, isAuthConfigured } from "@/lib/auth-supabase";
 import { useSession } from "@/lib/session";
 
 function AlertSync() {
+  // Only executives/dept-heads can view alerts — don't even call the engine for
+  // anyone else (avoids 401s in the console for ICs/clients).
+  const canViewAlerts = useSession((s) => s.can("view_executive"));
   useEffect(() => {
-    // Run alert engine on mount, then every 5 minutes.
+    if (!canViewAlerts) return;
     const run = () =>
       fetch("/api/v1/alerts", {
         method: "POST",
@@ -23,7 +26,7 @@ function AlertSync() {
     run();
     const id = setInterval(run, 5 * 60_000);
     return () => clearInterval(id);
-  }, []);
+  }, [canViewAlerts]);
   return null;
 }
 
