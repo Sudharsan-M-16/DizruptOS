@@ -10,8 +10,12 @@ import {
   Lock, MousePointerClick, Search, Settings, Sparkles, Sun, Users, Wand2, Zap,
 } from "lucide-react";
 import { DizruptMark } from "@/components/ui/logo";
+import { useSession, type Permission } from "@/lib/session";
 
 export function GuideContent() {
+  const can = useSession((s) => s.can);
+  // Only show guide entries for features this role can actually use.
+  const allowed = (it: { perm?: Permission }) => !it.perm || can(it.perm);
   return (
     <div className="mx-auto max-w-[640px] pb-6">
       {/* hero */}
@@ -28,7 +32,7 @@ export function GuideContent() {
         You open “apps” in little windows, move them around, and arrange your screen however you like. Nothing to install.
       </Callout>
 
-      {SECTIONS.map((s) => (
+      {SECTIONS.map((s) => ({ ...s, items: s.items.filter(allowed) })).filter((s) => s.items.length > 0).map((s) => (
         <section key={s.title} className="mt-7">
           <div className="mb-2 flex items-center gap-2">
             <span className="grid h-7 w-7 place-items-center rounded-lg border border-line bg-ink-surface" style={{ color: "var(--os-accent,#00ED82)" }}>
@@ -92,7 +96,7 @@ function Callout({ children, className = "" }: { children: React.ReactNode; clas
   );
 }
 
-interface Item { term: string; desc: string; steps?: string[] }
+interface Item { term: string; desc: string; steps?: string[]; perm?: Permission }
 interface Section { title: string; icon: React.ElementType; intro?: string; items: Item[] }
 
 const SECTIONS: Section[] = [
@@ -161,9 +165,9 @@ const SECTIONS: Section[] = [
     items: [
       { term: "Home", desc: "Your personal start page. It shows your workload, and your tasks split into three simple tabs — ‘Today’ (due now), ‘Pending’ (not started), and ‘Critical’ (urgent or at-risk). Each task shows which project it belongs to. It also lists your team and anything needing attention." },
       { term: "Project Matrix", desc: "A board of cards for tasks, arranged in columns by stage (Backlog → To Do → In Progress → Blocked → In Review → Done). Pick up a card with your mouse and drop it in another column to update it." },
-      { term: "Capacity", desc: "The team's workload, week by week. See who's overloaded (red), near their limit (amber), and who has room (green/blue). Click anyone to open their sidebar — their tasks, projects, skills and a one-click way to move work to the best-fit person." },
+      { term: "Capacity", desc: "The team's workload, week by week. See who's overloaded (red), near their limit (amber), and who has room (green/blue). Click anyone to open their sidebar — their tasks, projects, skills and a one-click way to move work to the best-fit person.", perm: "view_capacity" },
       { term: "Knowledge Vault", desc: "Your private file cabinet for PDFs, notes and documents — saved right in your browser. It has folders, a Recent view and a Trash, just like Finder/Explorer.", steps: ["Open the Vault from the Dock.", "Drag any file from your computer onto the window — a glowing box appears — and drop it to save it.", "Or click ‘Upload’. Click ‘New Folder’ to organise. Click a file to open it. Hover a file and click the bin to move it to Trash."] },
-      { term: "Work windows (Capacity, Risks, People, etc.)", desc: "The rest of the Dock opens your existing work pages inside windows, so you never leave the desktop." },
+      { term: "Other work apps", desc: "The rest of the Dock opens more tools inside windows (depending on your role) — so you never leave the desktop." },
       { term: "System Settings", desc: "The same choices as Control Center, plus this guide and ‘About’ system info, in a bigger window." },
     ],
   },
