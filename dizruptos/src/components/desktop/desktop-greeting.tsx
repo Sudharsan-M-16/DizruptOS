@@ -42,6 +42,7 @@ export function DesktopGreeting() {
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const tasks = useOps((s) => s.tasks);
   const utilization = useOps((s) => s.utilization);
+  const overrides = useOps((s) => s.projectOverrides);
   const week = WEEKS[0];
 
   // a light, role-aware brief (own work + projects you own / your department)
@@ -63,7 +64,9 @@ export function DesktopGreeting() {
   // second line: team availability + the project most worth your attention
   const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client");
   const headroom = teammates.filter((e) => utilization(e.id, week) < 0.8).length;
-  const myProjects = projects.filter((p) => owned.includes(p.id) || mine.some((t) => t.projectId === p.id));
+  const myProjects = projects
+    .filter((p) => owned.includes(p.id) || mine.some((t) => t.projectId === p.id))
+    .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
   const topFocus = myProjects.find((p) => p.health === "CRITICAL") ?? myProjects.find((p) => p.health === "AT_RISK" || p.health === "DELAYED") ?? myProjects[0];
 
   // The work that actually needs you today — clickable straight from the wallpaper.

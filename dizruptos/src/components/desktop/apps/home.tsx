@@ -38,6 +38,7 @@ type Segment = "today" | "pending" | "critical";
 export const HomeApp = memo(function HomeApp() {
   const personaId = useSession((s) => s.personaId);
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
+  const canSeeCapacity = useSession((s) => s.can("view_capacity"));
   const utilization = useOps((s) => s.utilization);
   const allTasks = useOps((s) => s.tasks);
   const week = WEEKS[0];
@@ -111,7 +112,7 @@ export const HomeApp = memo(function HomeApp() {
         <div className="ml-auto hidden items-center gap-2 sm:flex">
           <LaunchBtn id="tasks" label="All Tasks" />
           <LaunchBtn id="matrix" label="Board" />
-          <LaunchBtn id="directory" label="Team" />
+          {canSeeCapacity && <LaunchBtn id="r-capacity" label="Team" />}
         </div>
       </div>
 
@@ -197,7 +198,7 @@ export const HomeApp = memo(function HomeApp() {
             </div>
           </Panel>
 
-          <Panel title={`Your team${myDept ? ` · ${myDept.name}` : ""}`} action={<LaunchLink id="directory" label="Directory" />}>
+          <Panel title={`Your team${myDept ? ` · ${myDept.name}` : ""}`} action={canSeeCapacity ? <LaunchLink id="r-capacity" label="Capacity" /> : undefined}>
             <div className="space-y-1">
               {teammates.slice(0, 4).map((e) => {
                 const u = utilization(e.id, week);

@@ -20,6 +20,7 @@ import { validateProposal } from "./ai";
 import { useSession } from "./session";
 import { log } from "./logger";
 import { createChannel } from "./realtime";
+import { useMemo } from "react";
 import type {
   AuditEvent,
   CapacityCell,
@@ -116,6 +117,9 @@ interface OpsState {
    *  manager grant needed, but bounded — only unassigned tasks, only to the
    *  current user, only if it keeps them under 100%. */
   claimTask: (taskId: string) => void;
+  /** Client sign-off: the customer approves a deliverable awaiting their review
+   *  on THEIR project — it completes and the team is notified. Live everywhere. */
+  clientApproveTask: (taskId: string) => void;
   /** Assignee refines their own estimate, or manager sets it. Writes to audit. */
   updateTaskEstimate: (taskId: string, hours: number) => void;
 }
@@ -641,6 +645,49 @@ export const useOps = create<OpsState>((set, get) => ({
     publishSync(get());
   },
 
+  clientApproveTask: (taskId) => {
+    const me = useSession.getState().persona();
+    if (me.role !== "client") { set({ lastAction: "Only the client can approve their deliverables." }); return; }
+    const task = get().tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const proj = projectById(task.projectId);
+    // Scope: the client can only approve work on a project booked under their name.
+    if (!proj || proj.customer !== (me as { customer?: string }).customer) {
+      set({ lastAction: "Not your project." });
+      return;
+    }
+    if (task.status !== "CLIENT_REVIEW" && task.status !== "REVIEW") return;
+
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "client_approved",
+      entityType: "task",
+      entityLabel: task.title,
+      detail: `${me.name} (client) approved '${task.title}'.`,
+      at: new Date().toISOString(),
+    };
+    set((s) => ({
+      tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status: "COMPLETED" as TaskStatus } : t)),
+      audit: [event, ...s.audit],
+      notifications: [
+        {
+          id: `n-clientok-${auditSeq}`,
+          klass: "informational" as const,
+          title: `Client approved: ${task.title}`,
+          body: `${me.name} signed off on '${task.title}'. It's marked done.`,
+          at: new Date().toISOString(),
+          read: false,
+          entityRef: "/projects",
+          recipientId: task.assigneeId,
+        },
+        ...s.notifications,
+      ],
+      lastAction: `Approved "${task.title}" — thanks!`,
+    }));
+    publishSync(get());
+  },
+
   updateTaskEstimate: (taskId, hours) => {
     const session = useSession.getState();
     const me = session.persona();
@@ -709,10 +756,11 @@ export function mergeProject(p: Project, overrides: Record<string, ProjectOverri
   return o ? { ...p, ...o } : p;
 }
 
-/** Hook: all projects with live status/health applied. */
+/** Hook: all projects with live status/health applied. Memoized so the array
+ *  reference is stable across renders (avoids effect/render loops). */
 export function useLiveProjects(): Project[] {
   const overrides = useOps((s) => s.projectOverrides);
-  return seedProjects.map((p) => mergeProject(p, overrides));
+  return useMemo(() => seedProjects.map((p) => mergeProject(p, overrides)), [overrides]);
 }
 
 /** Hook: a single project with live status/health applied. */

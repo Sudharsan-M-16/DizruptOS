@@ -131,7 +131,7 @@ export function TaskDrawer() {
                   <div className="panel flex items-center gap-3 p-3">
                     <EmpAvatar initials={assignee.initials} accent={assignee.accent} size={34} />
                     <div className="min-w-0 flex-1">
-                      <button onClick={() => { openTaskDrawer(null); window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id: "directory" } })); }} className="text-left text-xs font-semibold hover:text-brand">
+                      <button onClick={() => { openTaskDrawer(null); window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id: "r-capacity" } })); }} className="text-left text-xs font-semibold hover:text-brand">
                         {assignee.name}
                       </button>
                       <div className="text-2xs text-fg-muted">{assignee.title}</div>

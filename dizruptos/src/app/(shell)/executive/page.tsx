@@ -230,14 +230,14 @@ function FragilityMap() {
       </div>
       <div className="space-y-1.5">
         {spof.map(([skill, owners]) => (
-          <button key={skill} onClick={() => launchApp("directory")} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-all hover:bg-ink-elevated/50">
+          <button key={skill} onClick={() => launchApp("r-capacity")} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-all hover:bg-ink-elevated/50">
             <AlertTriangle size={11} className="shrink-0 text-warn" />
             <span className="flex-1 truncate text-xs"><span className="font-medium text-fg">{skill}</span> <span className="text-fg-muted">— sole expert: {owners[0]}</span></span>
             <span className="label-xs text-danger">BUS FACTOR 1</span>
           </button>
         ))}
         {burnoutPeople.length > 0 && burnoutPeople.map((p) => (
-          <button key={p.id} onClick={() => launchApp("directory")} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-all hover:bg-ink-elevated/50">
+          <button key={p.id} onClick={() => launchApp("r-capacity")} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-all hover:bg-ink-elevated/50">
             <AlertTriangle size={11} className="shrink-0 text-danger" />
             <span className="flex-1 truncate text-xs"><span className="font-medium text-fg">{p.name}</span> <span className="text-fg-muted">— burnout flag active</span></span>
             <span className="label-xs text-danger">BURNOUT RISK</span>
@@ -375,7 +375,7 @@ export default function ExecutivePage() {
           <div className="space-y-3 text-xs leading-relaxed">
             <BriefBlock tone="danger" title="Critical attention">
               <BriefLine appId="matrix">AI Support Chatbot at CRITICAL: 3 overdue · Sarah & Zara over 100% · pace slipping</BriefLine>
-              <BriefLine appId="directory">Sarah Okafor burnout flag — review privately</BriefLine>
+              <BriefLine appId="r-capacity">Sarah Okafor burnout flag — review privately</BriefLine>
             </BriefBlock>
             <BriefBlock tone="brand" title="Review required (3)">
               <BriefLine appId="home">2 suggestions awaiting decision — 1 is a coordinated compromise</BriefLine>

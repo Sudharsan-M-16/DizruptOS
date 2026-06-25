@@ -45,15 +45,29 @@ export const AlertsApp = memo(function AlertsApp() {
       if (res.ok) {
         const json = await res.json();
         setAlerts(json.data ?? []);
+        return (json.data ?? []) as OrgAlert[];
       }
     } catch {
       // resilient — show empty state on error
     } finally {
       setLoading(false);
     }
+    return [] as OrgAlert[];
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // On open: load existing alerts; if there are none yet, evaluate once so the
+  // center is populated from the live org state instead of showing empty.
+  useEffect(() => {
+    (async () => {
+      const existing = await load();
+      if (existing.length === 0) {
+        try {
+          await fetch("/api/v1/alerts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+          await load();
+        } catch { /* ignore */ }
+      }
+    })();
+  }, [load]);
 
   const runEngine = async () => {
     setRunning(true);

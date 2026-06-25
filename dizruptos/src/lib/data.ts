@@ -349,6 +349,16 @@ export const tasks: Task[] = [
   // t-30 — unstaffed backend work on the Dashboard (appended so existing task ids
   // stay stable). A backend engineer with room (e.g. Ahmed) can pick this up.
   t({ title: "Build the dashboard API", projectId: "p-pulse", status: "TO_DO", priority: "MEDIUM", estimatedHours: 8, dueDate: days(12), weekStart: WEEKS[1], labels: ["backend"] }),
+
+  // t-31 — a deliverable waiting on the customer's sign-off (drives the client
+  // portal's Approvals section). Acme can approve it, which completes it live.
+  t({ title: "Review & approve the chat screens", projectId: "p-atlas", assigneeId: "u-diego", status: "CLIENT_REVIEW", priority: "MEDIUM", estimatedHours: 4, loggedHours: 4, dueDate: days(2), weekStart: WEEKS[0], labels: ["design"] }),
+
+  // t-32..t-34 — a fuller plate for Ahmed (the employee demo login) so the Home
+  // and Tasks views are populated across Today / Pending / Critical.
+  t({ title: "Fix the message delivery bug", projectId: "p-atlas", assigneeId: "u-ahmed", status: "IN_PROGRESS", priority: "URGENT", estimatedHours: 6, loggedHours: 2, dueDate: days(-1), weekStart: WEEKS[0], labels: ["backend"] }),
+  t({ title: "Add login to the chatbot", projectId: "p-atlas", assigneeId: "u-ahmed", status: "TO_DO", priority: "HIGH", estimatedHours: 8, dueDate: days(3), weekStart: WEEKS[0], labels: ["backend"] }),
+  t({ title: "Write the chatbot API docs", projectId: "p-atlas", assigneeId: "u-ahmed", status: "TO_DO", priority: "MEDIUM", estimatedHours: 5, dueDate: days(6), weekStart: WEEKS[1], labels: ["backend", "docs"] }),
 ];
 
 // ---- Capacity grid -----------------------------------------------------------

@@ -76,7 +76,7 @@ export function Spotlight({
     const all: Result[] = [];
     apps.forEach((a) => all.push({ key: `app-${a.id}`, label: a.label, group: "Applications", icon: a.icon, accent: a.accent, sub: "Open window", run: () => { onOpenWindow(a.id); close(); } }));
     routes.forEach((r) => all.push({ key: `route-${r.href}`, label: r.label, group: "Go to", icon: r.icon, accent: r.accent, sub: r.href, run: () => { router.push(r.href); close(); } }));
-    employees.forEach((e) => all.push({ key: `ppl-${e.id}`, label: e.name, sub: e.title, group: "People", icon: Users, accent: e.accent, run: () => { onOpenWindow("directory"); close(); } }));
+    employees.forEach((e) => all.push({ key: `ppl-${e.id}`, label: e.name, sub: e.title, group: "People", icon: Users, accent: e.accent, run: () => { onOpenWindow("r-capacity"); close(); } }));
     projects.forEach((p) => all.push({ key: `prj-${p.id}`, label: p.name, sub: `${p.code} · ${p.health}`, group: "Projects", icon: KanbanSquare, accent: "#7C6CFF", run: () => { onOpenWindow("matrix"); close(); } }));
     // system actions
     all.push({ key: "act-settings", label: "System Settings", sub: "Appearance, wallpaper, accent", group: "Actions", icon: SlidersHorizontal, run: () => { window.dispatchEvent(new CustomEvent("dizrupt:open-settings")); close(); } });

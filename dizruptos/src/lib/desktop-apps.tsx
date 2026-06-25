@@ -51,9 +51,6 @@ export const APPS: AppEntry[] = [
   { id: "home", label: "Home", iconKey: "home", accent: "#00ED82", kind: "panel", dock: true },
   { id: "tasks", label: "Tasks", iconKey: "tasks", accent: "#2BD9FF", kind: "panel", dock: true },
   { id: "matrix", label: "Project Matrix", iconKey: "matrix", accent: "#7C6CFF", kind: "panel", dock: true },
-  // Folded into the Capacity matrix (click a person → sidebar). Kept launchable
-  // for deep links, but no longer a separate dock app.
-  { id: "directory", label: "Operative Directory", iconKey: "directory", accent: "#38BDF8", kind: "panel", dock: false },
   { id: "chat", label: "Messages", iconKey: "chat", accent: "#2BD9FF", kind: "panel", dock: true },
   { id: "vault", label: "Knowledge Vault", iconKey: "vault", accent: "#FEBC2E", kind: "panel", dock: true },
 

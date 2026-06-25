@@ -35,7 +35,6 @@ import { DesktopContextMenu } from "@/components/desktop/context-menu";
 import { useChat } from "@/lib/chat";
 import dynamic from "next/dynamic";
 const ProjectMatrix = dynamic(() => import("@/components/desktop/apps/project-matrix").then(m => ({ default: m.ProjectMatrix })), { ssr: false });
-const OperativeDirectory = dynamic(() => import("@/components/desktop/apps/operative-directory").then(m => ({ default: m.OperativeDirectory })), { ssr: false });
 const ChatApp = dynamic(() => import("@/components/desktop/apps/chat").then(m => ({ default: m.ChatApp })), { ssr: false });
 const HomeApp = dynamic(() => import("@/components/desktop/apps/home").then(m => ({ default: m.HomeApp })), { ssr: false });
 const TasksApp = dynamic(() => import("@/components/desktop/apps/tasks-app").then(m => ({ default: m.TasksApp })), { ssr: false });
@@ -90,7 +89,7 @@ const WIN_META: Record<string, { icon: React.ElementType; accent: string }> = {
 // as a route-window. This is what keeps the desktop tiles from redirecting to
 // the legacy dashboard.
 const ROOT_APP: Record<string, string> = {
-  "/capacity": "r-capacity", "/people": "directory", "/projects": "matrix", "/risks": "r-risks",
+  "/capacity": "r-capacity", "/people": "r-capacity", "/projects": "matrix", "/risks": "r-risks",
 };
 function osOpen(href?: string) {
   if (!href || href === "/") return;
@@ -173,7 +172,6 @@ export default function CommandCenterDesktop() {
     { id: "activity", title: "Activity — audit trail", x: 22, y: 562, w: 600, h: 196, closed: true },
     { id: "tasks", title: "Tasks", x: 90, y: 60, w: 900, h: 560, closed: true },
     { id: "matrix", title: "Project Matrix", x: 120, y: 70, w: 960, h: 560, closed: true },
-    { id: "directory", title: "Operative Directory", x: 220, y: 120, w: 780, h: 500, closed: true },
     { id: "chat", title: "Messages", x: 200, y: 100, w: 860, h: 560, closed: true },
     { id: "vault", title: "Knowledge Vault", x: 180, y: 90, w: 900, h: 560, closed: true },
     { id: "simulation", title: "What-If Simulation", x: 120, y: 60, w: 920, h: 640, closed: true },
@@ -371,7 +369,7 @@ export default function CommandCenterDesktop() {
   const dockApps: (DockApp | "sep")[] = [launchpadApp, ...pinnedDock, ...(openTiles.length ? ["sep" as const, ...openTiles] : [])];
 
   // ---- Spotlight + Mission Control feeds ----
-  const orgPanels = dm.wins.filter((w) => !["home", "matrix", "directory"].includes(w.id) && (canSeeAudit || w.id !== "activity"));
+  const orgPanels = dm.wins.filter((w) => !["home", "matrix"].includes(w.id) && (canSeeAudit || w.id !== "activity"));
   const spotApps = [
     ...APPS.filter((a) => a.kind !== "special" && appAllowed(a.id)).map((a) => ({ id: a.id, label: a.label, icon: iconFor(a.iconKey), accent: a.accent })),
     ...orgPanels.map((w) => ({ id: w.id, label: w.title, icon: resolveWinIcon(w), accent: resolveWinAccent(w) })),
@@ -444,7 +442,6 @@ export default function CommandCenterDesktop() {
         {canSeeAudit && renderWin("activity", <ActivityBody audit={audit} />)}
         {renderWin("tasks", <TasksApp key={tasksFilter} initialFilter={tasksFilter} />, true)}
         {renderWin("matrix", <ProjectMatrix />)}
-        {renderWin("directory", <OperativeDirectory />)}
         {renderWin("chat", <ChatApp />, true)}
         {renderWin("vault", <KnowledgeVault />, true)}
         {renderWin("simulation", <SimulationApp />, true)}

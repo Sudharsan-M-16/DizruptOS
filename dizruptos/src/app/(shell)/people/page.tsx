@@ -159,7 +159,7 @@ export default function PeoplePage() {
         cell: (info) => {
           const e = info.row.original;
           return (
-            <button onClick={() => launchApp("directory")} className="flex items-center gap-2.5 hover:text-brand">
+            <button onClick={() => launchApp("r-capacity")} className="flex items-center gap-2.5 hover:text-brand">
               <EmpAvatar initials={e.initials} accent={e.accent} size={28} />
               <div>
                 <div className="flex items-center gap-1.5 text-xs font-semibold">

@@ -35,7 +35,7 @@ function groupOf(n: NotificationItem): GroupId {
 // anything else opens the raw route as a window (decoupled fallback).
 const ROUTE_APP: Record<string, string> = {
   "/risks": "r-risks", "/capacity": "r-capacity", "/projects": "matrix",
-  "/people": "directory", "/commitments": "directory", "/chat": "chat",
+  "/people": "r-capacity", "/commitments": "r-capacity", "/chat": "chat",
 };
 function openFrom(n: NotificationItem) {
   const ref = n.entityRef;

@@ -8,7 +8,7 @@
 // capacity %, no burnout, no financials, no other projects or people.
 
 import * as React from "react";
-import { Check, ChevronRight, CircleDot, Clock, LogOut, ShieldAlert } from "lucide-react";
+import { BadgeCheck, Check, ChevronRight, CircleDot, Clock, LogOut, Send, ShieldAlert } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession, PERSONAS } from "@/lib/session";
 import { projects, risks as seedRisks, employeeById } from "@/lib/data";
@@ -46,7 +46,7 @@ export function ClientPortal() {
     .map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
 
   return (
-    <div className="min-h-screen bg-ink text-fg">
+    <div className="h-screen overflow-y-auto bg-ink text-fg">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-ink-surface/85 px-6 py-3.5 backdrop-blur">
         <span className="grid h-9 w-9 place-items-center rounded-xl text-sm font-bold text-ink" style={{ background: persona.accent }}>
           {persona.initials}
@@ -83,9 +83,11 @@ export function ClientPortal() {
 }
 
 function ProjectStatus({ project, tasks }: { project: (typeof projects)[number]; tasks: Task[] }) {
+  const clientApproveTask = useOps((s) => s.clientApproveTask);
   const h = HEALTH[project.health];
   const done = tasks.filter((t) => t.status === "COMPLETED");
-  const active = tasks.filter((t) => ["IN_PROGRESS", "REVIEW", "CLIENT_REVIEW", "BLOCKED"].includes(t.status));
+  const awaitingApproval = tasks.filter((t) => t.status === "CLIENT_REVIEW" || t.status === "REVIEW");
+  const active = tasks.filter((t) => ["IN_PROGRESS", "BLOCKED"].includes(t.status));
   const upcoming = tasks.filter((t) => ["TO_DO", "BACKLOG"].includes(t.status));
   const pct = tasks.length ? Math.round((done.length / tasks.length) * 100) : 0;
 
@@ -172,6 +174,26 @@ function ProjectStatus({ project, tasks }: { project: (typeof projects)[number];
         </div>
       )}
 
+      {/* needs your approval */}
+      {awaitingApproval.length > 0 && (
+        <Block title="Waiting on your approval" hint="Sign off so the team can move on">
+          <div className="space-y-2">
+            {awaitingApproval.map((t) => (
+              <div key={t.id} className="flex items-center gap-3 rounded-xl border border-brand/30 bg-brand/[0.05] px-3.5 py-3">
+                <BadgeCheck size={16} className="shrink-0 text-brand" />
+                <span className="min-w-0 flex-1 text-sm text-fg">{t.title}</span>
+                <button
+                  onClick={() => clientApproveTask(t.id)}
+                  className="shrink-0 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-ink transition-opacity hover:opacity-90"
+                >
+                  Approve
+                </button>
+              </div>
+            ))}
+          </div>
+        </Block>
+      )}
+
       {/* happening now */}
       <Block title="Happening now" hint="What the team is actively working on">
         {active.length === 0 ? <Empty>Nothing in progress right now.</Empty> : (
@@ -211,7 +233,58 @@ function ProjectStatus({ project, tasks }: { project: (typeof projects)[number];
           {team.length === 0 && <Empty>The team is being assigned.</Empty>}
         </div>
       </Block>
+
+      {/* message the team */}
+      <Block title="Message the team" hint="Questions or feedback go straight to your project team">
+        <MessageTeam projectName={project.name} />
+      </Block>
     </section>
+  );
+}
+
+function MessageTeam({ projectName }: { projectName: string }) {
+  const persona = useSession((s) => s.persona());
+  const addNotification = useOps((s) => s.addNotification);
+  const [text, setText] = React.useState("");
+  const [sent, setSent] = React.useState(false);
+
+  function send() {
+    const body = text.trim();
+    if (!body) return;
+    addNotification({
+      id: `n-clientmsg-${Date.now()}`,
+      klass: "manager_review",
+      title: `Message from ${persona.name} (${projectName})`,
+      body,
+      at: new Date().toISOString(),
+      read: false,
+      entityRef: "/projects",
+    });
+    setText("");
+    setSent(true);
+    window.setTimeout(() => setSent(false), 4000);
+  }
+
+  return (
+    <div className="rounded-xl border border-line bg-ink-surface p-3">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={3}
+        placeholder="Ask a question or share feedback…"
+        className="w-full resize-none rounded-lg border border-line bg-ink-elevated px-3 py-2 text-sm text-fg outline-none placeholder:text-fg-faint focus:border-brand"
+      />
+      <div className="mt-2 flex items-center justify-between">
+        <span className={cn("text-2xs transition-opacity", sent ? "text-ok opacity-100" : "opacity-0")}>Sent to your team ✓</span>
+        <button
+          onClick={send}
+          disabled={!text.trim()}
+          className="flex items-center gap-1.5 rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-ink transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          <Send size={12} /> Send
+        </button>
+      </div>
+    </div>
   );
 }
 

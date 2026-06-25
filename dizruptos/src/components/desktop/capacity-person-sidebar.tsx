@@ -80,7 +80,7 @@ export function CapacityPersonSidebar({ employeeId, onClose }: { employeeId: str
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="absolute inset-0 z-[120] flex justify-end bg-black/40 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[120] flex justify-end bg-black/40 backdrop-blur-[2px]"
       onClick={onClose}
     >
       <motion.aside

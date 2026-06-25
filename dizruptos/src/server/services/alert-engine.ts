@@ -175,7 +175,7 @@ async function evalSuccessionAlerts(orgId: string): Promise<OrgAlert[]> {
           orgId,
           title: `${highFlight.length} key person${highFlight.length > 1 ? "s" : ""} flagged as high flight risk`,
           body: "Succession planning recommended for these roles.",
-          actionId: "directory",
+          actionId: "r-capacity",
           evidence: [
             { label: "High flight risk", value: highFlight.length },
             { label: "Threshold", value: "≥ 70%" },

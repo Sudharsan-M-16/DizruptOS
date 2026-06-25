@@ -58,7 +58,13 @@ function makeResilient(live: Repositories, mem: Repositories): Repositories {
 
 export function getRepositories(): Repositories {
   if (cached) return cached;
-  if (env.mode === "production" && env.supabaseUrl) {
+  // DZ_DEMO_DATA=1 forces the in-memory seed for ALL data reads/writes even when
+  // Supabase is configured — so the API/engines and the UI share one dataset
+  // (the lib/data seed). Supabase still handles auth. Without this flag a stale
+  // DB seed would make API-backed surfaces (alerts, risks, narratives) disagree
+  // with the UI. Default off → real Postgres in production.
+  const forceDemoData = process.env.DZ_DEMO_DATA === "1";
+  if (!forceDemoData && env.mode === "production" && env.supabaseUrl) {
     // Service-role key is server-only; falls back to anon (RLS-scoped reads).
     const key =
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? env.supabaseAnonKey ?? "";
