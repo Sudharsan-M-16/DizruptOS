@@ -374,7 +374,12 @@ export default function CommandCenterDesktop() {
   // who lacks the perm — applied to EVERY surface that can open a window
   // (dock tiles, Spotlight, Mission Control, window switcher) so an employee can
   // never reach Capacity/Executive/Admin/etc. via any path.
-  const winAllowed = (id: string) => appAllowed(id) && (canSeeAudit || id !== "activity");
+  const winAllowed = (id: string) => {
+    // The native "inbox" panel mirrors the Agent Inbox: employees see their own
+    // requests, managers (review_proposals) see the review queue, nobody else.
+    if (id === "inbox") return isEmployee || canReview;
+    return appAllowed(id) && (canSeeAudit || id !== "activity");
+  };
 
   // open windows that aren't already pinned → restore tiles on the right
   const openTiles: DockApp[] = dm.wins

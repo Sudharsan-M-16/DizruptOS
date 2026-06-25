@@ -5,6 +5,7 @@ import { ShortcutManager } from "@/components/shell/shortcuts";
 import { AuthGate } from "@/components/shell/auth-gate";
 import { ShellFrame } from "@/components/shell/shell-frame";
 import { RoleGate } from "@/components/shell/role-gate";
+import { RouteGuard } from "@/components/shell/route-guard";
 import { PerfAutoDetect } from "@/components/desktop/perf-autodetect";
 
 export default function ShellLayout({
@@ -15,7 +16,9 @@ export default function ShellLayout({
   return (
     <AuthGate>
       <ShellFrame>
-        <RoleGate>{children}</RoleGate>
+        <RoleGate>
+          <RouteGuard>{children}</RouteGuard>
+        </RoleGate>
       </ShellFrame>
       <CommandPalette />
       <GuardrailModal />
