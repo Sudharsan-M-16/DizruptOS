@@ -64,6 +64,7 @@ export default function GraphPage() {
   const tasks = useOps((s) => s.tasks);
   const utilization = useOps((s) => s.utilization);
   const overrides = useOps((s) => s.projectOverrides);
+  const extraProjects = useOps((s) => s.extraProjects);
   const [lens, setLens] = React.useState<Lens>(null);
   const [hovered, setHovered] = React.useState<string | null>(null);
   const [q, setQ] = React.useState("");
@@ -80,8 +81,8 @@ export default function GraphPage() {
 
   const { nodes, edges, overloadIds, understaffedIds, keyIds, stats } = React.useMemo(() => {
     const week = WEEKS[0];
-    // Live projects: static seed + manager stage overrides (stable deps).
-    const projects = seedProjects.map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p));
+    // Live projects: static seed + manager stage overrides + session-created.
+    const projects = [...seedProjects.map((p) => (overrides[p.id] ? { ...p, ...overrides[p.id] } : p)), ...extraProjects];
     const active = tasks.filter((t) => t.status !== "COMPLETED");
 
     // People who currently have work; projects (all); goals referenced by projects.
@@ -143,7 +144,7 @@ export default function GraphPage() {
 
     const stats = { people: people.length, projects: projects.length, overloaded: overloadIds.size, understaffed: understaffedIds.size, keyPeople: [...keyIds].filter((id) => id.startsWith("u-")).length };
     return { nodes, edges, overloadIds, understaffedIds, keyIds, stats };
-  }, [tasks, overrides, utilization]);
+  }, [tasks, overrides, extraProjects, utilization]);
 
   const [rfNodes, setRfNodes, onNodesChange] = useNodesState(nodes);
   React.useEffect(() => { setRfNodes(nodes); }, [nodes, setRfNodes]);

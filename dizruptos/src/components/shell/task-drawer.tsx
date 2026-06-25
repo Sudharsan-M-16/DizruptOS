@@ -38,6 +38,9 @@ export function TaskDrawer() {
   const task = tasks.find((t) => t.id === drawerTaskId);
   const assignee = employeeById(task?.assigneeId);
   const project = projectById(task?.projectId);
+  // Task dependencies: what this task waits on, and what waits on it.
+  const blockedBy = task ? (task.dependsOn ?? []).map((id) => tasks.find((t) => t.id === id)).filter(Boolean) as typeof tasks : [];
+  const blocking = task ? tasks.filter((t) => (t.dependsOn ?? []).includes(task.id)) : [];
 
   // Smart staffing shortlist (§6.5) — shared ranking with the Allocation
   // Agent: skill match 45% + availability 55%, hard-capped by capacity.
@@ -121,6 +124,35 @@ export function TaskDrawer() {
                       {l}
                     </span>
                   ))}
+                </div>
+              )}
+
+              {/* Dependencies — who you're waiting on, and who's waiting on you */}
+              {(blockedBy.length > 0 || blocking.length > 0) && (
+                <div className="space-y-2">
+                  {blockedBy.length > 0 && (
+                    <div className="rounded-card border border-danger/25 bg-danger/[0.05] p-2.5">
+                      <div className="label-xs mb-1 flex items-center gap-1.5 text-danger">⛔ Blocked by</div>
+                      {blockedBy.map((b) => (
+                        <div key={b.id} className="flex items-center gap-1.5 text-2xs text-fg-secondary">
+                          <span className="truncate">{b.title}</span>
+                          {b.assigneeId && <span className="text-fg-muted">· {employeeById(b.assigneeId)?.name.split(" ")[0]}</span>}
+                          <span className="ml-auto shrink-0 text-fg-faint">{b.status.replace("_", " ").toLowerCase()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {blocking.length > 0 && (
+                    <div className="rounded-card border border-warn/25 bg-warn/[0.05] p-2.5">
+                      <div className="label-xs mb-1 flex items-center gap-1.5 text-warn">🔓 Blocking</div>
+                      {blocking.map((b) => (
+                        <div key={b.id} className="flex items-center gap-1.5 text-2xs text-fg-secondary">
+                          <span className="truncate">{b.title}</span>
+                          {b.assigneeId && <span className="text-fg-muted">· {employeeById(b.assigneeId)?.name.split(" ")[0]} is waiting</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

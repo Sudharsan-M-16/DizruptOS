@@ -7,7 +7,7 @@ import { FolderKanban, Plus, X } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { PERSONAS, useSession } from "@/lib/session";
 import { departmentById, departments, employeeById, employees } from "@/lib/data";
-import { useProjects, useCreateProject } from "@/lib/hooks/live";
+import { useLiveProjects } from "@/lib/store";
 import {
   CapacityBar,
   EmpAvatar,
@@ -31,23 +31,32 @@ function AddProjectPanel({ onClose }: { onClose: () => void }) {
     new Date(Date.now() + 90 * 86_400_000).toISOString().slice(0, 10)
   );
   const [customer, setCustomer] = React.useState("");
-  const { mutate: createProject, isPending } = useCreateProject();
+  const addProject = useOps((s) => s.addProject);
 
   const teamMembers = employees.filter((e) => e.role !== "client");
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
-    createProject({
+    // Goes through the live store → shows up on the board, recommendations,
+    // graph and Home immediately, and syncs to other logins/tabs.
+    addProject({
       name: name.trim(),
       description: description.trim() || `${name.trim()} project`,
       ownerId,
-      departmentId: departmentId || departments[0]?.id,
+      departmentId: departmentId || departments[0]?.id || "",
+      status: "ACTIVE",
+      health: "ON_TRACK",
+      healthReasons: ["New project — just created"],
       budgetHours: Math.round(budget / 150),
+      consumedHours: 0,
       budgetMicro: budget * 1_000_000,
+      consumedMicro: 0,
+      startDate: new Date().toISOString().slice(0, 10),
       targetDate,
       customer: customer.trim() || undefined,
-    }, { onSuccess: () => onClose() });
+    });
+    onClose();
   }
 
   return (
@@ -121,8 +130,8 @@ function AddProjectPanel({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <button type="submit" disabled={isPending} className="mt-5 w-full rounded-card bg-brand py-2.5 text-sm font-semibold text-ink shadow-[0_0_20px_#00ED8244] transition-opacity hover:opacity-90 disabled:opacity-60">
-          {isPending ? "Creating…" : "Create project"}
+        <button type="submit" className="mt-5 w-full rounded-card bg-brand py-2.5 text-sm font-semibold text-ink shadow-[0_0_20px_#00ED8244] transition-opacity hover:opacity-90">
+          Create project
         </button>
       </motion.form>
     </motion.div>
@@ -136,8 +145,7 @@ export default function ProjectsPage() {
   const isEmployee = persona.role === "employee" || persona.role === "client";
   const canManageProjects = useSession((s) => s.can("reallocate"));
   const [addingProject, setAddingProject] = React.useState(false);
-  const { data: allProjects } = useProjects();
-  const overrides = useOps((s) => s.projectOverrides);
+  const allProjects = useLiveProjects(); // seed + session-created, live status/health
   const setProjectStage = useOps((s) => s.setProjectStage);
 
   const onProject = (projectId: string) =>
@@ -168,9 +176,7 @@ export default function ProjectsPage() {
       </div>
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
-        {ordered.map((rawP) => {
-          // live status/health — manager changes reflect here and everywhere.
-          const p = overrides[rawP.id] ? { ...rawP, ...overrides[rawP.id] } : rawP;
+        {ordered.map((p) => {
           const owner = employeeById(p.ownerId);
           const open = tasks.filter(
             (t) => t.projectId === p.id && t.status !== "COMPLETED"

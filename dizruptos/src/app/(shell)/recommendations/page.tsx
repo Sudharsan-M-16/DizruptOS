@@ -8,8 +8,8 @@
 
 import * as React from "react";
 import { ArrowRightLeft, Flame, Sparkles, UserPlus, KanbanSquare } from "lucide-react";
-import { employees, projectById, projects, WEEKS } from "@/lib/data";
-import { useOps } from "@/lib/store";
+import { employees, projectById, WEEKS } from "@/lib/data";
+import { useOps, useLiveProjects } from "@/lib/store";
 import { isQualified, skillMatchScore } from "@/lib/skills";
 import { EmpAvatar } from "@/components/ui/primitives";
 import { cn, fmtPct } from "@/lib/utils";
@@ -32,6 +32,7 @@ function launchMatrix() {
 export default function RecommendationsPage() {
   const tasks = useOps((s) => s.tasks);
   const utilization = useOps((s) => s.utilization);
+  const projects = useLiveProjects(); // includes session-created projects
   const week = WEEKS[0];
 
   // Best-fit recipient for a set of skills: qualified, then most spare capacity.

@@ -51,6 +51,7 @@ interface SyncMessage {
   proposals: Proposal[];
   audit: AuditEvent[];
   projectOverrides: Record<string, ProjectOverride>;
+  extraProjects: Project[];
 }
 
 const syncChannel = createChannel<SyncMessage>("dizrupt-ops-sync");
@@ -61,6 +62,7 @@ const publishSync = (s: {
   proposals: Proposal[];
   audit: AuditEvent[];
   projectOverrides: Record<string, ProjectOverride>;
+  extraProjects: Project[];
 }) =>
   syncChannel.publish({
     kind: "ops_state",
@@ -69,6 +71,7 @@ const publishSync = (s: {
     proposals: s.proposals,
     audit: s.audit,
     projectOverrides: s.projectOverrides,
+    extraProjects: s.extraProjects,
   });
 
 interface PendingDrop {
@@ -86,6 +89,8 @@ interface OpsState {
   notifications: NotificationItem[];
   /** Live project lifecycle changes (status/health), keyed by project id. */
   projectOverrides: Record<string, ProjectOverride>;
+  /** Projects created during the session — live everywhere, synced cross-tab. */
+  extraProjects: Project[];
   paletteOpen: boolean;
   drawerTaskId: string | null;
   pendingDrop: PendingDrop | null; // guardrail modal state
@@ -112,6 +117,8 @@ interface OpsState {
   reviewProposal: (id: string, verdict: "approved" | "rejected") => void;
   /** Manager moves a project's stage/health. Live + audited + notified. */
   setProjectStage: (projectId: string, patch: ProjectOverride) => void;
+  /** Manager creates a project — lands in the live store so it shows everywhere. */
+  addProject: (p: Omit<Project, "id" | "code" | "velocityTrend">) => void;
   addTask: (task: Omit<Task, "id" | "loggedHours" | "labels" | "dependsOn">) => void;
   /** Self-service: an employee picks up an UNOWNED task for themselves. No
    *  manager grant needed, but bounded — only unassigned tasks, only to the
@@ -146,6 +153,29 @@ const applyDelta = (
   );
 };
 
+// When a task completes, anyone whose task was waiting on it (and is a different
+// person) gets an "you're unblocked" ping — the task-dependency notification.
+function unblockNotifs(completedTaskId: string, tasks: Task[]): NotificationItem[] {
+  const completed = tasks.find((t) => t.id === completedTaskId);
+  if (!completed) return [];
+  return tasks
+    .filter((t) =>
+      t.status !== "COMPLETED" &&
+      (t.dependsOn ?? []).includes(completedTaskId) &&
+      t.assigneeId && t.assigneeId !== completed.assigneeId
+    )
+    .map((t) => ({
+      id: `n-unblock-${completedTaskId}-${t.id}-${Date.now()}`,
+      klass: "manager_review" as const,
+      title: "You're unblocked 🔓",
+      body: `'${completed.title}' is done — you can start '${t.title}'.`,
+      at: new Date().toISOString(),
+      read: false,
+      entityRef: "/tasks",
+      recipientId: t.assigneeId,
+    }));
+}
+
 let auditSeq = 100;
 
 // Audit completeness law: every event is attributed to the persona actually
@@ -162,6 +192,7 @@ export const useOps = create<OpsState>((set, get) => ({
   audit: seedAudit,
   notifications: seedNotifications,
   projectOverrides: {},
+  extraProjects: [],
   paletteOpen: false,
   drawerTaskId: null,
   pendingDrop: null,
@@ -221,7 +252,12 @@ export const useOps = create<OpsState>((set, get) => ({
         insertAt = without.indexOf(destItems[clamped]);
       }
       const next = [...without.slice(0, insertAt), moved, ...without.slice(insertAt)];
-      return { tasks: next, lastAction: `Task → ${destCol.replace("_", " ").toLowerCase()}` };
+      const extra = destCol === "COMPLETED" ? unblockNotifs(taskId, next) : [];
+      return {
+        tasks: next,
+        notifications: extra.length ? [...extra, ...s.notifications] : s.notifications,
+        lastAction: `Task → ${destCol.replace("_", " ").toLowerCase()}`,
+      };
     });
     publishSync(get());
   },
@@ -246,10 +282,15 @@ export const useOps = create<OpsState>((set, get) => ({
       set({ lastAction: "Not permitted — you can only update your own tasks." });
       return;
     }
-    set((s) => ({
-      tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status } : t)),
-      lastAction: `Task moved to ${status.replace("_", " ").toLowerCase()}`,
-    }));
+    set((s) => {
+      const tasks = s.tasks.map((t) => (t.id === taskId ? { ...t, status } : t));
+      const extra = status === "COMPLETED" ? unblockNotifs(taskId, tasks) : [];
+      return {
+        tasks,
+        notifications: extra.length ? [...extra, ...s.notifications] : s.notifications,
+        lastAction: `Task moved to ${status.replace("_", " ").toLowerCase()}`,
+      };
+    });
     publishSync(get());
   },
 
@@ -439,6 +480,34 @@ export const useOps = create<OpsState>((set, get) => ({
         ...s.notifications,
       ],
       lastAction: `${project.name} → ${newStatus.toLowerCase()}`,
+    }));
+    publishSync(get());
+  },
+
+  addProject: (p) => {
+    if (!useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — only managers can create projects." });
+      return;
+    }
+    const code = (p.name.replace(/[^A-Za-z]/g, "").slice(0, 4).toUpperCase()) || "PRJ";
+    const project: Project = { ...p, id: `p-${Date.now()}`, code, velocityTrend: [0, 0, 0, 0, 0, 0] };
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "project_created",
+      entityType: "project",
+      entityLabel: project.name,
+      detail: `Created project '${project.name}' (${project.status.toLowerCase()}).`,
+      at: new Date().toISOString(),
+    };
+    set((s) => ({
+      extraProjects: [...s.extraProjects, project],
+      audit: [event, ...s.audit],
+      notifications: [
+        { id: `n-newproj-${auditSeq}`, klass: "informational" as const, title: `New project: ${project.name}`, body: `${project.name} was created. It's now on the board.`, at: new Date().toISOString(), read: false, entityRef: "/projects" },
+        ...s.notifications,
+      ],
+      lastAction: `Project "${project.name}" created`,
     }));
     publishSync(get());
   },
@@ -667,24 +736,28 @@ export const useOps = create<OpsState>((set, get) => ({
       detail: `${me.name} (client) approved '${task.title}'.`,
       at: new Date().toISOString(),
     };
-    set((s) => ({
-      tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, status: "COMPLETED" as TaskStatus } : t)),
-      audit: [event, ...s.audit],
-      notifications: [
-        {
-          id: `n-clientok-${auditSeq}`,
-          klass: "informational" as const,
-          title: `Client approved: ${task.title}`,
-          body: `${me.name} signed off on '${task.title}'. It's marked done.`,
-          at: new Date().toISOString(),
-          read: false,
-          entityRef: "/projects",
-          recipientId: task.assigneeId,
-        },
-        ...s.notifications,
-      ],
-      lastAction: `Approved "${task.title}" — thanks!`,
-    }));
+    set((s) => {
+      const tasks = s.tasks.map((t) => (t.id === taskId ? { ...t, status: "COMPLETED" as TaskStatus } : t));
+      return {
+        tasks,
+        audit: [event, ...s.audit],
+        notifications: [
+          {
+            id: `n-clientok-${auditSeq}`,
+            klass: "informational" as const,
+            title: `Client approved: ${task.title}`,
+            body: `${me.name} signed off on '${task.title}'. It's marked done.`,
+            at: new Date().toISOString(),
+            read: false,
+            entityRef: "/projects",
+            recipientId: task.assigneeId,
+          },
+          ...unblockNotifs(taskId, tasks),
+          ...s.notifications,
+        ],
+        lastAction: `Approved "${task.title}" — thanks!`,
+      };
+    });
     publishSync(get());
   },
 
@@ -743,6 +816,7 @@ syncChannel.subscribe((msg) => {
     proposals: msg.proposals,
     audit: msg.audit,
     projectOverrides: msg.projectOverrides ?? {},
+    extraProjects: msg.extraProjects ?? [],
     lastAction: "Synced from another session",
   });
 });
@@ -756,11 +830,15 @@ export function mergeProject(p: Project, overrides: Record<string, ProjectOverri
   return o ? { ...p, ...o } : p;
 }
 
-/** Hook: all projects with live status/health applied. Memoized so the array
- *  reference is stable across renders (avoids effect/render loops). */
+/** Hook: all projects (seed + session-created) with live status/health applied.
+ *  Memoized so the array reference is stable across renders. */
 export function useLiveProjects(): Project[] {
   const overrides = useOps((s) => s.projectOverrides);
-  return useMemo(() => seedProjects.map((p) => mergeProject(p, overrides)), [overrides]);
+  const extra = useOps((s) => s.extraProjects);
+  return useMemo(
+    () => [...seedProjects.map((p) => mergeProject(p, overrides)), ...extra],
+    [overrides, extra]
+  );
 }
 
 /** Hook: a single project with live status/health applied. */
