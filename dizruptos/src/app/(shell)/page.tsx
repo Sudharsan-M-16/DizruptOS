@@ -169,7 +169,6 @@ export default function CommandCenterDesktop() {
     { id: "capacity", title: canSeeCapacity ? "Capacity — week of Jun 8" : `Your week — ${persona.name.split(" ")[0]}`, x: 812, y: 478, w: 600, h: 280, closed: true },
     { id: "inbox", title: isEmployee ? "Your Requests" : "Agent Inbox", x: 644, y: 288, w: 392, h: 300, closed: true },
     { id: "portfolio", title: "Portfolio Health", x: 1052, y: 288, w: 364, h: 300, closed: true },
-    { id: "activity", title: "Activity — audit trail", x: 22, y: 562, w: 600, h: 196, closed: true },
     { id: "tasks", title: "Tasks", x: 90, y: 60, w: 900, h: 560, closed: true },
     { id: "matrix", title: "Project Matrix", x: 120, y: 70, w: 960, h: 560, closed: true },
     { id: "chat", title: "Messages", x: 200, y: 100, w: 860, h: 560, closed: true },
@@ -219,7 +218,16 @@ export default function CommandCenterDesktop() {
   });
 
   // ---- the one place an app gets launched (dock, Spotlight, Launchpad, Home) ----
-  const launchApp = useCallback((id: string) => { // eslint-disable-line react-hooks/exhaustive-deps
+  const launchApp = useCallback((rawId: string) => { // eslint-disable-line react-hooks/exhaustive-deps
+    // Safety net: features we removed/merged redirect to their replacement, so no
+    // stale button can ever dead-end (graph→matrix, people→capacity,
+    // decisions/capabilities/learning→Org Memory, narratives→Executive).
+    const REDIRECT: Record<string, string> = {
+      "r-graph": "matrix", "directory": "r-capacity", "r-people": "r-capacity",
+      "r-decisions": "r-memory", "r-capabilities": "r-memory", "r-learning": "r-memory",
+      "r-narratives": "r-executive", "activity": "r-audit",
+    };
+    const id = REDIRECT[rawId] ?? rawId;
     const app = appById(id);
     if (!app) { dm.open(id); return; }                              // org panel window
     if (app.perm && !can(app.perm)) {                               // RBAC: deny + audit + notify
@@ -439,7 +447,6 @@ export default function CommandCenterDesktop() {
           : <YourWeekBody myUtil={myUtil} myTasks={myTasks} />)}
         {renderWin("inbox", <InboxBody pending={pending} isEmployee={isEmployee} />)}
         {renderWin("portfolio", <PortfolioBody />)}
-        {canSeeAudit && renderWin("activity", <ActivityBody audit={audit} />)}
         {renderWin("tasks", <TasksApp key={tasksFilter} initialFilter={tasksFilter} />, true)}
         {renderWin("matrix", <ProjectMatrix />)}
         {renderWin("chat", <ChatApp />, true)}

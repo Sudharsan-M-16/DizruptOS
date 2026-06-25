@@ -14,13 +14,11 @@ const GO: Record<string, { href: string; label: string }> = {
   h: { href: "/", label: "Command Center" },
   c: { href: "/capacity", label: "Capacity Heatmap" },
   p: { href: "/projects", label: "Projects" },
-  t: { href: "/people", label: "People (team)" },
   e: { href: "/executive", label: "Executive" },
   r: { href: "/risks", label: "Risk Register" },
-  d: { href: "/decisions", label: "Decisions" },
+  m: { href: "/memory", label: "Org Memory" },
   o: { href: "/goals", label: "Goals · OKRs" },
   i: { href: "/proposals", label: "Agent Inbox" },
-  g: { href: "/graph", label: "Dependency Graph" },
   a: { href: "/audit", label: "Audit Log" },
 };
 

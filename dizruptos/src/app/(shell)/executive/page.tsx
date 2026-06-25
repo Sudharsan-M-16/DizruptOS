@@ -39,6 +39,7 @@ import {
 import { SparkArea } from "@/components/ui/spark";
 import { NumberTicker } from "@/components/ui/ascension";
 import { cn, fmtPct } from "@/lib/utils";
+import NarrativesPage from "../narratives/page";
 
 // Computed live — no more hardcoded series.
 // Called once per render; inputs are deterministic from data.ts (or live DB).
@@ -267,8 +268,31 @@ export default function ExecutivePage() {
     .filter((p) => p.health === "CRITICAL" && p.customer)
     .map((p) => `${p.customer} (${p.name} — CRITICAL)`);
 
+  // Cockpit (the dashboard) vs Brief (the auto-written narrative, merged in here).
+  const [view, setView] = React.useState<"cockpit" | "brief">("cockpit");
+  const tabBar = (
+    <div className="flex items-center gap-1 border-b border-line pb-2">
+      {(["cockpit", "brief"] as const).map((v) => (
+        <button key={v} onClick={() => setView(v)}
+          className={cn("rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", view === v ? "bg-ink-elevated text-fg" : "text-fg-muted hover:text-fg")}>
+          {v === "cockpit" ? "Cockpit" : "Weekly Brief"}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (view === "brief") {
+    return (
+      <div className="space-y-4">
+        {tabBar}
+        <NarrativesPage />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {tabBar}
       {/* Inline Copilot quick-ask */}
       <CopilotQuickAsk />
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">

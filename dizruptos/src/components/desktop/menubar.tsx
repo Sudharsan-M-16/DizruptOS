@@ -25,8 +25,8 @@ import { NotificationCenter } from "./notification-center";
 // navigate away from the desktop. `app` is a registry id; "home" is the Home app.
 const APP_MENUS: { label: string; items: { label: string; app: string }[] }[] = [
   { label: "Overview", items: [{ label: "Home", app: "home" }, { label: "Executive", app: "r-executive" }, { label: "Exec Briefing", app: "r-briefing" }] },
-  { label: "Capacity", items: [{ label: "Capacity board", app: "r-capacity" }, { label: "People", app: "r-people" }, { label: "Project Matrix", app: "matrix" }] },
-  { label: "Intelligence", items: [{ label: "Narratives", app: "r-narratives" }, { label: "Recommendations", app: "r-recommendations" }, { label: "Org Memory", app: "r-memory" }, { label: "Risks", app: "r-risks" }] },
+  { label: "Capacity", items: [{ label: "Capacity board", app: "r-capacity" }, { label: "Project Matrix", app: "matrix" }] },
+  { label: "Intelligence", items: [{ label: "Recommendations", app: "r-recommendations" }, { label: "Org Memory", app: "r-memory" }, { label: "Risks", app: "r-risks" }] },
 ];
 
 function useClock() {

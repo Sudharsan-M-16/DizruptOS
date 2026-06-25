@@ -360,7 +360,7 @@ export default function ImportPage() {
               {!result.dryRun && result.imported > 0 && (
                 <p className="border-t border-line-subtle pt-3 text-sm text-fg-muted">
                   Done &mdash; open{" "}
-                  <button onClick={() => launchApp("r-capabilities")} className="text-brand hover:underline">Capability Intelligence</button>
+                  <button onClick={() => launchApp("r-memory")} className="text-brand hover:underline">Org Memory</button>
                   {" "}or{" "}
                   <button onClick={() => launchApp("r-briefing")} className="text-brand hover:underline">the Executive Briefing</button>
                   {" "}to see it reflected.

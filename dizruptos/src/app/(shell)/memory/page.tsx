@@ -17,7 +17,48 @@ import {
   type AssumptionStatus,
   type HypothesisStatus,
 } from "@/lib/hooks/use-executive";
-import { ChevronDown, CheckCircle2, XCircle, HelpCircle, GitBranch, BookOpen } from "lucide-react";
+import { ChevronDown, CheckCircle2, XCircle, HelpCircle, GitBranch, BookOpen, BrainCircuit, Boxes, ScrollText, TrendingUp } from "lucide-react";
+import DecisionsPage from "../decisions/page";
+import CapabilitiesPage from "../capabilities/page";
+import LearningPage from "../learning/page";
+
+// Org Memory — the merged "Intelligence" area. One app, four tabs: the memory
+// recall surface, the Decision log, the Capabilities/succession map, and the
+// Learning loop. (These used to be four separate dock apps.)
+type MemTab = "memory" | "decisions" | "capabilities" | "learnings";
+const MEM_TABS: { id: MemTab; label: string; icon: React.ElementType }[] = [
+  { id: "memory", label: "Memory", icon: BrainCircuit },
+  { id: "decisions", label: "Decisions", icon: ScrollText },
+  { id: "capabilities", label: "Capabilities", icon: Boxes },
+  { id: "learnings", label: "Learnings", icon: TrendingUp },
+];
+
+export default function OrgMemoryPage() {
+  const [tab, setTab] = useState<MemTab>("memory");
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center gap-1 border-b border-line bg-ink-elevated/50 px-3 py-1.5 shrink-0">
+        {MEM_TABS.map((t) => {
+          const Icon = t.icon;
+          const active = tab === t.id;
+          return (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors", active ? "bg-ink-elevated text-fg" : "text-fg-muted hover:text-fg")}
+              style={active ? { boxShadow: "inset 0 -2px 0 var(--os-accent,#C084FC)" } : undefined}>
+              <Icon size={13} /> {t.label}
+            </button>
+          );
+        })}
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-5">
+        {tab === "memory" && <MemoryTab />}
+        {tab === "decisions" && <DecisionsPage />}
+        {tab === "capabilities" && <CapabilitiesPage />}
+        {tab === "learnings" && <LearningPage />}
+      </div>
+    </div>
+  );
+}
 
 const repeatMeta: Record<string, { label: string; tone: string }> = {
   yes: { label: "Would decide again", tone: "text-ok bg-ok-soft border-ok/40" },
@@ -37,7 +78,7 @@ const hypoTone: Record<HypothesisStatus, string> = {
   confirmed: "text-ok", refuted: "text-danger", open: "text-fg-muted",
 };
 
-export default function MemoryWorkspacePage() {
+function MemoryTab() {
   const memory = useMemory();
   const [open, setOpen] = useState<string | null>(null);
 

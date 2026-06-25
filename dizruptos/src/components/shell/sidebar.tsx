@@ -41,25 +41,18 @@ const NAV: {
     { href: "/", label: "Command Center", icon: LayoutDashboard },
     { href: "/capacity", label: "Capacity", icon: Flame, perm: "view_capacity" },
     { href: "/projects", label: "Projects", icon: KanbanSquare },
-    { href: "/people", label: "People", icon: Users },
   ]},
   { group: "Intelligence", items: [
     { href: "/executive", label: "Executive", icon: Activity, perm: "view_executive" },
-    { href: "/briefing", label: "Exec Briefing", icon: Sparkles, perm: "view_executive" },
-    { href: "/narratives", label: "Narratives", icon: Newspaper, perm: "view_executive" },
     { href: "/recommendations", label: "Recommendations", icon: Lightbulb, perm: "view_executive" },
-    { href: "/learning", label: "Learning Loop", icon: TrendingUp, perm: "view_executive" },
-    { href: "/capabilities", label: "Capability Intel", icon: Boxes },
     { href: "/risks", label: "Risk Register", icon: ShieldAlert },
-    { href: "/decisions", label: "Decisions", icon: ScrollText },
-    { href: "/memory", label: "Org Memory", icon: BrainCircuit },
+    { href: "/memory", label: "Org Memory", icon: BrainCircuit, perm: "view_capacity" },
     { href: "/goals", label: "Goals · OKRs", icon: Target },
   ]},
   { group: "Review", items: [
     // No perm gate: the page itself scopes by role (employees see only
     // their personal requests — dynamic view, PRD §6).
     { href: "/proposals", label: "Agent Inbox", icon: Inbox },
-    { href: "/graph", label: "Dependency Graph", icon: GitBranch },
     { href: "/audit", label: "Audit Log", icon: FileClock, perm: "view_audit" },
   ]},
   { group: "Data", items: [

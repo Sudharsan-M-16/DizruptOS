@@ -57,14 +57,11 @@ export const APPS: AppEntry[] = [
   // product routes, shown as windows (RBAC-gated where the surface is sensitive)
   { id: "r-executive", label: "Executive", iconKey: "executive", accent: "#00ED82", kind: "iframe", href: "/executive", dock: true, perm: "view_executive", ...IFRAME_RECT },
   { id: "r-briefing", label: "Exec Briefing", iconKey: "briefing", accent: "#3DF59E", kind: "iframe", href: "/briefing", dock: false, perm: "view_executive", ...IFRAME_RECT },
-  { id: "r-narratives", label: "Narratives", iconKey: "narratives", accent: "#2BD9FF", kind: "iframe", href: "/narratives", dock: true, perm: "view_executive", ...IFRAME_RECT },
   { id: "r-recommendations", label: "Recommendations", iconKey: "recommendations", accent: "#FEBC2E", kind: "iframe", href: "/recommendations", dock: true, perm: "review_proposals", ...IFRAME_RECT },
-  { id: "r-learning", label: "Learning Loop", iconKey: "learning", accent: "#10B981", kind: "iframe", href: "/learning", dock: false, ...IFRAME_RECT },
   { id: "r-capacity", label: "Capacity", iconKey: "capacity", accent: "#F59E0B", kind: "iframe", href: "/capacity", dock: true, perm: "view_capacity", ...IFRAME_RECT },
-  { id: "r-people", label: "People", iconKey: "people", accent: "#38BDF8", kind: "iframe", href: "/people", dock: false, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-projects", label: "Projects", iconKey: "projects", accent: "#7C6CFF", kind: "iframe", href: "/projects", dock: false, ...IFRAME_RECT },
-  { id: "r-graph", label: "Dependency Graph", iconKey: "graph", accent: "#A78BFA", kind: "iframe", href: "/graph", dock: true, perm: "view_capacity", ...IFRAME_RECT },
-  { id: "r-memory", label: "Org Memory", iconKey: "memory", accent: "#C084FC", kind: "iframe", href: "/memory", dock: false, ...IFRAME_RECT },
+  // Org Memory = the merged Intelligence area (Decisions · Capabilities · Learnings).
+  { id: "r-memory", label: "Org Memory", iconKey: "memory", accent: "#C084FC", kind: "iframe", href: "/memory", dock: true, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-risks", label: "Risks", iconKey: "risks", accent: "#EF4444", kind: "iframe", href: "/risks", dock: true, perm: "review_proposals", ...IFRAME_RECT },
 
   // Monte Carlo simulation — native panel (no iframe needed)
@@ -76,8 +73,6 @@ export const APPS: AppEntry[] = [
   // Previously orphaned routes — now first-class OS apps
   { id: "r-goals", label: "Goals & OKRs", iconKey: "goals", accent: "#10B981", kind: "iframe", href: "/goals", dock: true, ...IFRAME_RECT },
   { id: "r-proposals", label: "Agent Inbox", iconKey: "proposals", accent: "#FEBC2E", kind: "iframe", href: "/proposals", dock: true, perm: "review_proposals", ...IFRAME_RECT },
-  { id: "r-decisions", label: "Decisions", iconKey: "decisions", accent: "#C084FC", kind: "iframe", href: "/decisions", dock: false, perm: "view_capacity", ...IFRAME_RECT },
-  { id: "r-capabilities", label: "Capabilities", iconKey: "capabilities", accent: "#38BDF8", kind: "iframe", href: "/capabilities", dock: false, perm: "view_capacity", ...IFRAME_RECT },
   { id: "r-audit", label: "Audit Trail", iconKey: "audit", accent: "#9AA3AD", kind: "iframe", href: "/audit", dock: false, perm: "view_audit", ...IFRAME_RECT },
   { id: "r-import", label: "Data Import", iconKey: "import", accent: "#F59E0B", kind: "iframe", href: "/import", dock: false, perm: "reallocate", ...IFRAME_RECT },
 
