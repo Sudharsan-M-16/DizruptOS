@@ -6,6 +6,7 @@ import { askCopilot } from "@/server/services/intelligence-loader";
 import { guarded, ok, fail, principalView } from "@/server/api";
 import { log } from "@/server/lib/logger";
 import { withSpan } from "@/lib/telemetry";
+import { CopilotQuerySchema, parseBody } from "@/lib/schemas";
 export const dynamic = "force-dynamic";
 
 // In-process answer cache — 60s TTL. Eliminates duplicate LLM calls when the
@@ -65,9 +66,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   return guarded(req, "api_copilot", async () => {
     const principal = resolvePrincipal(req);
-    const body = await req.json().catch(() => ({}));
-    const { q, history } = body as { q?: string; history?: { role: string; content: string }[] };
-    if (!q) return fail(422, "INVALID_INPUT", "q (question) required");
+    let raw: unknown;
+    try { raw = await req.json(); } catch { return fail(400, "INVALID_INPUT", "Invalid JSON body."); }
+    const parsed = parseBody(CopilotQuerySchema, raw);
+    if ("error" in parsed) return fail(422, "INVALID_INPUT", parsed.error);
+    const { q, history } = parsed.data;
     const requestId = req.headers.get("x-request-id") ?? undefined;
     return withSpan("copilot.answer", { "copilot.q_length": q.length, "copilot.history_turns": history?.length ?? 0, principal: principal.role }, async () => {
       try {

@@ -11,6 +11,39 @@ import { createServerClient } from "@supabase/ssr";
 import { env } from "./lib/env";
 import { apiRateLimited } from "./lib/rate-limiter";
 
+// CORS — API routes allow requests from the app's own origin plus any origins
+// listed in the CORS_ALLOWED_ORIGINS env var (comma-separated).
+// Webhooks authenticate via HMAC and don't need CORS.
+const CORS_ALLOWED_ORIGINS: Set<string> = new Set(
+  (process.env.CORS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+);
+
+function getCorsOrigin(req: NextRequest): string | null {
+  const origin = req.headers.get("origin");
+  if (!origin) return null; // same-origin or server-to-server — no header needed
+  const host = req.headers.get("host");
+  // Same host (works for both http and https)
+  if (host && (origin === `https://${host}` || origin === `http://${host}`)) return origin;
+  if (CORS_ALLOWED_ORIGINS.has(origin)) return origin;
+  return null; // blocked
+}
+
+function withCorsHeaders(res: NextResponse, req: NextRequest): NextResponse {
+  const allowed = getCorsOrigin(req);
+  if (allowed) {
+    res.headers.set("Access-Control-Allow-Origin", allowed);
+    res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-CSRF-Token, X-Request-ID");
+    res.headers.set("Access-Control-Allow-Credentials", "true");
+    res.headers.set("Access-Control-Max-Age", "86400");
+    res.headers.set("Vary", "Origin");
+  }
+  return res;
+}
+
 // Real-auth is active only when Supabase is fully configured; otherwise the demo
 // `dz_session` gate runs and nothing about the demo changes.
 const authConfigured = env.mode === "production" && !!env.supabaseUrl && !!env.supabaseAnonKey;
@@ -85,6 +118,13 @@ export async function middleware(req: NextRequest) {
   // Propagate a request ID for distributed tracing correlation.
   const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
 
+  // CORS preflight — respond immediately before any auth checks.
+  if (req.method === "OPTIONS" && pathname.startsWith("/api/")) {
+    const res = new NextResponse(null, { status: 204 });
+    res.headers.set("X-Request-ID", requestId);
+    return withCorsHeaders(withSecurityHeaders(res), req);
+  }
+
   // Per-tenant SSO initiation routing — routes /api/auth/sso?tenant=<orgId>
   // to the correct IdP for that tenant. In live mode, look up from tenant_sso_configs
   // table. In demo mode, routes from the seed above.
@@ -140,7 +180,7 @@ export async function middleware(req: NextRequest) {
     if (limited) {
       const res = NextResponse.json({ code: "RATE_LIMITED" }, { status: 429 });
       if (retryAfter > 0) res.headers.set("Retry-After", String(retryAfter));
-      return withSecurityHeaders(res);
+      return withCorsHeaders(withSecurityHeaders(res), req);
     }
 
     // CSRF double-submit cookie protection for state-mutating API calls.
@@ -159,7 +199,7 @@ export async function middleware(req: NextRequest) {
       if (cookieToken && headerToken && cookieToken !== headerToken) {
         const res = NextResponse.json({ code: "CSRF_VIOLATION" }, { status: 403 });
         res.headers.set("X-Request-ID", requestId);
-        return withSecurityHeaders(res);
+        return withCorsHeaders(withSecurityHeaders(res), req);
       }
     }
   }
@@ -172,12 +212,13 @@ export async function middleware(req: NextRequest) {
   if (isPublic) {
     const res = NextResponse.next();
     res.headers.set("X-Request-ID", requestId);
-    return withSecurityHeaders(res);
+    const withSec = withSecurityHeaders(res);
+    return pathname.startsWith("/api/") ? withCorsHeaders(withSec, req) : withSec;
   }
 
   const unauthenticated = () => {
     if (pathname.startsWith("/api/")) {
-      return withSecurityHeaders(NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 }));
+      return withCorsHeaders(withSecurityHeaders(NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })), req);
     }
     const url = req.nextUrl.clone();
     url.pathname = "/login";
@@ -211,7 +252,7 @@ export async function middleware(req: NextRequest) {
           return withSecurityHeaders(suspendRes);
         }
       }
-      return withCacheHeaders(withSecurityHeaders(res), pathname, req.method);
+      return withCacheHeaders(withCorsHeaders(withSecurityHeaders(res), req), pathname, req.method);
     }
     // Expired or invalid session — clear cookies and redirect to login
     if (error?.message?.includes("expired") || error?.message?.includes("invalid")) {
@@ -232,7 +273,7 @@ export async function middleware(req: NextRequest) {
   if (!session?.value) return unauthenticated();
   const res = NextResponse.next();
   res.headers.set("X-Request-ID", requestId);
-  return withCacheHeaders(withSecurityHeaders(res), pathname, req.method);
+  return withCacheHeaders(withCorsHeaders(withSecurityHeaders(res), req), pathname, req.method);
 }
 
 export const config = {

@@ -11,10 +11,9 @@ import { getRepositories } from "@/server/repositories";
 import { log } from "@/server/lib/logger";
 import { createClient } from "@supabase/supabase-js";
 import { env, isDemoMode } from "@/lib/env";
+import { OrganizationCreateSchema, parseBody } from "@/lib/schemas";
 
 export const dynamic = "force-dynamic";
-
-const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,30}[a-z0-9]$/;
 
 function adminClient() {
   if (isDemoMode || !env.supabaseUrl) return null;
@@ -59,19 +58,13 @@ export async function POST(req: NextRequest) {
   return guarded(req, "organizations_create", async () => {
     const principal = resolvePrincipal(req);
 
-    let body: { name?: string; slug?: string };
-    try { body = await req.json(); }
+    let raw: unknown;
+    try { raw = await req.json(); }
     catch { return fail(400, "INVALID_INPUT", "Invalid JSON body."); }
 
-    const name = body.name?.trim();
-    const slug = body.slug?.trim().toLowerCase();
-
-    if (!name || name.length < 2 || name.length > 80) {
-      return fail(422, "INVALID_INPUT", "name must be 2–80 characters.");
-    }
-    if (!slug || !SLUG_RE.test(slug)) {
-      return fail(422, "INVALID_SLUG", "slug must be 3–32 lowercase alphanumeric + hyphens, no leading/trailing hyphens.");
-    }
+    const parsed = parseBody(OrganizationCreateSchema, raw);
+    if ("error" in parsed) return fail(422, "INVALID_INPUT", parsed.error);
+    const { name, slug } = parsed.data;
 
     const repos = getRepositories();
     const now = new Date().toISOString();

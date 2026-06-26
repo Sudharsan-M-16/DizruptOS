@@ -72,6 +72,62 @@ DATABASE_URL=...                      # use the Session Pooler URI (IPv4); the
 > Continuation manual: see [`../MASTER_EXECUTION_PLAN.md`](../MASTER_EXECUTION_PLAN.md)
 > — full architecture, catalogs, debt register, and version-by-version roadmap.
 
+## Deploy
+
+### Vercel (recommended)
+
+1. **Import** the repo into Vercel. Set the **Root Directory** to `dizruptos`.
+2. **Add environment variables** in Vercel → Project → Settings → Environment Variables:
+
+| Variable | Required | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | For real auth | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For real auth | Supabase anon (public) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | For admin APIs | Keep server-only; never expose to client |
+| `DATABASE_URL` | For Drizzle/direct queries | Use **Session Pooler** URI (port 5432 via pgBouncer) — the direct `db.*.supabase.co` is IPv6-only |
+| `ANTHROPIC_API_KEY` | For AI copilot | Without it copilot falls back to deterministic answers |
+| `SENTRY_DSN` | For error tracking | Get from sentry.io → Projects → your project |
+| `JIRA_WEBHOOK_SECRET` | For Jira integration | Any random string; set same value in Jira webhook config |
+| `LINEAR_WEBHOOK_SECRET` | For Linear integration | Provided by Linear in webhook settings |
+| `GITHUB_WEBHOOK_SECRET` | For GitHub integration | Any random string; set same value in GitHub webhook config |
+| `CORS_ALLOWED_ORIGINS` | Optional | Comma-separated list of additional allowed origins (e.g. your mobile app domain) |
+| `NEXT_PUBLIC_APP_URL` | Recommended | Full URL of the deployment (e.g. `https://app.dizrupt.com`) |
+
+3. **Deploy.** Vercel runs `next build` automatically.
+4. **Apply Supabase migrations** (first deploy only):
+   ```bash
+   supabase db push --db-url "$DATABASE_URL"
+   # or run dizruptos/supabase/setup_all.sql in the Supabase SQL editor
+   ```
+5. **Enable the Auth Hook** in Supabase dashboard → Authentication → Hooks → `custom_access_token_hook` → enable.
+6. **Create your first admin user**: sign up via `/login`, then in Supabase SQL editor:
+   ```sql
+   UPDATE public.users SET role = 'admin' WHERE email = 'your@email.com';
+   ```
+
+### Docker
+
+```bash
+# Build
+docker build -t dizruptos ./dizruptos
+
+# Run (set env vars via --env-file or -e flags)
+docker run -p 3000:3000 \
+  --env-file .env.production \
+  dizruptos
+
+# Or with docker-compose (includes Redis + Prometheus + Grafana)
+docker-compose up
+```
+
+The `Dockerfile` in `dizruptos/` is a multi-stage, non-root build. Port 3000.
+
+### Health check
+
+`GET /api/health` returns `{ ok: true, mode, services: { db, ai, realtime } }`. Use this as the load balancer health check endpoint.
+
+---
+
 ## Stack
 
 Next.js 14 App Router · TypeScript · Tailwind CSS · Radix primitives ·

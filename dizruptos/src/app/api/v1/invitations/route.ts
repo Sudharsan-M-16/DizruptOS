@@ -11,10 +11,9 @@ import { getRepositories } from "@/server/repositories";
 import { log } from "@/server/lib/logger";
 import { createClient } from "@supabase/supabase-js";
 import { env, isDemoMode } from "@/lib/env";
+import { InvitationCreateSchema, parseBody } from "@/lib/schemas";
 
 export const dynamic = "force-dynamic";
-
-const VALID_ROLES = new Set(["admin", "executive", "dept_head", "project_manager", "team_lead", "employee"]);
 
 function adminClient() {
   if (isDemoMode || !env.supabaseUrl) return null;
@@ -58,19 +57,14 @@ export async function POST(req: NextRequest) {
     const principal = resolvePrincipal(req);
     requirePermission(principal, "review_proposals");
 
-    let body: { email?: string; role?: string; message?: string };
-    try { body = await req.json(); }
+    let raw: unknown;
+    try { raw = await req.json(); }
     catch { return fail(400, "INVALID_INPUT", "Invalid JSON body."); }
 
-    const email = body.email?.trim().toLowerCase();
-    const role = body.role ?? "employee";
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return fail(422, "INVALID_EMAIL", "A valid email address is required.");
-    }
-    if (!VALID_ROLES.has(role)) {
-      return fail(422, "INVALID_ROLE", `role must be one of: ${[...VALID_ROLES].join(", ")}`);
-    }
+    const parsed = parseBody(InvitationCreateSchema, raw);
+    if ("error" in parsed) return fail(422, "INVALID_INPUT", parsed.error);
+    const { email: emailRaw, role, message } = parsed.data;
+    const email = emailRaw.toLowerCase();
 
     const now = new Date().toISOString();
     const repos = getRepositories();
@@ -88,7 +82,7 @@ export async function POST(req: NextRequest) {
         actionType: "invitation_sent",
         entityType: "invitation",
         entityLabel: email,
-        detail: `Invitation sent to ${email} as ${role} (demo mode — no email sent)`,
+        detail: `Invitation sent to ${email} as ${role}${message ? ` — "${message}"` : ""} (demo mode — no email sent)`,
         at: now,
       });
       return ok({
@@ -108,7 +102,7 @@ export async function POST(req: NextRequest) {
       .insert({
         email,
         role,
-        message: body.message ?? null,
+        message: message ?? null,
         invited_by: principal.id,
         // org_id will be set by RLS / session context — use principal's org
         org_id: null, // populated by DB default via auth_org() in RLS context
