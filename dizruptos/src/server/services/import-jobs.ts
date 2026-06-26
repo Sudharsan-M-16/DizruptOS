@@ -125,3 +125,22 @@ export function clearDeadLettered(jobId: string): void {
   const idx = retryQueue.findIndex((r) => r.jobId === jobId);
   if (idx !== -1) retryQueue.splice(idx, 1);
 }
+
+// ---- Dedup fingerprint ----
+// Prevents the same external event (same source + externalId) from being
+// imported twice within a 5-minute window. Idempotency at the task level.
+const dedupSeen = new Map<string, number>(); // fingerprint → expiresAt
+const DEDUP_WINDOW_MS = 5 * 60 * 1000;
+
+export function isDuplicate(source: string, externalId: string): boolean {
+  const key = `${source}:${externalId}`;
+  const expiresAt = dedupSeen.get(key);
+  if (expiresAt && expiresAt > Date.now()) return true;
+  dedupSeen.set(key, Date.now() + DEDUP_WINDOW_MS);
+  // Prune expired entries (cap memory)
+  if (dedupSeen.size > 1000) {
+    const now = Date.now();
+    for (const [k, exp] of dedupSeen) if (exp <= now) dedupSeen.delete(k);
+  }
+  return false;
+}

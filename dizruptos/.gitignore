@@ -25,3 +25,19 @@ next-env.d.ts
 
 # tooling
 .vercel
+
+# Dev screenshots — local debug artifacts, not part of the build
+/temp\ ss/
+shot_*.png
+shot_*.mjs
+/shot-import.mjs
+/shot-verify.mjs
+
+# Root-level markdown guides generated during dev sessions (not product docs)
+/CRITICALITY_AND_MULTITASKING_GUIDE.md
+/PRODUCT_MAKER_GUIDE.md
+/QUICK_ANSWERS_CARD.md
+/SIMPLE_EXPLAINER_FOR_EVERYONE.md
+
+# Supabase local dev
+/supabase/verify.mjs

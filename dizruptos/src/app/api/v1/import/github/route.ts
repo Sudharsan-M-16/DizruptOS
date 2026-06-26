@@ -14,7 +14,7 @@ import { metrics } from "@/lib/telemetry";
 import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
 import { upsertExternalDecision, resolveDefaultOrgId } from "@/server/services/graph-writer";
-import { createJob, finishJob } from "@/server/services/import-jobs";
+import { createJob, finishJob, isDuplicate } from "@/server/services/import-jobs";
 
 const WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 
@@ -41,6 +41,13 @@ export async function POST(req: NextRequest) {
   catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   metrics.importRows.inc({ connector: "github", event });
+
+  // Dedup: use delivery GUID if present (GitHub sends X-GitHub-Delivery)
+  const deliveryId = req.headers.get("x-github-delivery");
+  if (deliveryId && isDuplicate("github", deliveryId)) {
+    return NextResponse.json({ ok: true, skipped: "duplicate", deliveryId });
+  }
+
   const repos = getRepositories();
   const now = new Date().toISOString();
   const sender = (payload.sender as Record<string, string>)?.login ?? "github";

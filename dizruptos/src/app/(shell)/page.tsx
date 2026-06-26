@@ -14,7 +14,7 @@ import Link from "next/link";
 import {
   Activity, AlertOctagon, ArrowRight, BrainCircuit, Boxes, Clock, Crosshair, FileClock,
   Flame, FlaskConical, GitBranch, Inbox, KanbanSquare, Lightbulb, ListChecks, Newspaper, OctagonAlert,
-  MessageSquare, ScrollText, Settings, ShieldAlert, Sparkles, Target, TrendingUp, Upload, Users, Zap,
+  MessageSquare, ScrollText, Settings, Shield, ShieldAlert, Sparkles, Target, TrendingUp, Upload, Users, Zap,
 } from "lucide-react";
 import { NumberTicker } from "@/components/ui/ascension";
 import { useOps } from "@/lib/store";
@@ -41,6 +41,7 @@ const TasksApp = dynamic(() => import("@/components/desktop/apps/tasks-app").the
 const KnowledgeVault = dynamic(() => import("@/components/desktop/apps/knowledge-vault").then(m => ({ default: m.KnowledgeVault })), { ssr: false });
 const SimulationApp = dynamic(() => import("@/components/desktop/apps/simulation-app").then(m => ({ default: m.SimulationApp })), { ssr: false });
 const CopilotApp = dynamic(() => import("@/components/desktop/apps/copilot-app").then(m => ({ default: m.CopilotApp })), { ssr: false });
+const AdminApp = dynamic(() => import("@/components/desktop/apps/admin-app").then(m => ({ default: m.AdminApp })), { ssr: false });
 import { MissionControl } from "@/components/desktop/mission-control";
 import { WindowSwitcher } from "@/components/desktop/window-switcher";
 import { Toaster, toast } from "@/components/desktop/toaster";
@@ -78,6 +79,7 @@ const WIN_META: Record<string, { icon: React.ElementType; accent: string }> = {
   vault: { icon: Boxes, accent: "#FEBC2E" },
   simulation: { icon: FlaskConical, accent: "#FEBC2E" },
   copilot: { icon: BrainCircuit, accent: "#00ED82" },
+  admin: { icon: Shield, accent: "#F59E0B" },
 };
 
 // Open an old-style route WITHOUT leaving the desktop: map well-known roots to a
@@ -171,6 +173,7 @@ export default function CommandCenterDesktop() {
     { id: "vault", title: "Knowledge Vault", x: 180, y: 90, w: 900, h: 560, closed: true },
     { id: "simulation", title: "What-If Simulation", x: 120, y: 60, w: 920, h: 640, closed: true },
     { id: "copilot", title: "AI Copilot", x: 200, y: 60, w: 860, h: 560, closed: true },
+    { id: "admin", title: "Admin Console", x: 100, y: 60, w: 900, h: 620, closed: true },
     { id: "settings", title: "System Settings", x: 300, y: 80, w: 760, h: 560, closed: true },
   ];
 
@@ -457,6 +460,7 @@ export default function CommandCenterDesktop() {
         {renderWin("vault", <KnowledgeVault />, true)}
         {renderWin("simulation", <SimulationApp />, true)}
         {renderWin("copilot", <CopilotApp />, true)}
+        {renderWin("admin", <AdminApp />, true)}
         {renderWin("settings", <SettingsBody />, true)}
 
         {/* dynamic route-as-window apps (iframes) */}

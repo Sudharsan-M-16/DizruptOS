@@ -11,7 +11,7 @@ import { metrics } from "@/lib/telemetry";
 import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
 import { upsertExternalTask, upsertExternalProject, resolveDefaultOrgId } from "@/server/services/graph-writer";
-import { createJob, finishJob } from "@/server/services/import-jobs";
+import { createJob, finishJob, isDuplicate } from "@/server/services/import-jobs";
 
 const WEBHOOK_SECRET = process.env.LINEAR_WEBHOOK_SECRET;
 
@@ -72,6 +72,10 @@ export async function POST(req: NextRequest) {
 
   if (type === "Issue") {
     const issue = data as LinearIssue;
+    // Dedup: skip if same Linear issue processed within last 5 minutes
+    if (isDuplicate("linear", issue.id)) {
+      return NextResponse.json({ ok: true, skipped: "duplicate", id: issue.id });
+    }
     const priority = linearPriorityToDizrupt(issue.priority);
     const statusRaw = issue.state?.type ?? "started";
     const status: "todo" | "in_progress" | "completed" | "blocked" =

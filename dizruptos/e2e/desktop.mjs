@@ -171,6 +171,92 @@ try {
     await ctx.close();
   }
 
+  // ── Per-role RBAC E2E (Tests 11–14) ────────────────────────────────────────
+  // Verifies the HTTP layer enforces role boundaries, not just UI hiding.
+
+  // Test 11: Employee sees only their own proposals — no admin governance items
+  {
+    const ctx = await browser.newContext();
+    await ctx.addCookies([{ name: "dz_session", value: "u-ahmed", domain: "localhost", path: "/" }]);
+    const page = await ctx.newPage();
+    const res = await page.request.get(`${BASE}/api/v1/proposals`);
+    const ok = res.status() === 200 || res.status() === 403;
+    check("rbac(employee): proposals returns 200 or 403 — no 5xx", ok);
+    if (res.status() === 200) {
+      const body = await res.json();
+      const list = body.data?.proposals ?? [];
+      const leaked = list.filter(
+        (p) => p.visibility?.includes("admin") && !p.visibility?.includes("employee") && p.subjectId !== "u-ahmed"
+      );
+      check("rbac(employee): no admin-only proposals leaked", leaked.length === 0);
+    }
+    await ctx.close();
+  }
+
+  // Test 12: Executive can read intelligence graph (view_executive permission)
+  {
+    const ctx = await browser.newContext();
+    await ctx.addCookies([{ name: "dz_session", value: "u-noor", domain: "localhost", path: "/" }]);
+    const page = await ctx.newPage();
+    const res = await page.request.get(`${BASE}/api/v1/intelligence/graph`);
+    check("rbac(executive): graph endpoint returns 200", res.status() === 200);
+    if (res.status() === 200) {
+      const body = await res.json();
+      check("rbac(executive): graph has nodes array", Array.isArray(body.data?.graph?.nodes));
+      check("rbac(executive): graph has edges array", Array.isArray(body.data?.graph?.edges));
+    }
+    await ctx.close();
+  }
+
+  // Test 13: Client role is denied access to internal employee list
+  {
+    const ctx = await browser.newContext();
+    await ctx.addCookies([{ name: "dz_session", value: "u-client", domain: "localhost", path: "/" }]);
+    const page = await ctx.newPage();
+    const res = await page.request.get(`${BASE}/api/v1/employees`);
+    check("rbac(client): /api/v1/employees returns 403", res.status() === 403);
+    await ctx.close();
+  }
+
+  // Test 14: No session cookie → 401 on authenticated route
+  {
+    const ctx = await browser.newContext(); // no cookies
+    const page = await ctx.newPage();
+    const res = await page.request.get(`${BASE}/api/v1/copilot?q=test`);
+    check("rbac(no-cookie): copilot returns 401", res.status() === 401);
+    await ctx.close();
+  }
+
+  // Test 15: Admin Console dead-letter API — auth-gated, returns array
+  {
+    const ctx = await browser.newContext();
+    // u-noor is executive — has view_audit (dept_head/admin have it; exec does not, so 403 is valid too)
+    await ctx.addCookies([{ name: "dz_session", value: "u-noor", domain: "localhost", path: "/" }]);
+    const page = await ctx.newPage();
+    const res = await page.request.get(`${BASE}/api/v1/import/dead-letter`);
+    const allowed = res.status() === 200 || res.status() === 403;
+    check("admin: dead-letter api returns 200 or 403 (no 5xx)", allowed);
+    if (res.status() === 200) {
+      const body = await res.json();
+      check("admin: dead-letter response has data array", Array.isArray(body.data));
+    }
+    await ctx.close();
+  }
+
+  // Test 16: Admin Console audit API — u-asha (dept_head) can read audit log
+  {
+    const ctx = await browser.newContext();
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
+    const page = await ctx.newPage();
+    const res = await page.request.get(`${BASE}/api/v1/audit?limit=5`);
+    check("admin: audit api accessible to dept_head", res.status() === 200);
+    if (res.status() === 200) {
+      const body = await res.json();
+      check("admin: audit response has events array", Array.isArray(body.data?.events ?? body.data));
+    }
+    await ctx.close();
+  }
+
 } catch (e) {
   console.error("E2E error:", e);
   checks.push({ label: "runner", ok: false });

@@ -10,9 +10,11 @@ async function singleRequest(url) {
   try {
     const res = await fetch(url, { headers: { Cookie: COOKIE } });
     const latency = performance.now() - start;
-    return { ok: res.ok, status: res.status, latency };
+    // 429 = rate limiter doing its job — separate from real application errors
+    if (res.status === 429) return { ok: true, status: 429, latency, rateLimited: true };
+    return { ok: res.ok, status: res.status, latency, rateLimited: false };
   } catch (e) {
-    return { ok: false, status: 0, latency: performance.now() - start, err: String(e) };
+    return { ok: false, status: 0, latency: performance.now() - start, err: String(e), rateLimited: false };
   }
 }
 
@@ -20,13 +22,15 @@ async function bench(label, url, concurrency, iterations) {
   console.log(`\n[${label}] ${url} — ${concurrency} concurrent × ${iterations} rounds`);
   const allLatencies = [];
   let errors = 0;
+  let rateLimited = 0;
 
   for (let round = 0; round < iterations; round++) {
     const batch = Array.from({ length: concurrency }, () => singleRequest(url));
     const results = await Promise.all(batch);
     for (const r of results) {
       allLatencies.push(r.latency);
-      if (!r.ok) errors++;
+      if (r.rateLimited) rateLimited++;
+      else if (!r.ok) errors++;
     }
   }
 
@@ -37,10 +41,10 @@ async function bench(label, url, concurrency, iterations) {
   const p99 = allLatencies[Math.floor(n * 0.99)];
   const mean = allLatencies.reduce((a, b) => a + b, 0) / n;
 
-  console.log(`  requests: ${n} | errors: ${errors}`);
+  console.log(`  requests: ${n} | errors: ${errors} | rate-limited (429, expected): ${rateLimited}`);
   console.log(`  mean: ${mean.toFixed(0)}ms | p50: ${p50.toFixed(0)}ms | p95: ${p95.toFixed(0)}ms | p99: ${p99.toFixed(0)}ms`);
 
-  return { label, n, errors, mean, p50, p95, p99 };
+  return { label, n, errors, rateLimited, mean, p50, p95, p99 };
 }
 
 async function main() {

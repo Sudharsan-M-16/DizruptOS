@@ -9,6 +9,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { env } from "./lib/env";
+import { apiRateLimited } from "./lib/rate-limiter";
 
 // Real-auth is active only when Supabase is fully configured; otherwise the demo
 // `dz_session` gate runs and nothing about the demo changes.
@@ -77,25 +78,7 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
 // Tiered API rate limiting — in-memory per edge isolate (production: Redis/Upstash).
 // Intelligence routes are compute-heavy (LLM + graph traversal): 10 req/min.
 // Everything else: 60 req/min. Audit/nav is exempt (fire-and-forget from UI).
-const apiHits = new Map<string, { count: number; resetAt: number }>();
-const WINDOW_MS = 60_000;
-const TIER_LIMITS: Record<string, number> = { intelligence: 10, general: 60 };
-
-function apiRateLimited(ip: string, pathname: string): { limited: boolean; retryAfter: number } {
-  if (pathname === "/api/v1/audit/nav") return { limited: false, retryAfter: 0 };
-  const tier = pathname.startsWith("/api/v1/intelligence") ? "intelligence" : "general";
-  const max = TIER_LIMITS[tier];
-  const key = `${ip}:${tier}`;
-  const now = Date.now();
-  const entry = apiHits.get(key);
-  if (!entry || entry.resetAt < now) {
-    apiHits.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return { limited: false, retryAfter: 0 };
-  }
-  entry.count += 1;
-  const limited = entry.count > max;
-  return { limited, retryAfter: limited ? Math.ceil((entry.resetAt - now) / 1000) : 0 };
-}
+// Logic lives in lib/rate-limiter.ts (imported above) so it can be unit-tested.
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

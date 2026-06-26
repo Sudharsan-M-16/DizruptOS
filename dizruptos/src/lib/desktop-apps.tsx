@@ -80,6 +80,9 @@ export const APPS: AppEntry[] = [
   { id: "r-audit", label: "Audit Trail", iconKey: "audit", accent: "#9AA3AD", kind: "iframe", href: "/audit", dock: false, hidden: true, perm: "view_audit", ...IFRAME_RECT },
   { id: "r-import", label: "Data Import", iconKey: "import", accent: "#F59E0B", kind: "iframe", href: "/import", dock: false, hidden: true, perm: "reallocate", ...IFRAME_RECT },
 
+  // Admin Console — tenant mgmt, SSO config, SCIM, audit, failed imports
+  { id: "admin", label: "Admin Console", iconKey: "admin", accent: "#F59E0B", kind: "panel", dock: false, hidden: true, perm: "view_audit", x: 100, y: 60, w: 900, h: 620 },
+
   // settings (special surface, opened via event)
   { id: "settings", label: "System Settings", iconKey: "settings", accent: "#9AA3AD", kind: "special", dock: true },
 ];

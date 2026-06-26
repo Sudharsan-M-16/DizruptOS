@@ -11,9 +11,20 @@ import { metrics } from "@/lib/telemetry";
 import { log } from "@/server/lib/logger";
 import { getRepositories } from "@/server/repositories";
 import { upsertExternalTask, upsertExternalProject, resolveDefaultOrgId } from "@/server/services/graph-writer";
-import { createJob, finishJob } from "@/server/services/import-jobs";
+import { createJob, finishJob, isDuplicate } from "@/server/services/import-jobs";
+
+import { createHmac, timingSafeEqual } from "crypto";
 
 const JIRA_WEBHOOK_SECRET = process.env.JIRA_WEBHOOK_SECRET;
+
+function verifyJiraSignature(rawBody: string, header: string | null): boolean {
+  if (!JIRA_WEBHOOK_SECRET) return true; // open in demo
+  if (!header || !header.startsWith("sha256=")) return false;
+  const expected = "sha256=" + createHmac("sha256", JIRA_WEBHOOK_SECRET).update(rawBody).digest("hex");
+  try {
+    return timingSafeEqual(Buffer.from(header), Buffer.from(expected));
+  } catch { return false; }
+}
 
 type JiraIssue = {
   id: string;
@@ -55,8 +66,15 @@ function mapJiraStatus(status: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  // Validate shared secret if configured.
-  if (JIRA_WEBHOOK_SECRET) {
+  const rawBody = await req.text();
+  // HMAC-SHA256 verification (X-Hub-Signature-256 header, same format as GitHub).
+  // Falls back to X-Atlassian-Token string check for legacy Jira Cloud instances.
+  const hmacHeader = req.headers.get("x-hub-signature-256");
+  if (hmacHeader) {
+    if (!verifyJiraSignature(rawBody, hmacHeader)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+  } else if (JIRA_WEBHOOK_SECRET) {
     const token = req.headers.get("x-atlassian-token") ?? req.headers.get("authorization");
     if (!token || !token.includes(JIRA_WEBHOOK_SECRET)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -64,7 +82,7 @@ export async function POST(req: NextRequest) {
   }
 
   let payload: JiraWebhookPayload;
-  try { payload = await req.json(); }
+  try { payload = JSON.parse(rawBody); }
   catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const { webhookEvent, issue } = payload;
@@ -72,6 +90,11 @@ export async function POST(req: NextRequest) {
 
   if (!issue) {
     return NextResponse.json({ ok: true, skipped: "no issue in payload" });
+  }
+
+  // Idempotency: skip re-processing the same Jira issue key within 5 minutes.
+  if (isDuplicate("jira", issue.key)) {
+    return NextResponse.json({ ok: true, skipped: "duplicate", key: issue.key });
   }
 
   const repos = getRepositories();

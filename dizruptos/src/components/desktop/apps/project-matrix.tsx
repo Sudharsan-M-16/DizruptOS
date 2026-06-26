@@ -21,14 +21,14 @@ import type { Task, TaskPriority, TaskStatus } from "@/lib/types";
 import { EmpAvatar } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 
-const COLUMNS: { id: TaskStatus; label: string; tone: string }[] = [
-  { id: "BACKLOG", label: "Backlog", tone: "#8A8F98" },
-  { id: "TO_DO", label: "To Do", tone: "#38BDF8" },
-  { id: "IN_PROGRESS", label: "In Progress", tone: "#F59E0B" },
-  { id: "BLOCKED", label: "Blocked", tone: "#EF4444" },
-  { id: "REVIEW", label: "In Review", tone: "#7C6CFF" },
-  { id: "CLIENT_REVIEW", label: "Client Review", tone: "#2BD9FF" },
-  { id: "COMPLETED", label: "Done", tone: "#10B981" },
+const COLUMNS: { id: TaskStatus; label: string; tone: string; maxWip?: number }[] = [
+  { id: "BACKLOG",       label: "Backlog",       tone: "#8A8F98" },
+  { id: "TO_DO",         label: "To Do",         tone: "#38BDF8", maxWip: 10 },
+  { id: "IN_PROGRESS",   label: "In Progress",   tone: "#F59E0B", maxWip: 5  },
+  { id: "BLOCKED",       label: "Blocked",       tone: "#EF4444", maxWip: 3  },
+  { id: "REVIEW",        label: "In Review",     tone: "#7C6CFF", maxWip: 4  },
+  { id: "CLIENT_REVIEW", label: "Client Review", tone: "#2BD9FF", maxWip: 3  },
+  { id: "COMPLETED",     label: "Done",          tone: "#10B981" },
 ];
 
 const PRIORITY: Record<string, { label: string; cls: string }> = {
@@ -163,12 +163,35 @@ export function ProjectMatrix() {
         <div className="-mx-1 flex min-h-0 flex-1 gap-3 overflow-x-auto px-1 pb-1">
           {COLUMNS.map((col) => {
             const items = byCol(col.id);
+            const atWip = col.maxWip !== undefined && items.length >= col.maxWip;
+            const overWip = col.maxWip !== undefined && items.length > col.maxWip;
             return (
               <div key={col.id} className="flex w-[244px] shrink-0 flex-col">
-                <div className="mb-2 flex items-center gap-2 px-1">
-                  <span className="h-2 w-2 rounded-full" style={{ background: col.tone }} />
-                  <span className="text-xs font-semibold tracking-tight">{col.label}</span>
-                  <span className="ml-auto font-mono text-2xs text-fg-muted">{items.length}</span>
+                <div
+                  className={cn(
+                    "mb-2 flex items-center gap-2 rounded-lg px-1 py-0.5 transition-colors",
+                    overWip ? "bg-warn/10" : atWip ? "bg-warn/5" : ""
+                  )}
+                  title={col.maxWip ? `WIP limit: ${col.maxWip}` : undefined}
+                >
+                  <span className="h-2 w-2 rounded-full" style={{ background: overWip ? "#F59E0B" : col.tone }} />
+                  <span className={cn("text-xs font-semibold tracking-tight", overWip && "text-warn")}>
+                    {col.label}
+                  </span>
+                  {col.maxWip && (
+                    <span
+                      className={cn(
+                        "ml-auto font-mono text-2xs tabular-nums transition-colors",
+                        overWip ? "font-bold text-warn" : atWip ? "text-warn/70" : "text-fg-muted"
+                      )}
+                      title={overWip ? `Over WIP limit of ${col.maxWip}` : undefined}
+                    >
+                      {items.length}/{col.maxWip}
+                    </span>
+                  )}
+                  {!col.maxWip && (
+                    <span className="ml-auto font-mono text-2xs text-fg-muted">{items.length}</span>
+                  )}
                 </div>
                 <Droppable droppableId={col.id}>
                   {(provided, snapshot) => (
