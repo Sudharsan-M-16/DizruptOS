@@ -75,7 +75,7 @@ export const APPS: AppEntry[] = [
   { id: "copilot", label: "AI Copilot", iconKey: "copilot", accent: "#00ED82", kind: "panel", dock: true, perm: "view_capacity", x: 200, y: 60, w: 860, h: 560 },
 
   // Previously orphaned routes — now first-class OS apps
-  { id: "r-goals", label: "Goals & OKRs", iconKey: "goals", accent: "#10B981", kind: "iframe", href: "/goals", dock: false, hidden: true, ...IFRAME_RECT },
+  { id: "r-goals", label: "Goals & OKRs", iconKey: "goals", accent: "#10B981", kind: "iframe", href: "/goals", dock: true, ...IFRAME_RECT },
   { id: "r-proposals", label: "Agent Inbox", iconKey: "proposals", accent: "#FEBC2E", kind: "iframe", href: "/proposals", dock: false, hidden: true, perm: "review_proposals", ...IFRAME_RECT },
   { id: "r-audit", label: "Audit Trail", iconKey: "audit", accent: "#9AA3AD", kind: "iframe", href: "/audit", dock: false, hidden: true, perm: "view_audit", ...IFRAME_RECT },
   { id: "r-import", label: "Data Import", iconKey: "import", accent: "#F59E0B", kind: "iframe", href: "/import", dock: false, hidden: true, perm: "reallocate", ...IFRAME_RECT },

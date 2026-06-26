@@ -58,10 +58,23 @@ that obvious, and fixable, in seconds. The other projects — a Fitness App, a
 Cloud setup that's stuck waiting on a security vendor, a shared Design System, and
 an Online Store still in planning — fill out the world and keep the picture real.
 
-Around those projects are about sixteen people, each with real skills (backend,
-AI, design, data, testing, DevOps) and a real workload. The app knows who they
-are, what they can do, and how loaded they are — and that's the engine that makes
-the rest work.
+Around those projects are sixteen real people, each with real skills and a real
+workload. The app knows who they are, what they can do, and how loaded they are —
+and that's the engine that makes everything else work. These are the names you'll
+say out loud during the demo:
+
+| Person | Role | This week | The point they make |
+|---|---|---|---|
+| **Sarah Okafor** | Backend lead | **115% — overloaded** | drowning, and burning out |
+| **Zara Iqbal** | AI engineer | **110% — overloaded** | the *only* person who knows the AI model |
+| **Ahmed Hassan** | Backend engineer | **65% — has room** | can pick up work himself |
+| **Ray Donnelly** | Data engineer | **45% — free** | exactly who the Dashboard needs |
+| **Inés Castillo** | Designer | **50% — free** | spare hands with the right skills |
+| **Asha Venkat** | Project manager | — | the one who *moves* people |
+| **Noor Al-Rashid** | CEO | — | wants the truth in one screen |
+| **Elias Brandt** | IT admin | — | keeps accounts & access in order |
+
+Keep your eye on Sarah and Ray — the whole story is moving one task from her to him.
 
 ---
 
@@ -152,6 +165,8 @@ bloated. A few more pieces quietly back it up:
   team to talk, so the daily loop lives inside the same desktop.
 - **Risks** — the things that could go wrong (like "only one person knows the AI
   model"), tracked so they don't ambush anyone.
+- **Goals & OKRs** — the bigger targets ("launch the chatbot by August") that the
+  day-to-day work rolls up into, so effort always ties back to an outcome.
 - **AI Copilot** — ask the org a question in plain English ("who's overloaded?",
   "what's risky about the chatbot?") and get a grounded answer with its reasoning.
 - **One Launcher** — everything opens from a single search-driven launcher (press
