@@ -194,6 +194,7 @@ function unblockNotifs(completedTaskId: string, tasks: Task[]): NotificationItem
       read: false,
       entityRef: "/tasks",
       recipientId: t.assigneeId,
+      taskId: t.id,
     }));
 }
 
@@ -425,7 +426,7 @@ export const useOps = create<OpsState>((set, get) => ({
       klass: "manager_review",
       title: `New task assigned to you — ${task.estimatedHours}h`,
       body: `'${task.title}' is now yours (week of ${task.weekStart.slice(5)}). Your week: ${toBefore}% → ${toAfter}%.`,
-      at, read: false, entityRef: "/tasks", recipientId: to,
+      at, read: false, entityRef: "/tasks", recipientId: to, taskId: task.id,
     });
     // → the person it was moved off (if any)
     if (from && fromEmp) {
@@ -434,7 +435,7 @@ export const useOps = create<OpsState>((set, get) => ({
         klass: "informational",
         title: "A task was moved off your plate",
         body: `'${task.title}' (${task.estimatedHours}h) went to ${toEmp?.name}. Your week: ${fromBefore}% → ${fromAfter}%.`,
-        at, read: false, entityRef: "/capacity", recipientId: from,
+        at, read: false, entityRef: "/capacity", recipientId: from, taskId: task.id,
       });
     }
     // → managers: heads-up if this move tips the receiver over 100%
@@ -771,6 +772,7 @@ export const useOps = create<OpsState>((set, get) => ({
           read: false,
           entityRef: "/tasks",
           recipientId: me.id,
+          taskId: task.id,
         },
         ...s.notifications,
       ],

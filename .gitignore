@@ -1,0 +1,27 @@
+# Root .gitignore (git root is the DizruptOS folder; the app lives in dizruptos/)
+
+# Claude / agent scratch
+.claude/
+**/scratchpad/
+
+# dependencies & build output (belt-and-suspenders with dizruptos/.gitignore)
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+
+# env / secrets — never commit
+**/.env
+**/.env*.local
+
+# debug screenshots & ad-hoc capture scripts (dev artifacts, not source)
+dizruptos/shot_*.png
+dizruptos/shot-*.png
+dizruptos/v-*.png
+dizruptos/v_*.png
+dizruptos/*.screenshot.png
+
+# OS noise
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

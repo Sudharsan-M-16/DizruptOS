@@ -9,6 +9,8 @@
 import { useEffect } from "react";
 import { Bell, CheckCheck, Cpu, Handshake, Inbox, MessageSquare, ShieldAlert } from "lucide-react";
 import { useOps } from "@/lib/store";
+import { useSession } from "@/lib/session";
+import { appById } from "@/lib/desktop-apps";
 import { realtimeChannel, CHANNELS } from "@/lib/realtime-supabase";
 import type { NotificationItem } from "@/lib/types";
 import { cn, timeAgo } from "@/lib/utils";
@@ -31,18 +33,32 @@ function groupOf(n: NotificationItem): GroupId {
   return "System";
 }
 
-// entityRef → which window to open. Known refs map to a registered app id;
-// anything else opens the raw route as a window (decoupled fallback).
+// entityRef → which app to open. Mapped to CURRENT apps only (no hidden/removed
+// surfaces). Anything not allowed for the viewer falls back to Home, so a
+// notification never deep-links a user into a screen their role can't open.
 const ROUTE_APP: Record<string, string> = {
-  "/risks": "r-risks", "/capacity": "r-capacity", "/projects": "matrix",
+  "/risks": "r-risks", "/capacity": "r-capacity", "/projects": "r-projects",
   "/people": "r-capacity", "/commitments": "r-capacity", "/chat": "chat",
+  "/tasks": "tasks", "/goals": "r-goals", "/recommendations": "r-recommendations",
 };
-function openFrom(n: NotificationItem) {
+const launch = (id: string) => window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id } }));
+
+/** Resolve where a notification should open — RBAC- and hidden-aware. */
+function openFrom(n: NotificationItem, can: (p: import("@/lib/personas").Permission) => boolean, openTaskDrawer: (id: string) => void) {
+  // 1) deep-link to the exact task when we have its id
+  if (n.taskId) { openTaskDrawer(n.taskId); return; }
+  // 2) map the route to an app, but only if the viewer can actually open it
   const ref = n.entityRef;
-  if (!ref) { window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id: "home" } })); return; }
-  const key = Object.keys(ROUTE_APP).find((k) => ref.startsWith(k));
-  if (key) window.dispatchEvent(new CustomEvent("dizrupt:launch", { detail: { id: ROUTE_APP[key] } }));
-  else window.dispatchEvent(new CustomEvent("dizrupt:open-route", { detail: { href: ref, title: ref.replace(/^\//, "").split("/")[0] || "DizruptOS" } }));
+  const key = ref ? Object.keys(ROUTE_APP).find((k) => ref.startsWith(k)) : undefined;
+  const targetId = key ? ROUTE_APP[key] : undefined;
+  if (targetId) {
+    const app = appById(targetId);
+    const allowed = app && !app.hidden && (!app.perm || can(app.perm));
+    launch(allowed ? targetId : "home");
+    return;
+  }
+  // 3) unknown ref → Home (never open a raw route to a pruned surface)
+  launch("home");
 }
 
 export function NotificationCenter({ onClose }: { onClose: () => void }) {
@@ -50,6 +66,8 @@ export function NotificationCenter({ onClose }: { onClose: () => void }) {
   const markAllRead = useOps((s) => s.markAllRead);
   const markRead = useOps((s) => s.markRead);
   const addNotification = useOps((s) => s.addNotification);
+  const openTaskDrawer = useOps((s) => s.openTaskDrawer);
+  const can = useSession((s) => s.can);
   const unread = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
@@ -110,7 +128,7 @@ export function NotificationCenter({ onClose }: { onClose: () => void }) {
                 {g.items.map((n) => (
                   <button
                     key={n.id}
-                    onClick={() => { markRead(n.id); openFrom(n); onClose(); }}
+                    onClick={() => { markRead(n.id); openFrom(n, can, openTaskDrawer); onClose(); }}
                     className={cn(
                       "flex w-full gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors",
                       n.read ? "border-transparent hover:bg-white/[0.05]" : "border-line bg-ink-surface hover:border-line-strong"
