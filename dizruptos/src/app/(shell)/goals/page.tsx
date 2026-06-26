@@ -4,9 +4,10 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Target, X } from "lucide-react";
-import { employeeById, employees, goals, projects } from "@/lib/data";
+import { Minus, Plus, Target, X } from "lucide-react";
+import { employeeById, employees, projects } from "@/lib/data";
 import { useSession } from "@/lib/session";
+import { useOps, useLiveGoals } from "@/lib/store";
 import { CapacityBar, EmpAvatar, HealthPill } from "@/components/ui/primitives";
 import { cn, fmtDate, fmtPct } from "@/lib/utils";
 import type { Goal } from "@/lib/types";
@@ -17,7 +18,7 @@ function launchApp(id: string) {
   try { window.parent?.dispatchEvent(ev); } catch { /* cross-origin guard */ }
 }
 
-function AddGoalPanel({ onAdd, onClose }: { onAdd: (g: Goal) => void; onClose: () => void }) {
+function AddGoalPanel({ onAdd, onClose }: { onAdd: (g: Omit<Goal, "id" | "progress">) => void; onClose: () => void }) {
   const [title, setTitle] = React.useState("");
   const [ownerId, setOwnerId] = React.useState(employees[0]?.id ?? "");
   const [targetDate, setTargetDate] = React.useState(
@@ -36,11 +37,9 @@ function AddGoalPanel({ onAdd, onClose }: { onAdd: (g: Goal) => void; onClose: (
       .filter((k) => k.trim())
       .map((k) => ({ title: k.trim(), progress: 0 }));
     onAdd({
-      id: `goal-${Date.now()}`,
       title: title.trim(),
       ownerId,
       targetDate,
-      progress: 0,
       keyResults: keyResults.length > 0 ? keyResults : [{ title: "Define key result", progress: 0 }],
     });
     onClose();
@@ -96,10 +95,12 @@ function AddGoalPanel({ onAdd, onClose }: { onAdd: (g: Goal) => void; onClose: (
 
 export default function GoalsPage() {
   const [showAdd, setShowAdd] = React.useState(false);
-  const [extraGoals, setExtraGoals] = React.useState<Goal[]>([]);
   const canManage = useSession((s) => s.can("reallocate"));
-
-  const allGoals = React.useMemo(() => [...goals, ...extraGoals], [extraGoals]);
+  const allGoals = useLiveGoals();
+  const addGoal = useOps((s) => s.addGoal);
+  const setKeyResultProgress = useOps((s) => s.setKeyResultProgress);
+  const bumpKr = (goalId: string, kr: { title: string; progress: number }, delta: number) =>
+    setKeyResultProgress(goalId, kr.title, kr.progress + delta);
 
   return (
     <div className="flex h-full flex-col">
@@ -167,6 +168,22 @@ export default function GoalsPage() {
               {g.keyResults.map((kr) => (
                 <div key={kr.title} className="flex items-center gap-3">
                   <span className="min-w-0 flex-1 truncate text-[13px] leading-5 text-fg">{kr.title}</span>
+                  {canManage && (
+                    <span className="flex items-center gap-0.5">
+                      <button
+                        onClick={() => bumpKr(g.id, kr, -0.25)}
+                        disabled={kr.progress <= 0}
+                        aria-label={`Decrease progress of ${kr.title}`}
+                        className="grid h-5 w-5 place-items-center rounded border border-line text-fg-muted transition-colors hover:text-fg disabled:opacity-30"
+                      ><Minus size={11} /></button>
+                      <button
+                        onClick={() => bumpKr(g.id, kr, 0.25)}
+                        disabled={kr.progress >= 1}
+                        aria-label={`Increase progress of ${kr.title}`}
+                        className="grid h-5 w-5 place-items-center rounded border border-line text-fg-muted transition-colors hover:text-fg disabled:opacity-30"
+                      ><Plus size={11} /></button>
+                    </span>
+                  )}
                   <CapacityBar pct={kr.progress * 0.79} className="w-28" height={5} />
                   <span className="w-10 text-right font-mono text-xs text-fg-secondary">{fmtPct(kr.progress)}</span>
                 </div>
@@ -199,7 +216,7 @@ export default function GoalsPage() {
       <AnimatePresence>
         {showAdd && (
           <AddGoalPanel
-            onAdd={(g) => setExtraGoals((prev) => [...prev, g])}
+            onAdd={(g) => addGoal(g)}
             onClose={() => setShowAdd(false)}
           />
         )}

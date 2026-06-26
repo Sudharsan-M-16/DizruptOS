@@ -13,6 +13,7 @@ import {
   proposals as seedProposals,
   tasks as seedTasks,
   projects as seedProjects,
+  goals as seedGoals,
   employeeById,
   projectById,
 } from "./data";
@@ -26,6 +27,7 @@ import type {
   CapacityCell,
   HealthStatus,
   NotificationItem,
+  Goal,
   Project,
   ProjectStatus,
   Proposal,
@@ -52,6 +54,8 @@ interface SyncMessage {
   audit: AuditEvent[];
   projectOverrides: Record<string, ProjectOverride>;
   extraProjects: Project[];
+  extraGoals: Goal[];
+  goalKr: Record<string, Record<string, number>>;
 }
 
 const syncChannel = createChannel<SyncMessage>("dizrupt-ops-sync");
@@ -63,6 +67,8 @@ const publishSync = (s: {
   audit: AuditEvent[];
   projectOverrides: Record<string, ProjectOverride>;
   extraProjects: Project[];
+  extraGoals: Goal[];
+  goalKr: Record<string, Record<string, number>>;
 }) =>
   syncChannel.publish({
     kind: "ops_state",
@@ -72,6 +78,8 @@ const publishSync = (s: {
     audit: s.audit,
     projectOverrides: s.projectOverrides,
     extraProjects: s.extraProjects,
+    extraGoals: s.extraGoals,
+    goalKr: s.goalKr,
   });
 
 interface PendingDrop {
@@ -91,6 +99,10 @@ interface OpsState {
   projectOverrides: Record<string, ProjectOverride>;
   /** Projects created during the session — live everywhere, synced cross-tab. */
   extraProjects: Project[];
+  /** Goals created during the session — live everywhere, synced cross-tab. */
+  extraGoals: Goal[];
+  /** Live key-result progress edits, keyed by goalId → KR title → 0..1. */
+  goalKr: Record<string, Record<string, number>>;
   paletteOpen: boolean;
   drawerTaskId: string | null;
   pendingDrop: PendingDrop | null; // guardrail modal state
@@ -133,6 +145,11 @@ interface OpsState {
   clientApproveTask: (taskId: string) => void;
   /** Assignee refines their own estimate, or manager sets it. Writes to audit. */
   updateTaskEstimate: (taskId: string, hours: number) => void;
+  /** Manager creates an OKR — lands in the live store, shows everywhere. */
+  addGoal: (g: Omit<Goal, "id" | "progress">) => void;
+  /** Update a key result's progress; the goal's overall progress recomputes as
+   *  the average of its KRs. Live + synced cross-tab/login. */
+  setKeyResultProgress: (goalId: string, krTitle: string, progress: number) => void;
 }
 
 const applyDelta = (
@@ -197,6 +214,8 @@ export const useOps = create<OpsState>((set, get) => ({
   notifications: seedNotifications,
   projectOverrides: {},
   extraProjects: [],
+  extraGoals: [],
+  goalKr: {},
   paletteOpen: false,
   drawerTaskId: null,
   pendingDrop: null,
@@ -518,6 +537,46 @@ export const useOps = create<OpsState>((set, get) => ({
     publishSync(get());
   },
 
+  addGoal: (g) => {
+    if (!useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — only managers can create goals." });
+      return;
+    }
+    const goal: Goal = { ...g, id: `goal-${Date.now()}`, progress: 0 };
+    const event: AuditEvent = {
+      id: `a-${auditSeq++}`,
+      ...currentActor(),
+      actionType: "goal_created",
+      entityType: "goal",
+      entityLabel: goal.title,
+      detail: `Created OKR '${goal.title}' (${goal.keyResults.length} key results).`,
+      at: new Date().toISOString(),
+    };
+    set((s) => ({
+      extraGoals: [...s.extraGoals, goal],
+      audit: [event, ...s.audit],
+      notifications: [
+        { id: `n-newgoal-${auditSeq}`, klass: "informational" as const, title: `New goal: ${goal.title}`, body: `A new OKR was created. Track its progress in Goals & OKRs.`, at: new Date().toISOString(), read: false, entityRef: "/goals" },
+        ...s.notifications,
+      ],
+      lastAction: `OKR "${goal.title}" created`,
+    }));
+    publishSync(get());
+  },
+
+  setKeyResultProgress: (goalId, krTitle, progress) => {
+    if (!useSession.getState().can("reallocate")) {
+      set({ lastAction: "Not permitted — only managers can update goals." });
+      return;
+    }
+    const pct = Math.max(0, Math.min(1, progress));
+    set((s) => {
+      const forGoal = { ...(s.goalKr[goalId] ?? {}), [krTitle]: pct };
+      return { goalKr: { ...s.goalKr, [goalId]: forGoal } };
+    });
+    publishSync(get());
+  },
+
   reviewProposal: (id, verdict) => {
     if (!useSession.getState().can("review_proposals")) { set({ lastAction: "Not permitted — reviewing agent proposals requires manager access." }); return; }
     const { proposals } = get();
@@ -823,6 +882,8 @@ syncChannel.subscribe((msg) => {
     audit: msg.audit,
     projectOverrides: msg.projectOverrides ?? {},
     extraProjects: msg.extraProjects ?? [],
+    extraGoals: msg.extraGoals ?? [],
+    goalKr: msg.goalKr ?? {},
     lastAction: "Synced from another session",
   });
 });
@@ -852,4 +913,26 @@ export function useLiveProject(id?: string): Project | undefined {
   const overrides = useOps((s) => s.projectOverrides);
   const p = seedProjects.find((x) => x.id === id);
   return p ? mergeProject(p, overrides) : undefined;
+}
+
+/* ------------------------------- live goals -------------------------------- */
+// Merge the goal seed with session-created goals, then apply live key-result
+// edits and recompute each goal's overall progress as the average of its KRs.
+// Components read THIS so OKR changes appear live, everywhere, for every login.
+export function useLiveGoals(): Goal[] {
+  const extra = useOps((s) => s.extraGoals);
+  const goalKr = useOps((s) => s.goalKr);
+  return useMemo(() => {
+    return [...seedGoals, ...extra].map((g) => {
+      const edits = goalKr[g.id];
+      if (!edits) return g;
+      const keyResults = g.keyResults.map((kr) =>
+        edits[kr.title] != null ? { ...kr, progress: edits[kr.title] } : kr
+      );
+      const progress = keyResults.length
+        ? keyResults.reduce((s, kr) => s + kr.progress, 0) / keyResults.length
+        : g.progress;
+      return { ...g, keyResults, progress };
+    });
+  }, [extra, goalKr]);
 }
