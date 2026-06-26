@@ -30,7 +30,7 @@ const STATUS_TONE: Record<string, string> = {
   IN_PROGRESS: "#F59E0B", BLOCKED: "#EF4444", REVIEW: "#7C6CFF", TO_DO: "#38BDF8", BACKLOG: "#8A8F98", COMPLETED: "#10B981",
 };
 const PRIORITY_CLS: Record<string, string> = {
-  URGENT: "bg-danger/15 text-danger", HIGH: "bg-warn/15 text-warn", MEDIUM: "bg-info/15 text-info", LOW: "bg-fg-muted/15 text-fg-muted",
+  URGENT: "bg-danger/10 text-danger", HIGH: "bg-warn/15 text-warn", MEDIUM: "bg-info/15 text-info", LOW: "bg-fg-muted/15 text-fg-muted",
 };
 
 type Segment = "today" | "pending" | "critical";
@@ -356,7 +356,7 @@ function Stat({ label, value, sub, icon: Icon, valueClass, onClick }: { label: s
     <Tag onClick={onClick} className={cn("rounded-xl border border-line bg-ink-surface p-3 text-left", onClick && "cursor-pointer transition-colors hover:border-line-strong hover:bg-ink-elevated")}>
       <div className="flex items-center gap-1.5 text-2xs text-fg-muted"><Icon size={12} /> {label}</div>
       <div className={cn("mt-1 font-display text-2xl font-bold tracking-tight", valueClass)}>{value}</div>
-      {sub && <div className="text-2xs text-fg-faint">{sub}</div>}
+      {sub && <div className="text-2xs text-fg-muted">{sub}</div>}
     </Tag>
   );
 }

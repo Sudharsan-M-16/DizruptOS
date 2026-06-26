@@ -174,6 +174,7 @@ export function CapacityBar({
       className={cn("flex w-full items-center gap-[3px]", className)}
       style={{ height }}
       role="meter"
+      aria-label={`Capacity ${Math.round(pct * 100)}%`}
       aria-valuenow={Math.round(pct * 100)}
       aria-valuemin={0}
       aria-valuemax={120}

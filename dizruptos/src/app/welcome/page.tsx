@@ -133,6 +133,15 @@ function Hero() {
           </motion.p>
         </div>
 
+        <motion.p
+          {...metaIn(1.6)}
+          className="mt-7 max-w-[34ch] text-[clamp(1rem,1.7vw,1.4rem)] font-medium leading-snug text-fg/75"
+        >
+          Workforce <span className="text-fg">+</span> projects in one place. See who&apos;s overloaded,
+          who&apos;s free, and move work to the right person in <span className="text-brand">three clicks</span> —
+          before someone burns out.
+        </motion.p>
+
         <motion.div {...metaIn(2)} className="mt-8 flex flex-wrap items-center gap-4">
           <Link
             href="/login"

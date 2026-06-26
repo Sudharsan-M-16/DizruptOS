@@ -176,7 +176,19 @@ export default function CapacityPage() {
         </div>
       </div>
 
-      {/* Matrix — scrolls horizontally below 1080px; density never collapses */}
+      {/* Empty state — a brand-new org with no people yet */}
+      {visible.length === 0 ? (
+        <div className="panel flex flex-col items-center gap-2 py-16 text-center">
+          <Gauge size={28} className="text-fg-faint" />
+          <div className="text-sm font-semibold">No people to show yet</div>
+          <div className="max-w-sm text-xs text-fg-muted">
+            {deptFilter === "all"
+              ? "Invite your team and capacity will fill in here — who's overloaded, who's free, and where to move work."
+              : "No one in this department yet. Pick another department or invite people to it."}
+          </div>
+        </div>
+      ) : (
+      /* Matrix — scrolls horizontally below 1080px; density never collapses */
       <div className="panel overflow-x-auto">
        <div className="min-w-[1080px]">
         {/* Week header */}
@@ -348,6 +360,7 @@ export default function CapacityPage() {
         })}
        </div>
       </div>
+      )}
 
       <p className="text-xs text-fg-muted">
         Capacity law: utilization = Σ estimated hours due in week ÷ weekly capacity.

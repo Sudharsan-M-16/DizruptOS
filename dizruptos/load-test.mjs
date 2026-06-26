@@ -3,7 +3,7 @@
 // Expected p95 targets: health < 50ms, graph < 800ms, copilot < 10s
 
 const BASE = "http://localhost:3000";
-const COOKIE = "dz_session=demo";
+const COOKIE = "dz_session=u-elias"; // valid principal; run against `npm run build && npm start` for real perf numbers (dev is unoptimised; intelligence routes are rate-limited to 10/min by design)
 
 async function singleRequest(url) {
   const start = performance.now();
