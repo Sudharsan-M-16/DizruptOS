@@ -29,6 +29,7 @@ const newsreader = Newsreader({
   weight: ["300", "400", "500"],
   style: ["normal", "italic"],
   variable: "--font-newsreader",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -41,12 +42,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* No-flash theme resolution: runs before first paint. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=JSON.parse(localStorage.getItem("dizrupt-session")||"{}");var t=(s.state&&s.state.theme)||"dark";if(t==="system"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="dark"}})();`,
+            __html: `(function(){try{var s=JSON.parse(localStorage.getItem("dizrupt-session")||"{}");var t=(s.state&&s.state.theme)||"dark";if(t==="system"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.dataset.theme=t;if(t==="dark"){document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark")}}catch(e){document.documentElement.dataset.theme="dark";document.documentElement.classList.add("dark")}})();`,
           }}
         />
       </head>

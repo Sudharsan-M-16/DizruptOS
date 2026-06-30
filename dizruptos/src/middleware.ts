@@ -50,7 +50,7 @@ const authConfigured = env.mode === "production" && !!env.supabaseUrl && !!env.s
 
 const PUBLIC_PATHS = [
   "/login", "/welcome", "/auth", "/api/auth", "/api/health", "/api/ready",
-  "/accept-invite", "/reset-password", "/onboarding",
+  "/accept-invite", "/reset-password",
   // Token-based endpoints — the token is the credential; route handlers enforce their own auth
   "/api/v1/invitations/",
   // CSRF endpoint is always public (it issues the token)
@@ -84,7 +84,7 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' ws: wss:", // Supabase Realtime joins this list in production
+      `connect-src 'self' ws: wss:${env.supabaseUrl ? ` ${env.supabaseUrl}` : ""}`, // Supabase Realtime joins this list in production
       // Same-origin only: the DizruptOS desktop embeds its own routes as windows
       // (iframes) — never third parties.
       "frame-ancestors 'self'",

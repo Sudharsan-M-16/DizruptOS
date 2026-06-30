@@ -18,9 +18,7 @@ import { useOS } from "@/lib/os";
 import { RealAuthForm } from "@/components/auth/real-auth-form";
 import { isAuthConfigured } from "@/lib/auth-supabase";
 
-// Uses useSearchParams (reason/from) — opt out of static prerender.
-export const dynamic = "force-dynamic";
-
+// Uses useSearchParams (reason/from) — wrapped in Suspense.
 // useSearchParams must sit under a Suspense boundary for the production build.
 export default function LoginPage() {
   return (
