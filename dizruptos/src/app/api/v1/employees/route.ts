@@ -3,7 +3,7 @@
 
 import { type NextRequest } from "next/server";
 import { getRepositories } from "@/server/repositories";
-import { resolvePrincipal, requirePermission } from "@/server/services/authz";
+import { resolvePrincipal, requirePermission, AuthzError } from "@/server/services/authz";
 import { roleCan } from "@/lib/personas";
 import { guarded, ok, principalView } from "@/server/api";
 import { log } from "@/lib/logger";
@@ -13,6 +13,9 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   return guarded(req, "api_employees", async () => {
     const principal = resolvePrincipal(req);
+    if (principal.role === "client") {
+      throw new AuthzError(403, "FORBIDDEN");
+    }
     const repos = getRepositories();
     const all = await repos.employees.list();
     const canSeeCost = roleCan(principal.role, "view_financials");

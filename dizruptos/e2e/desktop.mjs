@@ -123,7 +123,7 @@ try {
     const res = await page.request.get(`${BASE}/api/v1/organizations`);
     check("organizations api: returns 200", res.status() === 200);
     const body = await res.json();
-    check("organizations api: has orgs array", Array.isArray(body.data?.orgs));
+    check("organizations api: has orgs array", Array.isArray(body.data?.organizations));
     await ctx.close();
   }
 
@@ -158,7 +158,7 @@ try {
   // Test 10: Delta intelligence feed
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-noor", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/intelligence/delta?since=24h`);
     check("delta api: returns 200", res.status() === 200);
