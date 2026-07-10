@@ -1,10 +1,10 @@
-# Root .gitignore (git root is the DizruptOS folder; the app lives in dizruptos/)
+# Root .gitignore (git root is DizruptOS/; the app lives in dizruptos/)
 
 # Claude / agent scratch
 .claude/
 **/scratchpad/
 
-# dependencies & build output (belt-and-suspenders with dizruptos/.gitignore)
+# dependencies & build output
 **/node_modules/
 **/.next/
 **/out/
@@ -14,14 +14,87 @@
 **/.env
 **/.env*.local
 
-# debug screenshots & ad-hoc capture scripts (dev artifacts, not source)
-dizruptos/shot_*.png
-dizruptos/shot-*.png
-dizruptos/v-*.png
-dizruptos/v_*.png
-dizruptos/*.screenshot.png
-
 # OS noise
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+
+# ── Root-level dev planning & session documents ─────────────────────────────
+# These are AI-generated session artifacts, not product documentation.
+# They are kept locally but must never go to GitHub.
+ARCHITECTURE_REVIEW_V2.md
+AUTH_ARCHITECTURE.md
+AUTH_COMPLETION_PLAN.md
+BACKEND_PLATFORM_REVIEW.md
+BACKEND_READINESS_AUDIT.md
+CLAUDE.md
+COMPETITIVE_ANALYSIS.md
+CONTRIBUTING.md
+CRITICALITY_AND_MULTITASKING_GUIDE.md
+CTO_REVIEW.md
+DASHBOARD_GUIDE.md
+DATA_IMPORT_ARCHITECTURE.md
+DECISION_INTELLIGENCE.md
+DIGITAL_TWIN_GAP_ANALYSIS.md
+DIZRUPT_Supreme_PRD_v3.md
+ENTERPRISE_IMPROVEMENTS.md
+ENTERPRISE_READINESS_REPORT.md
+EXECUTIVE_INTELLIGENCE_REVIEW.md
+FEATURES.md
+FINAL_DEPLOYMENT_GUIDE.md
+FINAL_GAP_ANALYSIS.md
+FINAL_OPERATIONS_GUIDE.md
+FINAL_PLATFORM_REVIEW.md
+FRONTEND_ASCENSION_REVIEW.md
+INTELLIGENCE_SURFACES.md
+INTELLIGENCE_VALIDATION.md
+LEARNING_INTELLIGENCE.md
+MASTER_EXECUTION_PLAN.md
+ORGANIZATIONAL_MEMORY.md
+ORGANIZATIONAL_MEMORY_COMPLETION.md
+PLAN.md
+PLATFORM_ACTIVATION_REPORT.md
+PRODUCT_MAKER_GUIDE.md
+QUICK_ANSWERS_CARD.md
+RECOMMENDATION_ENGINE.md
+RETROSPECTIVES.md
+ROAD_TO_10.md
+SECURITY_REVIEW.md
+SIMPLE_EXPLAINER_FOR_EVERYONE.md
+SIMULATION_ARCHITECTURE.md
+STARTUP_INVESTMENT_MEMO.md
+SUPREME_PLATFORM_AUDIT.md
+TENANCY_ARCHITECTURE.md
+connect.md
+demo.md
+presentation.md
+styleinfo.md
+21st.md
+
+# ── Design inspiration docs ──────────────────────────────────────────────────
+Eco-Tech-Dashboard-DESIGN.md
+Ethereal-Minimal-System-DESIGN.md
+Nexus-Initialization-Archive-DESIGN.md
+Vortex-Data-Topography-DESIGN.md
+dizruptos-ui-inspiration.md
+
+# ── Root-level screenshots & image references ────────────────────────────────
+Screenshot*.png
+Screenshot*.jpg
+Screenshot*.jpeg
+Gemini_Generated_Image*.png
+dhero.studio__*.png
+midday.ai__*.png
+superset.sh__*.png
+vercel.com_*.png
+www.float.com_*.png
+www.hellobonsai.com_*.png
+linear.app_*.png
+monday.com_*.png
+plane.so_*.png
+image.png
+*.jpeg
+"temp ss/"
+temp\ ss/
+dev-server.log
+package-lock.json
