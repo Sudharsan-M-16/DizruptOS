@@ -39,12 +39,15 @@ export default function CapacityPage() {
   // "Close the loop" flash — after a reallocation the source row ticks down and
   // the target row ticks up; we briefly ring both so the change is visible.
   const [flash, setFlash] = React.useState<{ fromId: string | null; toId: string } | null>(null);
+  const lastMoveAt = lastMove?.at;
+  const lastMoveFrom = lastMove?.fromId;
+  const lastMoveTo = lastMove?.toId;
   React.useEffect(() => {
-    if (!lastMove) return;
-    setFlash({ fromId: lastMove.fromId, toId: lastMove.toId });
+    if (!lastMoveAt) return;
+    setFlash({ fromId: lastMoveFrom ?? null, toId: lastMoveTo ?? "" });
     const id = setTimeout(() => setFlash(null), 1900);
     return () => clearTimeout(id);
-  }, [lastMove?.at]);
+  }, [lastMoveAt, lastMoveFrom, lastMoveTo]);
   const [deptFilter, setDeptFilter] = React.useState<string>("all");
   const [dragTaskId, setDragTaskId] = React.useState<string | null>(null);
   const [dropTarget, setDropTarget] = React.useState<string | null>(null);

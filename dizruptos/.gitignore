@@ -41,3 +41,17 @@ shot_*.mjs
 
 # Supabase local dev
 /supabase/verify.mjs
+
+# Dev server runtime artifacts
+dev-server.log
+load-test.mjs
+shot.mjs
+reseed-supabase.mjs
+
+# Git worktrees created by AI agents — never commit these
+worktree-agent-*/
+
+# Large root-level planning docs (kept locally but not pushed)
+MASTER_EXECUTION_PLAN.md
+ACTIVATION_GUIDE.md
+SOC2_CONTROLS.md

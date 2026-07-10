@@ -222,7 +222,7 @@ export default function CommandCenterDesktop() {
     const REDIRECT: Record<string, string> = {
       "r-graph": "matrix", "directory": "r-capacity", "r-people": "r-capacity",
       "r-decisions": "r-memory", "r-capabilities": "r-memory", "r-learning": "r-memory",
-      "r-narratives": "r-executive", "activity": "r-audit",
+      "r-narratives": "r-executive",
     };
     const id = REDIRECT[rawId] ?? rawId;
     const app = appById(id);
@@ -246,7 +246,7 @@ export default function CommandCenterDesktop() {
       url: `${app.href}?embed=1`, iconKey: app.iconKey, accent: app.accent,
       x: app.x ?? 150, y: app.y ?? 70, w: app.w ?? 1040, h: app.h ?? 600,
     });
-  }, [dm]);
+  }, [dm, can]);
 
   // Home / other surfaces fire `dizrupt:launch` — route it through launchApp.
   useEffect(() => {

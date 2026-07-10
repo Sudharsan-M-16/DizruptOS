@@ -50,9 +50,10 @@ export function ChatApp() {
   const filtered = mine.filter((c) => !q || convName(c).toLowerCase().includes(q.toLowerCase()));
 
   // Mark active conversation as read when it changes
+  const activeId2 = active?.id;
   useEffect(() => {
-    if (active) markRead(active.id, persona.id);
-  }, [active?.id, persona.id, markRead]);
+    if (activeId2) markRead(activeId2, persona.id);
+  }, [activeId2, persona.id, markRead]);
 
   const send = () => {
     if (!active || !composer.trim()) return;

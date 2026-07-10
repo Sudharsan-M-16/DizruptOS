@@ -7,7 +7,7 @@
 // risks that need their attention. One glance = "what's my day." Launch buttons
 // fire `dizrupt:launch` to open the matching app window. Token surfaces only.
 
-import { memo, useState } from "react";
+import { memo, useState, useMemo } from "react";
 import {
   AlertTriangle, ArrowUpRight, CalendarClock, CircleDot, Clock, Flame, Hourglass,
   Link2, ShieldAlert,
@@ -46,50 +46,60 @@ export const HomeApp = memo(function HomeApp() {
   const [seg, setSeg] = useState<Segment>(() => pickDefaultSegment());
 
   const overrides = useOps((s) => s.projectOverrides);
-  const healthOf = (id: string) => overrides[id]?.health ?? projects.find((p) => p.id === id)?.health;
-  const taskById = (id: string) => allTasks.find((t) => t.id === id) ?? seedTasks.find((t) => t.id === id);
-  const projectById = (id: string) => {
-    const p = projects.find((x) => x.id === id);
-    return p && overrides[id] ? { ...p, ...overrides[id] } : p;
-  };
-  const isCriticalProject = (id: string) => {
-    const h = healthOf(id);
-    return h === "CRITICAL" || h === "AT_RISK" || h === "DELAYED";
-  };
-  const me = employeeById(persona.id);
+  const { healthOf, taskById, projectById, isCriticalProject, me } = useMemo(() => {
+    const healthOf = (id: string) => overrides[id]?.health ?? projects.find((p) => p.id === id)?.health;
+    const taskById = (id: string) => allTasks.find((t) => t.id === id) ?? seedTasks.find((t) => t.id === id);
+    const projectById = (id: string) => {
+      const p = projects.find((x) => x.id === id);
+      return p && overrides[id] ? { ...p, ...overrides[id] } : p;
+    };
+    const isCriticalProject = (id: string) => {
+      const h = healthOf(id);
+      return h === "CRITICAL" || h === "AT_RISK" || h === "DELAYED";
+    };
+    const me = employeeById(persona.id);
+    return { healthOf, taskById, projectById, isCriticalProject, me };
+  }, [allTasks, overrides, persona.id]);
 
   // Scope: an individual contributor sees their own tasks; a leader also sees the
   // work they're accountable for — tasks in projects they own, and (for dept
   // heads / execs) tasks across their department. Keeps Home meaningful per role.
-  const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
-  const deptProjectIds = projects.filter((p) => me?.departmentId && p.departmentId === me.departmentId).map((p) => p.id);
-  const seesDept = persona.role === "executive" || persona.role === "dept_head" || persona.role === "admin";
-  const myTasks = allTasks.filter((t) =>
-    t.status !== "COMPLETED" &&
-    (t.assigneeId === persona.id || ownedProjectIds.includes(t.projectId) || (seesDept && deptProjectIds.includes(t.projectId)))
-  );
+  const {
+    myTasks, today, pending, critical, segTasks, myProjectIds, myProjects,
+    blocked, myDept, teammates, criticalProjects
+  } = useMemo(() => {
+    const ownedProjectIds = projects.filter((p) => p.ownerId === persona.id).map((p) => p.id);
+    const deptProjectIds = projects.filter((p) => me?.departmentId && p.departmentId === me.departmentId).map((p) => p.id);
+    const seesDept = persona.role === "executive" || persona.role === "dept_head" || persona.role === "admin";
+    const myTasks = allTasks.filter((t) =>
+      t.status !== "COMPLETED" &&
+      (t.assigneeId === persona.id || ownedProjectIds.includes(t.projectId) || (seesDept && deptProjectIds.includes(t.projectId)))
+    );
 
-  // ----- classification (each task carries its project; see TaskRow) -----
-  const today = myTasks.filter((t) => t.dueDate <= TODAY);                 // due today or overdue
-  const pending = myTasks.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG");
-  const critical = myTasks.filter((t) => t.priority === "URGENT" || t.status === "BLOCKED" || isCriticalProject(t.projectId));
-  const segTasks = seg === "today" ? today : seg === "pending" ? pending : critical;
+    const today = myTasks.filter((t) => t.dueDate <= TODAY);
+    const pending = myTasks.filter((t) => t.status === "TO_DO" || t.status === "BACKLOG");
+    const critical = myTasks.filter((t) => t.priority === "URGENT" || t.status === "BLOCKED" || isCriticalProject(t.projectId));
+    const segTasks = seg === "today" ? today : seg === "pending" ? pending : critical;
 
-  const myProjectIds = Array.from(new Set([...myTasks.map((t) => t.projectId), ...projects.filter((p) => p.ownerId === persona.id).map((p) => p.id)]));
-  const myProjects = projects.filter((p) => myProjectIds.includes(p.id));
-  const blocked = myTasks.filter((t) => (t.dependsOn?.length ?? 0) > 0 || t.status === "BLOCKED");
+    const myProjectIds = Array.from(new Set([...myTasks.map((t) => t.projectId), ...projects.filter((p) => p.ownerId === persona.id).map((p) => p.id)]));
+    const myProjects = projects.filter((p) => myProjectIds.includes(p.id));
+    const blocked = myTasks.filter((t) => (t.dependsOn?.length ?? 0) > 0 || t.status === "BLOCKED");
+    const myDept = departments.find((d) => d.id === me?.departmentId);
+    const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client" && e.id !== persona.id);
+    const criticalProjects = myProjects.filter((p) => isCriticalProject(p.id));
+
+    return { myTasks, today, pending, critical, segTasks, myProjectIds, myProjects, blocked, myDept, teammates, criticalProjects };
+  }, [allTasks, persona.id, persona.role, me?.departmentId, seg, isCriticalProject]);
+
   const myUtil = utilization(persona.id, week);
-  const myDept = departments.find((d) => d.id === me?.departmentId);
-  const teammates = employees.filter((e) => me?.departmentId && e.departmentId === me.departmentId && e.role !== "client" && e.id !== persona.id);
-  const criticalProjects = myProjects.filter((p) => isCriticalProject(p.id));
 
   // group the active segment's tasks under their project
-  const grouped = Object.values(
+  const grouped = useMemo(() => Object.values(
     segTasks.reduce<Record<string, { pid: string; items: Task[] }>>((acc, t) => {
       (acc[t.projectId] ??= { pid: t.projectId, items: [] }).items.push(t);
       return acc;
     }, {})
-  );
+  ), [segTasks]);
 
   const SEGMENTS: { id: Segment; label: string; icon: React.ElementType; count: number; tone: string }[] = [
     { id: "today", label: "Today", icon: CalendarClock, count: today.length, tone: "#F59E0B" },

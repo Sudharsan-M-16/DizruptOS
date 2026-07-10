@@ -24,6 +24,13 @@ export class AuthzError extends Error {
 /** Cookie → principal. Demo tier: cookie value IS the persona id (issued by
  *  /api/auth/login). Production: opaque session id → sessions table lookup. */
 export function resolvePrincipal(req: NextRequest): Principal {
+  const sbUserId = req.headers.get("x-dz-user-id");
+  if (sbUserId) {
+    const role = (req.headers.get("x-dz-user-role") as Role) || "employee";
+    const name = req.headers.get("x-dz-user-name") || "User";
+    return { id: sbUserId, role, name };
+  }
+
   const session = req.cookies.get("dz_session")?.value;
   const persona = PERSONAS.find((p) => p.id === session);
   if (!persona) throw new AuthzError(401, "UNAUTHENTICATED");

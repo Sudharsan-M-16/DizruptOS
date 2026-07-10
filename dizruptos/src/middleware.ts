@@ -118,6 +118,12 @@ export async function middleware(req: NextRequest) {
   // Propagate a request ID for distributed tracing correlation.
   const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
 
+  // Strip any spoofed internal headers before routing
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.delete("x-dz-user-id");
+  requestHeaders.delete("x-dz-user-role");
+  requestHeaders.delete("x-dz-user-name");
+
   // CORS preflight — respond immediately before any auth checks.
   if (req.method === "OPTIONS" && pathname.startsWith("/api/")) {
     const res = new NextResponse(null, { status: 204 });
@@ -210,7 +216,7 @@ export async function middleware(req: NextRequest) {
     pathname.includes(".");
 
   if (isPublic) {
-    const res = NextResponse.next();
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
     res.headers.set("X-Request-ID", requestId);
     const withSec = withSecurityHeaders(res);
     return pathname.startsWith("/api/") ? withCorsHeaders(withSec, req) : withSec;
@@ -231,7 +237,7 @@ export async function middleware(req: NextRequest) {
   // opaque dz_session cookie even when Supabase is configured — so a real session
   // OR the demo cookie passes. (Retire the demo cookie once real users exist.)
   if (authConfigured) {
-    const res = NextResponse.next();
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
     res.headers.set("X-Request-ID", requestId);
     const supabase = createServerClient(env.supabaseUrl!, env.supabaseAnonKey!, {
       cookies: {
@@ -252,7 +258,14 @@ export async function middleware(req: NextRequest) {
           return withSecurityHeaders(suspendRes);
         }
       }
-      return withCacheHeaders(withCorsHeaders(withSecurityHeaders(res), req), pathname, req.method);
+      
+      requestHeaders.set("x-dz-user-id", user.id);
+      requestHeaders.set("x-dz-user-role", (user.app_metadata?.role as string) || "employee");
+      requestHeaders.set("x-dz-user-name", (user.user_metadata?.name as string) || "User");
+      
+      const authRes = NextResponse.next({ request: { headers: requestHeaders } });
+      authRes.headers.set("X-Request-ID", requestId);
+      return withCacheHeaders(withCorsHeaders(withSecurityHeaders(authRes), req), pathname, req.method);
     }
     // Expired or invalid session — clear cookies and redirect to login
     if (error?.message?.includes("expired") || error?.message?.includes("invalid")) {
@@ -271,7 +284,7 @@ export async function middleware(req: NextRequest) {
   // ---- demo: the opaque dz_session cookie gate ----
   const session = req.cookies.get("dz_session");
   if (!session?.value) return unauthenticated();
-  const res = NextResponse.next();
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
   res.headers.set("X-Request-ID", requestId);
   return withCacheHeaders(withCorsHeaders(withSecurityHeaders(res), req), pathname, req.method);
 }

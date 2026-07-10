@@ -8,7 +8,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { OctagonAlert } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { employeeById } from "@/lib/data";
-import { Button, CapacityBar } from "@/components/ui/primitives";
+import { CapacityBar } from "@/components/ui/primitives";
 import { fmtPct } from "@/lib/utils";
 
 export function GuardrailModal() {
@@ -31,7 +31,7 @@ export function GuardrailModal() {
     <Dialog.Root open={open} onOpenChange={(o) => !o && cancelReallocate()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100vh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto animate-riseIn rounded-card border border-danger/40 bg-ink-elevated p-5 shadow-pop">
+        <Dialog.Content className="fixed left-1/2 top-[5%] z-50 max-h-[90vh] w-[90vw] max-w-md -translate-x-1/2 overflow-y-auto animate-riseIn rounded-card border border-danger/40 bg-ink-elevated p-4 shadow-pop">
           <div className="flex items-start gap-3">
             <div className="rounded-lg bg-danger-soft p-2 text-danger">
               <OctagonAlert size={18} />
@@ -53,7 +53,7 @@ export function GuardrailModal() {
           </div>
 
           {pendingDrop && (
-            <div className="mt-4">
+            <div className="mt-3">
               <CapacityBar pct={pendingDrop.projectedPct} />
               <div className="mt-1 flex justify-between text-2xs text-fg-muted">
                 <span>0%</span>
@@ -63,28 +63,33 @@ export function GuardrailModal() {
             </div>
           )}
 
-          <label className="mt-4 block">
+          <label className="mt-3 block">
             <span className="label-xs">Override reason — required, written to audit log</span>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              rows={2}
+              rows={1}
               placeholder="e.g. Release-gating test cannot slip past code freeze"
               className="mt-1.5 w-full rounded-lg border border-line bg-ink-surface px-3 py-2 text-xs text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-danger/60"
             />
           </label>
 
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="secondary" onClick={cancelReallocate}>
+          <div className="mt-4 flex w-full justify-end gap-3">
+            <button
+              type="button"
+              className="rounded-lg border border-line bg-ink-elevated px-4 py-2 text-xs font-semibold text-fg-secondary transition-colors hover:border-brand/40 hover:text-fg"
+              onClick={cancelReallocate}
+            >
               Cancel — roll back
-            </Button>
-            <Button
-              variant="danger"
+            </button>
+            <button
+              type="button"
+              className="rounded-lg bg-danger/90 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-danger disabled:opacity-50"
               disabled={reason.trim().length < 8}
               onClick={() => confirmReallocate(reason.trim())}
             >
               Override & assign
-            </Button>
+            </button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

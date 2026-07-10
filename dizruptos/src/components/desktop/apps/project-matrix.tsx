@@ -115,7 +115,14 @@ export function ProjectMatrix() {
     () => (projectId === "all" ? tasks : tasks.filter((t) => t.projectId === projectId)),
     [tasks, projectId]
   );
-  const byCol = (s: TaskStatus) => scoped.filter((t) => t.status === s);
+  
+  const columnsData = useMemo(() => {
+    return COLUMNS.map((col) => {
+      const items = scoped.filter((t) => t.status === col.id);
+      return { ...col, items };
+    });
+  }, [scoped]);
+
   const empById = (id?: string) => employees.find((e) => e.id === id);
 
   const onDragEnd = (r: DropResult) => {
@@ -161,8 +168,8 @@ export function ProjectMatrix() {
       {/* board */}
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="-mx-1 flex min-h-0 flex-1 gap-3 overflow-x-auto px-1 pb-1">
-          {COLUMNS.map((col) => {
-            const items = byCol(col.id);
+          {columnsData.map((col) => {
+            const items = col.items;
             const atWip = col.maxWip !== undefined && items.length >= col.maxWip;
             const overWip = col.maxWip !== undefined && items.length > col.maxWip;
             return (
