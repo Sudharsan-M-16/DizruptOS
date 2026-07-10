@@ -3,17 +3,16 @@
 // Tests the macOS-style OS shell end to end.
 // Run: node e2e/desktop.mjs (requires dev server at :3000)
 
-import { chromium } from "playwright-core";
+import { chromium } from "playwright";
 
 const BASE = process.env.BASE || "http://localhost:3000";
-const EXE = process.env.PW_CHROME || (process.env.CI ? undefined : "C:/Users/sudha/AppData/Local/ms-playwright/chromium-1223/chrome-win64/chrome.exe");
 
 const checks = [];
 const pass = (label) => { checks.push({ label, ok: true }); console.log(`✓ ${label}`); };
 const fail = (label, reason) => { checks.push({ label, ok: false }); console.log(`✗ ${label}: ${reason}`); };
 const check = (label, cond, reason = "") => cond ? pass(label) : fail(label, reason || "condition false");
 
-const browser = await chromium.launch({ ...(EXE ? { executablePath: EXE } : {}), headless: true });
+const browser = await chromium.launch({ headless: true });
 try {
   // Test 1: Boot → Login → Desktop
   {
