@@ -1,0 +1,157 @@
+"use client";
+
+// Messages — a small Teams-style chat backbone. Direct messages and group
+// channels between employees, with a clean, stable mutation surface
+// (sendMessage / createGroup / openDm) so a real backend (websockets / CRDT)
+// drops straight in later. Persisted locally so conversations survive a reload.
+
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+export interface ChatMessage {
+  id: string;
+  convId: string;
+  authorId: string;
+  text: string;
+  at: number;
+}
+
+export interface Conversation {
+  id: string;
+  kind: "dm" | "group";
+  name?: string;        // group name (DMs derive their name from the members)
+  memberIds: string[];
+  /** group owner — can add/remove members and rename (the creator / lead). */
+  adminId?: string;
+  createdAt: number;
+}
+
+const uid = (p: string) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+const T = (mins: number) => Date.now() - mins * 60_000;
+
+const seedConversations: Conversation[] = [
+  { id: "c-atlas", kind: "group", name: "AI Chatbot War Room", adminId: "u-sarah", memberIds: ["u-asha", "u-sarah", "u-ahmed", "u-mei", "u-jonas", "u-zara"], createdAt: T(6000) },
+  { id: "c-eng", kind: "group", name: "Engineering", adminId: "u-priya", memberIds: ["u-priya", "u-ahmed", "u-sarah", "u-mei", "u-jonas", "u-diego", "u-fatima"], createdAt: T(9000) },
+  { id: "c-lead", kind: "group", name: "Leadership", adminId: "u-noor", memberIds: ["u-noor", "u-priya", "u-asha", "u-marcus"], createdAt: T(12000) },
+  { id: "c-sec", kind: "group", name: "Security & Admin", adminId: "u-elias", memberIds: ["u-elias", "u-fatima", "u-priya"], createdAt: T(8000) },
+  { id: "c-asha-priya", kind: "dm", memberIds: ["u-asha", "u-priya"], createdAt: T(4000) },
+  { id: "c-asha-sarah", kind: "dm", memberIds: ["u-asha", "u-sarah"], createdAt: T(3000) },
+  { id: "c-ahmed-sarah", kind: "dm", memberIds: ["u-ahmed", "u-sarah"], createdAt: T(2000) },
+  { id: "c-noor-asha", kind: "dm", memberIds: ["u-noor", "u-asha"], createdAt: T(2600) },
+  { id: "c-priya-ahmed", kind: "dm", memberIds: ["u-priya", "u-ahmed"], createdAt: T(1800) },
+  { id: "c-elias-priya", kind: "dm", memberIds: ["u-elias", "u-priya"], createdAt: T(1500) },
+];
+
+const seedMessages: ChatMessage[] = [
+  { id: "m1", convId: "c-atlas", authorId: "u-sarah", text: "I'm at 115% this week — I need someone to take the chatbot database setup before Friday.", at: T(180) },
+  { id: "m2", convId: "c-atlas", authorId: "u-ahmed", text: "I can take the database setup off your plate. Starting now.", at: T(168) },
+  { id: "m3", convId: "c-atlas", authorId: "u-asha", text: "Thanks both. I've flagged the cloud security vendor as critical — Marcus is chasing them.", at: T(150) },
+  { id: "m4", convId: "c-atlas", authorId: "u-zara", text: "AI reply model is training — first results look good ✅", at: T(95) },
+  { id: "m5", convId: "c-eng", authorId: "u-priya", text: "Reminder: the cloud security review is still blocked on the vendor. Ping Fatima if you're stuck.", at: T(420) },
+  { id: "m6", convId: "c-eng", authorId: "u-diego", text: "Chat window UI is in review 👀", at: T(300) },
+  { id: "m7", convId: "c-lead", authorId: "u-noor", text: "I need the Chatbot risk picture before Monday. Asha, can you prep the one-pager?", at: T(240) },
+  { id: "m8", convId: "c-lead", authorId: "u-asha", text: "On it — I'll pull it from the risk register tonight.", at: T(232) },
+  { id: "m9", convId: "c-asha-priya", authorId: "u-priya", text: "Do you have a plan for Sarah's overflow this week? She's over 100%.", at: T(60) },
+  { id: "m10", convId: "c-asha-priya", authorId: "u-asha", text: "Looking now. Ahmed has plenty of room — I'll move the database task to him.", at: T(54) },
+  { id: "m11", convId: "c-ahmed-sarah", authorId: "u-sarah", text: "Can you grab the chatbot database setup? I'm drowning.", at: T(40) },
+  { id: "m12", convId: "c-ahmed-sarah", authorId: "u-ahmed", text: "Yep, already on it 💪", at: T(36) },
+  { id: "m13", convId: "c-noor-asha", authorId: "u-noor", text: "Great work holding the Chatbot together. Tell me if you need help with the vendor.", at: T(120) },
+  { id: "m14", convId: "c-priya-ahmed", authorId: "u-priya", text: "Nice work picking up the database setup. Looks clean.", at: T(20) },
+  { id: "m15", convId: "c-elias-priya", authorId: "u-elias", text: "Security review is blocked on the vendor's doc. Escalating.", at: T(75) },
+];
+
+interface ChatState {
+  conversations: Conversation[];
+  messages: ChatMessage[];
+  /** lastRead[personaId][convId] = timestamp — tracks per-persona read state */
+  lastRead: Record<string, Record<string, number>>;
+  sendMessage: (convId: string, authorId: string, text: string) => void;
+  createGroup: (name: string, memberIds: string[], adminId: string) => string;
+  openDm: (selfId: string, otherId: string) => string;
+  /** Admin-only — guarded by the UI; callers pass the acting user. */
+  addMembers: (convId: string, ids: string[]) => void;
+  removeMember: (convId: string, id: string) => void;
+  /** Mark all messages in a conversation as read for a persona */
+  markRead: (convId: string, personaId: string) => void;
+  /** Count unread messages in a conversation for a persona */
+  unreadCount: (convId: string, personaId: string) => number;
+  /** Total unread across all conversations for a persona */
+  totalUnread: (personaId: string) => number;
+}
+
+export const useChat = create<ChatState>()(
+  persist(
+    (set, get) => ({
+      conversations: seedConversations,
+      messages: seedMessages,
+      lastRead: {},
+
+      sendMessage: (convId, authorId, text) => {
+        const t = text.trim();
+        if (!t) return;
+        const now = Date.now();
+        set((s) => ({ messages: [...s.messages, { id: uid("m"), convId, authorId, text: t, at: now }] }));
+        // Dispatch a browser event so the desktop can show a notification
+        if (typeof window !== "undefined") {
+          const conv = get().conversations.find((c) => c.id === convId);
+          if (conv) {
+            window.dispatchEvent(new CustomEvent("dizrupt:chat-message", {
+              detail: { convId, authorId, text: t, memberIds: conv.memberIds, at: now },
+            }));
+          }
+        }
+      },
+
+      markRead: (convId, personaId) => {
+        set((s) => ({
+          lastRead: {
+            ...s.lastRead,
+            [personaId]: { ...(s.lastRead[personaId] ?? {}), [convId]: Date.now() },
+          },
+        }));
+      },
+
+      unreadCount: (convId, personaId) => {
+        const { messages, lastRead, conversations } = get();
+        const conv = conversations.find((c) => c.id === convId);
+        if (!conv || !conv.memberIds.includes(personaId)) return 0;
+        const since = lastRead[personaId]?.[convId] ?? 0;
+        return messages.filter(
+          (m) => m.convId === convId && m.authorId !== personaId && m.at > since
+        ).length;
+      },
+
+      totalUnread: (personaId) => {
+        const { conversations } = get();
+        return conversations
+          .filter((c) => c.memberIds.includes(personaId))
+          .reduce((sum, c) => sum + get().unreadCount(c.id, personaId), 0);
+      },
+
+      createGroup: (name, memberIds, adminId) => {
+        const id = uid("g");
+        set((s) => ({ conversations: [{ id, kind: "group", name: name.trim() || "New Group", adminId, memberIds: [...new Set([adminId, ...memberIds])], createdAt: Date.now() }, ...s.conversations] }));
+        return id;
+      },
+
+      addMembers: (convId, ids) =>
+        set((s) => ({ conversations: s.conversations.map((c) => (c.id === convId ? { ...c, memberIds: [...new Set([...c.memberIds, ...ids])] } : c)) })),
+
+      removeMember: (convId, id) =>
+        set((s) => ({ conversations: s.conversations.map((c) => (c.id === convId ? { ...c, memberIds: c.memberIds.filter((m) => m !== id || m === c.adminId) } : c)) })),
+
+      openDm: (selfId, otherId) => {
+        const existing = get().conversations.find((c) => c.kind === "dm" && c.memberIds.includes(selfId) && c.memberIds.includes(otherId));
+        if (existing) return existing.id;
+        const id = uid("dm");
+        set((s) => ({ conversations: [{ id, kind: "dm", memberIds: [selfId, otherId], createdAt: Date.now() }, ...s.conversations] }));
+        return id;
+      },
+    }),
+    { name: "dizrupt-chat" }
+  )
+);
+
+/** Last message + time for a conversation (for the list preview). */
+export const lastMessage = (messages: ChatMessage[], convId: string) =>
+  messages.filter((m) => m.convId === convId).sort((a, b) => b.at - a.at)[0];

@@ -30,7 +30,7 @@ import {
 import { DizruptWordmark } from "@/components/ui/logo";
 import { NumberTicker } from "@/components/ui/ascension";
 import { TextScramble } from "@/components/fx/text-scramble";
-import { ProductFrame } from "@/components/landing/product-frame";
+import { OSPreview } from "@/components/landing/os-preview";
 import { cn } from "@/lib/utils";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -79,16 +79,6 @@ function TopNav() {
 // Full-bleed chroma field; a hard black block carries the poster type. The
 // GSAP intro slides the blocks in like printed plates landing on a press.
 
-const plateIn = (i: number) => ({
-  initial: { x: "-101%" },
-  animate: { x: "0%" },
-  transition: { duration: 0.9, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as const },
-});
-const lineIn = (i: number) => ({
-  initial: { y: "110%" },
-  animate: { y: "0%" },
-  transition: { duration: 0.8, delay: 0.35 + i * 0.1, ease: [0.22, 1, 0.36, 1] as const },
-});
 const metaIn = (i: number) => ({
   initial: { opacity: 0, y: 18 },
   animate: { opacity: 1, y: 0 },
@@ -102,46 +92,62 @@ function Hero() {
 
       {/* meta row — pushed clear of the fixed 72px top nav */}
       <motion.div {...metaIn(0)} className="absolute left-6 top-[88px] z-10 flex items-center gap-3 lg:left-10 lg:top-28">
-        <span className="bg-ink px-3 py-2 font-mono text-sm font-semibold uppercase tracking-[0.2em] text-brand">
+        <span className="font-mono text-sm font-semibold uppercase tracking-[0.2em] text-brand/80">
           Resource Intelligence Platform
         </span>
       </motion.div>
-      <motion.div {...metaIn(1)} className="absolute right-6 top-[88px] z-10 hidden bg-ink px-3 py-2 font-mono text-sm text-fg-secondary lg:right-10 lg:top-28 lg:block">
+      <motion.div {...metaIn(1)} className="absolute right-6 top-[88px] z-10 hidden font-mono text-sm font-medium uppercase tracking-[0.18em] lg:right-10 lg:top-28 lg:block" style={{ color: "rgba(255,255,255,0.75)" }}>
         EST. 2026 — RUNS YOUR ORG
       </motion.div>
 
       {/* the poster stack */}
-      <div className="relative z-10 pb-20 pt-44 lg:pb-24">
-        <motion.div {...plateIn(0)} className="inline-block bg-ink py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
-          <div className="overflow-hidden">
-            <motion.h1 {...lineIn(0)} className="font-display text-[clamp(4rem,14vw,12rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-fg">
-              DIZRUPT
-            </motion.h1>
-          </div>
-        </motion.div>
-        <br />
-        <motion.div {...plateIn(1)} className="mt-3 inline-block bg-brand py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
-          <div className="overflow-hidden">
-            <motion.p {...lineIn(1)} className="font-display text-[clamp(1.6rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-[#04281A]">
-              every person. every project.
-            </motion.p>
-          </div>
-        </motion.div>
-        <br />
-        <motion.div {...plateIn(2)} className="mt-3 inline-block bg-ink py-2 pl-6 pr-8 lg:pl-10 lg:pr-14">
-          <div className="overflow-hidden">
-            <motion.p {...lineIn(2)} className="font-display text-[clamp(2.2rem,7vw,6rem)] font-extrabold leading-[1] tracking-[-0.04em] text-fg">
-              every <span className="text-brand">consequence.</span>
-            </motion.p>
-          </div>
-        </motion.div>
+      <div className="relative z-10 pb-20 pt-44 pl-6 lg:pb-24 lg:pl-10">
+        <div className="overflow-hidden">
+          <motion.h1
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0, ease: [0.22, 1, 0.36, 1] as const }}
+            className="font-display text-[clamp(4rem,14vw,12rem)] font-extrabold leading-[0.9] tracking-[-0.045em] text-fg"
+          >
+            DIZRUPT
+          </motion.h1>
+        </div>
+        <div className="mt-3 overflow-hidden">
+          <motion.p
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] as const }}
+            className="font-display text-[clamp(1.6rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-brand"
+          >
+            every person. every project.
+          </motion.p>
+        </div>
+        <div className="mt-3 overflow-hidden">
+          <motion.p
+            initial={{ y: "110%", opacity: 0 }}
+            animate={{ y: "0%", opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.24, ease: [0.22, 1, 0.36, 1] as const }}
+            className="font-display text-[clamp(2.2rem,7vw,6rem)] font-extrabold leading-[1] tracking-[-0.04em] text-fg/80"
+          >
+            every <span className="text-brand">consequence.</span>
+          </motion.p>
+        </div>
 
-        <motion.div {...metaIn(2)} className="mt-8 flex flex-wrap items-center gap-4 pl-6 lg:pl-10">
+        <motion.p
+          {...metaIn(1.6)}
+          className="mt-7 max-w-[34ch] text-[clamp(1rem,1.7vw,1.4rem)] font-medium leading-snug text-fg/75"
+        >
+          Workforce <span className="text-fg">+</span> projects in one place. See who&apos;s overloaded,
+          who&apos;s free, and move work to the right person in <span className="text-brand">three clicks</span> —
+          before someone burns out.
+        </motion.p>
+
+        <motion.div {...metaIn(2)} className="mt-8 flex flex-wrap items-center gap-4">
           <Link
             href="/login"
             className="group flex h-14 items-center gap-3 bg-brand px-7 text-base font-extrabold uppercase tracking-wide text-[#04281A] transition-colors hover:bg-[#3DF59E]"
           >
-            Enter the command center
+            Boot DizruptOS
             <ArrowRight size={18} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1.5" />
           </Link>
           <a
@@ -241,9 +247,10 @@ function ProductStage() {
           </motion.h2>
         </motion.div>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-fg-secondary">
-          A working miniature of the command center. Switch views in the
-          sidebar, hover the heatmap, accept an agent proposal. Everything
-          you touch here is real in the product.
+          <span className="text-brand">DizruptOS</span> — your whole org as a
+          desktop operating system in the browser. Windows, a Dock, Spotlight, your
+          tasks, your team, and your intelligence — all on one screen.{" "}
+          <span className="font-semibold text-fg">Click any icon to try it now.</span>
         </p>
         <div className="mt-12" style={{ perspective: 1100 }}>
           <div
@@ -254,8 +261,26 @@ function ProductStage() {
                 "0 0 0 1px rgba(0,237,130,0.14), 0 24px 80px rgba(0,0,0,0.55), 0 8px 28px rgba(0,237,130,0.10)",
             }}
           >
-            <ProductFrame />
+            <OSPreview />
           </div>
+        </div>
+
+        {/* Feature callouts — what you're seeing in the preview above */}
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Home", desc: "Your day, classified — Today / Critical / Pending by project.", accent: "#00ED82" },
+            { label: "Project Matrix", desc: "Drag-and-drop Kanban with live capacity awareness.", accent: "#7C6CFF" },
+            { label: "Spotlight", desc: "⌘Space to search people, projects, risks, or any app.", accent: "#2BD9FF" },
+            { label: "Copilot", desc: "Ask questions. Get answers grounded in your org's data.", accent: "#F59E0B" },
+          ].map(({ label, desc, accent }) => (
+            <div key={label} className="rounded-xl border border-white/8 bg-ink-surface/60 p-4" style={{ boxShadow: `0 0 0 1px ${accent}18` }}>
+              <div className="mb-1.5 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full" style={{ background: accent }} />
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: accent }}>{label}</span>
+              </div>
+              <p className="text-xs leading-relaxed text-fg-muted">{desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

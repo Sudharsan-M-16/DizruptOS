@@ -5,6 +5,7 @@
 // what's strategic, what's concentrated, what has no backup, who the experts
 // are, and who could replace them. All values are COMPUTED live by the engine.
 
+import { Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SectionHeader } from "@/components/ui/primitives";
 import {
@@ -44,26 +45,44 @@ function Stat({ label, value, tone }: { label: string; value: React.ReactNode; t
 export default function CapabilityIntelligencePage() {
   const { data, isLoading, isError, error, refetch } = useCapabilityIntelligence();
 
+  const header = (
+    <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5">
+      <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#38BDF822", border: "1px solid #38BDF844" }}>
+        <Zap size={15} style={{ color: "#38BDF8" }} />
+      </span>
+      <div>
+        <div className="text-sm font-semibold">Capability Intelligence</div>
+        <div className="text-[11px] text-fg-muted">Succession risk · bus factor · expertise depth</div>
+      </div>
+    </div>
+  );
+
   if (isLoading)
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="panel h-28 animate-pulse" />
-          ))}
+      <div className="flex h-full flex-col">
+        {header}
+        <div aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto p-5 space-y-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="panel h-28 animate-pulse" />
+            ))}
+          </div>
+          <div className="panel h-64 animate-pulse" />
         </div>
-        <div className="panel h-64 animate-pulse" />
       </div>
     );
 
   if (isError || !data)
     return (
-      <div className="panel flex flex-col items-start gap-3 p-8">
-        <div className="text-lg font-semibold text-danger">Couldn&apos;t compute capability intelligence</div>
-        <p className="text-sm text-fg-muted">{(error as Error)?.message ?? "The intelligence engine is unavailable."}</p>
-        <button onClick={() => refetch()} className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-[#04281A]">
-          Retry
-        </button>
+      <div className="flex h-full flex-col">
+        {header}
+        <div className="flex-1 p-5">
+          <div className="panel flex flex-col items-start gap-3 p-8">
+            <div className="text-lg font-semibold text-danger">Couldn&apos;t compute capability intelligence</div>
+            <p className="text-sm text-fg-muted">{(error as Error)?.message ?? "The intelligence engine is unavailable."}</p>
+            <button onClick={() => refetch()} className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-[#04281A]">Retry</button>
+          </div>
+        </div>
       </div>
     );
 
@@ -71,7 +90,10 @@ export default function CapabilityIntelligencePage() {
   const expertOf = (id: string): ExpertView | undefined => experts.find((e) => e.capabilityId === id);
 
   return (
-    <div className="space-y-10">
+    <div className="flex h-full flex-col">
+      {header}
+      <div className="flex-1 overflow-y-auto p-5">
+      <div className="space-y-10">
       {/* computed org rollup */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Stat label="Capabilities tracked" value={health.total} />
@@ -149,6 +171,8 @@ export default function CapabilityIntelligencePage() {
           </div>
         </section>
       )}
+      </div>
+      </div>
     </div>
   );
 }

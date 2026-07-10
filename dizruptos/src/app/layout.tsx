@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Sora, Newsreader } from "next/font/google";
 import { FxProvider } from "@/components/fx/fx-provider";
 import { Providers } from "@/components/providers";
+import { SkipLink } from "@/components/ui/skip-link";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
@@ -28,6 +29,7 @@ const newsreader = Newsreader({
   weight: ["300", "400", "500"],
   style: ["normal", "italic"],
   variable: "--font-newsreader",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -40,20 +42,23 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* No-flash theme resolution: runs before first paint. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=JSON.parse(localStorage.getItem("dizrupt-session")||"{}");var t=(s.state&&s.state.theme)||"dark";if(t==="system"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.dataset.theme=t}catch(e){document.documentElement.dataset.theme="dark"}})();`,
+            __html: `(function(){try{var s=JSON.parse(localStorage.getItem("dizrupt-session")||"{}");var t=(s.state&&s.state.theme)||"dark";if(t==="system"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}document.documentElement.dataset.theme=t;if(t==="dark"){document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark")}}catch(e){document.documentElement.dataset.theme="dark";document.documentElement.classList.add("dark")}})();`,
           }}
         />
       </head>
       <body
         className={`${plex.variable} ${plexMono.variable} ${sora.variable} ${newsreader.variable} font-sans`}
       >
+        <SkipLink />
         <FxProvider />
-        <Providers>{children}</Providers>
+        <Providers>
+          <main id="main-content">{children}</main>
+        </Providers>
       </body>
     </html>
   );

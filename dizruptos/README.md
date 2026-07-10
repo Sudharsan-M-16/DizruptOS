@@ -1,16 +1,51 @@
-# DIZRUPT — Resource Intelligence Platform
+# DIZRUPT — Resource Intelligence Platform, as a web OS
 
-A dark, premium enterprise command center for workforce capacity, project
-execution, organizational memory, and AI-agent collaboration. Built from
-`DIZRUPT_Supreme_PRD_v3.md` and the DizruptOS UI inspiration brief.
+A premium enterprise command center for workforce capacity, project execution,
+organizational memory, and AI-agent collaboration — delivered as **DizruptOS**, a
+macOS-style **web operating system**. Built from `DIZRUPT_Supreme_PRD_v3.md` and the
+DizruptOS UI inspiration brief.
+
+## DizruptOS desktop shell
+
+Signing in powers on an OS: **boot → lock → desktop**. The desktop (`/`) provides
+
+- a **window manager** — drag, 8-way resize, edge-snap (half-tile / zoom), genie
+  minimize-to-dock, z-order focus, and **per-user layout persistence**;
+- a magnifying, **customizable Dock** (pin/unpin, launch-bounce, running dots);
+- a **Menubar** with the  menu, app menus, a live **Control Center** (light/dark +
+  accent + wallpaper + brightness), a grouped **Notification Center**, and a calendar;
+- **Spotlight** (⌘Space), **Mission Control** (F3), **Launchpad** (F4), a desktop
+  right-click context menu, and **window cycling** (⌘\`);
+- **routes-as-windows** — every legacy product page opens in a draggable window
+  (chromeless iframe), so nothing from the original dashboard was lost;
+- native apps: **Home** (per-role Today/Pending/Critical task center, classified by
+  project), **Project Matrix** (drag-and-drop Kanban), **Operative Directory**
+  (people), **Knowledge Vault** (IndexedDB file store), and **System Settings**.
+
+RBAC is enforced in **3 layers** (UI + OS surface + data-layer mutation denial, with
+audited denials), apps hide/deny by the viewer's role permission
+(`lib/desktop-apps.tsx` × `lib/personas.ts`). OS state lives in `lib/os.ts` (`useOS`);
+the window engine is `components/desktop/use-desktop.ts`. The menubar carries live
+**battery + network** status, a clickable **profile** (switch account), Control Center,
+Notification Center and a calendar.
+
+## Real auth (Supabase) — code-complete, env-gated
+
+The demo runs on personas; **real authentication is fully wired** and activates the
+moment Supabase is configured (the demo flow is untouched until then): email sign-in
+link (passwordless) + Google/Microsoft login (`components/auth/real-auth-form.tsx`), session-validating
+`middleware.ts`, `/auth/callback`, JWT claim reader (`lib/auth-supabase.ts`), and the
+server-side **Auth Hook + first-signup auto-provision** in
+`supabase/migrations/0012_auth_hook.sql`. Going live is a migration + one dashboard
+toggle — see **`AUTH_SETUP.md`**.
 
 ## Run
 
 ```bash
 npm install
-npm run dev       # http://localhost:5175
+npm run dev       # http://localhost:3000
 npm run build     # production build (all routes verified)
-npm test          # vitest — 86 tests pinning the product laws + RBAC authority
+npm test          # vitest — product laws + RBAC authority
 npm run e2e       # Playwright smoke (login → command center, RBAC assertions)
 ```
 
@@ -36,6 +71,62 @@ DATABASE_URL=...                      # use the Session Pooler URI (IPv4); the
 
 > Continuation manual: see [`../MASTER_EXECUTION_PLAN.md`](../MASTER_EXECUTION_PLAN.md)
 > — full architecture, catalogs, debt register, and version-by-version roadmap.
+
+## Deploy
+
+### Vercel (recommended)
+
+1. **Import** the repo into Vercel. Set the **Root Directory** to `dizruptos`.
+2. **Add environment variables** in Vercel → Project → Settings → Environment Variables:
+
+| Variable | Required | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | For real auth | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For real auth | Supabase anon (public) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | For admin APIs | Keep server-only; never expose to client |
+| `DATABASE_URL` | For Drizzle/direct queries | Use **Session Pooler** URI (port 5432 via pgBouncer) — the direct `db.*.supabase.co` is IPv6-only |
+| `ANTHROPIC_API_KEY` | For AI copilot | Without it copilot falls back to deterministic answers |
+| `SENTRY_DSN` | For error tracking | Get from sentry.io → Projects → your project |
+| `JIRA_WEBHOOK_SECRET` | For Jira integration | Any random string; set same value in Jira webhook config |
+| `LINEAR_WEBHOOK_SECRET` | For Linear integration | Provided by Linear in webhook settings |
+| `GITHUB_WEBHOOK_SECRET` | For GitHub integration | Any random string; set same value in GitHub webhook config |
+| `CORS_ALLOWED_ORIGINS` | Optional | Comma-separated list of additional allowed origins (e.g. your mobile app domain) |
+| `NEXT_PUBLIC_APP_URL` | Recommended | Full URL of the deployment (e.g. `https://app.dizrupt.com`) |
+
+3. **Deploy.** Vercel runs `next build` automatically.
+4. **Apply Supabase migrations** (first deploy only):
+   ```bash
+   supabase db push --db-url "$DATABASE_URL"
+   # or run dizruptos/supabase/setup_all.sql in the Supabase SQL editor
+   ```
+5. **Enable the Auth Hook** in Supabase dashboard → Authentication → Hooks → `custom_access_token_hook` → enable.
+6. **Create your first admin user**: sign up via `/login`, then in Supabase SQL editor:
+   ```sql
+   UPDATE public.users SET role = 'admin' WHERE email = 'your@email.com';
+   ```
+
+### Docker
+
+```bash
+# Build
+docker build -t dizruptos ./dizruptos
+
+# Run (set env vars via --env-file or -e flags)
+docker run -p 3000:3000 \
+  --env-file .env.production \
+  dizruptos
+
+# Or with docker-compose (includes Redis + Prometheus + Grafana)
+docker-compose up
+```
+
+The `Dockerfile` in `dizruptos/` is a multi-stage, non-root build. Port 3000.
+
+### Health check
+
+`GET /api/health` returns `{ ok: true, mode, services: { db, ai, realtime } }`. Use this as the load balancer health check endpoint.
+
+---
 
 ## Stack
 

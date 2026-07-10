@@ -508,3 +508,690 @@
  ○ Compiling /api/health ...
  ✓ Compiled /api/health in 1268ms (1095 modules)
  GET /api/health 200 in 1736ms
+ ✓ Compiled in 1576ms (1734 modules)
+ ✓ Compiled in 1442ms (1734 modules)
+ ✓ Compiled in 1022ms (1734 modules)
+ ✓ Compiled in 969ms (1734 modules)
+ ✓ Compiled in 898ms (1734 modules)
+ ✓ Compiled in 993ms (1734 modules)
+ ✓ Compiled in 1404ms (1734 modules)
+ ✓ Compiled in 10.1s (2871 modules)
+ ✓ Compiled in 1637ms (1734 modules)
+ ✓ Compiled in 894ms (1734 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1824ms (1094 modules)
+ POST /api/auth/login 200 in 2028ms
+ ○ Compiling /api/v1/people/intelligence ...
+ ✓ Compiled /api/v1/people/intelligence in 785ms (1110 modules)
+{"ts":"2026-06-13T08:48:22.206Z","level":"info","event":"api_api_people_intelligence","ctx":{"reqId":"b0f4cc8d-21b0-4928-afca-8e7e4575d15f","method":"GET","path":"/api/v1/people/intelligence","status":200,"ms":656}}
+ GET /api/v1/people/intelligence 200 in 1579ms
+ ✓ Compiled /api/health in 493ms (1112 modules)
+ GET /api/health 200 in 579ms
+ ✓ Compiled in 1522ms (1734 modules)
+ ✓ Compiled in 4.5s (1734 modules)
+ ✓ Compiled in 3.4s (1734 modules)
+ ✓ Compiled in 5.9s (1735 modules)
+ ✓ Compiled in 1916ms (1735 modules)
+ ✓ Compiled in 6.1s (1735 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 9.3s (1557 modules)
+ GET / 200 in 10353ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1919ms (1588 modules)
+ GET /api/health 200 in 2095ms
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1538ms (1735 modules)
+ ✓ Compiled in 1018ms (1735 modules)
+ ✓ Compiled in 977ms (1735 modules)
+ ✓ Compiled in 1138ms (1735 modules)
+ ✓ Compiled in 1071ms (1735 modules)
+ ✓ Compiled in 946ms (1735 modules)
+ ✓ Compiled in 898ms (1735 modules)
+ ✓ Compiled in 1243ms (1735 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 4.4s (1094 modules)
+ POST /api/auth/login 200 in 4635ms
+ ○ Compiling /api/v1/employees ...
+ ✓ Compiled /api/v1/employees in 762ms (1106 modules)
+{"ts":"2026-06-13T13:14:24.222Z","level":"info","event":"api_api_employees","ctx":{"reqId":"db95b80b-a486-4800-9f4a-9d53a5200578","method":"GET","path":"/api/v1/employees","status":200,"ms":1335}}
+ GET /api/v1/employees 200 in 2328ms
+ ○ Compiling /api/v1/capacity ...
+ ✓ Compiled /api/v1/capacity in 803ms (1109 modules)
+ GET /api/v1/capacity 200 in 1480ms
+ ✓ Compiled in 3.6s (2799 modules)
+ ✓ Compiled in 1246ms (1735 modules)
+ ✓ Compiled in 1073ms (1735 modules)
+ ✓ Compiled in 1055ms (1735 modules)
+ ✓ Compiled in 1593ms (1735 modules)
+ ✓ Compiled in 1196ms (1735 modules)
+ ✓ Compiled in 7s (2872 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1778ms (1094 modules)
+ POST /api/auth/login 200 in 1990ms
+ ○ Compiling /api/v1/decisions/memory ...
+ ✓ Compiled /api/v1/decisions/memory in 825ms (1112 modules)
+{"ts":"2026-06-13T13:26:13.282Z","level":"info","event":"api_api_decision_memory","ctx":{"reqId":"8c75af7d-5315-4b58-9512-851fe4476916","method":"GET","path":"/api/v1/decisions/memory","status":200,"ms":707}}
+ GET /api/v1/decisions/memory 200 in 1678ms
+ ✓ Compiled in 1800ms (1735 modules)
+ ✓ Compiled in 1158ms (1735 modules)
+ ✓ Compiled in 1548ms (1735 modules)
+ ✓ Compiled in 2.8s (2799 modules)
+ ✓ Compiled in 1131ms (1735 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1856ms (1095 modules)
+ GET /api/health 200 in 1996ms
+ ✓ Compiled in 3.6s (1735 modules)
+ ✓ Compiled in 10.7s (2872 modules)
+ ✓ Compiled in 1937ms (1735 modules)
+ ✓ Compiled in 1293ms (1735 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 4.2s (1094 modules)
+ POST /api/auth/login 200 in 4580ms
+ ○ Compiling /api/v1/org-health ...
+ ✓ Compiled /api/v1/org-health in 1031ms (1117 modules)
+{"ts":"2026-06-13T16:39:18.268Z","level":"info","event":"api_api_org_health","ctx":{"reqId":"24a00320-b4f9-4b85-8181-7e038d559f17","method":"GET","path":"/api/v1/org-health","status":200,"ms":1103}}
+ GET /api/v1/org-health 200 in 2308ms
+ ○ Compiling /api/v1/intelligence/risk ...
+ ✓ Compiled /api/v1/intelligence/risk in 1727ms (1119 modules)
+{"ts":"2026-06-13T16:39:20.515Z","level":"info","event":"api_api_risk_intel","ctx":{"reqId":"a791a880-edeb-4532-9822-6e26149f9653","method":"GET","path":"/api/v1/intelligence/risk","status":200,"ms":191}}
+ GET /api/v1/intelligence/risk 200 in 2112ms
+ ○ Compiling /api/v1/intelligence/dependency ...
+ ✓ Compiled /api/v1/intelligence/dependency in 579ms (1121 modules)
+{"ts":"2026-06-13T16:39:21.471Z","level":"info","event":"api_api_dep_intel","ctx":{"reqId":"9b1dff5f-dcf8-4dbc-b9de-fd4ed4541c76","method":"GET","path":"/api/v1/intelligence/dependency","status":200,"ms":199}}
+ GET /api/v1/intelligence/dependency 200 in 896ms
+{"ts":"2026-06-13T16:39:38.686Z","level":"info","event":"api_api_org_health","ctx":{"reqId":"1a8b4d64-836d-4609-ac23-66d13f0363fd","method":"GET","path":"/api/v1/org-health","status":200,"ms":538}}
+ GET /api/v1/org-health 200 in 559ms
+{"ts":"2026-06-13T16:39:54.615Z","level":"info","event":"api_api_org_health","ctx":{"reqId":"26f05810-ef97-4d33-8495-c59419125dc5","method":"GET","path":"/api/v1/org-health","status":200,"ms":548}}
+ GET /api/v1/org-health 200 in 582ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1032ms (1117 modules)
+ GET /api/health 200 in 1124ms
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1620ms (1735 modules)
+ ✓ Compiled in 2.4s (2799 modules)
+ ✓ Compiled in 970ms (1735 modules)
+ ✓ Compiled in 1340ms (1735 modules)
+ ✓ Compiled in 903ms (1735 modules)
+ ✓ Compiled in 4.3s (2872 modules)
+ ✓ Compiled in 1474ms (1735 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 902ms (1094 modules)
+ POST /api/auth/login 200 in 1064ms
+ ○ Compiling /api/v1/simulation/departure ...
+ ✓ Compiled /api/v1/simulation/departure in 1285ms (1118 modules)
+{"ts":"2026-06-13T16:52:56.994Z","level":"info","event":"api_api_sim_departure","ctx":{"reqId":"99c9372b-f763-470a-9228-7acf2e6837d0","method":"GET","path":"/api/v1/simulation/departure","status":200,"ms":1094}}
+ GET /api/v1/simulation/departure?personId=00000000-0000-0000-0000-0000000000a2 200 in 2541ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 4.5s (1120 modules)
+ GET /api/health 200 in 4611ms
+ ✓ Compiled in 2.3s (1735 modules)
+ ✓ Compiled in 1501ms (1735 modules)
+ ✓ Compiled in 3.7s (1735 modules)
+ ✓ Compiled in 1819ms (1735 modules)
+ ✓ Compiled in 2.7s (2799 modules)
+ ✓ Compiled in 965ms (1735 modules)
+ ✓ Compiled in 1424ms (1735 modules)
+ ✓ Compiled in 3.9s (2872 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1791ms (1735 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1068ms (1094 modules)
+ POST /api/auth/login 200 in 1228ms
+ ○ Compiling /api/v1/recommendations ...
+ ✓ Compiled /api/v1/recommendations in 777ms (1121 modules)
+{"ts":"2026-06-13T17:00:13.079Z","level":"info","event":"api_api_recommendations","ctx":{"reqId":"15f960f9-7071-4964-b6dd-7b1b67c5bfd3","method":"GET","path":"/api/v1/recommendations","status":200,"ms":736}}
+ GET /api/v1/recommendations 200 in 1648ms
+ ○ Compiling /api/v1/simulation/node-failure ...
+ ✓ Compiled /api/v1/simulation/node-failure in 1839ms (1123 modules)
+{"ts":"2026-06-13T17:00:16.614Z","level":"info","event":"api_api_sim_node","ctx":{"reqId":"f5a0c1c9-82f4-4fab-9714-bcc0f68f2976","method":"GET","path":"/api/v1/simulation/node-failure","status":200,"ms":208}}
+ GET /api/v1/simulation/node-failure?nodeId=00000000-0000-0000-0000-0000000000e1&label=Payments%20API 200 in 2339ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 933ms (1125 modules)
+ GET /api/health 200 in 1005ms
+ ✓ Compiled in 4s (2799 modules)
+ ✓ Compiled in 2.6s (1735 modules)
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 1500ms (1095 modules)
+ ⨯ Error: Cannot find module './8948.js'
+Require stack:
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-middleware.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-reloader-webpack.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1476:15)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:55:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+    at Module._load (node:internal/modules/cjs/loader:1262:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at __webpack_require__.f.require (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:208:28)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:167:22)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js:1:2154
+    at Object.<anonymous> (C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js:1:2202)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at requirePage (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js:109:84)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:98:84
+    at async loadComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:98:26)
+    at async DevServer.findPageComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:710:36)
+    at async DevServer.findPageComponents (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:1917:24)
+    at async DevServer.renderToResponseImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:1969:32)
+    at async DevServer.pipeImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:920:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:272:17)
+    at async DevServer.handleRequestImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:816:17)
+    at async C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:174:21)
+    at async handleRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:353:24)
+    at async requestHandlerImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:377:13)
+    at async Server.requestListener (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\webpack-runtime.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\app\\api\\health\\route.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\build\\utils.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-middleware.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-reloader-webpack.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-utils\\setup-dev-bundler.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-server.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\start-server.js'
+  ],
+  page: '/api/health'
+}
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-middleware.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-reloader-webpack.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1476:15)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:55:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+    at Module._load (node:internal/modules/cjs/loader:1262:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at __webpack_require__.f.require (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:208:28)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:167:22)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\pages\_document.js:1:340
+    at Object.<anonymous> (C:\Users\sudha\DizruptOS\dizruptos\.next\server\pages\_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at requirePage (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js:109:84)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:710:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\webpack-runtime.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\app\\api\\health\\route.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\build\\utils.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-middleware.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-reloader-webpack.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-utils\\setup-dev-bundler.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-server.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\start-server.js'
+  ]
+}
+ GET /api/health 500 in 6815ms
+ ⨯ Error: Cannot find module './8948.js'
+Require stack:
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-middleware.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-reloader-webpack.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1476:15)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:55:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+    at Module._load (node:internal/modules/cjs/loader:1262:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at __webpack_require__.f.require (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:208:28)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:167:22)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\login\page.js:97:7709
+    at Object.<anonymous> (C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\login\page.js:97:7777)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at requirePage (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js:109:84)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:98:84
+    at async loadComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:98:26)
+    at async DevServer.findPageComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:710:36)
+    at async DevServer.findPageComponents (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:1917:24)
+    at async DevServer.renderToResponseImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:1969:32)
+    at async DevServer.pipeImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:920:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:272:17)
+    at async DevServer.handleRequestImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:816:17)
+    at async C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:174:21)
+    at async handleRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:353:24)
+    at async requestHandlerImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:377:13)
+    at async Server.requestListener (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\webpack-runtime.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\app\\api\\health\\route.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\build\\utils.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-middleware.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-reloader-webpack.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-utils\\setup-dev-bundler.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-server.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\start-server.js'
+  ],
+  page: '/login'
+}
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-middleware.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-reloader-webpack.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1476:15)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:55:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+    at Module._load (node:internal/modules/cjs/loader:1262:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at __webpack_require__.f.require (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:208:28)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:167:22)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\pages\_document.js:1:340
+    at Object.<anonymous> (C:\Users\sudha\DizruptOS\dizruptos\.next\server\pages\_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at requirePage (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js:109:84)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:710:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\webpack-runtime.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\app\\api\\health\\route.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\build\\utils.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-middleware.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-reloader-webpack.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-utils\\setup-dev-bundler.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-server.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\start-server.js'
+  ]
+}
+ GET /login 500 in 29ms
+ ✓ Compiled in 1641ms (1735 modules)
+ ✓ Compiled in 1011ms (1735 modules)
+ ✓ Compiled in 1554ms (1735 modules)
+ ✓ Compiled in 818ms (1735 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz_' -> 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz'
+ ✓ Compiled in 929ms (1735 modules)
+ ✓ Compiled in 1128ms (1735 modules)
+ ⨯ Error: Cannot find module './8948.js'
+Require stack:
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-middleware.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-reloader-webpack.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1476:15)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:55:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+    at Module._load (node:internal/modules/cjs/loader:1262:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at __webpack_require__.f.require (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:208:28)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:167:22)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\login\page.js:97:7709
+    at Object.<anonymous> (C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\login\page.js:97:7777)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at requirePage (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js:109:84)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:98:84
+    at async loadComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:98:26)
+    at async DevServer.findPageComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:710:36)
+    at async DevServer.findPageComponents (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:1917:24)
+    at async DevServer.renderToResponseImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:1969:32)
+    at async DevServer.pipeImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:920:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:272:17)
+    at async DevServer.handleRequestImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\base-server.js:816:17)
+    at async C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:174:21)
+    at async handleRequest (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:353:24)
+    at async requestHandlerImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js:377:13)
+    at async Server.requestListener (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\webpack-runtime.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\app\\api\\health\\route.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\build\\utils.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-middleware.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-reloader-webpack.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-utils\\setup-dev-bundler.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-server.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\start-server.js'
+  ],
+  page: '/login'
+}
+ ⨯ Error: Cannot find module './1682.js'
+Require stack:
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js
+- C:\Users\sudha\DizruptOS\dizruptos\.next\server\app\api\health\route.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\build\utils.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-middleware.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\dev\hot-reloader-webpack.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-utils\setup-dev-bundler.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\router-server.js
+- C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\lib\start-server.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1476:15)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:55:36
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)
+    at Module._load (node:internal/modules/cjs/loader:1262:25)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at __webpack_require__.f.require (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:208:28)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (C:\Users\sudha\DizruptOS\dizruptos\.next\server\webpack-runtime.js:167:22)
+    at C:\Users\sudha\DizruptOS\dizruptos\.next\server\pages\_document.js:1:340
+    at Object.<anonymous> (C:\Users\sudha\DizruptOS\dizruptos\.next\server\pages\_document.js:1:383)
+    at Module._compile (node:internal/modules/cjs/loader:1830:14)
+    at Object..js (node:internal/modules/cjs/loader:1961:10)
+    at Module.load (node:internal/modules/cjs/loader:1553:32)
+    at Module._load (node:internal/modules/cjs/loader:1355:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1576:12)
+    at mod.require (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require-hook.js:65:28)
+    at require (node:internal/modules/helpers:153:16)
+    at requirePage (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\require.js:109:84)
+    at C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (C:\Users\sudha\DizruptOS\dizruptos\node_modules\next\dist\server\next-server.js:710:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\webpack-runtime.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\.next\\server\\app\\api\\health\\route.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\require.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\load-components.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\build\\utils.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-middleware.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\dev\\hot-reloader-webpack.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-utils\\setup-dev-bundler.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\router-server.js',
+    'C:\\Users\\sudha\\DizruptOS\\dizruptos\\node_modules\\next\\dist\\server\\lib\\start-server.js'
+  ]
+}
+ GET /login 500 in 29ms
+ ✓ Compiled in 1558ms (1735 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6.3s (2872 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 5.4s (2799 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 5.9s (2799 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 5.1s (2799 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1318ms (1735 modules)
+ ✓ Compiled in 945ms (1735 modules)
+ ✓ Compiled in 6.6s (2872 modules)
+ ✓ Compiled in 1247ms (1735 modules)
+ ✓ Compiled in 4.2s (2872 modules)
+ ✓ Compiled in 4.4s (2799 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz_' -> 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz'
+ ✓ Compiled in 16.1s (2801 modules)
+ ✓ Compiled in 1614ms (1736 modules)
+ ✓ Compiled in 909ms (1736 modules)
+ ✓ Compiled in 1432ms (1736 modules)
+ ✓ Compiled in 938ms (1736 modules)
+ ✓ Compiled in 1298ms (1736 modules)
+ ✓ Compiled in 1112ms (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 8.3s (2874 modules)
+ ✓ Compiled in 1085ms (1736 modules)
+ ✓ Compiled in 1514ms (1736 modules)
+ ✓ Compiled in 2.6s (1736 modules)
+ ✓ Compiled in 1948ms (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 2.8s (1736 modules)
+ ✓ Compiled in 2.4s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.6s (1736 modules)
+ ✓ Compiled in 2.5s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.1s (1736 modules)
+ ✓ Compiled in 2.5s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1875ms (1736 modules)
+ ✓ Compiled in 2.1s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1495ms (1736 modules)
+ ✓ Compiled in 5.8s (2874 modules)
+ ✓ Compiled in 8.8s (2874 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.5s (1736 modules)
+ ✓ Compiled in 1316ms (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 2.3s (1736 modules)
+ ✓ Compiled in 2.8s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.1s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1224ms (1736 modules)
+ ✓ Compiled in 1022ms (1736 modules)
+ ✓ Compiled in 1582ms (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: EPERM: operation not permitted, rename 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz_' -> 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz'
+ ✓ Compiled in 3.8s (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 4.5s (2801 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 2.4s (1736 modules)
+ ✓ Compiled in 1186ms (1736 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6.3s (2874 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6.5s (2874 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6.1s (2801 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 12.9s (2803 modules)
+ ✓ Compiled in 3.9s (1737 modules)
+ ✓ Compiled in 1050ms (1737 modules)
+ ✓ Compiled in 3.3s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 12.2s (2803 modules)
+ ✓ Compiled in 4.8s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 4.8s (1737 modules)
+ ✓ Compiled in 4.1s (1737 modules)
+ ✓ Compiled in 30.4s (2876 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 7.2s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 4.6s (1737 modules)
+ ✓ Compiled in 1987ms (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 2.2s (1737 modules)
+ ✓ Compiled in 1498ms (1737 modules)
+ ✓ Compiled in 3.3s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 5.3s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 4.9s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.2s (1737 modules)
+ ✓ Compiled in 2.4s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 8.6s (1737 modules)
+ ✓ Compiled in 1689ms (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.7s (1737 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1696ms (1737 modules)
+ ✓ Compiled in 8.2s (2876 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 14.9s (2876 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6.8s (2807 modules)
+ ✓ Compiled in 13.6s (2807 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 8.9s (2880 modules)
+ ✓ Compiled in 1722ms (1739 modules)
+ ✓ Compiled in 10.1s (1812 modules)
+ ✓ Compiled in 4.9s (1739 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 36s (2808 modules)
+ ✓ Compiled in 3.2s (1740 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 3.4s (1740 modules)
+ ✓ Compiled in 2.8s (1740 modules)
+ ✓ Compiled in 2.6s (1740 modules)
+ ✓ Compiled in 3.8s (1740 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 9.8s (1740 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 6.1s (1740 modules)
+ ✓ Compiled in 2.7s (1740 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz_' -> 'C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development\0.pack.gz'
+ ✓ Compiled in 2.1s (1740 modules)
+ ✓ Compiled in 6.5s (1753 modules)
+ ✓ Compiled in 15.7s (1753 modules)
+ ✓ Compiled in 12.5s (1753 modules)
+ ✓ Compiled in 12.2s (1753 modules)
+ ✓ Compiled in 1108ms (1753 modules)
+ ✓ Compiled in 2.6s (1753 modules)
+ ✓ Compiled in 5.8s (1754 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack from C:\Users\sudha\DizruptOS\dizruptos\.next\cache\webpack\client-development.pack.gz failed: TypeError: Cannot read properties of undefined (reading 'hasStartTime')
+ ✓ Compiled in 1605ms (1754 modules)
+ ✓ Compiled in 1267ms (1754 modules)
+ ✓ Compiled in 1187ms (1754 modules)
+ ✓ Compiled in 1374ms (1754 modules)
+ ✓ Compiled in 10.3s (1759 modules)
+ ✓ Compiled in 1331ms (1759 modules)
+ ✓ Compiled in 1441ms (1759 modules)
+ ✓ Compiled in 8.1s (1759 modules)
+ ✓ Compiled in 4.9s (1763 modules)

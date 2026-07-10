@@ -1,97 +1,101 @@
 "use client";
 
-import { useId } from "react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-} from "recharts";
-
-export function SparkArea({
-  data,
-  color = "#00ED82",
-}: {
+interface SparkAreaProps {
   data: number[];
   color?: string;
-}) {
-  const rows = data.map((v, i) => ({ i, v }));
-  // useId guarantees gradient defs never collide when multiple same-color
-  // sparklines share a view.
-  const id = `sg-${useId().replace(/[:]/g, "")}`;
+  height?: number;
+}
+
+export function SparkArea({ data, color = "#00ED82", height = 40 }: SparkAreaProps) {
+  if (data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const W = 100;
+  const H = height;
+  const step = W / (data.length - 1);
+
+  const pts = data.map((v, i) => ({
+    x: i * step,
+    y: H - ((v - min) / range) * (H - 6) - 3,
+  }));
+
+  const line = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+  const area = `${line} L${pts[pts.length - 1].x},${H} L0,${H} Z`;
+  const gradId = `sg-${color.replace(/[^a-z0-9]/gi, "")}`;
+
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={rows} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
-        <defs>
-          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.45} />
-            <stop offset="100%" stopColor={color} stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <Area
-          dataKey="v"
-          stroke={color}
-          strokeWidth={1.5}
-          fill={`url(#${id})`}
-          isAnimationActive={false}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      style={{ width: "100%", height: `${height}px`, display: "block" }}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${gradId})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={pts[pts.length - 1].x} cy={pts[pts.length - 1].y} r="2.5" fill={color} />
+    </svg>
   );
 }
 
-export function SparkBars({
-  data,
-  color = "#00ED82",
-}: {
-  data: number[];
-  color?: string;
-}) {
-  const rows = data.map((v, i) => ({ i, v }));
+/** Vertical bar chart sparkline for sprint velocity / discrete series. */
+export function SparkBars({ data, color = "#00ED82" }: { data: number[]; color?: string }) {
+  if (!data || data.length === 0) return null;
+  const max = Math.max(...data, 1);
+  const W = 100;
+  const H = 36;
+  const barW = W / data.length - 1;
+
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={rows} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
-        <Bar dataKey="v" fill={color} radius={[2, 2, 0, 0]} isAnimationActive={false} />
-      </BarChart>
-    </ResponsiveContainer>
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: `${H}px`, display: "block" }} aria-hidden="true">
+      {data.map((v, i) => {
+        const barH = (v / max) * H;
+        return (
+          <rect
+            key={i}
+            x={i * (barW + 1)}
+            y={H - barH}
+            width={barW}
+            height={barH}
+            rx={1}
+            fill={color}
+            fillOpacity={i === data.length - 1 ? 1 : 0.5}
+          />
+        );
+      })}
+    </svg>
   );
 }
 
-/* Capacity ring — SVG donut used on profiles */
-export function CapacityRing({
-  pct,
-  size = 88,
-}: {
-  pct: number;
-  size?: number;
-}) {
-  const stroke = 8;
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const tone = pct >= 1 ? "#EF4444" : pct >= 0.8 ? "#F59E0B" : "#10B981";
+/** Circular capacity ring — shows utilization pct as an arc. */
+export function CapacityRing({ pct, size = 56 }: { pct: number; size?: number }) {
+  const r = (size - 8) / 2;
+  const circ = 2 * Math.PI * r;
+  const fill = Math.min(pct, 1);
+  const color = pct >= 1 ? "#EF4444" : pct >= 0.85 ? "#F59E0B" : "#00ED82";
   return (
-    <svg width={size} height={size} className="-rotate-90">
+    <svg width={size} height={size} style={{ display: "block" }} aria-hidden="true">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--line))" strokeWidth={4} />
       <circle
         cx={size / 2}
         cy={size / 2}
         r={r}
         fill="none"
-        stroke="rgb(var(--ink-elevated))"
-        strokeWidth={stroke}
-      />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke={tone}
-        strokeWidth={stroke}
+        stroke={color}
+        strokeWidth={4}
+        strokeDasharray={`${fill * circ} ${circ}`}
         strokeLinecap="round"
-        strokeDasharray={c}
-        strokeDashoffset={c * (1 - Math.min(pct, 1.2) / 1.2)}
-        style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)" }}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
       />
+      <text x={size / 2} y={size / 2 + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill={color} fontFamily="var(--font-plex-mono, monospace)">
+        {Math.round(pct * 100)}%
+      </text>
     </svg>
   );
 }

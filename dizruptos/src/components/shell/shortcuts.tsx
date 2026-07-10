@@ -14,13 +14,11 @@ const GO: Record<string, { href: string; label: string }> = {
   h: { href: "/", label: "Command Center" },
   c: { href: "/capacity", label: "Capacity Heatmap" },
   p: { href: "/projects", label: "Projects" },
-  t: { href: "/people", label: "People (team)" },
   e: { href: "/executive", label: "Executive" },
   r: { href: "/risks", label: "Risk Register" },
-  d: { href: "/decisions", label: "Decisions" },
+  m: { href: "/memory", label: "Org Memory" },
   o: { href: "/goals", label: "Goals · OKRs" },
   i: { href: "/proposals", label: "Agent Inbox" },
-  g: { href: "/graph", label: "Dependency Graph" },
   a: { href: "/audit", label: "Audit Log" },
 };
 
@@ -42,16 +40,23 @@ export function ShortcutManager() {
     const down = (e: KeyboardEvent) => {
       if (isEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
 
+      // On the DizruptOS desktop, the OS owns navigation (Spotlight / Launchpad /
+      // dock) — the legacy "/" palette and "g→route" jumps would navigate away to
+      // the old dashboard, so they're disabled there. They still work on the
+      // standalone (embedded) routes.
+      const onDesktop = typeof window !== "undefined" && window.location.pathname === "/";
+
       if (e.key === "?") {
         e.preventDefault();
         setShortcutsOpen(true);
         return;
       }
-      if (e.key === "/") {
+      if (e.key === "/" && !onDesktop) {
         e.preventDefault();
         setPaletteOpen(true);
         return;
       }
+      if (onDesktop) return;
       if (e.key === "g") {
         pendingG.current = window.setTimeout(() => (pendingG.current = null), 900);
         return;

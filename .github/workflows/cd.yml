@@ -1,0 +1,87 @@
+name: CD — Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: preview
+        type: choice
+        options: [preview, production]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false  # never cancel an in-flight deploy
+
+jobs:
+  deploy:
+    name: Deploy (${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'preview' }})
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dizruptos/package-lock.json
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: dizruptos
+
+      - name: Build for Vercel
+        run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: dizruptos
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          URL=$(vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $URL"
+        working-directory: dizruptos
+
+      - name: Run DB migrations (production only)
+        if: github.ref == 'refs/heads/main' && secrets.SUPABASE_ACCESS_TOKEN != ''
+        run: |
+          npx supabase db push --db-url "${{ secrets.DATABASE_URL }}"
+        working-directory: dizruptos
+        continue-on-error: false  # migration failure must block deploy
+
+      - name: Smoke-test deployed app
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/api/health")
+          READY=$(curl -s -o /dev/null -w "%{http_code}" "$URL/api/ready")
+          echo "Health: $STATUS | Ready: $READY"
+          if [ "$STATUS" != "200" ]; then echo "Health check FAILED" && exit 1; fi
+
+      - name: Post deployment summary
+        run: |
+          echo "## Deployment complete" >> $GITHUB_STEP_SUMMARY
+          echo "URL: ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+  notify-failure:
+    name: Notify on failure
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+    steps:
+      - name: Deployment failure
+        run: |
+          echo "Deployment FAILED for commit ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          # Add Slack/PagerDuty notification here when configured

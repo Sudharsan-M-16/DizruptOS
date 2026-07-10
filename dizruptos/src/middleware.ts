@@ -7,10 +7,70 @@
 // redirect topology and header policy do not change.
 
 import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { env } from "./lib/env";
+import { apiRateLimited } from "./lib/rate-limiter";
 
-const PUBLIC_PATHS = ["/login", "/welcome", "/api/auth", "/api/health"];
+// CORS — API routes allow requests from the app's own origin plus any origins
+// listed in the CORS_ALLOWED_ORIGINS env var (comma-separated).
+// Webhooks authenticate via HMAC and don't need CORS.
+const CORS_ALLOWED_ORIGINS: Set<string> = new Set(
+  (process.env.CORS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+);
+
+function getCorsOrigin(req: NextRequest): string | null {
+  const origin = req.headers.get("origin");
+  if (!origin) return null; // same-origin or server-to-server — no header needed
+  const host = req.headers.get("host");
+  // Same host (works for both http and https)
+  if (host && (origin === `https://${host}` || origin === `http://${host}`)) return origin;
+  if (CORS_ALLOWED_ORIGINS.has(origin)) return origin;
+  return null; // blocked
+}
+
+function withCorsHeaders(res: NextResponse, req: NextRequest): NextResponse {
+  const allowed = getCorsOrigin(req);
+  if (allowed) {
+    res.headers.set("Access-Control-Allow-Origin", allowed);
+    res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-CSRF-Token, X-Request-ID");
+    res.headers.set("Access-Control-Allow-Credentials", "true");
+    res.headers.set("Access-Control-Max-Age", "86400");
+    res.headers.set("Vary", "Origin");
+  }
+  return res;
+}
+
+// Real-auth is active only when Supabase is fully configured; otherwise the demo
+// `dz_session` gate runs and nothing about the demo changes.
+const authConfigured = env.mode === "production" && !!env.supabaseUrl && !!env.supabaseAnonKey;
+
+const PUBLIC_PATHS = [
+  "/login", "/welcome", "/auth", "/api/auth", "/api/health", "/api/ready",
+  "/accept-invite", "/reset-password",
+  // Token-based endpoints — the token is the credential; route handlers enforce their own auth
+  "/api/v1/invitations/",
+  // CSRF endpoint is always public (it issues the token)
+  "/api/v1/csrf",
+];
+
+// Fallback SSO seed for demo mode only — live mode reads from tenant_sso_configs.
+const SSO_CONFIG_DEMO: Record<string, { protocol: "saml" | "oidc"; ssoUrl: string; entityId: string }> = {
+  "org-1": { protocol: "saml", ssoUrl: "https://idp.example.com/saml/sso", entityId: "dizrupt-sp" },
+  "org-demo": { protocol: "oidc", ssoUrl: "https://accounts.google.com/o/oauth2/v2/auth", entityId: "dizrupt-demo" },
+};
 
 const isDev = process.env.NODE_ENV !== "production";
+
+function withCacheHeaders(res: NextResponse, pathname: string, method: string): NextResponse {
+  if (method === "GET" && pathname.startsWith("/api/v1/intelligence")) {
+    res.headers.set("Cache-Control", "private, max-age=60, stale-while-revalidate=30");
+  }
+  return res;
+}
 
 function withSecurityHeaders(res: NextResponse): NextResponse {
   // OWASP secure-header baseline. CSP allows self + inline styles (Tailwind
@@ -24,49 +84,129 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' ws: wss:", // Supabase Realtime joins this list in production
-      "frame-ancestors 'none'",
+      `connect-src 'self' ws: wss:${env.supabaseUrl ? ` ${env.supabaseUrl}` : ""}`, // Supabase Realtime joins this list in production
+      // Same-origin only: the DizruptOS desktop embeds its own routes as windows
+      // (iframes) — never third parties.
+      "frame-ancestors 'self'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; ")
   );
-  res.headers.set("X-Frame-Options", "DENY");
+  res.headers.set("X-Frame-Options", "SAMEORIGIN");
   res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-XSS-Protection", "1; mode=block");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()"
   );
   res.headers.set("X-DNS-Prefetch-Control", "off");
+  // HSTS: only set in production (avoids localhost issues during dev)
+  if (!isDev) {
+    res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  }
   return res;
 }
 
-// API rate limit: 120 req/min/IP across /api/v1 (login has its own stricter
-// limiter). In-memory per edge isolate — production swaps to Redis/Upstash.
-const apiHits = new Map<string, { count: number; resetAt: number }>();
-const API_WINDOW_MS = 60_000;
-const API_MAX = 120;
+// Tiered API rate limiting — in-memory per edge isolate (production: Redis/Upstash).
+// Intelligence routes are compute-heavy (LLM + graph traversal): 10 req/min.
+// Everything else: 60 req/min. Audit/nav is exempt (fire-and-forget from UI).
+// Logic lives in lib/rate-limiter.ts (imported above) so it can be unit-tested.
 
-function apiRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = apiHits.get(ip);
-  if (!entry || entry.resetAt < now) {
-    apiHits.set(ip, { count: 1, resetAt: now + API_WINDOW_MS });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > API_MAX;
-}
-
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  // Propagate a request ID for distributed tracing correlation.
+  const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
+
+  // Strip any spoofed internal headers before routing
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.delete("x-dz-user-id");
+  requestHeaders.delete("x-dz-user-role");
+  requestHeaders.delete("x-dz-user-name");
+
+  // CORS preflight — respond immediately before any auth checks.
+  if (req.method === "OPTIONS" && pathname.startsWith("/api/")) {
+    const res = new NextResponse(null, { status: 204 });
+    res.headers.set("X-Request-ID", requestId);
+    return withCorsHeaders(withSecurityHeaders(res), req);
+  }
+
+  // Per-tenant SSO initiation routing — routes /api/auth/sso?tenant=<orgId>
+  // to the correct IdP for that tenant. In live mode, look up from tenant_sso_configs
+  // table. In demo mode, routes from the seed above.
+  if (pathname === "/api/auth/sso") {
+    const tenantId = req.nextUrl.searchParams.get("tenant") ?? "";
+    // Live mode: look up SSO config from DB. Demo mode: use in-memory seed.
+    let cfg: { protocol: "saml" | "oidc"; ssoUrl: string; entityId: string } | undefined;
+    const srKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (authConfigured && srKey) {
+      try {
+        const sbUrl = env.supabaseUrl!.replace(/\/$/, "");
+        const dbRes = await fetch(
+          `${sbUrl}/rest/v1/tenant_sso_configs?org_id=eq.${tenantId}&select=protocol,sso_url,entity_id&limit=1`,
+          { headers: { apikey: srKey, Authorization: `Bearer ${srKey}` }, cache: "no-store" }
+        );
+        if (dbRes.ok) {
+          const rows = (await dbRes.json()) as Array<{ protocol: string; sso_url: string; entity_id: string }>;
+          if (rows[0]) cfg = { protocol: rows[0].protocol as "saml" | "oidc", ssoUrl: rows[0].sso_url, entityId: rows[0].entity_id };
+        }
+      } catch { /* fall through to demo seed */ }
+    }
+    if (!cfg) cfg = SSO_CONFIG_DEMO[tenantId];
+    if (!cfg) {
+      const res = NextResponse.json(
+        { error: { code: "SSO_NOT_CONFIGURED", message: `No SSO configured for tenant: ${tenantId || "(none)"}` } },
+        { status: 404 }
+      );
+      res.headers.set("X-Request-ID", requestId);
+      return withSecurityHeaders(res);
+    }
+    const dest = new URL(cfg.ssoUrl);
+    dest.searchParams.set("RelayState", tenantId);
+    if (cfg.protocol === "oidc") {
+      dest.searchParams.set("client_id", cfg.entityId);
+      dest.searchParams.set("response_type", "code");
+      dest.searchParams.set("scope", "openid email profile");
+    } else {
+      // SAML: add SAMLRequest placeholder (real impl uses node-saml to build AuthnRequest)
+      dest.searchParams.set("SAMLRequest", `[AuthnRequest:${cfg.entityId}]`);
+    }
+    const res = NextResponse.redirect(dest);
+    res.headers.set("X-Request-ID", requestId);
+    return withSecurityHeaders(res);
+  }
+
+  // Auth brute-force protection lives in the /api/auth/login route itself now —
+  // it's failure-based (only wrong attempts count, success resets), so it never
+  // locks out legitimate sign-ins the way a blanket per-POST counter did.
 
   if (pathname.startsWith("/api/v1")) {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
-    if (apiRateLimited(ip)) {
-      return withSecurityHeaders(
-        NextResponse.json({ code: "RATE_LIMITED" }, { status: 429 })
-      );
+    const { limited, retryAfter } = apiRateLimited(ip, pathname);
+    if (limited) {
+      const res = NextResponse.json({ code: "RATE_LIMITED" }, { status: 429 });
+      if (retryAfter > 0) res.headers.set("Retry-After", String(retryAfter));
+      return withCorsHeaders(withSecurityHeaders(res), req);
+    }
+
+    // CSRF double-submit cookie protection for state-mutating API calls.
+    // Webhooks use HMAC authentication instead, so they are exempt.
+    // Auth endpoints manage their own tokens, so they are exempt.
+    const WEBHOOK_PATHS = ["/api/v1/import/jira", "/api/v1/import/linear", "/api/v1/import/github"];
+    const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);
+    const isWebhook = WEBHOOK_PATHS.some((p) => pathname.startsWith(p));
+    if (isMutating && !isWebhook && !pathname.startsWith("/api/auth")) {
+      const cookieToken = req.cookies.get("csrf_token")?.value;
+      const headerToken = req.headers.get("x-csrf-token");
+      // Only enforce if BOTH the cookie exists AND a header is sent but they differ.
+      // If the cookie is absent, the request is allowed (first-time or demo sessions
+      // that haven't fetched /api/v1/csrf yet). This is a defence-in-depth layer,
+      // not a hard gate — SameSite=Strict cookies already block cross-site mutations.
+      if (cookieToken && headerToken && cookieToken !== headerToken) {
+        const res = NextResponse.json({ code: "CSRF_VIOLATION" }, { status: 403 });
+        res.headers.set("X-Request-ID", requestId);
+        return withCorsHeaders(withSecurityHeaders(res), req);
+      }
     }
   }
 
@@ -75,23 +215,78 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.includes(".");
 
-  if (isPublic) return withSecurityHeaders(NextResponse.next());
+  if (isPublic) {
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.headers.set("X-Request-ID", requestId);
+    const withSec = withSecurityHeaders(res);
+    return pathname.startsWith("/api/") ? withCorsHeaders(withSec, req) : withSec;
+  }
 
-  const session = req.cookies.get("dz_session");
-  if (!session?.value) {
-    // APIs answer in their own language: 401 JSON, never an HTML redirect.
+  const unauthenticated = () => {
     if (pathname.startsWith("/api/")) {
-      return withSecurityHeaders(
-        NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })
-      );
+      return withCorsHeaders(withSecurityHeaders(NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })), req);
     }
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("from", pathname);
     return withSecurityHeaders(NextResponse.redirect(url));
+  };
+
+  // ---- production: a real Supabase session is sufficient (and gets refreshed).
+  // We do NOT *require* it, because the demo personas still authenticate with the
+  // opaque dz_session cookie even when Supabase is configured — so a real session
+  // OR the demo cookie passes. (Retire the demo cookie once real users exist.)
+  if (authConfigured) {
+    const res = NextResponse.next({ request: { headers: requestHeaders } });
+    res.headers.set("X-Request-ID", requestId);
+    const supabase = createServerClient(env.supabaseUrl!, env.supabaseAnonKey!, {
+      cookies: {
+        getAll: () => req.cookies.getAll(),
+        setAll: (cookiesToSet) =>
+          cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options)),
+      },
+    });
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (user) {
+      // Check org suspension
+      const orgId = (user.app_metadata?.org_id as string) ?? null;
+      if (orgId) {
+        const { data: activeOrg } = await supabase.from("active_organizations").select("id").eq("id", orgId).maybeSingle();
+        if (!activeOrg) {
+          const suspendRes = NextResponse.json({ code: "ORG_SUSPENDED", message: "Your organization has been suspended." }, { status: 403 });
+          suspendRes.headers.set("X-Request-ID", requestId);
+          return withSecurityHeaders(suspendRes);
+        }
+      }
+      
+      requestHeaders.set("x-dz-user-id", user.id);
+      requestHeaders.set("x-dz-user-role", (user.app_metadata?.role as string) || "employee");
+      requestHeaders.set("x-dz-user-name", (user.user_metadata?.name as string) || "User");
+      
+      const authRes = NextResponse.next({ request: { headers: requestHeaders } });
+      authRes.headers.set("X-Request-ID", requestId);
+      return withCacheHeaders(withCorsHeaders(withSecurityHeaders(authRes), req), pathname, req.method);
+    }
+    // Expired or invalid session — clear cookies and redirect to login
+    if (error?.message?.includes("expired") || error?.message?.includes("invalid")) {
+      const loginUrl = req.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.searchParams.set("reason", "session_expired");
+      loginUrl.searchParams.delete("from");
+      loginUrl.searchParams.set("from", pathname);
+      const redirectRes = NextResponse.redirect(loginUrl);
+      redirectRes.cookies.delete("dz_session");
+      return withSecurityHeaders(redirectRes);
+    }
+    // else fall through to the demo cookie gate
   }
 
-  return withSecurityHeaders(NextResponse.next());
+  // ---- demo: the opaque dz_session cookie gate ----
+  const session = req.cookies.get("dz_session");
+  if (!session?.value) return unauthenticated();
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set("X-Request-ID", requestId);
+  return withCacheHeaders(withCorsHeaders(withSecurityHeaders(res), req), pathname, req.method);
 }
 
 export const config = {

@@ -14,10 +14,16 @@ import {
   Boxes,
   KanbanSquare,
   LayoutDashboard,
+  Lightbulb,
   LogOut,
+  Newspaper,
+  BrainCircuit,
   ScrollText,
   ShieldAlert,
+  Sparkles,
   Target,
+  TrendingUp,
+  Upload,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,21 +41,22 @@ const NAV: {
     { href: "/", label: "Command Center", icon: LayoutDashboard },
     { href: "/capacity", label: "Capacity", icon: Flame, perm: "view_capacity" },
     { href: "/projects", label: "Projects", icon: KanbanSquare },
-    { href: "/people", label: "People", icon: Users },
   ]},
   { group: "Intelligence", items: [
     { href: "/executive", label: "Executive", icon: Activity, perm: "view_executive" },
-    { href: "/capabilities", label: "Capability Intel", icon: Boxes },
+    { href: "/recommendations", label: "Recommendations", icon: Lightbulb, perm: "view_executive" },
     { href: "/risks", label: "Risk Register", icon: ShieldAlert },
-    { href: "/decisions", label: "Decisions", icon: ScrollText },
+    { href: "/memory", label: "Org Memory", icon: BrainCircuit, perm: "view_capacity" },
     { href: "/goals", label: "Goals · OKRs", icon: Target },
   ]},
   { group: "Review", items: [
     // No perm gate: the page itself scopes by role (employees see only
     // their personal requests — dynamic view, PRD §6).
     { href: "/proposals", label: "Agent Inbox", icon: Inbox },
-    { href: "/graph", label: "Dependency Graph", icon: GitBranch },
     { href: "/audit", label: "Audit Log", icon: FileClock, perm: "view_audit" },
+  ]},
+  { group: "Data", items: [
+    { href: "/import", label: "Import Data", icon: Upload, perm: "view_audit" },
   ]},
 ];
 

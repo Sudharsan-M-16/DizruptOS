@@ -15,13 +15,25 @@
 
 import { QueryClient } from "@tanstack/react-query";
 
+// Exponential backoff with full jitter (AWS pattern): avoids thundering-herd
+// on reconnect. Caps at 30s so the UI never freezes for long.
+function retryDelay(attemptIndex: number): number {
+  const base = Math.min(1000 * 2 ** attemptIndex, 30_000);
+  return base * (0.5 + Math.random() * 0.5);
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000, // 30s — org data changes on human timescales
       gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
-      retry: 1,
+      retry: 3,
+      retryDelay,
+    },
+    mutations: {
+      retry: 2,
+      retryDelay,
     },
   },
 });
@@ -58,6 +70,22 @@ export async function apiGet<T>(path: string): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(body?.code ?? `Request failed (${res.status})`);
+  }
+  const env = await res.json();
+  return env.data as T;
+}
+
+/** Typed mutating call (POST/PATCH) against the v1 envelope. */
+export async function apiSend<T>(path: string, body: unknown, method: "POST" | "PATCH" = "POST"): Promise<T> {
+  const res = await fetch(`/api/v1/${path}`, {
+    method,
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const env = await res.json().catch(() => null);
+    throw new Error(env?.message ?? env?.code ?? `Request failed (${res.status})`);
   }
   const env = await res.json();
   return env.data as T;

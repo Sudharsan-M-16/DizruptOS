@@ -79,12 +79,10 @@ export function CommandPalette() {
                 {[
                   { label: "Capacity Heatmap", href: "/capacity", Icon: Flame },
                   { label: "Projects", href: "/projects", Icon: KanbanSquare },
-                  { label: "People", href: "/people", Icon: Users },
                   { label: "Executive Intelligence", href: "/executive", Icon: Activity },
                   { label: "Agent Inbox", href: "/proposals", Icon: Inbox },
                   { label: "Risk Register", href: "/risks", Icon: ShieldAlert },
-                  { label: "Decision Registry", href: "/decisions", Icon: ScrollText },
-                  { label: "Dependency Graph", href: "/graph", Icon: GitBranch },
+                  { label: "Org Memory", href: "/memory", Icon: ScrollText },
                 ].map((i) => (
                   <Command.Item
                     key={i.href}
@@ -104,7 +102,7 @@ export function CommandPalette() {
                   <Command.Item
                     key={e.id}
                     value={`person ${e.name} ${e.title} ${e.skills.join(" ")}`}
-                    onSelect={() => go(`/people/${e.id}`)}
+                    onSelect={() => go("/capacity")}
                     className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-[13px] text-fg-secondary data-[selected=true]:bg-brand-soft data-[selected=true]:text-fg"
                   >
                     <EmpAvatar initials={e.initials} accent={e.accent} size={20} />
@@ -162,7 +160,7 @@ export function CommandPalette() {
                   <Command.Item
                     key={d.id}
                     value={`decision ${d.title}`}
-                    onSelect={() => go("/decisions")}
+                    onSelect={() => go("/memory")}
                     className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-[13px] text-fg-secondary data-[selected=true]:bg-brand-soft data-[selected=true]:text-fg"
                   >
                     <ScrollText size={14} className="text-brand-secondary" />

@@ -8,7 +8,9 @@ import { motion } from "framer-motion";
 import { GripVertical, Info, Plane } from "lucide-react";
 import { useOps } from "@/lib/store";
 import { useSession } from "@/lib/session";
+import { isQualified } from "@/lib/skills";
 import { departments, employees, projectById, WEEKS } from "@/lib/data";
+import { Sparkles } from "lucide-react";
 import {
   CapacityBar,
   EmpAvatar,
@@ -16,7 +18,12 @@ import {
   PriorityDot,
 } from "@/components/ui/primitives";
 import { NumberTicker } from "@/components/ui/ascension";
+import { Gauge } from "lucide-react";
 import { cn, fmtDate, fmtPct, utilizationTone } from "@/lib/utils";
+import { AnimatePresence } from "framer-motion";
+import { CapacityPersonSidebar } from "@/components/desktop/capacity-person-sidebar";
+
+const UNDERLOADED = 0.6; // below 60% = has room for more work
 
 export default function CapacityPage() {
   const tasks = useOps((s) => s.tasks);
@@ -24,11 +31,27 @@ export default function CapacityPage() {
   const allocated = useOps((s) => s.allocated);
   const requestReallocate = useOps((s) => s.requestReallocate);
   const openTaskDrawer = useOps((s) => s.openTaskDrawer);
+  const lastMove = useOps((s) => s.lastMove);
 
   const canSeeBurnout = useSession((s) => s.can("view_burnout"));
+  const canReallocate = useSession((s) => s.can("reallocate"));
+
+  // "Close the loop" flash — after a reallocation the source row ticks down and
+  // the target row ticks up; we briefly ring both so the change is visible.
+  const [flash, setFlash] = React.useState<{ fromId: string | null; toId: string } | null>(null);
+  const lastMoveAt = lastMove?.at;
+  const lastMoveFrom = lastMove?.fromId;
+  const lastMoveTo = lastMove?.toId;
+  React.useEffect(() => {
+    if (!lastMoveAt) return;
+    setFlash({ fromId: lastMoveFrom ?? null, toId: lastMoveTo ?? "" });
+    const id = setTimeout(() => setFlash(null), 1900);
+    return () => clearTimeout(id);
+  }, [lastMoveAt, lastMoveFrom, lastMoveTo]);
   const [deptFilter, setDeptFilter] = React.useState<string>("all");
   const [dragTaskId, setDragTaskId] = React.useState<string | null>(null);
   const [dropTarget, setDropTarget] = React.useState<string | null>(null);
+  const [selectedEmpId, setSelectedEmpId] = React.useState<string | null>(null);
 
   const visible = employees.filter(
     (e) =>
@@ -44,9 +67,30 @@ export default function CapacityPage() {
   const avgLoad = nowPcts.reduce((s, p) => s + p, 0) / Math.max(1, nowPcts.length);
   const redCount = nowPcts.filter((p) => p >= 1).length;
   const warnCount = nowPcts.filter((p) => p >= 0.8 && p < 1).length;
+  const freeCount = nowPcts.filter((p) => p < UNDERLOADED).length;
+
+  // "No employee should be free without higher-ups knowing." Free people who
+  // also have skills matching unowned work elsewhere — the loudest manager nudge.
+  const unowned = tasks.filter((t) => !t.assigneeId && t.status !== "COMPLETED");
+  const freeWithSkills = visible
+    .filter((e) => utilization(e.id, WEEKS[0]) < UNDERLOADED)
+    .map((e) => ({ emp: e, jobs: unowned.filter((t) => isQualified(e, t)) }))
+    .filter((x) => x.jobs.length > 0)
+    .sort((a, b) => utilization(a.emp.id, WEEKS[0]) - utilization(b.emp.id, WEEKS[0]));
 
   return (
-    <div className="space-y-4">
+    <div className="relative flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#F9731622", border: "1px solid #F9731644" }}>
+          <Gauge size={15} style={{ color: "#F97316" }} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold">Capacity Matrix</div>
+          <div className="text-[11px] text-fg-muted">{visible.length} people · drag tasks to reallocate</div>
+        </div>
+      </div>
+    <div className="flex-1 overflow-y-auto p-5 space-y-4">
       {/* Org-load strip */}
       <div className="panel flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
         <div className="flex items-baseline gap-2">
@@ -71,11 +115,43 @@ export default function CapacityPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-ok" />
             {visible.length - redCount - warnCount} healthy
           </span>
+          <span className="flex items-center gap-1.5 font-medium text-info">
+            <span className="h-1.5 w-1.5 rounded-full bg-info" />
+            {freeCount} free for work
+          </span>
         </div>
         <span className="ml-auto hidden text-xs text-fg-muted md:block">
-          Drag any chip onto a green row — both bars update in &lt;50ms
+          Click a person to see their work and move tasks
         </span>
       </div>
+
+      {/* Free-people nudge — managers only. The brief: free people must be
+          surfaced to higher-ups. Click a name to open them and assign matching work. */}
+      {canReallocate && freeWithSkills.length > 0 && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-info/40 bg-info/[0.07] px-4 py-3">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-info/15 text-info">
+            <Sparkles size={14} />
+          </span>
+          <span className="text-xs font-semibold text-fg">
+            {freeWithSkills.length} {freeWithSkills.length === 1 ? "person has" : "people have"} spare capacity with skills needed elsewhere
+          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {freeWithSkills.slice(0, 4).map(({ emp, jobs }) => (
+              <button
+                key={emp.id}
+                onClick={() => setSelectedEmpId(emp.id)}
+                className="flex items-center gap-1.5 rounded-full border border-info/40 bg-ink-surface px-2 py-0.5 text-2xs font-medium text-fg-secondary transition-colors hover:border-info hover:text-fg"
+                title={`Open ${emp.name} — ${jobs.length} matching ${jobs.length === 1 ? "task" : "tasks"} waiting`}
+              >
+                <EmpAvatar initials={emp.initials} accent={emp.accent} size={16} />
+                {emp.name.split(" ")[0]}
+                <span className="font-mono text-info">{fmtPct(utilization(emp.id, WEEKS[0]))}</span>
+              </button>
+            ))}
+          </div>
+          <span className="ml-auto hidden text-2xs text-fg-muted sm:block">Click a name to allocate →</span>
+        </div>
+      )}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
@@ -103,7 +179,19 @@ export default function CapacityPage() {
         </div>
       </div>
 
-      {/* Matrix — scrolls horizontally below 1080px; density never collapses */}
+      {/* Empty state — a brand-new org with no people yet */}
+      {visible.length === 0 ? (
+        <div className="panel flex flex-col items-center gap-2 py-16 text-center">
+          <Gauge size={28} className="text-fg-faint" />
+          <div className="text-sm font-semibold">No people to show yet</div>
+          <div className="max-w-sm text-xs text-fg-muted">
+            {deptFilter === "all"
+              ? "Invite your team and capacity will fill in here — who's overloaded, who's free, and where to move work."
+              : "No one in this department yet. Pick another department or invite people to it."}
+          </div>
+        </div>
+      ) : (
+      /* Matrix — scrolls horizontally below 1080px; density never collapses */
       <div className="panel overflow-x-auto">
        <div className="min-w-[1080px]">
         {/* Week header */}
@@ -161,19 +249,31 @@ export default function CapacityPage() {
                 isTarget &&
                   (projected !== null && projected >= 1
                     ? "bg-danger-soft/40 ring-1 ring-inset ring-danger/40"
-                    : "bg-ok-soft/30 ring-1 ring-inset ring-ok/40")
+                    : "bg-ok-soft/30 ring-1 ring-inset ring-ok/40"),
+                // close-the-loop flash: source ticks down (amber), target up (green)
+                !isTarget && flash?.fromId === emp.id && "animate-[pulse_0.55s_ease-in-out_3] bg-warn-soft/40 ring-2 ring-inset ring-warn/60",
+                !isTarget && flash?.toId === emp.id && "animate-[pulse_0.55s_ease-in-out_3] bg-ok-soft/40 ring-2 ring-inset ring-ok/60"
               )}
             >
-              {/* Identity column */}
-              <div className="flex items-center gap-2.5 px-4 py-3">
+              {/* Identity column — click to open the person sidebar */}
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelectedEmpId(emp.id)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedEmpId(emp.id); } }}
+                className="flex cursor-pointer items-center gap-2.5 px-4 py-3 transition-colors hover:bg-ink-elevated/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand/50"
+                title="View work & reassign"
+              >
                 <EmpAvatar initials={emp.initials} accent={emp.accent} size={30} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="truncate text-xs font-semibold">{emp.name}</span>
                     {emp.burnoutFlag && canSeeBurnout && (
-                      <Explain title="Burnout signals (manager-private)" signals={emp.burnoutSignals ?? []}>
-                        <button className="h-2 w-2 rounded-full bg-danger shadow-[0_0_6px_#EF4444]" aria-label="Burnout flag" />
-                      </Explain>
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Explain title="Burnout signals (manager-private)" signals={emp.burnoutSignals ?? []}>
+                          <button className="h-2 w-2 rounded-full bg-danger shadow-[0_0_6px_#EF4444]" aria-label="Burnout flag" />
+                        </Explain>
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 text-xs text-fg-muted">
@@ -263,12 +363,21 @@ export default function CapacityPage() {
         })}
        </div>
       </div>
+      )}
 
       <p className="text-xs text-fg-muted">
         Capacity law: utilization = Σ estimated hours due in week ÷ weekly capacity.
         Mutations are atomic increments — drops that project ≥100% require a typed
         override reason and are written to the audit log.
       </p>
+    </div>
+
+      {/* Person sidebar — work, projects, skills + skill-aware reassign/assign */}
+      <AnimatePresence>
+        {selectedEmpId && (
+          <CapacityPersonSidebar employeeId={selectedEmpId} onClose={() => setSelectedEmpId(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

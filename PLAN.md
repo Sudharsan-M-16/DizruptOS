@@ -15,22 +15,26 @@
 | 6 | **Dynamic view architecture** | ✅ | Per-role scoping live: inbox (visibility+subjectId), command center, risks, people columns, projects ordering, nav |
 | 7 | Epic catalogue | 🟡 | Capacity, projects/kanban, people, risks, decisions, goals, audit, graph, proposals shipped; timesheets/PTO/client portal ⬜ |
 | 9 | UI/UX design system | ✅ | Token system, 12px readability floor, neutral-black Linear theme, motion tiers, segmented load meters |
+| 9b | **DizruptOS web-OS shell** | ✅ | Dashboard `/` rebuilt as a macOS-style OS: boot/lock/desktop, window manager (drag/resize/snap/genie/persist), customizable Dock, Menubar + Control/Notification Centers + calendar, Spotlight/Mission Control/Launchpad, **routes-as-windows** (no functionality lost), native apps (Home/Matrix-DnD/Directory/Vault), **OS-layer RBAC**, light/dark + accent + wallpaper. Honest score: frontend/UX **8.5** (`SUPREME_PLATFORM_AUDIT.md`). Remaining: a11y audit + redesign the iframed legacy pages to the OS language. |
 | 10 | Technical architecture | 🟡 | Next.js App Router + edge middleware + Zustand; Railway workers ⬜ |
 | 11 | Concurrency & state | 🟡 | Optimistic mutations + atomic capacity deltas + cross-tab sync (BroadcastChannel); server arbitration ⬜ |
 | 12 | Database schema | 🟡 | Executable SQL in `supabase/` (RLS, insert-only audit); not yet the live store |
-| 13 | API endpoints | 🟡 | Auth + health + 8 versioned `/api/v1` routes (reads + 2 mutation paths with server-side guardrails and audit); full entity CRUD pending Supabase swap |
-| 14 | Security architecture | ✅ | Edge auth, httpOnly session, OWASP headers, single-session law, RBAC matrix + scoping layer + tests |
-| 15 | AI intelligence layer | 🟡 | Agent proposal schema, validation, priority hierarchy, rejection memory, decision-time re-validation, per-role queues — proposals are seeded, not live-generated |
-| 16 | Roadmap/MVP | ✅ | MVP demo complete and verifiable (50 tests, clean build) |
-| 21 | Generic relationship layer | ✅ | Typed edges, BFS reachability, cycle guard, bus-factor — powers graph lenses |
+| 13 | API endpoints | 🟡 | Auth + health + **20+ versioned `/api/v1` routes** including graph traversal, Monte Carlo, SCIM, admin, ingestion connectors (Jira/Linear/GitHub), metrics, copilot (LLM-enhanced). Full entity CRUD pending Supabase swap. |
+| 14 | Security architecture | ✅ | Edge auth, httpOnly session, **OWASP headers + CSP in `vercel.json`**, single-session law, RBAC matrix + 3-layer enforcement + audited denials + idle auto-lock + **SOC2 controls map** |
+| 14b | **Real auth (Supabase)** | ✅ code / ⬜ live | CODE COMPLETE. Live = apply migration + enable hook + real users. |
+| 14c | **Enterprise auth (SSO/SCIM)** | ✅ scaffold | **SCIM 2.0** full Users + Groups CRUD (`/api/v1/scim/`). **SSO SAML** SP-initiated + ACS + OIDC redirect (`/api/auth/sso/`). Remaining: node-saml IdP testing, per-tenant SSO config in DB. |
+| 15 | AI intelligence layer | 🟡 | **Copilot now LLM-enhanced** (Claude claude-sonnet-4-6 with engine-grounded context). Agent proposals seeded not live-generated. |
+| 16 | Roadmap/MVP | ✅ | MVP demo complete and verifiable (174 tests, clean build, CI/CD) |
+| 21 | Generic relationship layer | ✅ | Typed edges, BFS reachability, cycle guard, bus-factor + **recursive CTE traversal + betweenness centrality** (migration 0013) |
+| 22 | Data ingestion | ✅ scaffold | **Jira + Linear + GitHub webhook receivers** (HMAC-verified, metric-instrumented). CSV import existed. |
 | 23 | Causal intelligence | 🟡 | Stored causal signals behind every score; live causal engine ⬜ |
 | 24 | Multi-agent negotiation | 🟡 | Coordinated-compromise cards + priority order; live negotiation loop ⬜ |
 | 25 | CRDT conflict resolution | ⬜ | Last-write + atomic deltas today; CRDT math not implemented |
-| 26 | Scenario simulation engine | 🟡 | Graph lenses ("what breaks if Sarah leaves", bus factor) use the engine's traversal utilities; full what-if runner ⬜ |
-| 27 | Notification intelligence | 🟡 | Urgency classes + rollup UI + dual-sided reallocation notifications; debounce engine ⬜ |
-| 28 | Lifecycle state machines | 🟡 | Task/risk/decision/proposal statuses enforced in UI; server-side transitions ⬜ |
+| 26 | Scenario simulation engine | ✅ | Graph lenses + departure/node-failure/staffing + **Monte Carlo** (4 scenario types, p5–p95 percentiles, risk flags) |
+| 27 | Notification intelligence | 🟡 | Urgency classes + rollup UI + dual-sided reallocation notifications; **Supabase Realtime channels** (replacing BroadcastChannel); debounce engine ⬜ |
+| 28 | Lifecycle state machines | 🟡 | Task/risk/decision/proposal statuses enforced in UI + data layer; server-side transitions ⬜ |
 | 29 | Failure mode catalog | 🟡 | Stale-proposal expiry, guardrail overrides, cycle refusal implemented |
-| 30 | Build readiness | ✅ | CI checks: typecheck, lint, 50 tests, production build |
+| 30 | Build readiness | ✅ | **Full CI/CD**: typecheck/lint/174 tests/build/E2E/security-audit/migration-lint/Vercel deploy/smoke test. **Docker + Prometheus + Grafana stack.** |
 
 ## What shipped in recent sprints
 
@@ -146,6 +150,32 @@ Per entity, app stays green throughout:
 3. Optimistic mutations + `invalidateDomain` on the reassign/verdict paths.
 4. Remove `lib/data.ts` seed dependence once every route reads live.
 5. Reconcile/justify demo fields as real columns (migration 0003) or drop them.
+
+## June 16 sprint — brand login, graph intelligence, accessibility, notifications
+
+- **Login page rebranded** to match the DizruptOS brand identity: deep `#040C12` navy
+  background, twin luminous cyan/teal glowing orbs (canvas-animated with real-time dot
+  illumination), brand green `#00ED82` CTA, brand teal `#00D9D5` active states, warp
+  transition on sign-in. Complete visual overhaul of `app/login/page.tsx`.
+- **Chat → notification center fix**: messages sent while another persona was active
+  now surface immediately on persona switch. `page.tsx` `useEffect` on `[persona.id]`
+  reads `useChat.getState()` directly to find unread messages and fires `addNotification`
+  — no more missed messages when switching users.
+- **Betweenness centrality + Influence Map lens** added to graph page: `approximateBetweenness()`
+  (Brandes BFS + backpropagation), TOP badges on high-centrality nodes, 4-chip stats row,
+  ranked breakdown panel alongside blast-radius and bus-factor lenses.
+- **OrgHealthSparkline** wired into Home app — 7-day trend sparkline with delta arrow
+  from `/api/v1/intelligence/health-history`.
+- **Spark primitives** (`SparkArea`, `SparkBars`, `CapacityRing`) in `components/ui/spark.tsx`
+  — reusable SVG components consumed by people/[id] and projects/[id] pages.
+- **Accessibility improvements**: `aria-live="polite"` + `aria-atomic="true"` on the
+  notification bell badge (screen reader announcements), `role="dialog" aria-modal="true"`
+  on Notification Center panel. Focus traps already wired to Spotlight/Mission Control/Launchpad.
+- **Tiered rate limiting** (10 req/min for intelligence, 60 req/min general) with
+  `Retry-After` headers; `Cache-Control: private, max-age=60, stale-while-revalidate=30`
+  on intelligence GET routes.
+- **Enterprise APIs**: SCIM token rotation, enterprise data export, nav audit logging,
+  feature flags (10 flags, O(1), env-gated).
 
 ## Remaining — priority order for "enterprise-worthy"
 

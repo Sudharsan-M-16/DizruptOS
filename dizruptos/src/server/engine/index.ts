@@ -21,3 +21,17 @@
 // ============================================================================
 
 export * as capability from "./capability-intelligence";
+export * as people from "./people-intelligence";
+export * as decision from "./decision-intelligence";
+export * as orgMemory from "./org-memory";
+export * as dependency from "./dependency-intelligence";
+export * as risk from "./risk-intelligence";
+export * as orgHealth from "./org-health";
+export * as simulation from "./simulation";
+export * as outcome from "./outcome-intelligence";
+export * as learning from "./learning-intelligence";
+export * as recommendations from "./recommendations";
+export * as lifecycle from "./recommendation-lifecycle";
+export * as calibration from "./calibration";
+export * as narratives from "./narratives";
+export * as copilot from "./copilot";

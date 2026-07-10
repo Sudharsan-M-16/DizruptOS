@@ -36,7 +36,19 @@ export default function AuditPage() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#64748B22", border: "1px solid #64748B44" }}>
+          <FileClock size={15} style={{ color: "#64748B" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">Audit Log</div>
+          <div className="text-[11px] text-fg-muted">Insert-only · tamper-proof · {rows.length} events</div>
+        </div>
+      </div>
+      <div aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto p-5">
+      <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative w-72">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" />
@@ -119,6 +131,8 @@ export default function AuditPage() {
             })}
           </tbody>
         </table>
+      </div>
+      </div>
       </div>
     </div>
   );

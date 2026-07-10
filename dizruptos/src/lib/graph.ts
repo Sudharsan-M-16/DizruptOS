@@ -24,7 +24,9 @@ export type EntityType =
   | "goal"
   | "customer"
   | "service"
-  | "revenue_stream";
+  | "revenue_stream"
+  | "assumption"
+  | "policy";
 
 /** Canonical relationship type registry (PRD §21.3). Closed set — additions
  *  require a schema migration, never ad-hoc strings. */

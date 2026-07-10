@@ -1,5 +1,10 @@
-// Seed organizational graph — a believable 18-person product company, June 2026.
-// All capacity math follows PRD §3.2: utilization = allocated / capacity_hours_per_week.
+// Seed organizational graph — a small software product studio, June 2026.
+// One connected story: the AI Support Chatbot is overloaded and on fire, the
+// Sales Analytics Dashboard just started and has no team, and the people with
+// free time have exactly the skills the dashboard needs. Every feature
+// (capacity, recommendations, proposals, notifications) tells this one story.
+//
+// Capacity math (PRD §3.2): utilization = allocated hours ÷ weekly capacity.
 
 import type {
   AuditEvent,
@@ -16,225 +21,245 @@ import type {
   Task,
 } from "./types";
 
-export const TODAY = "2026-06-10";
-export const WEEKS = [
-  "2026-06-08",
-  "2026-06-15",
-  "2026-06-22",
-  "2026-06-29",
-  "2026-07-06",
-  "2026-07-13",
-];
+// Derive today's date dynamically so overdue/due-today filters stay accurate.
+function toISO(d: Date) { return d.toISOString().slice(0, 10); }
+function thisMonday(): Date {
+  const d = new Date();
+  const day = d.getDay();
+  d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+export const TODAY = toISO(new Date());
+export const WEEKS: string[] = (() => {
+  const start = thisMonday();
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i * 7);
+    return toISO(d);
+  });
+})();
+
+// A short date a few days out / overdue, relative to today — keeps the demo fresh.
+function days(n: number) { return toISO(new Date(Date.now() + n * 86_400_000)); }
 
 export const departments: Department[] = [
   { id: "d-eng", name: "Engineering", headId: "u-priya" },
   { id: "d-design", name: "Design", headId: "u-lena" },
   { id: "d-data", name: "Data & AI", headId: "u-tomas" },
-  { id: "d-ops", name: "Client Operations", headId: "u-marcus" },
+  { id: "d-ops", name: "Product", headId: "u-marcus" },
 ];
 
 export const employees: Employee[] = [
+  // ── Leadership ────────────────────────────────────────────────────────────
   {
-    id: "u-asha", name: "Asha Venkat", initials: "AV", role: "project_manager",
-    title: "Resource Manager", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Capacity planning", "Agile", "Stakeholders"],
-    expertise: [{ domain: "Delivery orchestration", depth: 0.9 }],
-    timezone: "IST", location: "Chennai", joinedAt: "2023-02-13", ptoDays: [], accent: "#00ED82",
+    id: "u-noor", name: "Noor Al-Rashid", initials: "NA", role: "executive",
+    title: "CEO", departmentId: "d-ops", capacityHoursPerWeek: 40,
+    skills: ["Strategy", "Roadmap"],
+    expertise: [{ domain: "Company strategy", depth: 0.92 }],
+    timezone: "GST", location: "Abu Dhabi", joinedAt: "2021-04-05", ptoDays: [], accent: "#C084FC",
   },
   {
     id: "u-priya", name: "Priya Sharma", initials: "PS", role: "dept_head",
-    title: "VP Engineering", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Architecture", "Org design"],
-    expertise: [{ domain: "Platform architecture", depth: 0.95 }],
+    title: "Head of Engineering", departmentId: "d-eng", capacityHoursPerWeek: 40,
+    skills: ["Architecture", "Leadership", "Backend"],
+    expertise: [{ domain: "Engineering leadership", depth: 0.95 }],
     timezone: "IST", location: "Bengaluru", joinedAt: "2021-08-02", ptoDays: [], accent: "#2BD9FF",
   },
   {
+    id: "u-marcus", name: "Marcus Bell", initials: "MB", role: "dept_head",
+    title: "Head of Product", departmentId: "d-ops", capacityHoursPerWeek: 40,
+    skills: ["Product", "Strategy", "Planning"],
+    expertise: [{ domain: "Product management", depth: 0.85 }],
+    timezone: "EST", location: "New York", joinedAt: "2021-06-21", ptoDays: [], accent: "#F87171",
+  },
+  {
+    id: "u-lena", name: "Lena Novak", initials: "LN", role: "dept_head",
+    title: "Head of Design", departmentId: "d-design", capacityHoursPerWeek: 40,
+    skills: ["UI Design", "Leadership"],
+    expertise: [{ domain: "Product design", depth: 0.88 }],
+    timezone: "CET", location: "Prague", joinedAt: "2021-10-12", ptoDays: [], accent: "#F472B6",
+  },
+  {
+    id: "u-tomas", name: "Tomás Eriksen", initials: "TE", role: "dept_head",
+    title: "Head of Data & AI", departmentId: "d-data", capacityHoursPerWeek: 40,
+    skills: ["AI/ML", "Leadership", "Data Pipelines"],
+    expertise: [{ domain: "Data & AI leadership", depth: 0.9 }],
+    timezone: "CET", location: "Copenhagen", joinedAt: "2022-01-17", ptoDays: [], accent: "#60A5FA",
+  },
+  {
+    id: "u-asha", name: "Asha Venkat", initials: "AV", role: "project_manager",
+    title: "Project Manager", departmentId: "d-eng", capacityHoursPerWeek: 40,
+    skills: ["Planning", "Coordination"],
+    expertise: [{ domain: "Planning & staffing", depth: 0.9 }],
+    timezone: "IST", location: "Chennai", joinedAt: "2023-02-13", ptoDays: [], accent: "#00ED82",
+  },
+
+  // ── Engineering ───────────────────────────────────────────────────────────
+  {
     id: "u-sarah", name: "Sarah Okafor", initials: "SO", role: "team_lead",
-    title: "Payments Lead", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Go", "Payments", "PCI-DSS", "Postgres"],
-    expertise: [{ domain: "Payments architecture", depth: 0.93 }, { domain: "PCI compliance", depth: 0.78 }],
+    title: "Backend Team Lead", departmentId: "d-eng", capacityHoursPerWeek: 40,
+    skills: ["Backend", "APIs", "Databases"],
+    expertise: [{ domain: "Backend & APIs", depth: 0.93 }],
     timezone: "GMT", location: "London", joinedAt: "2022-04-11", ptoDays: [],
     burnoutFlag: true,
     burnoutSignals: [
-      "3 consecutive weeks logged > 50h",
-      "No PTO used in 112 days",
-      "Utilization ≥ 100% for 9 consecutive days",
+      "Worked over 50 hours for 3 weeks straight",
+      "Hasn't taken time off in 112 days",
+      "Over 100% capacity for 9 days straight",
     ],
     flightRisk: 0.64, accent: "#EF4444",
   },
   {
     id: "u-ahmed", name: "Ahmed Hassan", initials: "AH", role: "employee",
     title: "Backend Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Go", "Kubernetes", "Postgres", "Payments"],
-    expertise: [{ domain: "Billing pipelines", depth: 0.61 }],
+    skills: ["Backend", "APIs", "Databases"],
+    expertise: [{ domain: "Backend services", depth: 0.7 }],
     timezone: "CET", location: "Berlin", joinedAt: "2024-01-08", ptoDays: [], accent: "#10B981",
-  },
-  {
-    id: "u-diego", name: "Diego Ruiz", initials: "DR", role: "employee",
-    title: "Frontend Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["React", "TypeScript", "Design systems"],
-    expertise: [{ domain: "Component architecture", depth: 0.72 }],
-    timezone: "CST", location: "Mexico City", joinedAt: "2023-09-18", ptoDays: ["2026-06-18", "2026-06-19"], accent: "#38BDF8",
   },
   {
     id: "u-mei", name: "Mei Lin", initials: "ML", role: "employee",
     title: "Senior Backend Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Rust", "Go", "Event streaming", "Fintech"],
-    expertise: [{ domain: "Ledger systems", depth: 0.84 }],
+    skills: ["Backend", "APIs", "Databases"],
+    expertise: [{ domain: "Backend systems", depth: 0.84 }],
     timezone: "SGT", location: "Singapore", joinedAt: "2022-11-01", ptoDays: [], accent: "#F59E0B",
+  },
+  {
+    id: "u-diego", name: "Diego Ruiz", initials: "DR", role: "employee",
+    title: "Frontend Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
+    skills: ["Frontend", "React", "UI"],
+    expertise: [{ domain: "Frontend / React", depth: 0.78 }],
+    timezone: "CST", location: "Mexico City", joinedAt: "2023-09-18", ptoDays: [], accent: "#38BDF8",
   },
   {
     id: "u-jonas", name: "Jonas Weber", initials: "JW", role: "employee",
     title: "QA Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Playwright", "Load testing", "CI"],
-    expertise: [{ domain: "Release verification", depth: 0.66 }],
+    skills: ["Testing", "QA"],
+    expertise: [{ domain: "Testing & QA", depth: 0.66 }],
     timezone: "CET", location: "Munich", joinedAt: "2023-05-22", ptoDays: [],
     burnoutFlag: false, flightRisk: 0.31, accent: "#A78BFA",
   },
   {
     id: "u-fatima", name: "Fatima Zahra", initials: "FZ", role: "employee",
-    title: "Platform Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["Terraform", "AWS", "Kubernetes", "Security"],
-    expertise: [{ domain: "Infrastructure", depth: 0.81 }],
+    title: "DevOps Engineer", departmentId: "d-eng", capacityHoursPerWeek: 40,
+    skills: ["DevOps", "Cloud", "CI/CD"],
+    expertise: [{ domain: "Cloud & deployment", depth: 0.81 }],
     timezone: "GST", location: "Dubai", joinedAt: "2022-07-04", ptoDays: ["2026-07-06", "2026-07-07", "2026-07-08"], accent: "#34D399",
   },
   {
-    id: "u-lena", name: "Lena Novak", initials: "LN", role: "dept_head",
-    title: "Head of Design", departmentId: "d-design", capacityHoursPerWeek: 40,
-    skills: ["Design systems", "Research"],
-    expertise: [{ domain: "Enterprise UX", depth: 0.88 }],
-    timezone: "CET", location: "Prague", joinedAt: "2021-10-12", ptoDays: [], accent: "#F472B6",
+    id: "u-elias", name: "Elias Brandt", initials: "EB", role: "admin",
+    title: "IT Admin", departmentId: "d-eng", capacityHoursPerWeek: 40,
+    skills: ["IT", "Security", "Access"],
+    expertise: [{ domain: "IT & security", depth: 0.7 }],
+    timezone: "CET", location: "Oslo", joinedAt: "2022-09-19", ptoDays: [], accent: "#94A3B8",
   },
+
+  // ── Design ────────────────────────────────────────────────────────────────
   {
     id: "u-kofi", name: "Kofi Mensah", initials: "KM", role: "employee",
     title: "Product Designer", departmentId: "d-design", capacityHoursPerWeek: 40,
-    skills: ["Figma", "Prototyping", "Data viz"],
-    expertise: [{ domain: "Dashboard design", depth: 0.69 }],
+    skills: ["UI Design", "Figma"],
+    expertise: [{ domain: "UI design", depth: 0.74 }],
     timezone: "GMT", location: "Accra", joinedAt: "2023-12-04", ptoDays: [], accent: "#FB923C",
   },
   {
     id: "u-ines", name: "Inés Castillo", initials: "IC", role: "employee",
-    title: "UX Researcher", departmentId: "d-design", capacityHoursPerWeek: 32,
-    skills: ["Interviews", "Usability", "Synthesis"],
-    expertise: [{ domain: "Field research", depth: 0.74 }],
+    title: "UX Designer", departmentId: "d-design", capacityHoursPerWeek: 32,
+    skills: ["UX Research", "UI Design"],
+    expertise: [{ domain: "UX research", depth: 0.74 }],
     timezone: "CET", location: "Madrid", joinedAt: "2024-03-11", ptoDays: [], accent: "#E879F9",
   },
-  {
-    id: "u-tomas", name: "Tomás Eriksen", initials: "TE", role: "dept_head",
-    title: "Head of Data & AI", departmentId: "d-data", capacityHoursPerWeek: 40,
-    skills: ["ML systems", "Forecasting"],
-    expertise: [{ domain: "Predictive modelling", depth: 0.9 }],
-    timezone: "CET", location: "Copenhagen", joinedAt: "2022-01-17", ptoDays: [], accent: "#60A5FA",
-  },
+
+  // ── Data & AI ─────────────────────────────────────────────────────────────
   {
     id: "u-zara", name: "Zara Iqbal", initials: "ZI", role: "employee",
-    title: "ML Engineer", departmentId: "d-data", capacityHoursPerWeek: 40,
-    skills: ["Python", "LLM ops", "Vector search"],
-    expertise: [{ domain: "Retrieval systems", depth: 0.77 }],
+    title: "AI / ML Engineer", departmentId: "d-data", capacityHoursPerWeek: 40,
+    skills: ["AI/ML", "Python"],
+    expertise: [{ domain: "AI models", depth: 0.82 }],
     timezone: "PKT", location: "Lahore", joinedAt: "2023-06-26", ptoDays: [], accent: "#2DD4BF",
   },
   {
     id: "u-ray", name: "Ray Donnelly", initials: "RD", role: "employee",
-    title: "Analytics Engineer", departmentId: "d-data", capacityHoursPerWeek: 40,
-    skills: ["dbt", "SQL", "Metrics layer"],
-    expertise: [{ domain: "Metrics governance", depth: 0.58 }],
+    title: "Data Engineer", departmentId: "d-data", capacityHoursPerWeek: 40,
+    skills: ["Data Pipelines", "SQL"],
+    expertise: [{ domain: "Data pipelines", depth: 0.62 }],
     timezone: "EST", location: "Toronto", joinedAt: "2024-05-06", ptoDays: [], accent: "#FACC15",
   },
-  {
-    id: "u-marcus", name: "Marcus Bell", initials: "MB", role: "dept_head",
-    title: "Director, Client Ops", departmentId: "d-ops", capacityHoursPerWeek: 40,
-    skills: ["Accounts", "Escalation", "SLAs"],
-    expertise: [{ domain: "Enterprise accounts", depth: 0.85 }],
-    timezone: "EST", location: "New York", joinedAt: "2021-06-21", ptoDays: [], accent: "#F87171",
-  },
+
+  // ── Product ───────────────────────────────────────────────────────────────
   {
     id: "u-yuki", name: "Yuki Tanaka", initials: "YT", role: "employee",
-    title: "Delivery Coordinator", departmentId: "d-ops", capacityHoursPerWeek: 40,
-    skills: ["Scheduling", "Client comms"],
+    title: "Product Coordinator", departmentId: "d-ops", capacityHoursPerWeek: 40,
+    skills: ["Coordination", "QA"],
     expertise: [{ domain: "Launch coordination", depth: 0.62 }],
     timezone: "JST", location: "Tokyo", joinedAt: "2023-03-13", ptoDays: [], accent: "#4ADE80",
-  },
-  {
-    id: "u-noor", name: "Noor Al-Rashid", initials: "NA", role: "executive",
-    title: "Chief Operating Officer", departmentId: "d-ops", capacityHoursPerWeek: 40,
-    skills: ["Strategy", "Portfolio"],
-    expertise: [{ domain: "Operating cadence", depth: 0.92 }],
-    timezone: "GST", location: "Abu Dhabi", joinedAt: "2021-04-05", ptoDays: [], accent: "#C084FC",
-  },
-  {
-    id: "u-elias", name: "Elias Brandt", initials: "EB", role: "admin",
-    title: "Systems Administrator", departmentId: "d-eng", capacityHoursPerWeek: 40,
-    skills: ["IAM", "Audit", "Provisioning"],
-    expertise: [{ domain: "Access governance", depth: 0.7 }],
-    timezone: "CET", location: "Oslo", joinedAt: "2022-09-19", ptoDays: [], accent: "#94A3B8",
   },
 ];
 
 export const projects: Project[] = [
   {
-    id: "p-atlas", name: "Atlas Payments Migration", code: "ATL",
-    description: "Migrate legacy billing onto the new double-entry ledger with zero-downtime cutover for enterprise accounts.",
+    id: "p-atlas", name: "AI Support Chatbot", code: "CHAT",
+    description: "Build an AI chatbot that answers customer support questions automatically, so the support team only handles the hard ones.",
     departmentId: "d-eng", ownerId: "u-sarah", status: "ACTIVE", health: "CRITICAL",
     healthReasons: [
-      "7 tasks overdue by > 5 days (95% · rule)",
-      "QA stage at 112% utilization — review queue blocked (92% · rule)",
-      "Velocity 38% below 3-sprint average (88% · statistical)",
-      "Vendor settlement-file delivery 8 days late (78% · observed)",
+      "3 tasks are overdue",
+      "The team is overloaded — Sarah and Zara are both over 100% this week",
+      "Work is going slower than planned (38% below the usual pace)",
     ],
     budgetHours: 1200, consumedHours: 998, budgetMicro: 180_000_000_000, consumedMicro: 161_400_000_000,
-    startDate: "2026-02-02", targetDate: "2026-07-24", customer: "Acme Corp", goalId: "g-revenue",
+    startDate: "2026-02-02", targetDate: "2026-08-24", customer: "Acme Support", goalId: "g-revenue",
     velocityTrend: [34, 38, 36, 29, 24, 21],
   },
   {
-    id: "p-helio", name: "Helio Client Portal", code: "HEL",
-    description: "Sandboxed external portal: milestone timeline, deliverable approvals, client-isolated auth tier.",
-    departmentId: "d-eng", ownerId: "u-asha", status: "ACTIVE", health: "AT_RISK",
-    healthReasons: [
-      "Design handoff slipped 4 days — downstream FE idle risk (90% · rule)",
-      "2 of 9 milestone tasks blocked on auth review (86% · rule)",
-    ],
+    id: "p-helio", name: "Fitness Mobile App", code: "FIT",
+    description: "Build a mobile app where people can log workouts, track progress, and see their stats over time.",
+    departmentId: "d-eng", ownerId: "u-asha", status: "ACTIVE", health: "ON_TRACK",
+    healthReasons: ["On schedule — all screens and the workout API are on track"],
     budgetHours: 640, consumedHours: 312, budgetMicro: 96_000_000_000, consumedMicro: 47_500_000_000,
-    startDate: "2026-04-06", targetDate: "2026-08-28", customer: "TechCo", goalId: "g-expansion",
+    startDate: "2026-04-06", targetDate: "2026-09-28", goalId: "g-expansion",
     velocityTrend: [18, 22, 25, 24, 26, 23],
   },
   {
-    id: "p-pulse", name: "Pulse Intelligence Engine", code: "PLS",
-    description: "Hybrid semantic search and causal-signal pipeline powering explanatory dashboards.",
-    departmentId: "d-data", ownerId: "u-tomas", status: "ACTIVE", health: "ON_TRACK",
-    healthReasons: ["All milestones green · velocity within 6% of plan (97% · rule)"],
-    budgetHours: 880, consumedHours: 414, budgetMicro: 132_000_000_000, consumedMicro: 60_900_000_000,
-    startDate: "2026-03-16", targetDate: "2026-09-11", goalId: "g-ai",
-    velocityTrend: [20, 24, 26, 28, 27, 29],
+    id: "p-pulse", name: "Sales Analytics Dashboard", code: "DASH",
+    description: "Build a dashboard that shows the sales team their numbers and trends in real time, in plain charts.",
+    departmentId: "d-data", ownerId: "u-tomas", status: "ACTIVE", health: "AT_RISK",
+    healthReasons: [
+      "Just started and has almost no team yet",
+      "Several tasks have no one assigned — needs a frontend, a backend, a data engineer, and a designer",
+    ],
+    budgetHours: 880, consumedHours: 84, budgetMicro: 132_000_000_000, consumedMicro: 12_600_000_000,
+    startDate: "2026-06-08", targetDate: "2026-09-11", goalId: "g-ai",
+    velocityTrend: [0, 0, 2, 4, 6, 8],
   },
   {
-    id: "p-nimbus", name: "Nimbus Infra Hardening", code: "NMB",
-    description: "SOC 2 Type II controls: RLS coverage, vault rotation, single-session enforcement, audit immutability.",
+    id: "p-nimbus", name: "Cloud & Deployment Setup", code: "CLOUD",
+    description: "Set up the servers, automatic deployments, and monitoring so the apps run reliably and ship safely.",
     departmentId: "d-eng", ownerId: "u-fatima", status: "ACTIVE", health: "DELAYED",
     healthReasons: [
-      "Pen-test vendor start date moved +2 weeks (93% · observed)",
-      "3 compliance tasks overdue (91% · rule)",
+      "The security review is blocked — waiting on the outside vendor",
+      "2 setup tasks are behind schedule",
     ],
     budgetHours: 520, consumedHours: 305, budgetMicro: 78_000_000_000, consumedMicro: 46_800_000_000,
     startDate: "2026-01-12", targetDate: "2026-08-07", goalId: "g-trust",
     velocityTrend: [14, 16, 13, 12, 15, 13],
   },
   {
-    id: "p-orbit", name: "Orbit Design System v2", code: "ORB",
-    description: "Token-driven dark design system: dense tables, side panels, motion language, chart kit.",
+    id: "p-orbit", name: "App Design System", code: "DESIGN",
+    description: "Build a set of reusable buttons, forms, and tables so every app looks the same and gets built faster.",
     departmentId: "d-design", ownerId: "u-lena", status: "ACTIVE", health: "ON_TRACK",
-    healthReasons: ["Component coverage 74% vs 70% plan (96% · rule)"],
+    healthReasons: ["On track — most core components are built and in review"],
     budgetHours: 400, consumedHours: 238, budgetMicro: 56_000_000_000, consumedMicro: 33_000_000_000,
     startDate: "2026-02-23", targetDate: "2026-07-31", goalId: "g-expansion",
     velocityTrend: [12, 13, 15, 14, 16, 16],
   },
   {
-    id: "p-quartz", name: "Quartz Onboarding Revamp", code: "QRZ",
-    description: "Sub-2-hour org onboarding: guided setup, role templates, zero-touch provisioning.",
+    id: "p-quartz", name: "Online Store", code: "SHOP",
+    description: "Build an online store where customers can browse products, add them to a cart, and pay.",
     departmentId: "d-ops", ownerId: "u-marcus", status: "PLANNING", health: "ON_TRACK",
-    healthReasons: ["Kickoff scheduled · staffing confirmed (99% · rule)"],
-    budgetHours: 360, consumedHours: 22, budgetMicro: 54_000_000_000, consumedMicro: 3_100_000_000,
-    startDate: "2026-06-22", targetDate: "2026-10-16", customer: "Meridian Group", goalId: "g-expansion",
-    velocityTrend: [0, 0, 0, 0, 2, 4],
+    healthReasons: ["Kickoff scheduled — team being lined up"],
+    budgetHours: 360, consumedHours: 18, budgetMicro: 54_000_000_000, consumedMicro: 2_700_000_000,
+    startDate: "2026-06-22", targetDate: "2026-10-16", customer: "Meridian Retail", goalId: "g-expansion",
+    velocityTrend: [0, 0, 0, 0, 1, 3],
   },
 ];
 
@@ -251,55 +276,96 @@ const t = (
 });
 
 export const tasks: Task[] = [
-  // Atlas (critical) — Sarah overloaded
-  t({ title: "Ledger cutover runbook — final review", projectId: "p-atlas", assigneeId: "u-sarah", status: "IN_PROGRESS", priority: "URGENT", estimatedHours: 14, loggedHours: 9, dueDate: "2026-06-12", weekStart: WEEKS[0], labels: ["ledger", "cutover"], subtasks: { done: 5, total: 8 } }),
-  t({ title: "Settlement file ingestion — vendor format v3", projectId: "p-atlas", assigneeId: "u-sarah", status: "BLOCKED", priority: "URGENT", estimatedHours: 12, loggedHours: 4, dueDate: "2026-06-11", weekStart: WEEKS[0], labels: ["vendor"], dependsOn: ["t-4"] }),
-  t({ title: "Reconciliation engine — penny-drift fix", projectId: "p-atlas", assigneeId: "u-sarah", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 10, loggedHours: 6, dueDate: "2026-06-13", weekStart: WEEKS[0], labels: ["ledger"] }),
-  t({ title: "Vendor settlement spec sign-off", projectId: "p-atlas", assigneeId: "u-marcus", status: "BLOCKED", priority: "URGENT", estimatedHours: 4, loggedHours: 2, dueDate: "2026-06-09", weekStart: WEEKS[0], labels: ["vendor", "external"] }),
-  t({ title: "Idempotent retry layer for payment webhooks", projectId: "p-atlas", assigneeId: "u-ahmed", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 12, loggedHours: 5, dueDate: "2026-06-16", weekStart: WEEKS[0], labels: ["webhooks"] }),
-  t({ title: "Double-entry invariant property tests", projectId: "p-atlas", assigneeId: "u-mei", status: "REVIEW", priority: "HIGH", estimatedHours: 8, loggedHours: 8, dueDate: "2026-06-12", weekStart: WEEKS[0], labels: ["ledger", "testing"] }),
-  t({ title: "Load test: 5k TPS cutover window", projectId: "p-atlas", assigneeId: "u-jonas", status: "TO_DO", priority: "HIGH", estimatedHours: 10, dueDate: "2026-06-19", weekStart: WEEKS[1], labels: ["testing"], dependsOn: ["t-1"] }),
-  t({ title: "Rollback drill — staging full rehearsal", projectId: "p-atlas", assigneeId: "u-jonas", status: "TO_DO", priority: "URGENT", estimatedHours: 8, dueDate: "2026-06-18", weekStart: WEEKS[1], dependsOn: ["t-1", "t-6"] }),
-  t({ title: "Enterprise account migration batching", projectId: "p-atlas", assigneeId: "u-mei", status: "TO_DO", priority: "MEDIUM", estimatedHours: 12, dueDate: "2026-06-24", weekStart: WEEKS[2], labels: ["ledger"] }),
-  t({ title: "PCI evidence pack refresh", projectId: "p-atlas", assigneeId: "u-sarah", status: "TO_DO", priority: "MEDIUM", estimatedHours: 9, dueDate: "2026-06-17", weekStart: WEEKS[1], labels: ["compliance"] }),
-  t({ title: "Acme Corp cutover comms plan", projectId: "p-atlas", assigneeId: "u-yuki", status: "IN_PROGRESS", priority: "MEDIUM", estimatedHours: 6, loggedHours: 2, dueDate: "2026-06-15", weekStart: WEEKS[0], labels: ["client"] }),
-  t({ title: "Ledger read-replica failover test", projectId: "p-atlas", status: "BACKLOG", priority: "MEDIUM", estimatedHours: 8, dueDate: "2026-07-01", weekStart: WEEKS[3] }),
+  // ── AI Support Chatbot (CHAT) — overloaded, on fire ───────────────────────
+  // t-1
+  t({ title: "Build the chat window UI", projectId: "p-atlas", assigneeId: "u-diego", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 12, loggedHours: 7, dueDate: days(2), weekStart: WEEKS[0], labels: ["frontend"], subtasks: { done: 4, total: 7 } }),
+  // t-2
+  t({ title: "Build the message API", projectId: "p-atlas", assigneeId: "u-sarah", status: "IN_PROGRESS", priority: "URGENT", estimatedHours: 14, loggedHours: 9, dueDate: days(-1), weekStart: WEEKS[0], labels: ["backend"] }),
+  // t-3 — the relief task: backend work sitting on an overloaded lead, perfect for Ahmed
+  t({ title: "Set up the chatbot database", projectId: "p-atlas", assigneeId: "u-sarah", status: "TO_DO", priority: "HIGH", estimatedHours: 9, dueDate: days(4), weekStart: WEEKS[0], labels: ["backend", "database"] }),
+  // t-4 — blocked: the model can't finish training until the database (t-3) is ready
+  t({ title: "Train the AI reply model", projectId: "p-atlas", assigneeId: "u-zara", status: "BLOCKED", priority: "URGENT", estimatedHours: 16, loggedHours: 10, dueDate: days(1), weekStart: WEEKS[0], labels: ["ai"], dependsOn: ["t-3"] }),
+  // t-5
+  t({ title: "Connect the chatbot to live chat", projectId: "p-atlas", assigneeId: "u-ahmed", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 10, loggedHours: 4, dueDate: days(5), weekStart: WEEKS[0], labels: ["backend"] }),
+  // t-6
+  t({ title: "Add typing indicators and read receipts", projectId: "p-atlas", assigneeId: "u-diego", status: "TO_DO", priority: "MEDIUM", estimatedHours: 8, dueDate: days(8), weekStart: WEEKS[1], labels: ["frontend"], dependsOn: ["t-1"] }),
+  // t-7
+  t({ title: "Test the chatbot's answers for accuracy", projectId: "p-atlas", assigneeId: "u-jonas", status: "TO_DO", priority: "HIGH", estimatedHours: 10, dueDate: days(6), weekStart: WEEKS[0], labels: ["testing"], dependsOn: ["t-4"] }),
+  // t-8
+  t({ title: "Handle messages the AI isn't sure about", projectId: "p-atlas", assigneeId: "u-zara", status: "TO_DO", priority: "HIGH", estimatedHours: 12, dueDate: days(9), weekStart: WEEKS[1], labels: ["ai"] }),
+  // t-9
+  t({ title: "Write the launch checklist", projectId: "p-atlas", assigneeId: "u-sarah", status: "TO_DO", priority: "MEDIUM", estimatedHours: 6, dueDate: days(7), weekStart: WEEKS[1], labels: ["launch"] }),
 
-  // Helio
-  t({ title: "Client auth tier — token-scoped RLS", projectId: "p-helio", assigneeId: "u-ahmed", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 10, loggedHours: 4, dueDate: "2026-06-17", weekStart: WEEKS[1], labels: ["auth"] }),
-  t({ title: "Milestone timeline component", projectId: "p-helio", assigneeId: "u-diego", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 12, loggedHours: 7, dueDate: "2026-06-15", weekStart: WEEKS[0], labels: ["frontend"] }),
-  t({ title: "Deliverable approval flow", projectId: "p-helio", assigneeId: "u-diego", status: "TO_DO", priority: "MEDIUM", estimatedHours: 10, dueDate: "2026-06-23", weekStart: WEEKS[2], dependsOn: ["t-14"] }),
-  t({ title: "Portal empty-state & status explanations", projectId: "p-helio", assigneeId: "u-kofi", status: "REVIEW", priority: "MEDIUM", estimatedHours: 6, loggedHours: 6, dueDate: "2026-06-12", weekStart: WEEKS[0], labels: ["design"] }),
-  t({ title: "Client usability study — 6 sessions", projectId: "p-helio", assigneeId: "u-ines", status: "IN_PROGRESS", priority: "MEDIUM", estimatedHours: 14, loggedHours: 6, dueDate: "2026-06-19", weekStart: WEEKS[1], labels: ["research"] }),
-  t({ title: "Share-link audit events", projectId: "p-helio", status: "BACKLOG", priority: "LOW", estimatedHours: 5, dueDate: "2026-07-03", weekStart: WEEKS[3] }),
+  // ── Fitness Mobile App (FIT) — healthy ────────────────────────────────────
+  // t-10
+  t({ title: "Build the workout home screen", projectId: "p-helio", assigneeId: "u-diego", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 10, loggedHours: 3, dueDate: days(6), weekStart: WEEKS[0], labels: ["frontend"] }),
+  // t-11
+  t({ title: "Build the workout tracking API", projectId: "p-helio", assigneeId: "u-mei", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 12, loggedHours: 6, dueDate: days(5), weekStart: WEEKS[0], labels: ["backend"] }),
+  // t-12
+  t({ title: "Sync workouts across devices", projectId: "p-helio", assigneeId: "u-mei", status: "TO_DO", priority: "MEDIUM", estimatedHours: 10, dueDate: days(12), weekStart: WEEKS[1], labels: ["backend"], dependsOn: ["t-11"] }),
+  // t-13
+  t({ title: "Design the progress charts", projectId: "p-helio", assigneeId: "u-kofi", status: "REVIEW", priority: "MEDIUM", estimatedHours: 6, loggedHours: 6, dueDate: days(1), weekStart: WEEKS[0], labels: ["design"] }),
+  // t-14
+  t({ title: "Test the workout data is accurate", projectId: "p-helio", assigneeId: "u-jonas", status: "TO_DO", priority: "MEDIUM", estimatedHours: 7, dueDate: days(13), weekStart: WEEKS[1], labels: ["testing"] }),
 
-  // Pulse
-  t({ title: "Hybrid search: 70/30 vector-BM25 blend tuning", projectId: "p-pulse", assigneeId: "u-zara", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 12, loggedHours: 8, dueDate: "2026-06-16", weekStart: WEEKS[0], labels: ["search"] }),
-  t({ title: "Causal-signal trigger functions", projectId: "p-pulse", assigneeId: "u-tomas", status: "REVIEW", priority: "HIGH", estimatedHours: 10, loggedHours: 10, dueDate: "2026-06-11", weekStart: WEEKS[0], labels: ["causality"] }),
-  t({ title: "Embedding dedup via content hash", projectId: "p-pulse", assigneeId: "u-zara", status: "COMPLETED", priority: "MEDIUM", estimatedHours: 6, loggedHours: 5, dueDate: "2026-06-05", weekStart: WEEKS[0] }),
-  t({ title: "Metrics layer: utilization marts", projectId: "p-pulse", assigneeId: "u-ray", status: "IN_PROGRESS", priority: "MEDIUM", estimatedHours: 10, loggedHours: 3, dueDate: "2026-06-18", weekStart: WEEKS[1], labels: ["dbt"] }),
-  t({ title: "Morning-brief digest renderer", projectId: "p-pulse", assigneeId: "u-ray", status: "TO_DO", priority: "LOW", estimatedHours: 8, dueDate: "2026-06-26", weekStart: WEEKS[2] }),
+  // ── Sales Analytics Dashboard (DASH) — understaffed, needs people ──────────
+  // t-15 — unassigned, needs a frontend engineer
+  t({ title: "Build the dashboard layout", projectId: "p-pulse", status: "TO_DO", priority: "HIGH", estimatedHours: 12, dueDate: days(9), weekStart: WEEKS[1], labels: ["frontend"] }),
+  // t-16 — unassigned, needs a data engineer (→ Ray)
+  t({ title: "Build the sales data pipeline", projectId: "p-pulse", status: "TO_DO", priority: "HIGH", estimatedHours: 14, dueDate: days(10), weekStart: WEEKS[1], labels: ["data"] }),
+  // t-17 — unassigned, needs a designer
+  t({ title: "Design the dashboard charts", projectId: "p-pulse", status: "BACKLOG", priority: "MEDIUM", estimatedHours: 8, dueDate: days(14), weekStart: WEEKS[2], labels: ["design"] }),
+  // t-18 — Ray has made a start; he has room for more
+  t({ title: "Connect the dashboard to the database", projectId: "p-pulse", assigneeId: "u-ray", status: "IN_PROGRESS", priority: "MEDIUM", estimatedHours: 8, loggedHours: 2, dueDate: days(11), weekStart: WEEKS[0], labels: ["data"] }),
+  // t-19 — unassigned backlog
+  t({ title: "Set up the daily sales report", projectId: "p-pulse", status: "BACKLOG", priority: "LOW", estimatedHours: 6, dueDate: days(20), weekStart: WEEKS[2], labels: ["data"] }),
 
-  // Nimbus
-  t({ title: "RLS coverage CI gate (rls:check)", projectId: "p-nimbus", assigneeId: "u-fatima", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 8, loggedHours: 4, dueDate: "2026-06-15", weekStart: WEEKS[0], labels: ["security"] }),
-  t({ title: "Vault secret rotation schedule", projectId: "p-nimbus", assigneeId: "u-fatima", status: "TO_DO", priority: "HIGH", estimatedHours: 6, dueDate: "2026-06-22", weekStart: WEEKS[2], labels: ["security"] }),
-  t({ title: "Single-session enforcement e2e", projectId: "p-nimbus", assigneeId: "u-jonas", status: "TO_DO", priority: "MEDIUM", estimatedHours: 7, dueDate: "2026-06-25", weekStart: WEEKS[2], dependsOn: ["t-24"] }),
-  t({ title: "Audit immutability — REVOKE verification", projectId: "p-nimbus", assigneeId: "u-elias", status: "COMPLETED", priority: "MEDIUM", estimatedHours: 4, loggedHours: 4, dueDate: "2026-06-04", weekStart: WEEKS[0] }),
-  t({ title: "Pen-test scope doc with vendor", projectId: "p-nimbus", assigneeId: "u-elias", status: "BLOCKED", priority: "HIGH", estimatedHours: 5, loggedHours: 1, dueDate: "2026-06-08", weekStart: WEEKS[0], labels: ["vendor"] }),
+  // ── Cloud & Deployment Setup (CLOUD) — delayed ────────────────────────────
+  // t-20
+  t({ title: "Set up the production servers", projectId: "p-nimbus", assigneeId: "u-fatima", status: "IN_PROGRESS", priority: "HIGH", estimatedHours: 10, loggedHours: 5, dueDate: days(3), weekStart: WEEKS[0], labels: ["devops"] }),
+  // t-21
+  t({ title: "Set up automatic deployments (CI/CD)", projectId: "p-nimbus", assigneeId: "u-fatima", status: "TO_DO", priority: "HIGH", estimatedHours: 8, dueDate: days(8), weekStart: WEEKS[1], labels: ["devops"] }),
+  // t-22
+  t({ title: "Add server monitoring and alerts", projectId: "p-nimbus", assigneeId: "u-fatima", status: "TO_DO", priority: "MEDIUM", estimatedHours: 7, dueDate: days(12), weekStart: WEEKS[1], labels: ["devops"] }),
+  // t-23
+  t({ title: "Set up automatic database backups", projectId: "p-nimbus", assigneeId: "u-elias", status: "COMPLETED", priority: "MEDIUM", estimatedHours: 5, loggedHours: 5, dueDate: days(-4), weekStart: WEEKS[0] }),
+  // t-24 — blocked on the vendor (drives the risk story)
+  t({ title: "Security review of the cloud setup", projectId: "p-nimbus", assigneeId: "u-elias", status: "BLOCKED", priority: "HIGH", estimatedHours: 6, loggedHours: 1, dueDate: days(-2), weekStart: WEEKS[0], labels: ["security", "vendor"] }),
 
-  // Orbit
-  t({ title: "Dense table kit — virtual rows + row actions", projectId: "p-orbit", assigneeId: "u-diego", status: "REVIEW", priority: "HIGH", estimatedHours: 9, loggedHours: 9, dueDate: "2026-06-12", weekStart: WEEKS[0], labels: ["components"] }),
-  t({ title: "Motion language spec (drag, drawers, pulses)", projectId: "p-orbit", assigneeId: "u-kofi", status: "IN_PROGRESS", priority: "MEDIUM", estimatedHours: 8, loggedHours: 5, dueDate: "2026-06-16", weekStart: WEEKS[0], labels: ["motion"] }),
-  t({ title: "Chart kit: explanatory tooltips", projectId: "p-orbit", assigneeId: "u-kofi", status: "TO_DO", priority: "MEDIUM", estimatedHours: 8, dueDate: "2026-06-24", weekStart: WEEKS[2] }),
-  t({ title: "Token audit vs WCAG AA contrast", projectId: "p-orbit", assigneeId: "u-lena", status: "IN_PROGRESS", priority: "MEDIUM", estimatedHours: 6, loggedHours: 2, dueDate: "2026-06-18", weekStart: WEEKS[1] }),
+  // ── App Design System (DESIGN) — healthy ──────────────────────────────────
+  // t-25
+  t({ title: "Build the button and input components", projectId: "p-orbit", assigneeId: "u-kofi", status: "REVIEW", priority: "HIGH", estimatedHours: 8, loggedHours: 8, dueDate: days(1), weekStart: WEEKS[0], labels: ["design"] }),
+  // t-26
+  t({ title: "Build the data table component", projectId: "p-orbit", assigneeId: "u-kofi", status: "TO_DO", priority: "MEDIUM", estimatedHours: 8, dueDate: days(10), weekStart: WEEKS[1], labels: ["design"] }),
+  // t-27
+  t({ title: "Write the component usage guide", projectId: "p-orbit", assigneeId: "u-ines", status: "IN_PROGRESS", priority: "LOW", estimatedHours: 6, loggedHours: 2, dueDate: days(14), weekStart: WEEKS[1], labels: ["docs"] }),
 
-  // Quartz
-  t({ title: "Role-template provisioning matrix", projectId: "p-quartz", assigneeId: "u-marcus", status: "TO_DO", priority: "MEDIUM", estimatedHours: 6, dueDate: "2026-06-26", weekStart: WEEKS[2] }),
-  t({ title: "Guided setup flow — 4-step wizard", projectId: "p-quartz", assigneeId: "u-yuki", status: "BACKLOG", priority: "MEDIUM", estimatedHours: 10, dueDate: "2026-07-08", weekStart: WEEKS[4] }),
+  // ── Online Store (SHOP) — planning, unstaffed ─────────────────────────────
+  // t-28
+  t({ title: "Build the product pages", projectId: "p-quartz", status: "BACKLOG", priority: "MEDIUM", estimatedHours: 10, dueDate: days(24), weekStart: WEEKS[3], labels: ["frontend"] }),
+  // t-29
+  t({ title: "Build the shopping cart", projectId: "p-quartz", status: "BACKLOG", priority: "MEDIUM", estimatedHours: 10, dueDate: days(28), weekStart: WEEKS[4], labels: ["frontend"] }),
+
+  // t-30 — unstaffed backend work on the Dashboard (appended so existing task ids
+  // stay stable). A backend engineer with room (e.g. Ahmed) can pick this up.
+  t({ title: "Build the dashboard API", projectId: "p-pulse", status: "TO_DO", priority: "MEDIUM", estimatedHours: 8, dueDate: days(12), weekStart: WEEKS[1], labels: ["backend"] }),
+
+  // t-31 — a deliverable waiting on the customer's sign-off (drives the client
+  // portal's Approvals section). Acme can approve it, which completes it live.
+  t({ title: "Review & approve the chat screens", projectId: "p-atlas", assigneeId: "u-diego", status: "CLIENT_REVIEW", priority: "MEDIUM", estimatedHours: 4, loggedHours: 4, dueDate: days(2), weekStart: WEEKS[0], labels: ["design"] }),
+
+  // t-32..t-34 — a fuller plate for Ahmed (the employee demo login) so the Home
+  // and Tasks views are populated across Today / Pending / Critical.
+  t({ title: "Fix the message delivery bug", projectId: "p-atlas", assigneeId: "u-ahmed", status: "IN_PROGRESS", priority: "URGENT", estimatedHours: 6, loggedHours: 2, dueDate: days(-1), weekStart: WEEKS[0], labels: ["backend"] }),
+  t({ title: "Add login to the chatbot", projectId: "p-atlas", assigneeId: "u-ahmed", status: "TO_DO", priority: "HIGH", estimatedHours: 8, dueDate: days(3), weekStart: WEEKS[0], labels: ["backend"] }),
+  t({ title: "Write the chatbot API docs", projectId: "p-atlas", assigneeId: "u-ahmed", status: "TO_DO", priority: "MEDIUM", estimatedHours: 5, dueDate: days(6), weekStart: WEEKS[1], labels: ["backend", "docs"] }),
 ];
 
 // ---- Capacity grid -----------------------------------------------------------
-// Hand-tuned to make the wedge story visible: Sarah burns red, Ahmed has room.
+// Hand-tuned so the story is visible at a glance:
+//   • Sarah & Zara are over 100% (overloaded, red) — the Chatbot is on fire.
+//   • Ahmed has clear headroom (~65%) — the right person to take Sarah's task.
+//   • Ray (~45%) & Inés (~50%) are underloaded — free for the Dashboard.
 const cap = (employeeId: string, hours: number[], logged?: number[]): CapacityCell[] =>
   hours.map((h, i) => ({
     employeeId,
@@ -309,141 +375,140 @@ const cap = (employeeId: string, hours: number[], logged?: number[]): CapacityCe
   }));
 
 export const capacity: CapacityCell[] = [
-  ...cap("u-sarah", [45, 42, 38, 30, 26, 24]),
-  ...cap("u-ahmed", [26, 24, 28, 30, 22, 18]),
-  ...cap("u-mei", [34, 33, 36, 28, 24, 22]),
-  ...cap("u-diego", [33, 30, 34, 26, 22, 20]),
-  ...cap("u-jonas", [30, 38, 41, 32, 24, 20]),
-  ...cap("u-fatima", [31, 28, 30, 24, 8, 6]),
-  ...cap("u-kofi", [27, 25, 29, 22, 18, 14]),
-  ...cap("u-ines", [26, 27, 22, 18, 14, 10]),
-  ...cap("u-zara", [33, 31, 28, 26, 22, 18]),
-  ...cap("u-ray", [21, 26, 28, 24, 18, 12]),
-  ...cap("u-yuki", [24, 22, 26, 20, 16, 12]),
-  ...cap("u-marcus", [28, 26, 24, 22, 18, 16]),
-  ...cap("u-asha", [30, 28, 26, 24, 20, 18]),
-  ...cap("u-priya", [25, 24, 26, 22, 18, 16]),
-  ...cap("u-lena", [27, 26, 24, 20, 18, 14]),
-  ...cap("u-tomas", [29, 28, 26, 24, 20, 16]),
-  ...cap("u-elias", [18, 20, 22, 18, 14, 10]),
-  ...cap("u-noor", [16, 14, 12, 10, 8, 8]),
+  ...cap("u-sarah", [46, 44, 40, 32, 28, 24]),   // 115% — overloaded
+  ...cap("u-zara", [44, 42, 38, 30, 26, 22]),    // 110% — overloaded
+  ...cap("u-diego", [38, 36, 34, 28, 24, 20]),   // 95%  — near limit
+  ...cap("u-jonas", [34, 32, 30, 26, 22, 18]),   // 85%
+  ...cap("u-fatima", [33, 34, 30, 24, 18, 14]),  // 82%
+  ...cap("u-mei", [30, 30, 32, 26, 22, 18]),     // 75%
+  ...cap("u-kofi", [28, 27, 26, 22, 18, 14]),    // 70%
+  ...cap("u-ahmed", [26, 28, 30, 28, 22, 18]),   // 65% — headroom (relief target)
+  ...cap("u-yuki", [20, 22, 24, 20, 16, 12]),    // 50%
+  ...cap("u-ines", [16, 18, 20, 18, 14, 10]),    // 50% (cap 32) — underloaded
+  ...cap("u-ray", [18, 20, 24, 22, 18, 14]),     // 45% — underloaded (→ Dashboard)
+  ...cap("u-asha", [26, 24, 22, 20, 18, 16]),
+  ...cap("u-priya", [24, 22, 20, 18, 16, 14]),
+  ...cap("u-lena", [24, 22, 20, 18, 16, 14]),
+  ...cap("u-tomas", [26, 24, 22, 20, 18, 16]),
+  ...cap("u-marcus", [22, 20, 18, 16, 14, 12]),
+  ...cap("u-elias", [20, 22, 24, 18, 14, 10]),
+  ...cap("u-noor", [14, 12, 10, 10, 8, 8]),
 ];
 
 // ---- Risks -------------------------------------------------------------------
 export const risks: Risk[] = [
   {
-    id: "r-1", title: "Payments expertise concentrated in one person",
+    id: "r-1", title: "Only one person knows how the AI model works",
     category: "people", probability: "high", impact: "critical",
-    ownerId: "u-priya", projectId: "p-atlas",
-    mitigationPlan: "Cross-train Ahmed on ledger internals; document cutover architecture before July.",
+    ownerId: "u-tomas", projectId: "p-atlas",
+    mitigationPlan: "Have Zara write down how the model is built and trained, and pair another engineer with her before launch.",
     mitigationStatus: "in_progress", status: "MITIGATING", createdAt: "2026-05-21",
-    signals: ["Sarah holds 93% of payments expertise depth", "Bus factor 1 on Atlas critical path", "Sarah flight risk 0.64"],
+    signals: ["Zara is the only person who can train the model", "She is overloaded at 110% this week", "If she's out, the Chatbot stalls"],
   },
   {
-    id: "r-2", title: "Settlement vendor delivery slippage",
+    id: "r-2", title: "Cloud security vendor is running late",
     category: "vendor", probability: "high", impact: "high",
-    ownerId: "u-marcus", projectId: "p-atlas",
-    mitigationPlan: "Escalate to vendor account director; prepare format-v2 fallback parser.",
+    ownerId: "u-marcus", projectId: "p-nimbus",
+    mitigationPlan: "Escalate to the vendor's manager and line up a backup vendor in case they slip again.",
     mitigationStatus: "in_progress", status: "ESCALATED", createdAt: "2026-06-02",
-    signals: ["Vendor 8 days late on settlement file spec", "2 Atlas tasks blocked downstream"],
+    signals: ["Security review has been blocked for 2 days", "The vendor missed the agreed start date"],
   },
   {
-    id: "r-3", title: "QA capacity bottleneck across releases",
-    category: "operational", probability: "medium", impact: "high",
-    ownerId: "u-asha",
-    mitigationPlan: "Stagger Atlas and Nimbus test windows; borrow verification hours from Data.",
-    mitigationStatus: "not_started", status: "OPEN", createdAt: "2026-06-05",
-    signals: ["Jonas projected at 102% in week of Jun 22", "Two release-gating test tasks share one owner"],
+    id: "r-3", title: "The Sales Dashboard has no team yet",
+    category: "operational", probability: "high", impact: "high",
+    ownerId: "u-asha", projectId: "p-pulse",
+    mitigationPlan: "Assign the 3 unassigned tasks to people with free time: Ray for the data pipeline, plus a frontend and a designer.",
+    mitigationStatus: "not_started", status: "OPEN", createdAt: "2026-06-12",
+    signals: ["3 tasks have no owner", "Only Ray is working on it part-time", "Deadline is Sep 11"],
   },
   {
-    id: "r-4", title: "SOC 2 evidence window at risk",
-    category: "compliance", probability: "medium", impact: "high",
-    ownerId: "u-fatima", projectId: "p-nimbus",
-    mitigationPlan: "Re-baseline pen-test start; pre-collect control evidence in parallel.",
+    id: "r-4", title: "Sarah is overloaded and hasn't taken a break",
+    category: "people", probability: "high", impact: "high",
+    ownerId: "u-priya", projectId: "p-atlas",
+    mitigationPlan: "Move some of Sarah's work to Ahmed and make sure she takes time off after the launch.",
     mitigationStatus: "in_progress", status: "MITIGATING", createdAt: "2026-05-28",
-    signals: ["Pen-test vendor start +2 weeks", "3 compliance tasks overdue"],
+    signals: ["Sarah is at 115% this week", "No time off in 112 days", "She owns the most critical Chatbot work"],
   },
   {
-    id: "r-5", title: "LLM cost drift above daily org budget",
+    id: "r-5", title: "AI running costs are creeping above budget",
     category: "financial", probability: "low", impact: "medium",
-    ownerId: "u-tomas", projectId: "p-pulse",
-    mitigationPlan: "Enforce context compression; cache search embeddings 60s; alert at 80% soft limit.",
+    ownerId: "u-tomas", projectId: "p-atlas",
+    mitigationPlan: "Cache common answers and set a daily spending alert at 80% of the limit.",
     mitigationStatus: "complete", status: "MONITORING", createdAt: "2026-04-30",
-    signals: ["Daily spend peaked at $11.40 vs $15 hard limit", "Compression keeps 92% of calls < 1k tokens"],
+    signals: ["Daily AI spend peaked at $11.40 of a $15 limit", "Caching keeps most answers cheap"],
   },
   {
-    id: "r-6", title: "Client-portal token leakage surface",
+    id: "r-6", title: "The chatbot could leak customer information",
     category: "security", probability: "low", impact: "critical",
-    ownerId: "u-elias", projectId: "p-helio",
-    mitigationPlan: "Short-lived scoped tokens, audit on share-link issue, IP pinning option for enterprise.",
+    ownerId: "u-elias", projectId: "p-atlas",
+    mitigationPlan: "Strip personal details before they reach the AI, and review what the chatbot is allowed to say.",
     mitigationStatus: "in_progress", status: "OPEN", createdAt: "2026-06-07",
-    signals: ["External share links bypass SSO context", "No anomaly alerting on portal reads yet"],
+    signals: ["Chat messages may contain personal data", "No review yet of what the AI can repeat back"],
   },
 ];
 
 // ---- Decisions ----------------------------------------------------------------
 export const decisions: Decision[] = [
   {
-    id: "dec-1", title: "Adopt double-entry ledger before cutover, not after",
-    context: "Legacy billing accrues penny drift under concurrent retries. Two paths: migrate then fix, or fix then migrate.",
-    chosenOption: "Fix-then-migrate: ship double-entry ledger first",
-    rationale: "Reconciliation debt compounds with each migrated account. A correct ledger makes cutover verifiable account-by-account.",
+    id: "dec-1", title: "Build the chatbot UI and the AI model at the same time",
+    context: "We could build the chat screen first and add the AI later, or build both at once to hit the August launch.",
+    chosenOption: "Build both at the same time",
+    rationale: "The launch date is tight. Building them in parallel is the only way to make August, as long as the two teams sync weekly.",
     optionsConsidered: [
-      { option: "Migrate first, repair later", pros: "Earlier headline date", cons: "Drift baked into migrated balances; audit risk" },
-      { option: "Fix-then-migrate", pros: "Verifiable cutover; clean audit trail", cons: "6-week delay to start" },
+      { option: "UI first, AI later", pros: "Simpler to manage", cons: "Misses the August launch" },
+      { option: "Both at once", pros: "Hits the deadline", cons: "Needs tight coordination" },
     ],
     confidence: "high", ownerId: "u-sarah", projectId: "p-atlas", status: "ACTIVE",
-    decidedAt: "2026-03-04", expectedOutcome: "Zero reconciliation variance on migrated accounts",
-    actualOutcome: "Variance 0.002% across first 3 batches — within tolerance", linkedRiskIds: ["r-1"],
+    decidedAt: "2026-03-04", expectedOutcome: "Chatbot ready to launch in August",
+    actualOutcome: "On track so far, but the team is stretched thin", linkedRiskIds: ["r-4"],
   },
   {
-    id: "dec-2", title: "Department-scoped Realtime channels over global broadcast",
-    context: "Live heatmap updates could broadcast globally or per-department.",
-    chosenOption: "Department-scoped channels",
-    rationale: "Global broadcasts create WAL storms at enterprise scale; scoping bounds fan-out and respects RLS visibility.",
+    id: "dec-2", title: "Use one shared design system across all our apps",
+    context: "Each app was getting its own buttons and forms, which was slow and looked inconsistent.",
+    chosenOption: "Build one shared component library",
+    rationale: "Reusing the same components makes every app faster to build and look consistent.",
     optionsConsidered: [
-      { option: "Global table broadcast", pros: "Simple", cons: "O(org) fan-out; leaks cross-dept signal" },
-      { option: "Dept-scoped channels", pros: "Bounded fan-out; RLS-aligned", cons: "Channel lifecycle management" },
+      { option: "Each app builds its own", pros: "No upfront work", cons: "Slow and inconsistent" },
+      { option: "One shared library", pros: "Faster, consistent", cons: "Some upfront work" },
     ],
-    confidence: "high", ownerId: "u-priya", projectId: "p-pulse", status: "ACTIVE",
-    decidedAt: "2026-04-15", expectedOutcome: "Heatmap update < 500ms end-to-end at 10k users", linkedRiskIds: [],
+    confidence: "high", ownerId: "u-lena", projectId: "p-orbit", status: "ACTIVE",
+    decidedAt: "2026-04-15", expectedOutcome: "New screens built 30% faster", linkedRiskIds: [],
   },
   {
-    id: "dec-3", title: "Agents write to proposals only — never operational tables",
-    context: "Phase-4 agents could mutate tasks directly or stage suggestions for human review.",
-    chosenOption: "Proposal-only writes with human approval",
-    rationale: "Autonomous mutation breaks audit completeness and manager trust. The negotiation coordinator dedupes conflicting agent intents before humans see them.",
+    id: "dec-3", title: "AI helpers can only suggest changes — people approve them",
+    context: "The AI helpers could change tasks and assignments on their own, or just suggest changes for a manager to approve.",
+    chosenOption: "Suggestions only, with human approval",
+    rationale: "Managers need to trust the system. The AI suggests; a person always makes the final call.",
     optionsConsidered: [
-      { option: "Direct mutation with undo", pros: "Faster effect", cons: "Trust collapse on first bad call; audit gaps" },
-      { option: "Proposal inbox", pros: "Human override in 2 clicks; rejection memory", cons: "Review latency" },
+      { option: "AI changes things directly", pros: "Faster", cons: "Managers lose trust on the first mistake" },
+      { option: "AI suggests, human approves", pros: "Safe and trusted", cons: "Slightly slower" },
     ],
     confidence: "high", ownerId: "u-noor", status: "ACTIVE",
-    decidedAt: "2026-05-09", expectedOutcome: "> 60% proposal acceptance with zero unaudited mutations", linkedRiskIds: ["r-3"],
+    decidedAt: "2026-05-09", expectedOutcome: "Managers accept over 60% of suggestions", linkedRiskIds: ["r-3"],
   },
   {
-    id: "dec-4", title: "Defer offline CRDT sync to Phase 4, prep schema now",
-    context: "Offline-first demands per-field CRDTs; retrofitting event sourcing is near-impossible.",
-    chosenOption: "Add version_vector/tombstone columns now; implement merge in Phase 4",
-    rationale: "Zero runtime cost today, preserves the migration path to event-sourced entities.",
+    id: "dec-4", title: "Start the Sales Dashboard now, even with a small team",
+    context: "The sales team needs this dashboard, but most engineers are on the Chatbot.",
+    chosenOption: "Start now with Ray, staff up soon",
+    rationale: "Getting the data pipeline started early de-risks the deadline; we add a frontend and designer as people free up.",
     optionsConsidered: [
-      { option: "Full CRDT now", pros: "Offline early", cons: "Months of complexity before wedge value" },
-      { option: "Schema prep only", pros: "Optionality preserved", cons: "Discipline needed to keep columns populated" },
+      { option: "Wait until the Chatbot ships", pros: "Full team available", cons: "Misses the Sep deadline" },
+      { option: "Start now, small", pros: "Keeps the deadline alive", cons: "Understaffed at first" },
     ],
-    confidence: "medium", ownerId: "u-priya", status: "APPROVED",
-    decidedAt: "2026-05-27", expectedOutcome: "Phase-4 migration without data loss", linkedRiskIds: [],
+    confidence: "medium", ownerId: "u-asha", projectId: "p-pulse", status: "APPROVED",
+    decidedAt: "2026-06-08", expectedOutcome: "Dashboard ready by September", linkedRiskIds: ["r-3"],
   },
   {
-    id: "dec-5", title: "Read-only heatmap for MVP; drag-and-drop in Phase 1",
-    context: "Drag-drop reallocation is the hardest interaction; MVP timeline is 10 weeks.",
-    chosenOption: "Materialized-view read-only heatmap first",
-    rationale: "The heatmap sells on sight. Optimistic drag with atomic RPCs needs conflict handling that deserves its own phase.",
+    id: "dec-5", title: "Ship the Fitness App without offline mode first",
+    context: "Offline mode is hard to build. We could delay launch for it, or ship without it and add it later.",
+    chosenOption: "Ship online-only first",
+    rationale: "Most users have a connection at the gym. We can add offline mode after launch based on real feedback.",
     optionsConsidered: [
-      { option: "Ship drag-drop in MVP", pros: "Full wedge demo", cons: "Race conditions under deadline pressure" },
-      { option: "Read-only first", pros: "Reliable wow; correct foundation", cons: "Demo needs narration for the drag story" },
+      { option: "Build offline mode now", pros: "Complete on day one", cons: "Months of extra work" },
+      { option: "Ship online-only", pros: "Launch sooner", cons: "Some users want offline" },
     ],
-    confidence: "high", ownerId: "u-asha", status: "SUPERSEDED",
-    decidedAt: "2026-02-11", expectedOutcome: "MVP on time with credible capacity story",
-    actualOutcome: "Phase 1 drag-drop shipped May 2026; this record superseded by live reallocation.", linkedRiskIds: [],
+    confidence: "high", ownerId: "u-marcus", projectId: "p-helio", status: "ACTIVE",
+    decidedAt: "2026-05-27", expectedOutcome: "Fitness App launches on time", linkedRiskIds: [],
   },
 ];
 
@@ -451,240 +516,243 @@ export const decisions: Decision[] = [
 export const proposals: Proposal[] = [
   {
     id: "pr-1", agentType: "burnout_safety",
-    title: "Reduce Sarah Okafor's load below 100% this week",
-    summary: "Move 'PCI evidence pack refresh' (9h) from Sarah to Ahmed. Sarah drops 112% → 90%; Ahmed rises 65% → 87%.",
+    title: "Move a task off Sarah — she's overloaded",
+    summary: "Move 'Set up the chatbot database' (9h) from Sarah to Ahmed. Sarah drops 115% → 92%; Ahmed rises 65% → 87%. Both do backend work, so it's a clean fit.",
     reasoning: [
-      "Sarah logged > 50h for 3 consecutive weeks (rule · 98%)",
-      "Utilization ≥ 100% for 9 consecutive days (rule · 96%)",
-      "Ahmed has matching skills: Payments, Postgres, compliance exposure (skill-match 0.81 · 84%)",
-      "No PTO conflict for Ahmed in target window (validated against calendar)",
+      "Sarah is at 115% this week — over the safe limit (rule · 98%)",
+      "She hasn't taken time off in 112 days (rule · 96%)",
+      "Ahmed has the same skills (Backend, Databases) and room to spare (skill-match 0.95 · 90%)",
+      "Ahmed has no time off booked this week (calendar · checked)",
     ],
-    action: { kind: "reallocate", taskId: "t-10", fromEmployeeId: "u-sarah", toEmployeeId: "u-ahmed", deltaHours: 9, projectId: "p-atlas" },
-    confidence: 0.91, priority: 100, entityLabel: "Sarah Okafor · Atlas",
+    action: { kind: "reallocate", taskId: "t-3", fromEmployeeId: "u-sarah", toEmployeeId: "u-ahmed", deltaHours: 9, projectId: "p-atlas" },
+    confidence: 0.92, priority: 100, entityLabel: "Sarah Okafor · Chatbot",
     visibility: ["project_manager", "dept_head"], subjectId: "u-sarah",
     status: "pending", createdAt: "2026-06-10T05:40:00Z", expiresAt: "2026-06-12T05:40:00Z",
     conflict: {
       withAgent: "delivery_critical",
       resolution:
-        "Delivery agent requested +10h on Sarah for cutover runbook. Coordinator compromise: burnout cap wins — 9h moved off Sarah, runbook deadline held by pulling Mei in for 4h review support.",
+        "The delivery helper wanted to add more work to Sarah for the launch. The coordinator chose the safer option: move the database task to Ahmed, and have Mei spend 4h reviewing the launch work instead.",
     },
     validation: [
-      { check: "Target under 100% after move", pass: true },
-      { check: "No PTO block in window", pass: true },
-      { check: "Skill match ≥ 0.6", pass: true },
-      { check: "No dependency lock on task", pass: true },
+      { check: "Sarah under 100% after the move", pass: true },
+      { check: "No time-off clash for Ahmed", pass: true },
+      { check: "Ahmed has the right skills", pass: true },
+      { check: "Task isn't blocked by another", pass: true },
     ],
   },
   {
     id: "pr-2", agentType: "delivery_critical",
-    title: "Protect Atlas cutover: add reviewer to runbook",
-    summary: "Assign Mei Lin 4h review support on 'Ledger cutover runbook' to hold the Jun 12 date without raising Sarah's load.",
+    title: "Protect the Chatbot launch — add a reviewer",
+    summary: "Have Mei spend 4h reviewing 'Build the message API' so it stays on track for launch, without adding more to Sarah's plate.",
     reasoning: [
-      "Runbook is on the critical path for Jul 24 cutover (rule · 97%)",
-      "Velocity 38% below 3-sprint average — slack exhausted (statistical · 88%)",
-      "Mei has ledger expertise depth 0.84 and 15% headroom this week (rule · 93%)",
+      "The message API is on the critical path for the August launch (rule · 97%)",
+      "Work is going 38% slower than usual — no slack left (stats · 88%)",
+      "Mei knows backend well and has room this week (rule · 93%)",
     ],
-    action: { kind: "reallocate", taskId: "t-1", toEmployeeId: "u-mei", deltaHours: 4, projectId: "p-atlas" },
-    confidence: 0.87, priority: 70, entityLabel: "Atlas critical path",
+    action: { kind: "reallocate", taskId: "t-2", toEmployeeId: "u-mei", deltaHours: 4, projectId: "p-atlas" },
+    confidence: 0.87, priority: 70, entityLabel: "Chatbot critical path",
     visibility: ["project_manager", "dept_head"], subjectId: "u-mei",
     status: "pending", createdAt: "2026-06-10T05:41:00Z", expiresAt: "2026-06-12T05:41:00Z",
     validation: [
       { check: "Mei under 100% after +4h", pass: true },
-      { check: "No review-stage WIP limit breach", pass: true },
+      { check: "Review won't overload the queue", pass: true },
     ],
   },
   {
     id: "pr-3", agentType: "risk_advisory",
-    title: "Escalate vendor settlement slippage to account director",
-    summary: "Vendor is 8 days late on settlement spec; two Atlas tasks blocked. Recommend formal escalation plus fallback parser spike (6h, Mei).",
+    title: "Escalate the late cloud security vendor",
+    summary: "The security review has been blocked for 2 days because the vendor is late. Recommend escalating to the vendor's manager and starting a backup plan.",
     reasoning: [
-      "Blocked-task age exceeds 5-day threshold (rule · 95%)",
-      "Similar 2025 vendor delay resolved only after director escalation (memory · 72%)",
+      "The task has been blocked longer than 2 days (rule · 95%)",
+      "A similar vendor delay last year only moved after we escalated (memory · 72%)",
     ],
-    action: { kind: "escalate", projectId: "p-atlas" },
-    confidence: 0.78, priority: 40, entityLabel: "Vendor: ClearSettle Ltd",
+    action: { kind: "escalate", projectId: "p-nimbus" },
+    confidence: 0.78, priority: 40, entityLabel: "Vendor: SecureCloud Ltd",
     visibility: ["project_manager", "dept_head", "executive"],
     status: "pending", createdAt: "2026-06-09T16:02:00Z", expiresAt: "2026-06-11T16:02:00Z",
-    validation: [{ check: "Escalation path exists (Marcus Bell)", pass: true }],
+    validation: [{ check: "There's someone to escalate to (Marcus Bell)", pass: true }],
   },
   {
     id: "pr-4", agentType: "allocation_optimize",
-    title: "Stagger QA windows to relieve Jonas in week of Jun 22",
-    summary: "Shift 'Single-session enforcement e2e' (7h) one week later. Jonas drops 102% → 85% with no milestone impact.",
+    title: "Even out Jonas's testing load",
+    summary: "Move 'Test the workout data is accurate' (7h) to next week. Jonas stays under 100% and the Fitness App has plenty of time before its deadline.",
     reasoning: [
-      "Jonas projected at 102% in week of Jun 22 (rule · 94%)",
-      "Nimbus milestone has 9 days of float (schedule · 90%)",
+      "Jonas would tip over 100% if both test tasks land in the same week (rule · 94%)",
+      "The Fitness App test has 13 days of slack (schedule · 90%)",
     ],
-    action: { kind: "shift_deadline", taskId: "t-26", deltaHours: 0, projectId: "p-nimbus" },
-    confidence: 0.83, priority: 50, entityLabel: "Jonas Weber · QA",
+    action: { kind: "shift_deadline", taskId: "t-14", deltaHours: 0, projectId: "p-helio" },
+    confidence: 0.83, priority: 50, entityLabel: "Jonas Weber · Testing",
     visibility: ["project_manager", "dept_head"], subjectId: "u-jonas",
     status: "pending", createdAt: "2026-06-09T11:20:00Z", expiresAt: "2026-06-11T11:20:00Z",
     validation: [
-      { check: "No downstream dependency violated", pass: true },
-      { check: "Milestone float ≥ shift", pass: true },
+      { check: "Nothing else depends on this task", pass: true },
+      { check: "Deadline still met after the shift", pass: true },
     ],
   },
   {
     id: "pr-5", agentType: "allocation_optimize",
-    title: "Route unassigned 'Ledger read-replica failover test'",
-    summary: "Best match: Fatima Zahra (skill 0.77, 24h headroom in target week). Second: Ahmed (0.71).",
+    title: "Staff the Sales Dashboard — assign the data pipeline to Ray",
+    summary: "The Dashboard needs a data engineer for 'Build the sales data pipeline'. Best match: Ray (data skills, only 45% loaded — the most free). He's already on this project.",
     reasoning: [
-      "Task unassigned 11 days with due date approaching (rule · 92%)",
-      "Fatima: infra + failover expertise, lowest load in window (skill-match · 89%)",
+      "The task has had no owner for several days and the deadline is close (rule · 92%)",
+      "Ray has data pipeline skills and the most free time (skill-match · 89%)",
+      "He's already working on the Dashboard, so there's no ramp-up (context · 85%)",
     ],
-    action: { kind: "reallocate", taskId: "t-12", toEmployeeId: "u-fatima", deltaHours: 8, projectId: "p-atlas" },
-    confidence: 0.74, priority: 50, entityLabel: "Atlas backlog",
-    visibility: ["project_manager", "dept_head"], subjectId: "u-fatima",
-    status: "approved", createdAt: "2026-06-08T09:15:00Z", expiresAt: "2026-06-10T09:15:00Z",
+    action: { kind: "reallocate", taskId: "t-16", toEmployeeId: "u-ray", deltaHours: 14, projectId: "p-pulse" },
+    confidence: 0.86, priority: 60, entityLabel: "Sales Dashboard · understaffed",
+    visibility: ["project_manager", "dept_head"], subjectId: "u-ray",
+    status: "pending", createdAt: "2026-06-10T09:15:00Z", expiresAt: "2026-06-13T09:15:00Z",
     validation: [
-      { check: "Fatima under 100% after +8h", pass: true },
-      { check: "PTO check (Jul 6–8 outside window)", pass: true },
+      { check: "Ray under 100% after the work", pass: true },
+      { check: "Ray has the right skills", pass: true },
     ],
   },
   {
     id: "pr-6", agentType: "burnout_safety",
-    title: "Nudge: Sarah has not used PTO in 112 days",
-    summary: "Suggest manager raises PTO in next 1:1. No reallocation attached.",
-    reasoning: ["days_since_pto ≥ 90 threshold breached (rule · 99%)"],
+    title: "Reminder: Sarah hasn't taken time off in 112 days",
+    summary: "Suggest her manager brings up time off in their next 1:1. No task change attached.",
+    reasoning: ["No time off in over 90 days — past the healthy limit (rule · 99%)"],
     action: { kind: "reduce_load" },
     confidence: 0.95, priority: 100, entityLabel: "Sarah Okafor",
     visibility: ["project_manager", "dept_head"], subjectId: "u-sarah",
     status: "rejected", createdAt: "2026-06-03T07:30:00Z", expiresAt: "2026-06-05T07:30:00Z",
-    validation: [{ check: "Manager-private delivery", pass: true }],
+    validation: [{ check: "Sent privately to the manager", pass: true }],
   },
 
   // ---- employee-facing requests (personal scope: subjectId is the viewer) ----
   {
     id: "pr-7", agentType: "allocation_optimize",
-    title: "Incoming transfer: 'PCI evidence pack refresh' (9h) — confirm you can absorb it",
-    summary: "Your manager is reviewing a move of this task from Sarah to you. Accepting confirms you have the headroom; flagging routes it back with your reason.",
+    title: "Incoming task: 'Set up the chatbot database' (9h) — can you take it?",
+    summary: "Your manager wants to move this task from Sarah to you. Accepting confirms you have room; flagging sends it back with your reason.",
     reasoning: [
-      "Your utilization rises 65% → 87% if accepted (rule · 96%)",
-      "Skill match on Payments + compliance exposure: 0.81 (skill-match · 84%)",
-      "No PTO conflict in the target window (calendar · validated)",
+      "Your load goes from 65% to 87% if you accept (rule · 96%)",
+      "It matches your skills: Backend and Databases (skill-match 0.95 · 90%)",
+      "No clash with your time off this week (calendar · checked)",
     ],
-    action: { kind: "reallocate", taskId: "t-10", toEmployeeId: "u-ahmed", deltaHours: 9, projectId: "p-atlas" },
-    confidence: 0.84, priority: 70, entityLabel: "Your week · Atlas",
+    action: { kind: "reallocate", taskId: "t-3", toEmployeeId: "u-ahmed", deltaHours: 9, projectId: "p-atlas" },
+    confidence: 0.9, priority: 70, entityLabel: "Your week · Chatbot",
     visibility: ["employee"], subjectId: "u-ahmed",
     status: "pending", createdAt: "2026-06-10T06:05:00Z", expiresAt: "2026-06-12T06:05:00Z",
     validation: [
-      { check: "You stay under 90% after the move", pass: true },
-      { check: "No overlap with your existing Atlas deadline", pass: true },
+      { check: "You stay under 90% after taking it", pass: true },
+      { check: "No clash with your other Chatbot deadline", pass: true },
     ],
   },
   {
     id: "pr-8", agentType: "burnout_safety",
-    title: "Protect a focus block before your Jun 16 deadline",
-    summary: "Your 'Idempotent retry layer' (12h) lands Jun 16. The agent suggests blocking Thursday morning — your calendar shows 6 meeting-free hours.",
+    title: "Block focus time before your deadline",
+    summary: "Your task 'Connect the chatbot to live chat' (10h) is due soon. The helper suggests blocking Thursday morning — your calendar is free then.",
     reasoning: [
-      "Deadline within 4 working days with 12h remaining (rule · 93%)",
-      "Historical: your throughput doubles in pre-blocked windows (memory · 76%)",
+      "Deadline is within a few working days with hours still left (rule · 93%)",
+      "You finish faster in blocked, meeting-free time (memory · 76%)",
     ],
-    action: { kind: "reduce_load", taskId: "t-14", projectId: "p-atlas" },
-    confidence: 0.79, priority: 50, entityLabel: "Your focus · Atlas",
+    action: { kind: "reduce_load", taskId: "t-5", projectId: "p-atlas" },
+    confidence: 0.79, priority: 50, entityLabel: "Your focus · Chatbot",
     visibility: ["employee"], subjectId: "u-ahmed",
     status: "pending", createdAt: "2026-06-10T07:10:00Z", expiresAt: "2026-06-13T07:10:00Z",
-    validation: [{ check: "Block fits inside working hours", pass: true }],
+    validation: [{ check: "The block fits in your working hours", pass: true }],
   },
 
   // ---- admin-only governance queue ------------------------------------------
   {
     id: "pr-9", agentType: "risk_advisory",
-    title: "Approve permission grant: audit-export for Priya Sharma",
-    summary: "Priya (VP Engineering) requested audit-log export for the SOC 2 evidence window. Grant expires automatically Aug 31.",
+    title: "Approve access: audit-log export for Priya",
+    summary: "Priya (Head of Engineering) asked for permission to export the audit log for the security review. The access turns off automatically on Aug 31.",
     reasoning: [
-      "Request matches an active compliance milestone (rule · 97%)",
-      "Least-privilege check: export-only, no UPDATE/DELETE surface (policy · 100%)",
+      "The request matches an active security task (rule · 97%)",
+      "It's export-only — she can't change or delete anything (policy · 100%)",
     ],
     action: { kind: "escalate" },
-    confidence: 0.92, priority: 80, entityLabel: "RBAC grant · governance",
+    confidence: 0.92, priority: 80, entityLabel: "Access request · governance",
     visibility: ["admin"],
     status: "pending", createdAt: "2026-06-10T04:30:00Z", expiresAt: "2026-06-14T04:30:00Z",
     validation: [
-      { check: "Grant is time-boxed (expires Aug 31)", pass: true },
-      { check: "No standing-privilege escalation", pass: true },
+      { check: "Access expires automatically (Aug 31)", pass: true },
+      { check: "No permanent permission increase", pass: true },
     ],
   },
   {
     id: "pr-10", agentType: "risk_advisory",
-    title: "Concurrent session anomaly: revoke stale session for Ray Torres",
-    summary: "Two live sessions detected for u-ray (Chrome/Windows + Safari/macOS, 40 min apart, different cities). Single-session law says the older one dies.",
+    title: "Suspicious login: sign out Ray's old session",
+    summary: "Ray is logged in from two places at once (Chrome/Windows and Safari/Mac, 40 min apart, different cities). The rule is one session at a time, so the older one should be signed out.",
     reasoning: [
-      "Geo-velocity between logins exceeds plausible travel (rule · 99%)",
-      "Single-session enforcement is a hard invariant (policy · 100%)",
+      "The two logins are too far apart to be the same person travelling (rule · 99%)",
+      "One-session-at-a-time is a hard security rule (policy · 100%)",
     ],
     action: { kind: "escalate" },
-    confidence: 0.97, priority: 100, entityLabel: "Session security · u-ray",
+    confidence: 0.97, priority: 100, entityLabel: "Login security · Ray",
     visibility: ["admin"],
     status: "pending", createdAt: "2026-06-10T08:55:00Z", expiresAt: "2026-06-10T20:55:00Z",
-    validation: [{ check: "Newer session keeps continuity", pass: true }],
+    validation: [{ check: "The newer session stays signed in", pass: true }],
   },
 ];
 
 // ---- Goals, commitments, audit, notifications ----------------------------------
 export const goals: Goal[] = [
   {
-    id: "g-revenue", title: "Protect $4.2M ARR through Atlas cutover", ownerId: "u-noor",
-    progress: 0.62, targetDate: "2026-07-31",
+    id: "g-revenue", title: "Launch the AI Support Chatbot by August", ownerId: "u-noor",
+    progress: 0.62, targetDate: "2026-08-31",
     keyResults: [
-      { title: "Zero-variance migration for top 20 accounts", progress: 0.55 },
-      { title: "Cutover with < 5 min write freeze", progress: 0.4 },
-      { title: "Acme Corp renewal signed", progress: 0.9 },
+      { title: "Chatbot answers real customer questions", progress: 0.55 },
+      { title: "Support team's workload drops by 30%", progress: 0.4 },
+      { title: "Acme Support signs off on launch", progress: 0.9 },
     ],
   },
   {
-    id: "g-expansion", title: "Land 3 enterprise logos via portal + onboarding", ownerId: "u-marcus",
+    id: "g-expansion", title: "Ship the Fitness App and start the Online Store", ownerId: "u-marcus",
     progress: 0.41, targetDate: "2026-10-30",
     keyResults: [
-      { title: "Client portal GA", progress: 0.48 },
-      { title: "Onboarding < 2 hours", progress: 0.1 },
-      { title: "Meridian Group pilot live", progress: 0.65 },
+      { title: "Fitness App live in the app stores", progress: 0.48 },
+      { title: "Online Store team staffed and kicked off", progress: 0.1 },
+      { title: "Design system used by both apps", progress: 0.65 },
     ],
   },
   {
-    id: "g-ai", title: "Explanatory intelligence on every score", ownerId: "u-tomas",
+    id: "g-ai", title: "Make the chatbot answer 80% of questions correctly", ownerId: "u-tomas",
     progress: 0.7, targetDate: "2026-09-15",
     keyResults: [
-      { title: "Causal signals behind 100% of health badges", progress: 0.85 },
-      { title: "Search p95 < 3s", progress: 0.75 },
-      { title: "Agent proposal acceptance > 60%", progress: 0.5 },
+      { title: "AI model trained on real support chats", progress: 0.85 },
+      { title: "Chatbot replies in under 3 seconds", progress: 0.75 },
+      { title: "Managers accept over 60% of AI suggestions", progress: 0.5 },
     ],
   },
   {
-    id: "g-trust", title: "SOC 2 Type II readiness", ownerId: "u-priya",
+    id: "g-trust", title: "Make the cloud setup secure and reliable", ownerId: "u-priya",
     progress: 0.58, targetDate: "2026-08-31",
     keyResults: [
-      { title: "RLS coverage 100% with CI gate", progress: 0.9 },
-      { title: "Pen-test complete, criticals closed", progress: 0.2 },
-      { title: "Vault rotation automated", progress: 0.65 },
+      { title: "Automatic deployments working", progress: 0.9 },
+      { title: "Security review passed", progress: 0.2 },
+      { title: "Monitoring and backups in place", progress: 0.65 },
     ],
   },
 ];
 
 export const commitments: Commitment[] = [
-  { id: "c-1", title: "Deliver settlement spec sign-off to Sarah", ownerId: "u-marcus", toId: "u-sarah", dueDate: "2026-06-09", status: "overdue", source: "Atlas vendor sync · Jun 2" },
-  { id: "c-2", title: "Cross-training plan for ledger internals", ownerId: "u-sarah", toId: "u-priya", dueDate: "2026-06-13", status: "in_progress", source: "Risk review · May 21" },
-  { id: "c-3", title: "Portal auth review decision", ownerId: "u-priya", toId: "u-asha", dueDate: "2026-06-12", status: "open", source: "Helio standup · Jun 8" },
-  { id: "c-4", title: "Pen-test re-baseline dates to Fatima", ownerId: "u-elias", toId: "u-fatima", dueDate: "2026-06-11", status: "in_progress", source: "Nimbus weekly · Jun 5" },
-  { id: "c-5", title: "Q3 staffing scenario for Data team", ownerId: "u-asha", toId: "u-noor", dueDate: "2026-06-17", status: "open", source: "WBR · Jun 6" },
+  { id: "c-1", title: "Send Sarah the chatbot launch requirements", ownerId: "u-marcus", toId: "u-sarah", dueDate: days(-2), status: "overdue", source: "Chatbot planning · Jun 2" },
+  { id: "c-2", title: "Write down how the message API works", ownerId: "u-sarah", toId: "u-priya", dueDate: days(2), status: "in_progress", source: "Risk review · May 21" },
+  { id: "c-3", title: "Staff the Sales Dashboard team", ownerId: "u-asha", toId: "u-tomas", dueDate: days(1), status: "open", source: "Dashboard kickoff · Jun 8" },
+  { id: "c-4", title: "Get a new timeline from the cloud security vendor", ownerId: "u-fatima", toId: "u-marcus", dueDate: days(0), status: "in_progress", source: "Cloud weekly · Jun 5" },
+  { id: "c-5", title: "Next month's staffing plan", ownerId: "u-asha", toId: "u-noor", dueDate: days(5), status: "open", source: "Weekly review · Jun 6" },
 ];
 
 export const auditEvents: AuditEvent[] = [
-  { id: "a-1", actorId: "u-asha", actorRole: "project_manager", actionType: "task_reallocated", entityType: "task", entityLabel: "Ledger read-replica failover test", detail: "Unassigned → Fatima Zahra (+8h, week of Jun 22). Source: approved proposal pr-5.", at: "2026-06-10T06:12:00Z" },
-  { id: "a-2", actorId: "u-asha", actorRole: "project_manager", actionType: "capacity_override", entityType: "employee", entityLabel: "Jonas Weber", detail: "Allocation pushed to 102% for week of Jun 22.", overrideReason: "Release-gating test cannot slip past code freeze.", at: "2026-06-09T14:03:00Z" },
-  { id: "a-3", actorId: "u-elias", actorRole: "admin", actionType: "session_revoked", entityType: "session", entityLabel: "u-ray · Chrome/Windows", detail: "Concurrent login detected; prior session invalidated (single-session law).", at: "2026-06-09T08:47:00Z" },
-  { id: "a-4", actorId: "u-priya", actorRole: "dept_head", actionType: "risk_escalated", entityType: "risk", entityLabel: "Settlement vendor delivery slippage", detail: "Status OPEN → ESCALATED. Executive notification dispatched.", at: "2026-06-08T17:25:00Z" },
-  { id: "a-5", actorId: "u-sarah", actorRole: "team_lead", actionType: "decision_recorded", entityType: "decision", entityLabel: "Adopt double-entry ledger before cutover", detail: "Actual outcome recorded: variance 0.002% across first 3 batches.", at: "2026-06-08T10:11:00Z" },
-  { id: "a-6", actorId: "u-marcus", actorRole: "dept_head", actionType: "project_status_changed", entityType: "project", entityLabel: "Quartz Onboarding Revamp", detail: "Created in PLANNING with staffing template 'Client Delivery'.", at: "2026-06-06T09:30:00Z" },
-  { id: "a-7", actorId: "u-elias", actorRole: "admin", actionType: "role_changed", entityType: "user", entityLabel: "Ray Donnelly", detail: "Granted metrics-layer write scope (dbt prod).", at: "2026-06-05T13:55:00Z" },
+  { id: "a-1", actorId: "u-asha", actorRole: "project_manager", actionType: "task_reallocated", entityType: "task", entityLabel: "Connect the dashboard to the database", detail: "Assigned to Ray Donnelly to get the Sales Dashboard started.", at: "2026-06-10T06:12:00Z" },
+  { id: "a-2", actorId: "u-asha", actorRole: "project_manager", actionType: "capacity_override", entityType: "employee", entityLabel: "Jonas Weber", detail: "Allowed Jonas to go to 102% for one week.", overrideReason: "A release test couldn't wait until after the code freeze.", at: "2026-06-09T14:03:00Z" },
+  { id: "a-3", actorId: "u-elias", actorRole: "admin", actionType: "session_revoked", entityType: "session", entityLabel: "Ray · Chrome/Windows", detail: "Signed out an older session after a login from a second location.", at: "2026-06-09T08:47:00Z" },
+  { id: "a-4", actorId: "u-priya", actorRole: "dept_head", actionType: "risk_escalated", entityType: "risk", entityLabel: "Cloud security vendor is running late", detail: "Raised the vendor delay to leadership.", at: "2026-06-08T17:25:00Z" },
+  { id: "a-5", actorId: "u-sarah", actorRole: "team_lead", actionType: "decision_recorded", entityType: "decision", entityLabel: "Build the chatbot UI and AI model at the same time", detail: "Noted that the team is on track but stretched thin.", at: "2026-06-08T10:11:00Z" },
+  { id: "a-6", actorId: "u-marcus", actorRole: "dept_head", actionType: "project_status_changed", entityType: "project", entityLabel: "Online Store", detail: "Created the project in planning.", at: "2026-06-06T09:30:00Z" },
+  { id: "a-7", actorId: "u-elias", actorRole: "admin", actionType: "role_changed", entityType: "user", entityLabel: "Ray Donnelly", detail: "Gave Ray write access to the sales data pipeline.", at: "2026-06-05T13:55:00Z" },
 ];
 
 export const notifications: NotificationItem[] = [
-  { id: "n-1", klass: "hard_stop", title: "Capacity guardrail tripped", body: "Drop would push Jonas Weber to 109% in week of Jun 22 — override reason required.", at: "2026-06-10T06:05:00Z", read: false, entityRef: "/capacity" },
-  { id: "n-2", klass: "manager_review", title: "2 agent proposals await review", body: "Burnout-safety and delivery agents reached a coordinated compromise on Sarah Okafor.", at: "2026-06-10T05:45:00Z", read: false, entityRef: "/proposals" },
-  { id: "n-3", klass: "critical_action", title: "Atlas Payments Migration is CRITICAL", body: "7 tasks overdue · QA at 112% · velocity −38% vs 3-sprint average.", at: "2026-06-10T05:00:00Z", read: false, entityRef: "/projects/p-atlas" },
-  { id: "n-4", klass: "intelligence", title: "Morning brief ready", body: "1 critical project · 2 proposals pending · 2 vendor renewals inside 30 days.", at: "2026-06-10T04:45:00Z", read: true },
-  { id: "n-5", klass: "informational", title: "Decision outcome recorded", body: "Double-entry ledger decision: variance 0.002% — within tolerance.", at: "2026-06-08T10:12:00Z", read: true, entityRef: "/decisions" },
+  { id: "n-1", klass: "hard_stop", title: "Capacity limit reached", body: "Moving this task would push Jonas to 109% next week — you'll need to give a reason to override.", at: "2026-06-10T06:05:00Z", read: false, entityRef: "/capacity" },
+  { id: "n-2", klass: "manager_review", title: "2 suggestions need your review", body: "The safety and delivery helpers agreed on a plan to take work off Sarah.", at: "2026-06-10T05:45:00Z", read: false, entityRef: "/proposals" },
+  { id: "n-3", klass: "critical_action", title: "AI Support Chatbot is in trouble", body: "3 tasks overdue · Sarah and Zara are both over 100% · work is going slower than planned.", at: "2026-06-10T05:00:00Z", read: false, entityRef: "/projects/p-atlas" },
+  { id: "n-4", klass: "intelligence", title: "Morning brief is ready", body: "1 project in trouble · 2 suggestions waiting · the Sales Dashboard still needs a team.", at: "2026-06-10T04:45:00Z", read: true },
+  { id: "n-5", klass: "informational", title: "People are free for new work", body: "Ray (45%) and Inés (50%) have spare time this week — good fit for the Sales Dashboard.", at: "2026-06-10T04:30:00Z", read: false, entityRef: "/capacity" },
+  { id: "n-6", klass: "critical_action", title: "A commitment is overdue", body: "Marcus owes Sarah the chatbot launch requirements — 2 days late.", at: "2026-06-10T05:30:00Z", read: false, entityRef: "/commitments" },
+  { id: "n-7", klass: "informational", title: "Decision saved", body: "Recorded: build the chatbot UI and AI model at the same time.", at: "2026-06-08T10:12:00Z", read: true, entityRef: "/decisions" },
 ];
 
 // ---- Lookup helpers -------------------------------------------------------------

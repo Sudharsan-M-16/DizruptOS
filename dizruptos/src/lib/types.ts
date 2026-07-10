@@ -251,6 +251,10 @@ export interface NotificationItem {
   at: string;
   read: boolean;
   entityRef?: string;
+  /** If set, this notification is addressed to a specific person (assign/reassign). */
+  recipientId?: string;
+  /** If set, clicking the notification opens this exact task's drawer (deep-link). */
+  taskId?: string;
 }
 
 export interface CausalSignal {

@@ -1,0 +1,17 @@
+-- MANUAL STEP REQUIRED (cannot be scripted):
+-- 1. Supabase Dashboard → Authentication → Hooks
+-- 2. "Customize Access Token (JWT)" → select public.custom_access_token_hook
+-- 3. Save
+--
+-- This hook mints role + org_id from public.users into every JWT.
+-- RLS policies (auth_org(), auth_role()) depend on this hook being active.
+-- Already implemented in migration 0012. This migration documents the gap.
+--
+-- SECOND MANUAL STEP (if using OAuth):
+-- 1. Supabase Dashboard → Authentication → Providers
+-- 2. Enable Google and/or Azure OAuth
+-- 3. Set redirect URL: https://<your-domain>/auth/callback
+--
+-- Until the hook is activated, auth_org() returns null and RLS
+-- will deny all cross-tenant access (safe default — no data leaks).
+SELECT 1; -- no-op DDL required for migration runner

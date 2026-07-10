@@ -54,7 +54,19 @@ export default function ProposalsPage() {
   const resolved = proposals.filter((p) => p.status !== "pending");
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="flex h-full flex-col">
+      {/* OS page header */}
+      <div className="flex items-center gap-3 border-b border-line bg-ink-elevated/50 px-5 py-3.5 shrink-0">
+        <span className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: "#8B5CF622", border: "1px solid #8B5CF644" }}>
+          <Bot size={15} style={{ color: "#8B5CF6" }} />
+        </span>
+        <div>
+          <div className="text-sm font-semibold">Agent Inbox</div>
+          <div className="text-[11px] text-fg-muted">{framing.title} &middot; {pending.length} pending</div>
+        </div>
+      </div>
+      <div aria-live="polite" aria-atomic="false" className="flex-1 overflow-y-auto p-5">
+      <div className="mx-auto max-w-4xl space-y-6">
       {/* Role-scoped framing */}
       <div className="panel flex flex-wrap items-center gap-3 p-4">
         <Bot size={14} className="text-brand" />
@@ -141,6 +153,8 @@ export default function ProposalsPage() {
           </div>
         </section>
       )}
+      </div>
+      </div>
     </div>
   );
 }

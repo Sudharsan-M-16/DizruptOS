@@ -3,17 +3,27 @@
 // hands it to the engine. Keeps layers clean: repos fetch, engine computes,
 // API serves; no computation in routes, no fetching in the engine.
 
-import { getRepositories } from "@/server/repositories";
+import { getRepositories, RepositoryError } from "@/server/repositories";
+import { createMemoryRepositories } from "@/server/repositories/memory";
 import { capability } from "@/server/engine";
 import type { CapabilityNode } from "@/server/engine/capability-intelligence";
 
 /** Live capability graph in the engine's input shape. */
 export async function loadCapabilityGraph(): Promise<CapabilityNode[]> {
-  const repos = getRepositories();
-  const [caps, edges] = await Promise.all([
-    repos.capabilities.list(),
-    repos.employeeCapabilities.list(),
-  ]);
+  let repos = getRepositories();
+  let caps, edges;
+  try {
+    [caps, edges] = await Promise.all([
+      repos.capabilities.list(),
+      repos.employeeCapabilities.list(),
+    ]);
+  } catch (err) {
+    if (!(err instanceof RepositoryError)) repos = createMemoryRepositories();
+    [caps, edges] = await Promise.all([
+      repos.capabilities.list(),
+      repos.employeeCapabilities.list(),
+    ]);
+  }
   return caps.map((c) => ({
     id: c.id,
     name: c.name,
