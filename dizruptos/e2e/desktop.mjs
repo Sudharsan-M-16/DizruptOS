@@ -20,7 +20,7 @@ try {
     const page = await ctx.newPage();
 
     // Set dz_session cookie to skip login
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
 
     await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded", timeout: 30000 });
     // Wait for boot sequence
@@ -76,7 +76,7 @@ try {
   // Test 4: Graph API is resilient
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/intelligence/graph`);
     check("graph api: returns 200", res.status() === 200);
@@ -89,7 +89,7 @@ try {
   // Test 5: Copilot API responds
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/copilot?q=who+is+overloaded`);
     check("copilot api: returns 200", res.status() === 200);
@@ -102,7 +102,7 @@ try {
   // Test 6: Invitations API (demo mode)
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.post(`${BASE}/api/v1/invitations`, {
       data: { email: "newmember@test.com", role: "employee" },
@@ -118,7 +118,7 @@ try {
   // Test 7: Organizations API (demo mode)
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/organizations`);
     check("organizations api: returns 200", res.status() === 200);
@@ -143,7 +143,7 @@ try {
   // Test 9: HRIS bulk import (demo mode)
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const csv = "name,email,title,role\nJane Doe,jane@co.com,Engineer,employee";
     const res = await page.request.post(`${BASE}/api/v1/import`, {
@@ -158,7 +158,7 @@ try {
   // Test 10: Delta intelligence feed
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "demo", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/intelligence/delta?since=24h`);
     check("delta api: returns 200", res.status() === 200);
@@ -208,7 +208,7 @@ try {
   // Test 13: Client role is denied access to internal employee list
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "u-client", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "c-acme", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/employees`);
     check("rbac(client): /api/v1/employees returns 403", res.status() === 403);
@@ -240,10 +240,10 @@ try {
     await ctx.close();
   }
 
-  // Test 16: Admin Console audit API — u-asha (dept_head) can read audit log
+  // Test 16: Admin Console audit API — u-priya (dept_head) can read audit log
   {
     const ctx = await browser.newContext();
-    await ctx.addCookies([{ name: "dz_session", value: "u-asha", domain: "localhost", path: "/" }]);
+    await ctx.addCookies([{ name: "dz_session", value: "u-priya", domain: "localhost", path: "/" }]);
     const page = await ctx.newPage();
     const res = await page.request.get(`${BASE}/api/v1/audit?limit=5`);
     check("admin: audit api accessible to dept_head", res.status() === 200);
