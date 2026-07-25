@@ -31,7 +31,7 @@
   "crons": [
     {
       "path": "/api/v1/intelligence/graph?refresh=true",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "regions": ["iad1"]
