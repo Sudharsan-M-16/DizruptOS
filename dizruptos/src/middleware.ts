@@ -227,8 +227,12 @@ export async function middleware(req: NextRequest) {
       return withCorsHeaders(withSecurityHeaders(NextResponse.json({ code: "UNAUTHENTICATED" }, { status: 401 })), req);
     }
     const url = req.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("from", pathname);
+    if (pathname === "/") {
+      url.pathname = "/welcome";
+    } else {
+      url.pathname = "/login";
+      url.searchParams.set("from", pathname);
+    }
     return withSecurityHeaders(NextResponse.redirect(url));
   };
 

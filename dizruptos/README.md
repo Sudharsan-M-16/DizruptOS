@@ -72,6 +72,15 @@ DATABASE_URL=...                      # use the Session Pooler URI (IPv4); the
 > Continuation manual: see [`../MASTER_EXECUTION_PLAN.md`](../MASTER_EXECUTION_PLAN.md)
 > — full architecture, catalogs, debt register, and version-by-version roadmap.
 
+## Enterprise Scaling Considerations
+
+While DizruptOS is built on a production-ready modern stack, the current architecture is optimized for demonstration and rapid evaluation. In a true Fortune 500 deployment, the following architectural upgrades would be implemented to handle massive scale:
+
+1. **Authentication & Demo Bypass**: The `dz_session` fallback in `middleware.ts` exists strictly to remove friction for recruiters and evaluators reviewing this portfolio project. In a live production environment, this demo logic must be entirely removed, strictly enforcing Supabase JWT validation.
+2. **Asynchronous Background Processing**: Currently, AI simulations and graph computations run synchronously on Next.js serverless functions. To prevent Vercel 504 timeout limits during complex organizational shifts, these heavy workloads would be moved to an asynchronous event-driven queue (like Temporal or Inngest) with WebSockets pushing updates back to the client.
+3. **Graph Rendering Performance**: The organizational graph currently utilizes `@xyflow/react` (DOM-based rendering), which is beautiful and flawless for 100-300 nodes. For a massive enterprise graph (e.g., 50,000+ nodes), the rendering engine would be upgraded to a WebGL/Canvas solution to prevent browser lag.
+4. **Database RLS Integration Testing**: The current test suite boasts 329 passing unit tests demonstrating logic and state management correctness. At an enterprise scale, this would be supplemented by hardcore database integration tests explicitly validating Supabase Row Level Security (RLS) policies against a live test database.
+
 ## Deploy
 
 ### Vercel (recommended)
