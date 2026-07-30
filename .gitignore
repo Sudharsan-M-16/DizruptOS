@@ -98,3 +98,5 @@ image.png
 temp\ ss/
 dev-server.log
 package-lock.json
+.vercel
+.env*
